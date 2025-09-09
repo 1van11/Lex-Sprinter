@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-<<<<<<< HEAD
     [Header("Forward Movement")]
     public float forwardSpeed = 8f;
 
@@ -28,11 +27,6 @@ public class PlayerMovement : MonoBehaviour
     public float tiltAngle = 20f;     
     public float tiltSpeed = 10f;     
     public float lookAngle = 25f; 
-=======
-    public float playerSpeed = 4f;
-    public float moveSpeed = 7f;
-    public float jumpForce = 5f;
->>>>>>> 47b18573878eb133ee1a8eac0f58f14853404804
 
     private Rigidbody rb;
     private CapsuleCollider col;
