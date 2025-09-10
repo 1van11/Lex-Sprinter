@@ -1,19 +1,20 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Forward Movement")]
-    public float forwardSpeed = 8f;
+    public float forwardSpeed = 10f;
 
     [Header("Lane System")]
     public float laneDistance = 3f;
     public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpForce = 20f;
-    public float jumpCooldown = 0.5f;
+    public float jumpForce = 5f;          // upward force
+    public float extraFallForce = 10f;    // extra downward force
+    public float jumpCooldown = 0.2f;
     private float lastJumpTime;
 
     [Header("Slide")]
@@ -62,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJump();
         HandleSlide();
         HandleTiltAndLook();
+        ApplyExtraGravity();
     }
 
     void HandleLaneInput()
@@ -129,11 +131,42 @@ public class PlayerMovement : MonoBehaviour
     {
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             && IsGrounded()
-            && !isSliding
-            && Time.time - lastJumpTime >= jumpCooldown) // Check cooldown
+            && Time.time - lastJumpTime >= jumpCooldown)
         {
+            // Cancel slide immediately when jumping
+            if (isSliding)
+            {
+                StopAllCoroutines(); // stop slide coroutine
+                col.height = originalColliderHeight;
+                col.center = originalColliderCenter;
+                transform.rotation = Quaternion.identity;
+                isSliding = false;
+            }
+
+            // ✅ Reset vertical velocity for a snappy jump
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            // ✅ Apply upward impulse (fast jump)
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            lastJumpTime = Time.time; // Update last jump time
+
+            lastJumpTime = Time.time;
+        }
+    }
+
+    void ApplyExtraGravity()
+    {
+        if (!IsGrounded())
+        {
+            if (rb.velocity.y < 0)
+            {
+                // ✅ Falling → pull down faster
+                rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
+            }
+            else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
+            {
+                // ✅ Short hop → cut jump if player releases Space early
+                rb.AddForce(Vector3.down * (extraFallForce * 0.5f), ForceMode.Acceleration);
+            }
         }
     }
 
@@ -143,12 +176,10 @@ public class PlayerMovement : MonoBehaviour
         {
             if (IsGrounded())
             {
-                // Normal ground slide
                 StartCoroutine(Slide());
             }
             else
             {
-                // Mid-air fast fall
                 StartCoroutine(AirSlide());
             }
         }
@@ -158,27 +189,23 @@ public class PlayerMovement : MonoBehaviour
     {
         isSliding = true;
 
-        // Shrink collider
         col.height = slideColliderHeight;
         col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
 
-        // Lean back
         Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
         float t = 0f;
-        while (t < 0.5f) // lean in
+        while (t < 0.5f)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
             t += Time.deltaTime;
             yield return null;
         }
 
-        // Stay in slide pose
         yield return new WaitForSeconds(slideDuration - 1f);
 
-        // Return to upright
         t = 0f;
         Quaternion startRot = transform.rotation;
-        while (t < 0.3f) // smooth return
+        while (t < 0.3f)
         {
             transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
             t += Time.deltaTime;
@@ -186,7 +213,6 @@ public class PlayerMovement : MonoBehaviour
         }
         transform.rotation = Quaternion.identity;
 
-        // Reset collider
         col.height = originalColliderHeight;
         col.center = originalColliderCenter;
 
@@ -197,10 +223,8 @@ public class PlayerMovement : MonoBehaviour
     {
         isSliding = true;
 
-        // Apply strong downward force (fast fall)
         rb.AddForce(Vector3.down * (jumpForce * 2f), ForceMode.Impulse);
 
-        // Optional: quick lean forward animation (fast fall look)
         Quaternion airRotation = Quaternion.Euler(30f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
         float t = 0f;
         while (t < 0.2f)
@@ -212,7 +236,6 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        // Return upright
         transform.rotation = Quaternion.identity;
         isSliding = false;
     }
