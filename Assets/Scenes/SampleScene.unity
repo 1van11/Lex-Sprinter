@@ -241,7 +241,7 @@ MonoBehaviour:
   jumpForce: 5
   jumpCooldown: 0.5
   slideDuration: 1
-  slideColliderHeight: 0.5
+  slideColliderHeight: 1
   tiltAngle: 20
   tiltSpeed: 10
   lookAngle: 25

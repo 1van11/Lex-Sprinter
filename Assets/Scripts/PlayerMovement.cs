@@ -8,38 +8,37 @@ public class PlayerMovement : MonoBehaviour
     public float forwardSpeed = 8f;
 
     [Header("Lane System")]
-    public float laneDistance = 3f; 
-    public float laneChangeSpeed = 10f; 
+    public float laneDistance = 3f;
+    public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
     public float jumpForce = 20f;
-    public float jumpCooldown = 0.5f; 
+    public float jumpCooldown = 0.5f;
     private float lastJumpTime;
 
     [Header("Slide")]
     public float slideDuration = 0.5f;
-    public float slideColliderHeight = 0.5f; 
+    public float slideColliderHeight = 0.5f;
     private bool isSliding = false;
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
 
     [Header("Rotation")]
-    public float tiltAngle = 20f;     
-    public float tiltSpeed = 10f;     
-    public float lookAngle = 25f; 
+    public float tiltAngle = 20f;
+    public float tiltSpeed = 10f;
+    public float lookAngle = 25f;
 
     private Rigidbody rb;
     private CapsuleCollider col;
-    private int currentLane = 1; 
+    private int currentLane = 1;
     private Vector3 targetPosition;
     private bool isChangingLanes = false;
 
     private float inputCooldown = 0.2f;
     private float lastInputTime;
 
-    private float targetTilt = 0f; 
-    private float targetYaw = 0f; 
-
+    private float targetTilt = 0f;
+    private float targetYaw = 0f;
 
     void Start()
     {
@@ -75,16 +74,16 @@ public class PlayerMovement : MonoBehaviour
             currentLane--;
             SetTargetPosition();
             lastInputTime = Time.time;
-            targetTilt = tiltAngle; 
-            targetYaw = -lookAngle; 
+            targetTilt = tiltAngle;
+            targetYaw = -lookAngle;
         }
         else if ((Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) && currentLane < 2)
         {
             currentLane++;
             SetTargetPosition();
             lastInputTime = Time.time;
-            targetTilt = -tiltAngle; 
-            targetYaw = lookAngle; 
+            targetTilt = -tiltAngle;
+            targetYaw = lookAngle;
         }
     }
 
@@ -123,14 +122,14 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = targetRotation;
 
         if (!isChangingLanes && Mathf.Abs(targetTilt) < 0.01f && Mathf.Abs(targetYaw) < 0.01f)
-            transform.rotation = Quaternion.identity; 
+            transform.rotation = Quaternion.identity;
     }
 
     void HandleJump()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) 
-            && IsGrounded() 
-            && !isSliding 
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+            && IsGrounded()
+            && !isSliding
             && Time.time - lastJumpTime >= jumpCooldown) // Check cooldown
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -140,9 +139,18 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleSlide()
     {
-        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isSliding && IsGrounded())
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isSliding)
         {
-            StartCoroutine(Slide());
+            if (IsGrounded())
+            {
+                // Normal ground slide
+                StartCoroutine(Slide());
+            }
+            else
+            {
+                // Mid-air fast fall
+                StartCoroutine(AirSlide());
+            }
         }
     }
 
@@ -155,7 +163,7 @@ public class PlayerMovement : MonoBehaviour
         col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
 
         // Lean back
-        Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z); 
+        Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
         float t = 0f;
         while (t < 0.5f) // lean in
         {
@@ -180,8 +188,32 @@ public class PlayerMovement : MonoBehaviour
 
         // Reset collider
         col.height = originalColliderHeight;
-        col.center = originalColliderCenter;    
+        col.center = originalColliderCenter;
 
+        isSliding = false;
+    }
+
+    IEnumerator AirSlide()
+    {
+        isSliding = true;
+
+        // Apply strong downward force (fast fall)
+        rb.AddForce(Vector3.down * (jumpForce * 2f), ForceMode.Impulse);
+
+        // Optional: quick lean forward animation (fast fall look)
+        Quaternion airRotation = Quaternion.Euler(30f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        float t = 0f;
+        while (t < 0.2f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, airRotation, t / 0.2f);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.2f);
+
+        // Return upright
+        transform.rotation = Quaternion.identity;
         isSliding = false;
     }
 
