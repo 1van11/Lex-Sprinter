@@ -9,21 +9,36 @@ public class AnswerOption : MonoBehaviour
     public string answerText;
 
     [Header("3D Text Reference")]
-    public TextMeshPro answerTMP; // drag your 3D TMP here
+    public TextMeshPro answerTMP;
 
     [Header("Player References")]
-    public Renderer[] playerRenderers; // drag ALL player parts here (body, head, etc.)
+    public Renderer[] playerRenderers;
 
     [Header("UI Reference")]
-    public GameObject bgTopQuestions; // drag your BGTopQuestions UI here in Inspector
+    public GameObject bgTopQuestions;
+
+    [Header("Sound Settings")]
+    public AudioSource audioSource;
+    public AudioClip correctSound1;   // 🎵 First correct sound
+    public AudioClip correctSound2;   // 🎵 Second correct sound
+    public AudioClip wrongSound;
 
     private bool isInvincible = false;
+
+    private void Awake()
+    {
+        if (audioSource == null)
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            // ✅ Hide the background UI when colliding with this question
             if (bgTopQuestions != null)
                 bgTopQuestions.SetActive(false);
 
@@ -36,6 +51,13 @@ public class AnswerOption : MonoBehaviour
                     answerTMP.color = Color.green;
                     answerTMP.fontStyle = FontStyles.Bold;
                 }
+
+                // 🔊 Play both correct sounds
+                if (correctSound1 != null)
+                    audioSource.PlayOneShot(correctSound1);
+
+                if (correctSound2 != null)
+                    audioSource.PlayOneShot(correctSound2);
             }
             else
             {
@@ -46,6 +68,9 @@ public class AnswerOption : MonoBehaviour
                     answerTMP.color = Color.red;
                     answerTMP.fontStyle = FontStyles.Italic;
                 }
+
+                if (wrongSound != null)
+                    audioSource.PlayOneShot(wrongSound);
 
                 if (!isInvincible && playerRenderers.Length > 0)
                     StartCoroutine(BlinkPlayer(3f));
@@ -60,13 +85,11 @@ public class AnswerOption : MonoBehaviour
 
         while (elapsed < duration)
         {
-            // Hide all renderers
             foreach (Renderer rend in playerRenderers)
                 rend.enabled = false;
 
             yield return new WaitForSeconds(0.2f);
 
-            // Show all renderers
             foreach (Renderer rend in playerRenderers)
                 rend.enabled = true;
 
@@ -75,7 +98,6 @@ public class AnswerOption : MonoBehaviour
             elapsed += 0.4f;
         }
 
-        // Make sure everything is visible
         foreach (Renderer rend in playerRenderers)
             rend.enabled = true;
 
