@@ -1569,6 +1569,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: city view10 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8d917203316de9645bc51ecb23913836, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d917203316de9645bc51ecb23913836, type: 3}
 --- !u!4 &1592385503 stripped
@@ -1922,6 +1926,10 @@ MonoBehaviour:
   - {fileID: 46253339}
   - {fileID: 1617992757}
   bgTopQuestions: {fileID: 1912830030}
+  audioSource: {fileID: 0}
+  correctSound1: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
+  correctSound2: {fileID: 8300000, guid: 2931fc4e6eb87da458142a7870133c39, type: 3}
+  wrongSound: {fileID: 8300000, guid: bd60b0e54e86ee441858f501adaa3485, type: 3}
 --- !u!64 &1696546382
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2476,6 +2484,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: city view10
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8d917203316de9645bc51ecb23913836, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d917203316de9645bc51ecb23913836, type: 3}
 --- !u!1001 &1984049471
@@ -2544,6 +2556,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 8d917203316de9645bc51ecb23913836, type: 3}
       propertyPath: m_Name
       value: city view10 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8d917203316de9645bc51ecb23913836, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d917203316de9645bc51ecb23913836, type: 3}
@@ -2652,6 +2668,10 @@ MonoBehaviour:
   - {fileID: 46253339}
   - {fileID: 1617992757}
   bgTopQuestions: {fileID: 1912830030}
+  audioSource: {fileID: 0}
+  correctSound1: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
+  correctSound2: {fileID: 8300000, guid: 2931fc4e6eb87da458142a7870133c39, type: 3}
+  wrongSound: {fileID: 0}
 --- !u!64 &2028002258
 MeshCollider:
   m_ObjectHideFlags: 0
