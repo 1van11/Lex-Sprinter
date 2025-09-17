@@ -8,6 +8,6 @@ public class MainMenuOnclicks : MonoBehaviour
     public void PlayButton()
     {
         // Load the loading splash first
-        SceneManager.LoadScene("Splashscreen");
+        SceneManager.LoadScene("Samplescene");
     }
 }
