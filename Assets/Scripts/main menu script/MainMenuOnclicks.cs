@@ -7,7 +7,7 @@ public class MainMenuOnclicks : MonoBehaviour
 {
     public void PlayButton()
     {
-        // Load the loading splash first
+        
         SceneManager.LoadScene("Samplescene");
     }
 }
