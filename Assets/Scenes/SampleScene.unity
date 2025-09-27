@@ -735,25 +735,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8d917203316de9645bc51ecb23913836, type: 3}
   m_PrefabInstance: {fileID: 275552058}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &328740432
+--- !u!1 &328740432 stripped
 GameObject:
-  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a354015dbeca0347a9d4b93287c97f3, type: 3}
   m_PrefabInstance: {fileID: 127805505}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 328740438}
-  - component: {fileID: 328740437}
-  - component: {fileID: 328740434}
-  - component: {fileID: 328740436}
-  m_Layer: 0
-  m_Name: running-lexgirl
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
 --- !u!95 &328740434
 Animator:
   serializedVersion: 5
@@ -775,29 +761,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &328740436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 328740432}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 123774c09908a95479ddbe5dab304f5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  forwardSpeed: 2
-  laneDistance: 3
-  laneChangeSpeed: 10
-  jumpForce: 5
-  extraFallForce: 10
-  jumpCooldown: 0.2
-  slideDuration: 0.5
-  slideColliderHeight: 0.5
-  tiltAngle: 20
-  tiltSpeed: 10
-  lookAngle: 25
 --- !u!54 &328740437
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -814,21 +777,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
---- !u!4 &328740438
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 328740432}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &471612990
 GameObject:
   m_ObjectHideFlags: 0
