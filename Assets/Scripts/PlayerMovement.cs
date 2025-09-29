@@ -12,8 +12,8 @@ public class PlayerMovement : MonoBehaviour
     public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpForce = 5f;          // upward force
-    public float extraFallForce = 10f;    // extra downward force
+    public float jumpForce = 5f;          
+    public float extraFallForce = 10f;    
     public float jumpCooldown = 0.2f;
     private float lastJumpTime;
 
@@ -29,8 +29,15 @@ public class PlayerMovement : MonoBehaviour
     public float tiltSpeed = 10f;
     public float lookAngle = 25f;
 
+    [Header("IFrames")]
+    public float iFrameDuration = 1f;
+    public float flashInterval = 0.1f;
+    [HideInInspector] public bool isInvincible = false;
+
     private Rigidbody rb;
     private CapsuleCollider col;
+    private Renderer[] renderers;
+
     private int currentLane = 1;
     private Vector3 targetPosition;
     private bool isChangingLanes = false;
@@ -46,7 +53,9 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
 
-        // Save original collider size
+        // Get all renderers in player (including children)
+        renderers = GetComponentsInChildren<Renderer>();
+
         originalColliderHeight = col.height;
         originalColliderCenter = col.center;
 
@@ -64,6 +73,40 @@ public class PlayerMovement : MonoBehaviour
         HandleSlide();
         HandleTiltAndLook();
         ApplyExtraGravity();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Trigger i-frames if player touches a trap
+        if (other.CompareTag("Trap") && !isInvincible)
+        {
+            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+        }
+    }
+
+    public IEnumerator TriggerIFrames(float duration, float flashInterval)
+    {
+        isInvincible = true;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            foreach (Renderer r in renderers)
+            {
+                r.enabled = !r.enabled; // toggle visibility
+            }
+
+            timer += flashInterval;
+            yield return new WaitForSeconds(flashInterval);
+        }
+
+        // Ensure all renderers are visible at the end
+        foreach (Renderer r in renderers)
+        {
+            r.enabled = true;
+        }
+
+        isInvincible = false;
     }
 
     void HandleLaneInput()
@@ -133,22 +176,17 @@ public class PlayerMovement : MonoBehaviour
             && IsGrounded()
             && Time.time - lastJumpTime >= jumpCooldown)
         {
-            // Cancel slide immediately when jumping
             if (isSliding)
             {
-                StopAllCoroutines(); // stop slide coroutine
+                StopAllCoroutines();
                 col.height = originalColliderHeight;
                 col.center = originalColliderCenter;
                 transform.rotation = Quaternion.identity;
                 isSliding = false;
             }
 
-            // ✅ Reset vertical velocity for a snappy jump
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-            // ✅ Apply upward impulse (fast jump)
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-
             lastJumpTime = Time.time;
         }
     }
@@ -158,15 +196,9 @@ public class PlayerMovement : MonoBehaviour
         if (!IsGrounded())
         {
             if (rb.velocity.y < 0)
-            {
-                // ✅ Falling → pull down faster
                 rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
-            }
             else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
-            {
-                // ✅ Short hop → cut jump if player releases Space early
                 rb.AddForce(Vector3.down * (extraFallForce * 0.5f), ForceMode.Acceleration);
-            }
         }
     }
 
@@ -174,14 +206,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isSliding)
         {
-            if (IsGrounded())
-            {
-                StartCoroutine(Slide());
-            }
-            else
-            {
-                StartCoroutine(AirSlide());
-            }
+            if (IsGrounded()) StartCoroutine(Slide());
+            else StartCoroutine(AirSlide());
         }
     }
 
