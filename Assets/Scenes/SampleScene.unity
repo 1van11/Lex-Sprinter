@@ -316,6 +316,9 @@ MonoBehaviour:
   tiltAngle: 20
   tiltSpeed: 10
   lookAngle: 25
+  iFrameDuration: 2
+  flashInterval: 0.2
+  isInvincible: 0
 --- !u!54 &46253343
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -398,6 +401,9 @@ MonoBehaviour:
   tiltAngle: 20
   tiltSpeed: 10
   lookAngle: 25
+  iFrameDuration: 1
+  flashInterval: 0.1
+  isInvincible: 0
 --- !u!65 &84404902
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1109,7 +1115,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1278821777}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.014818942, y: 0.014818942, z: 0.01}
@@ -1249,6 +1255,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 7a0e5d4ecf9b76c419ac5066db44ba09, type: 3}
       propertyPath: m_Name
       value: spike trap
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7a0e5d4ecf9b76c419ac5066db44ba09, type: 3}
+      propertyPath: m_TagString
+      value: Trap
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a0e5d4ecf9b76c419ac5066db44ba09, type: 3}

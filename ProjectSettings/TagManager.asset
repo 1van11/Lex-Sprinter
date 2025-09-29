@@ -7,6 +7,7 @@ TagManager:
   - Trigger
   - Terrain
   - InfiniteMap
+  - Trap
   layers:
   - Default
   - TransparentFX
