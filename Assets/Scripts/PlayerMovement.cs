@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpForce = 5f;          
+    public float jumpForce = 10f;          
     public float extraFallForce = 10f;    
     public float jumpCooldown = 0.2f;
     private float lastJumpTime;
