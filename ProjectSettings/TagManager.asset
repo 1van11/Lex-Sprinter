@@ -4,7 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Trigger
   - Terrain
+  - InfiniteMap
   layers:
   - Default
   - TransparentFX
@@ -41,10 +43,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Player
-    uniqueID: 3030033679
-    locked: 0
-  - name: Terrain
-    uniqueID: 385226851
     locked: 0
