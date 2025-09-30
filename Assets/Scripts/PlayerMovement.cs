@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Animator galaw;
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
@@ -12,10 +13,16 @@ public class PlayerMovement : MonoBehaviour
     public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpForce = 10f;          
-    public float extraFallForce = 10f;    
+    public float jumpForce = 10f;
+    public float extraFallForce = 10f;
     public float jumpCooldown = 0.2f;
     private float lastJumpTime;
+
+    [Header("Jump Assist")]
+    public float coyoteTime = 0.2f;       // grace period after leaving ground
+    public float jumpBufferTime = 0.2f;   // grace period after pressing jump
+    private float lastGroundedTime;
+    private float lastJumpPressedTime;
 
     [Header("Slide")]
     public float slideDuration = 0.5f;
@@ -65,6 +72,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // Constant forward movement
         transform.Translate(Vector3.forward * Time.deltaTime * forwardSpeed, Space.World);
 
         HandleLaneInput();
@@ -73,6 +81,14 @@ public class PlayerMovement : MonoBehaviour
         HandleSlide();
         HandleTiltAndLook();
         ApplyExtraGravity();
+
+        // Track grounded time
+        if (IsGrounded())
+            lastGroundedTime = Time.time;
+
+        // Track jump input
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+            lastJumpPressedTime = Time.time;
     }
 
     void OnTriggerEnter(Collider other)
@@ -185,9 +201,9 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleJump()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
-            && IsGrounded()
-            && Time.time - lastJumpTime >= jumpCooldown)
+        if (Time.time - lastGroundedTime <= coyoteTime &&         // within coyote time
+            Time.time - lastJumpPressedTime <= jumpBufferTime &&  // input buffered
+            Time.time - lastJumpTime >= jumpCooldown)
         {
             if (isSliding)
             {
@@ -201,6 +217,9 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
+
+            // Reset jump buffer
+            lastJumpPressedTime = -999f;
         }
     }
 
@@ -281,7 +300,8 @@ public class PlayerMovement : MonoBehaviour
 
     bool IsGrounded()
     {
-        return Mathf.Abs(rb.velocity.y) < 0.01f;
+        // Raycast from center of collider downwards
+        return Physics.Raycast(transform.position, Vector3.down, col.bounds.extents.y + 0.1f);
     }
 
     void OnDrawGizmos()
