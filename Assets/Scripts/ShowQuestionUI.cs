@@ -1,48 +1,53 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ShowQuestionUI : MonoBehaviour
+public class ShowQuestionsUi : MonoBehaviour
 {
-    [Header("UI References")]
-    public GameObject bgTopQuestions;
-    public GameObject question1;
-
-    [Header("Player Reference")]
-    public Transform player;
+    [Header("References")]
     public PlayerMovement playerMovement;
+    public GameObject questionPrefab;
 
-    void Start()
+    [Header("Spawn Settings")]
+    public float spawnDistance = 20f;      // Distance ahead of player
+    public float spawnInterval = 3f;       // Time between spawns
+    public float spawnHeight = 0f;         // Adjust Y to match ground
+    public float despawnDistance = 10f;    // Remove when behind player
+    public float maxLifetime = 15f;        // Auto-remove just in case
+
+    private float timer = 0f;
+    private List<GameObject> spawnedQuestions = new List<GameObject>();
+
+    void Update()
     {
-        StartCoroutine(ShowAfterDelay());
-    }
-
-    IEnumerator ShowAfterDelay()
-    {
-        // 1. Wait 2 seconds → show BGTopQuestions
-        yield return new WaitForSeconds(2f);
-        bgTopQuestions.SetActive(true);
-
-        // 2. Place Question1 ahead of player
-        float distanceAhead = playerMovement.forwardSpeed * 5f;
-
-        Vector3 newPos = new Vector3(
-            question1.transform.position.x,
-            question1.transform.position.y,
-            player.position.z + distanceAhead
-        );
-
-        question1.transform.position = newPos;
-
-        // 3. Activate Question1
-        question1.SetActive(true);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        // If the player collides with Question1 → hide bgTopQuestions
-        if (other.gameObject == question1)
+        timer += Time.deltaTime;
+        if (timer >= spawnInterval)
         {
-            bgTopQuestions.SetActive(false);
+            SpawnQuestion();
+            timer = 0f;
+        }
+
+        DespawnOldQuestions();
+    }
+
+    void SpawnQuestion()
+    {
+        Vector3 spawnPos = new Vector3(0f, spawnHeight, playerMovement.transform.position.z + spawnDistance);
+        GameObject q = Instantiate(questionPrefab, spawnPos, Quaternion.identity);
+        spawnedQuestions.Add(q);
+        Destroy(q, maxLifetime);
+    }
+
+    void DespawnOldQuestions()
+    {
+        for (int i = spawnedQuestions.Count - 1; i >= 0; i--)
+        {
+            if (spawnedQuestions[i] == null) spawnedQuestions.RemoveAt(i);
+            else if (spawnedQuestions[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
+            {
+                Destroy(spawnedQuestions[i]);
+                spawnedQuestions.RemoveAt(i);
+            }
         }
     }
 }

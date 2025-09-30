@@ -77,10 +77,23 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Trigger i-frames if player touches a trap
+        // Case 1: Trap
         if (other.CompareTag("Trap") && !isInvincible)
         {
             StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+        }
+
+        // Case 2: Wrong Answer
+        if (other.CompareTag("AnswerOptions") && !isInvincible)
+        {
+            Debug.Log("❌ Wrong Answer triggered!");
+            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+
+            // Destroy the whole question object
+            if (other.transform.parent != null)
+                Destroy(other.transform.parent.gameObject);
+            else
+                Destroy(other.gameObject);
         }
     }
 

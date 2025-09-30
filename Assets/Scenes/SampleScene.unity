@@ -14,20 +14,20 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.53622633, g: 0.7473031, b: 0.7660377, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.02
   m_LinearFogStart: 0
-  m_LinearFogEnd: 300
+  m_LinearFogEnd: 300.01
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 0.53124243, g: 0.87169814, b: 0.8681503, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
-  m_HaloStrength: 0.5
+  m_HaloStrength: 0.542
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 161069994}
   - component: {fileID: 161070000}
   - component: {fileID: 161070001}
+  - component: {fileID: 161070002}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -239,15 +240,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isCorrect: 1
-  answerText: SUN
+  answerText: sun
   answerTMP: {fileID: 274096947}
   playerRenderers:
-  - {fileID: 0}
+  - {fileID: 2028002255}
   bgTopQuestions: {fileID: 1912830030}
   audioSource: {fileID: 0}
-  correctSound1: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
-  correctSound2: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
-  wrongSound: {fileID: 8300000, guid: bd60b0e54e86ee441858f501adaa3485, type: 3}
+  correctSound1: {fileID: 0}
+  correctSound2: {fileID: 0}
+  wrongSound: {fileID: 0}
 --- !u!95 &161070001
 Animator:
   serializedVersion: 5
@@ -269,6 +270,25 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &161070002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161069993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92d8365f8a40ac54688eed514df9f486, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 1686114797}
+  questionPrefab: {fileID: 1688170019}
+  spawnDistance: 20
+  spawnInterval: 8
+  spawnHeight: 2
+  despawnDistance: 10
+  maxLifetime: 15
 --- !u!1 &261765716
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +523,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -916,7 +936,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1688170020
 Transform:
   m_ObjectHideFlags: 0
@@ -925,7 +945,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1688170019}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 71, y: -0.5, z: -2.1}
+  m_LocalPosition: {x: 71, y: 0.79, z: 9.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1144,16 +1164,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isCorrect: 0
-  answerText: SAN
-  answerTMP: {fileID: 1964719172}
-  playerRenderers:
-  - {fileID: 0}
-  - {fileID: 0}
-  bgTopQuestions: {fileID: 1912830030}
+  answerText: 
+  answerTMP: {fileID: 0}
+  playerRenderers: []
+  bgTopQuestions: {fileID: 0}
   audioSource: {fileID: 0}
-  correctSound1: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
-  correctSound2: {fileID: 8300000, guid: 2931fc4e6eb87da458142a7870133c39, type: 3}
-  wrongSound: {fileID: 8300000, guid: bd60b0e54e86ee441858f501adaa3485, type: 3}
+  correctSound1: {fileID: 0}
+  correctSound2: {fileID: 0}
+  wrongSound: {fileID: 0}
 --- !u!64 &1696546382
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1768,16 +1786,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287985f0b758714479ca326120593037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isCorrect: 1
+  isCorrect: 0
   answerText: 
-  answerTMP: {fileID: 274096947}
+  answerTMP: {fileID: 0}
   playerRenderers:
   - {fileID: 0}
-  - {fileID: 0}
-  bgTopQuestions: {fileID: 1912830030}
+  bgTopQuestions: {fileID: 0}
   audioSource: {fileID: 0}
-  correctSound1: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
-  correctSound2: {fileID: 8300000, guid: 2931fc4e6eb87da458142a7870133c39, type: 3}
+  correctSound1: {fileID: 0}
+  correctSound2: {fileID: 0}
   wrongSound: {fileID: 0}
 --- !u!64 &2028002258
 MeshCollider:
