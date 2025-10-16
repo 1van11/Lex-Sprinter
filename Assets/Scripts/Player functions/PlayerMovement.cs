@@ -63,6 +63,9 @@ public class PlayerMovement : MonoBehaviour
         // Get all renderers in player (including children)
         renderers = GetComponentsInChildren<Renderer>();
 
+        // Freeze X and Z velocity so Rigidbody doesn't interfere with transform movement
+        rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+
         originalColliderHeight = col.height;
         originalColliderCenter = col.center;
 
@@ -73,7 +76,8 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         // Constant forward movement
-        transform.Translate(Vector3.forward * Time.deltaTime * forwardSpeed, Space.World);
+        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+        transform.position += forwardMove;
 
         HandleLaneInput();
         MoveBetweenLanes();
@@ -225,12 +229,9 @@ public class PlayerMovement : MonoBehaviour
 
     void ApplyExtraGravity()
     {
-        if (!IsGrounded())
+        if (!IsGrounded() && rb.velocity.y < 0)
         {
-            if (rb.velocity.y < 0)
-                rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
-            else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
-                rb.AddForce(Vector3.down * (extraFallForce * 0.5f), ForceMode.Acceleration);
+            rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
         }
     }
 
@@ -243,45 +244,48 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    IEnumerator Slide()
+   IEnumerator Slide()
+{
+    isSliding = true;
+
+    col.height = slideColliderHeight;
+    col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
+
+    Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+    float t = 0f;
+    while (t < 0.5f)
     {
-        isSliding = true;
-
-        col.height = slideColliderHeight;
-        col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
-
-        Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-        float t = 0f;
-        while (t < 0.5f)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(slideDuration - 1f);
-
-        t = 0f;
-        Quaternion startRot = transform.rotation;
-        while (t < 0.3f)
-        {
-            transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-        transform.rotation = Quaternion.identity;
-
-        col.height = originalColliderHeight;
-        col.center = originalColliderCenter;
-
-        isSliding = false;
+        transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
+        t += Time.deltaTime;
+        yield return null;
     }
+
+    yield return new WaitForSeconds(slideDuration - 1f);
+
+    t = 0f;
+    Quaternion startRot = transform.rotation;
+    while (t < 0.3f)
+    {
+        transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
+        t += Time.deltaTime;
+        yield return null;
+    }
+    transform.rotation = Quaternion.identity;
+
+    col.height = originalColliderHeight;
+    col.center = originalColliderCenter;
+
+    isSliding = false;
+}
+
 
     IEnumerator AirSlide()
     {
         isSliding = true;
 
-        rb.AddForce(Vector3.down * (jumpForce * 2f), ForceMode.Impulse);
+        // Store current velocities and only modify Y
+        Vector3 currentVel = rb.velocity;
+        rb.velocity = new Vector3(currentVel.x, -jumpForce * 2f, currentVel.z);
 
         Quaternion airRotation = Quaternion.Euler(30f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
         float t = 0f;
