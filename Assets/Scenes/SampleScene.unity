@@ -288,7 +288,7 @@ MonoBehaviour:
   questionPrefab: {fileID: 1688170019}
   spawnDistance: 20
   spawnInterval: 3
-  spawnHeight: 2
+  spawnHeight: 2.5
   despawnDistance: 10
   maxLifetime: 15
 --- !u!1 &166845489 stripped
@@ -531,14 +531,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   galaw: {fileID: 264086234}
-  forwardSpeed: 10
+  forwardSpeed: 8
   laneDistance: 3
-  laneChangeSpeed: 10
-  jumpForce: 8
+  laneChangeSpeed: 12
+  jumpForce: 9
   extraFallForce: 10
-  jumpCooldown: 0.2
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
+  jumpCooldown: 0.25
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
   slideDuration: 0.5
   slideColliderHeight: 0.5
   tiltAngle: 20
@@ -902,7 +902,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &534552813
 Transform:
   m_ObjectHideFlags: 0
@@ -1467,7 +1467,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56}
+  m_AnchoredPosition: {x: 0, y: -56.00006}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -1767,7 +1767,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1688170019}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 71, y: 0.79, z: 35.06}
+  m_LocalPosition: {x: 39.03, y: -0.64, z: 21.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1988,10 +1988,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isCorrect: 0
-  answerText: 
+  answerText: SUN
   answerTMP: {fileID: 0}
   playerRenderers: []
-  bgTopQuestions: {fileID: 0}
+  bgTopQuestions: {fileID: 1912830030}
   audioSource: {fileID: 0}
   correctSound1: {fileID: 0}
   correctSound2: {fileID: 0}
@@ -2842,12 +2842,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287985f0b758714479ca326120593037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isCorrect: 0
-  answerText: 
+  isCorrect: 1
+  answerText: SUN
   answerTMP: {fileID: 0}
-  playerRenderers:
-  - {fileID: 0}
-  bgTopQuestions: {fileID: 0}
+  playerRenderers: []
+  bgTopQuestions: {fileID: 1912830030}
   audioSource: {fileID: 0}
   correctSound1: {fileID: 0}
   correctSound2: {fileID: 0}
@@ -2912,7 +2911,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38eefacada3c78c469865e16781a7e18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelDuration: 200
+  levelDuration: 300
 --- !u!4 &2086456822
 Transform:
   m_ObjectHideFlags: 0

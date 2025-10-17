@@ -13,9 +13,9 @@ public class PlayerMovement : MonoBehaviour
     public float laneChangeSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpForce = 10f;
+    public float jumpForce = 9f;
     public float extraFallForce = 10f;
-    public float jumpCooldown = 0.2f;
+    public float jumpCooldown = 0.25f;
     private float lastJumpTime;
 
     [Header("Jump Assist")]
@@ -48,6 +48,8 @@ public class PlayerMovement : MonoBehaviour
     private int currentLane = 1;
     private Vector3 targetPosition;
     private bool isChangingLanes = false;
+    private bool isJumping = false;
+    private bool jumpHeld = false;
 
     private float inputCooldown = 0.2f;
     private float lastInputTime;
@@ -205,9 +207,26 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleJump()
     {
-        if (Time.time - lastGroundedTime <= coyoteTime &&         // within coyote time
-            Time.time - lastJumpPressedTime <= jumpBufferTime &&  // input buffered
-            Time.time - lastJumpTime >= jumpCooldown)
+        // Detect initial jump press (not hold)
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
+        {
+            lastJumpPressedTime = Time.time;
+            jumpHeld = true;
+        }
+
+        // Reset hold when released
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
+        {
+            jumpHeld = false;
+        }
+
+        bool canJump = Time.time - lastGroundedTime <= coyoteTime &&
+                       Time.time - lastJumpPressedTime <= jumpBufferTime &&
+                       Time.time - lastJumpTime >= jumpCooldown &&
+                       !isJumping &&
+                       jumpHeld; // Only true on the first press
+
+        if (canJump)
         {
             if (isSliding)
             {
@@ -218,14 +237,23 @@ public class PlayerMovement : MonoBehaviour
                 isSliding = false;
             }
 
+            // Stop all vertical velocity before new jump
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
 
-            // Reset jump buffer
+            // Prevent holding from stacking
+            isJumping = true;
+            jumpHeld = false; // block continuous pressing
             lastJumpPressedTime = -999f;
         }
+
+        // Reset when grounded
+        if (IsGrounded() && rb.velocity.y <= 0.1f)
+            isJumping = false;
     }
+
+
 
     void ApplyExtraGravity()
     {
