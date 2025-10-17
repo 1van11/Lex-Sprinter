@@ -9,8 +9,8 @@ public class QuestionnaireSpawner : MonoBehaviour
     public GameObject questionPrefab;          // Prefab with Image + 2 options
 
     [Header("Spawn Settings")]
-    public float spawnDistance = 20f;          // Distance ahead of player to spawn
-    public float spawnInterval = 3f;           // How often questions appear
+    public float spawnDistance = 10f;          // Distance ahead of player to spawn
+    public float spawnInterval = 2f;           // How often questions appear
     public float spawnHeight = 2f;             // Y offset (adjust to match UI/canvas worldspace)
 
     [Header("Despawn Settings")]
@@ -33,19 +33,22 @@ public class QuestionnaireSpawner : MonoBehaviour
         DespawnOldQuestions();
     }
 
-void SpawnQuestion()
-{
-    // Always center lane (lane 1)
-    float laneX = 0f; 
-    Vector3 spawnPos = new Vector3(laneX, spawnHeight, playerMovement.transform.position.z + spawnDistance);
-
-    // Apply rotation offset
-    Quaternion rotation = Quaternion.Euler(0F, 90f, 0f); // tweak these values
-    GameObject question = Instantiate(questionPrefab, spawnPos, rotation);
-
-    spawnedQuestions.Add(question);
-    Destroy(question, maxLifetime);
-}
+    void SpawnQuestion()
+    {
+        // Get player's forward direction
+        Vector3 playerForward = playerMovement.transform.forward;
+        
+        // Calculate spawn position ahead of player along their forward direction
+        Vector3 spawnPos = playerMovement.transform.position + (playerForward * spawnDistance);
+        spawnPos.y = spawnHeight; // Set the height
+        
+        // Make question face the player
+        Quaternion rotation = Quaternion.LookRotation(-playerForward) * Quaternion.Euler(0f, 90f, 0f);
+        
+        GameObject question = Instantiate(questionPrefab, spawnPos, rotation);
+        spawnedQuestions.Add(question);
+        Destroy(question, maxLifetime);
+    }
 
     void DespawnOldQuestions()
     {
@@ -55,10 +58,15 @@ void SpawnQuestion()
             {
                 spawnedQuestions.RemoveAt(i);
             }
-            else if (spawnedQuestions[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
+            else
             {
-                Destroy(spawnedQuestions[i]);
-                spawnedQuestions.RemoveAt(i);
+                // Check distance from player
+                float distance = Vector3.Distance(spawnedQuestions[i].transform.position, playerMovement.transform.position);
+                if (distance > despawnDistance + spawnDistance)
+                {
+                    Destroy(spawnedQuestions[i]);
+                    spawnedQuestions.RemoveAt(i);
+                }
             }
         }
     }

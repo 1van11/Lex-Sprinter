@@ -287,8 +287,8 @@ MonoBehaviour:
   playerMovement: {fileID: 264086231}
   questionPrefab: {fileID: 1688170019}
   spawnDistance: 20
-  spawnInterval: 8
-  spawnHeight: 3
+  spawnInterval: 3
+  spawnHeight: 2
   despawnDistance: 10
   maxLifetime: 15
 --- !u!1 &166845489 stripped
@@ -1180,15 +1180,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerMovement: {fileID: 264086231}
   obstaclePrefab: {fileID: 1278821777}
-  spawnDistance: 28
+  spawnDistance: 60
   rowsPerSpawn: 5
-  rowSpacing: 14
+  rowSpacing: 26
   maxObstaclesPerRow: 2
   spawnHeight: -1
   laneDistance: 3
   poolSize: 40
-  despawnDistance: 10
-  maxObstacleLifetime: 15
+  despawnDistance: 30
+  maxObstacleLifetime: 30
   showGizmos: 1
   spawnGizmoColor: {r: 1, g: 0, b: 0, a: 1}
   despawnGizmoColor: {r: 0, g: 0, b: 1, a: 1}
@@ -2912,7 +2912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38eefacada3c78c469865e16781a7e18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelDuration: 5
+  levelDuration: 200
 --- !u!4 &2086456822
 Transform:
   m_ObjectHideFlags: 0
