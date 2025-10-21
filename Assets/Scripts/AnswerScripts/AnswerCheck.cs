@@ -4,21 +4,36 @@ using UnityEngine;
 public class AnswerCheck : MonoBehaviour
 {
     [Header("Answer Settings")]
-    public bool isCorrect = false;
+    public string answerWord;         // Word shown on this option
+    public int scoreReward = 10;
+    public int scorePenalty = -5;
 
     [Header("Feedback / IFrame Settings")]
     public float iFrameDuration = 2f;
     public float flashInterval = 0.2f;
 
-    [Header("Score (optional)")]
-    public int scoreReward = 10;
-    public int scorePenalty = -5;
+    // Hardcoded correct answers
+    private string[] correctAnswers = new string[]
+    {
+        "CAT", "CUP", "NOSE", "BOY", "FAST", "DOG", "HAT", "LIP", "GIRL", "SLOW",
+        "FISH", "BED", "LEG", "KID", "GOOD", "BIRD", "BOX", "ARM", "BABY", "BAD",
+        "COW", "PEN", "HAND", "AUNT", "HAPPY", "PIG", "BOOK", "FOOT", "UNCLE",
+        "SAD", "HEN", "CHAIR", "HAIR", "FRIEND", "TOY", "DUCK", "DESK", "TOOTH",
+        "RUN", "MAP", "GOAT", "BAG", "RICE", "HOP", "CAR", "MOUSE", "SUN", "EGG",
+        "SIT", "BUS", "RED", "MOON", "MILK", "STAND", "DOOR", "BLUE", "STAR",
+        "MEAT", "WALK", "BELL", "GREEN", "RAIN", "CORN", "JUMP", "ME", "PINK",
+        "SNOW", "PEAR", "SWIM", "YOU", "YELLOW", "TREE", "CAKE", "READ", "HIM",
+        "BLACK", "LEAF", "BREAD", "WRITE", "HER", "WHITE", "WIND", "JAM", "SING",
+        "BROWN", "CLOUD", "SOUP", "HOT", "GRAY", "ROCK", "MOM", "COLD", "ORANGE",
+        "EYE", "DAD", "BIG", "BALL", "EAR", "MAN", "SMALL"
+    };
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        // Get or add the iFrame handler on the player so coroutine lives on the player object
+        bool isCorrect = System.Array.Exists(correctAnswers, word => word == answerWord);
+
         PlayerIFramesHandler handler = other.GetComponent<PlayerIFramesHandler>();
         if (handler == null)
         {
@@ -27,45 +42,31 @@ public class AnswerCheck : MonoBehaviour
 
         if (isCorrect)
         {
-            Debug.Log("✅ Correct Answer! +" + scoreReward + " points");
-            // TODO: Hook into your score manager here if you have one, e.g.
-            // ScoreManager.Instance.Add(scoreReward);
+            Debug.Log($"✅ Correct Answer! +{scoreReward} points ({answerWord}) supper galing");
+            
         }
         else
         {
-            Debug.Log("❌ Wrong Answer! " + scorePenalty + " penalty");
+            Debug.Log($"❌ right Answer! {scorePenalty} penalty ({answerWord})");
             handler.StartIFrames(iFrameDuration, flashInterval);
-            // TODO: apply score penalty if you use a score system
+            // TODO: deduct score
         }
 
-        // Destroy the whole question prefab (parent). This is safe because iFrames run on player.
-        if (transform.parent != null)
-            Destroy(transform.parent.gameObject);
-        else
-            Destroy(gameObject);
+        Destroy(gameObject); // Remove option after hit
     }
 }
 
-/// <summary>
-/// This component runs the iFrame coroutine on the player GameObject.
-/// It's designed to be added dynamically by AnswerOption (or you can attach it to player manually).
-/// </summary>
 public class PlayerIFramesHandler : MonoBehaviour
 {
     private bool isInvincible = false;
     private Coroutine runningCoroutine = null;
     private Renderer[] renderersCache;
 
-    /// <summary>
-    /// Start invincibility frames: flashing + invincible flag.
-    /// Safe to call even if component was just added at runtime.
-    /// </summary>
     public void StartIFrames(float duration, float flashInterval)
     {
-        if (isInvincible) return; // already invincible
+        if (isInvincible) return;
         if (runningCoroutine != null) StopCoroutine(runningCoroutine);
 
-        // cache the renderers (all child renderers - MeshRenderer, SkinnedMeshRenderer, etc.)
         if (renderersCache == null || renderersCache.Length == 0)
             renderersCache = GetComponentsInChildren<Renderer>(true);
 
@@ -75,16 +76,13 @@ public class PlayerIFramesHandler : MonoBehaviour
     private IEnumerator IFramesRoutine(float duration, float flashInterval)
     {
         isInvincible = true;
-
         float elapsed = 0f;
         bool visible = true;
 
-        // ensure renderers start visible
         SetRenderersEnabled(true);
 
         while (elapsed < duration)
         {
-            // toggle visibility for flash effect
             visible = !visible;
             SetRenderersEnabled(visible);
 
@@ -92,7 +90,6 @@ public class PlayerIFramesHandler : MonoBehaviour
             elapsed += flashInterval;
         }
 
-        // restore
         SetRenderersEnabled(true);
         isInvincible = false;
         runningCoroutine = null;
@@ -108,6 +105,5 @@ public class PlayerIFramesHandler : MonoBehaviour
         }
     }
 
-    // Optional: expose a property if other scripts need to check invincibility
     public bool IsInvincible => isInvincible;
 }

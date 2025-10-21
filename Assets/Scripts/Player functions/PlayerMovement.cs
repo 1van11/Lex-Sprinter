@@ -11,6 +11,10 @@ public class PlayerMovement : MonoBehaviour
     [Header("Lane System")]
     public float laneDistance = 3f;
     public float laneChangeSpeed = 10f;
+    [Header("Score")]
+public int score = 0;                  // tracks current score
+public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
+
 
     [Header("Jump")]
     public float jumpForce = 9f;
@@ -97,27 +101,73 @@ public class PlayerMovement : MonoBehaviour
             lastJumpPressedTime = Time.time;
     }
 
-    void OnTriggerEnter(Collider other)
+  void OnTriggerEnter(Collider other)
+{
+    // Case 1: Trap
+    if (other.CompareTag("Trap") && !isInvincible)
     {
-        // Case 1: Trap
-        if (other.CompareTag("Trap") && !isInvincible)
-        {
-            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
-        }
+        StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+    }
 
-        // Case 2: Wrong Answer
-        if (other.CompareTag("AnswerOptions") && !isInvincible)
+    // Case 2: Answer option
+    if (other.CompareTag("AnswerOptions") && !isInvincible)
+    {
+        // Hardcoded correct answers
+        string[] correctAnswers = new string[]
         {
-            Debug.Log("❌ Wrong Answer triggered!");
-            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+            "CAT", "CUP", "NOSE", "BOY", "FAST", "DOG", "HAT", "LIP", "GIRL", "SLOW",
+            "FISH", "BED", "LEG", "KID", "GOOD", "BIRD", "BOX", "ARM", "BABY", "BAD",
+            "COW", "PEN", "HAND", "AUNT", "HAPPY", "PIG", "BOOK", "FOOT", "UNCLE",
+            "SAD", "HEN", "CHAIR", "HAIR", "FRIEND", "TOY", "DUCK", "DESK", "TOOTH",
+            "RUN", "MAP", "GOAT", "BAG", "RICE", "HOP", "CAR", "MOUSE", "SUN", "EGG",
+            "SIT", "BUS", "RED", "MOON", "MILK", "STAND", "DOOR", "BLUE", "STAR",
+            "MEAT", "WALK", "BELL", "GREEN", "RAIN", "CORN", "JUMP", "ME", "PINK",
+            "SNOW", "PEAR", "SWIM", "YOU", "YELLOW", "TREE", "CAKE", "READ", "HIM",
+            "BLACK", "LEAF", "BREAD", "WRITE", "HER", "WHITE", "WIND", "JAM", "SING",
+            "BROWN", "CLOUD", "SOUP", "HOT", "GRAY", "ROCK", "MOM", "COLD", "ORANGE",
+            "EYE", "DAD", "BIG", "BALL", "EAR", "MAN", "SMALL"
+        };
+
+        // Get the parent QuestionRandomizer to find the correct answer
+        QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+        
+        if (questionRandomizer != null)
+        {
+            // Determine which answer this is based on the GameObject name
+            bool isJumpOption = other.gameObject.name.Contains("Jump");
+            string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
+            
+            // Check if the selected answer is correct (jumpText is always correct in your pairs)
+            bool isCorrect = (selectedAnswer == questionRandomizer.jumpText.text);
+
+            if (isCorrect)
+            {
+                    Debug.Log($"✅ Correct Answer! (+10 points) [{selectedAnswer}]");
+                    score += 10;                        // add points
+                    UpdateScoreUI();
+            }
+            else
+            {
+                    Debug.Log($"❌ Wrong Answer! (-5 points) [{selectedAnswer}] - Correct was: {questionRandomizer.jumpText.text}");
+                    score -= 5;                         // deduct points
+                    if (score < 0) score = 0;           // optional: prevent negative score
+                    UpdateScoreUI();                
+                    StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+                // TODO: Deduct score
+            }
 
             // Destroy the whole question object
             if (other.transform.parent != null)
                 Destroy(other.transform.parent.gameObject);
-            else
-                Destroy(other.gameObject);
         }
     }
+}
+void UpdateScoreUI()
+{
+    if (scoreText != null)
+        scoreText.text = $"Score: {score}";
+}
+
 
     public IEnumerator TriggerIFrames(float duration, float flashInterval)
     {
