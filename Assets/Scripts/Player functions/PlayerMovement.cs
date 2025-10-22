@@ -12,10 +12,12 @@ public class PlayerMovement : MonoBehaviour
     public float laneDistance = 3f;
     public float laneChangeSpeed = 10f;
     [Header("Score")]
-public int score = 0;                  // tracks current score
-public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
-
-
+    public int score = 0;                  // tracks current score
+    public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
+    [Header("Distance")]
+    public float distanceTraveled = 0f;
+    private Vector3 lastPosition;
+    public TMPro.TMP_Text distanceText;
     [Header("Jump")]
     public float jumpForce = 9f;
     public float extraFallForce = 10f;
@@ -77,39 +79,68 @@ public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
 
         targetPosition = new Vector3(0, transform.position.y, transform.position.z);
         transform.position = targetPosition;
+
+            lastPosition = transform.position; // store starting position
+
     }
 
     void Update()
-    {
-        // Constant forward movement
-        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
-        transform.position += forwardMove;
+{
+    // Constant forward movement
+    Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+    transform.position += forwardMove;
 
-        HandleLaneInput();
-        MoveBetweenLanes();
-        HandleJump();
-        HandleSlide();
-        HandleTiltAndLook();
-        ApplyExtraGravity();
+    // Track distance
+    distanceTraveled += Vector3.Distance(transform.position, lastPosition);
+    lastPosition = transform.position;
 
-        // Track grounded time
-        if (IsGrounded())
-            lastGroundedTime = Time.time;
+    if (distanceText != null)
+        distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
 
-        // Track jump input
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
-            lastJumpPressedTime = Time.time;
-    }
+    // 🔹 Speed increase logic with for loop
+float bonus = 1f; // start multiplier
+for (int i = 300; i <= distanceTraveled; i += 300)
+{
+    bonus *= 1.125f;        // grow gradually (1.2x each 300m)
+    if (bonus >= 1.8f)    // limit multiplier
+        break;
+}
+forwardSpeed = 10f * bonus; // apply multiplier to base speed
+
+    HandleLaneInput();
+    MoveBetweenLanes();
+    HandleJump();
+    HandleSlide();
+    HandleTiltAndLook();
+    ApplyExtraGravity();
+
+    // Track grounded time
+    if (IsGrounded())
+        lastGroundedTime = Time.time;
+
+    // Track jump input
+    if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+        lastJumpPressedTime = Time.time;
+}
 
   void OnTriggerEnter(Collider other)
-{
-    // Case 1: Trap
+    {
+    
+    // Coin collection
+    if (other.CompareTag("Coin"))
+    {
+        score += 1;                     // +1 point per coin
+        UpdateScoreUI();                // update text
+        other.gameObject.SetActive(false); // disable coin (for pooling)
+        return;                         // stop further checks
+    }
+    //  Trap
     if (other.CompareTag("Trap") && !isInvincible)
     {
         StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
     }
 
-    // Case 2: Answer option
+    //Answer option
     if (other.CompareTag("AnswerOptions") && !isInvincible)
     {
         // Hardcoded correct answers
@@ -142,14 +173,14 @@ public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
 
             if (isCorrect)
             {
-                    Debug.Log($"✅ Correct Answer! (+10 points) [{selectedAnswer}]");
-                    score += 10;                        // add points
+                    Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
+                    score += 5;                        // add points
                     UpdateScoreUI();
             }
             else
             {
-                    Debug.Log($"❌ Wrong Answer! (-5 points) [{selectedAnswer}] - Correct was: {questionRandomizer.jumpText.text}");
-                    score -= 5;                         // deduct points
+                    Debug.Log($"❌ Wrong Answer! (-0 points) [{selectedAnswer}] - Correct was: {questionRandomizer.jumpText.text}");
+                    score -= 0;                         // deduct points
                     if (score < 0) score = 0;           // optional: prevent negative score
                     UpdateScoreUI();                
                     StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));

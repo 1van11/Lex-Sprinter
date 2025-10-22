@@ -9,6 +9,7 @@ TagManager:
   - InfiniteMap
   - Trap
   - AnswerOptions
+  - Coin
   layers:
   - Default
   - TransparentFX
