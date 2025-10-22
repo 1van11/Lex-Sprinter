@@ -7,6 +7,7 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("References")]
     public PlayerMovement playerMovement; // Reference to your PlayerMovement script
     public GameObject obstaclePrefab; // Obstacle prefab
+    public GameObject coinPrefab; // Coin prefab
 
     [Header("Spawn Settings")]
     public float spawnDistance = 20f; // Distance ahead of player to spawn obstacles
@@ -16,8 +17,15 @@ public class ObstacleSpawner : MonoBehaviour
     public float spawnHeight = -1f; // Y position (vertical location)
     public float laneDistance = 3f; // Distance between lanes
 
+    [Header("Coin Settings")]
+    public Vector3 coinPositionOffset = Vector3.zero; // XYZ offset from lane center (X=left/right, Y=up/down, Z=forward/back)
+    public Vector3 coinScale = Vector3.one; // Coin size (1,1,1 = normal)
+    public int coinsPerLane = 1; // Number of coins to spawn per empty lane
+    public float coinSpacing = 2f; // Distance between coins (if multiple per lane)
+
     [Header("Object Pooling")]
     public int poolSize = 20; // Initial pool size
+    public int coinPoolSize = 30; // Initial coin pool size
 
     [Header("Despawn Settings")]
     public float despawnDistance = 10f; // Distance behind player before obstacle despawns
@@ -35,6 +43,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     private List<GameObject> activeObstacles = new List<GameObject>();
     private Queue<GameObject> obstaclePool = new Queue<GameObject>();
+    private List<GameObject> activeCoins = new List<GameObject>();
+    private Queue<GameObject> coinPool = new Queue<GameObject>();
 
     public float iFrameDuration = 2f;
     public float flashInterval = 0.2f;
@@ -47,11 +57,23 @@ public class ObstacleSpawner : MonoBehaviour
 
     void InitializePool()
     {
+        // Initialize obstacle pool
         for (int i = 0; i < poolSize; i++)
         {
             GameObject obj = Instantiate(obstaclePrefab);
             obj.SetActive(false);
             obstaclePool.Enqueue(obj);
+        }
+
+        // Initialize coin pool
+        if (coinPrefab != null)
+        {
+            for (int i = 0; i < coinPoolSize; i++)
+            {
+                GameObject coin = Instantiate(coinPrefab);
+                coin.SetActive(false);
+                coinPool.Enqueue(coin);
+            }
         }
     }
 
@@ -70,15 +92,37 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
+    GameObject GetPooledCoin()
+    {
+        if (coinPool.Count > 0)
+        {
+            GameObject coin = coinPool.Dequeue();
+            coin.SetActive(true);
+            return coin;
+        }
+        else
+        {
+            GameObject coin = Instantiate(coinPrefab);
+            return coin;
+        }
+    }
+
     void ReturnToPool(GameObject obj)
     {
         obj.SetActive(false);
         obstaclePool.Enqueue(obj);
     }
 
+    void ReturnCoinToPool(GameObject coin)
+    {
+        coin.SetActive(false);
+        coinPool.Enqueue(coin);
+    }
+
     void Update()
     {
         DespawnOldObstacles();
+        DespawnOldCoins();
     }
 
     public void TriggerSpawnNow()
@@ -101,11 +145,15 @@ public class ObstacleSpawner : MonoBehaviour
         int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
         obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
 
+        List<int> occupiedLanes = new List<int>();
+
+        // Spawn obstacles
         for (int i = 0; i < obstaclesToSpawn; i++)
         {
             int index = Random.Range(0, availableLanes.Count);
             int lane = availableLanes[index];
             availableLanes.RemoveAt(index);
+            occupiedLanes.Add(lane);
 
             float laneX = (lane - 1.3f) * laneDistance;
             Vector3 spawnPos = new Vector3(laneX, spawnHeight, playerMovement.transform.position.z + zOffset);
@@ -117,6 +165,44 @@ public class ObstacleSpawner : MonoBehaviour
             activeObstacles.Add(obstacle);
             StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
         }
+
+        // Spawn coins in empty lanes
+        if (coinPrefab != null)
+        {
+            foreach (int emptyLane in availableLanes)
+            {
+                float baseLaneX = (emptyLane - 1.3f) * laneDistance;
+                
+                // Spawn multiple coins per lane if specified
+                for (int c = 0; c < coinsPerLane; c++)
+                {
+                    float baseZPosition = playerMovement.transform.position.z + zOffset;
+                    
+                    // If multiple coins, space them out along the Z axis
+                    if (coinsPerLane > 1)
+                    {
+                        float totalSpacing = (coinsPerLane - 1) * coinSpacing;
+                        float startOffset = -totalSpacing / 2f;
+                        baseZPosition += startOffset + (c * coinSpacing);
+                    }
+                    
+                    // Apply the position offset
+                    Vector3 coinPos = new Vector3(
+                        baseLaneX + coinPositionOffset.x, 
+                        spawnHeight + coinPositionOffset.y, 
+                        baseZPosition + coinPositionOffset.z
+                    );
+
+                    GameObject coin = GetPooledCoin();
+                    coin.transform.position = coinPos;
+                    coin.transform.rotation = coinPrefab.transform.rotation;
+                    coin.transform.localScale = coinScale;
+
+                    activeCoins.Add(coin);
+                    StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
+                }
+            }
+        }
     }
 
     IEnumerator AutoDespawnObstacle(GameObject obstacle, float lifetime)
@@ -126,6 +212,16 @@ public class ObstacleSpawner : MonoBehaviour
         {
             activeObstacles.Remove(obstacle);
             ReturnToPool(obstacle);
+        }
+    }
+
+    IEnumerator AutoDespawnCoin(GameObject coin, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (coin != null && coin.activeSelf)
+        {
+            activeCoins.Remove(coin);
+            ReturnCoinToPool(coin);
         }
     }
 
@@ -142,6 +238,23 @@ public class ObstacleSpawner : MonoBehaviour
                 GameObject obstacle = activeObstacles[i];
                 activeObstacles.RemoveAt(i);
                 ReturnToPool(obstacle);
+            }
+        }
+    }
+
+    void DespawnOldCoins()
+    {
+        for (int i = activeCoins.Count - 1; i >= 0; i--)
+        {
+            if (activeCoins[i] == null || !activeCoins[i].activeSelf)
+            {
+                activeCoins.RemoveAt(i);
+            }
+            else if (activeCoins[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
+            {
+                GameObject coin = activeCoins[i];
+                activeCoins.RemoveAt(i);
+                ReturnCoinToPool(coin);
             }
         }
     }
