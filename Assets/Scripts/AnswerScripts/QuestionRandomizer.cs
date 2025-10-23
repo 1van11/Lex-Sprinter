@@ -81,7 +81,7 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (index >= 0 && index < spellingPairs.GetLength(0))
         {
-            clueText.text = spellingPairs[index, 0];
+           // clueText.text = spellingPairs[index, 0];
             jumpText.text = spellingPairs[index, 1];
             slideText.text = spellingPairs[index, 2];
             Debug.Log($"Spelling question: {jumpText.text} / {slideText.text}");
