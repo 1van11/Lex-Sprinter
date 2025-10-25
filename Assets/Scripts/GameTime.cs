@@ -1,36 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameTime : MonoBehaviour
 {
-    public float levelDuration = 300f; // 5 minutes
-    private float timer;
-
+    public float timer = 0f; // start from zero
     public TMP_Text timerText; // assign your TMP Text in Inspector
 
     void Start()
     {
-        timer = levelDuration; // start at 5 minutes
-        UpdateTimerText();
+        UpdateTimerText(); // display 0:00 at start
     }
 
     void Update()
     {
-        if (timer > 0)
-        {
-            timer -= Time.deltaTime;
-            if (timer < 0) timer = 0;
-
-            UpdateTimerText();
-        }
-        else
-        {
-            // Timer reached 0, trigger event
-            TimerEnded();
-        }
+        timer += Time.deltaTime; // count upward every frame
+        UpdateTimerText();
     }
 
     void UpdateTimerText()
@@ -38,23 +24,5 @@ public class GameTime : MonoBehaviour
         int minutes = Mathf.FloorToInt(timer / 60f);
         int seconds = Mathf.FloorToInt(timer % 60f);
         timerText.text = $"Time: {minutes:00}:{seconds:00}";
-    }
-
-    void TimerEnded()
-    {
-        Debug.Log("⏰ Time's up!");
-        IncreaseDifficulty();
-
-        // Load next scene
-        SceneManager.LoadScene("SecondScene");
-
-        // Optionally reset timer if you want looping
-        // timer = levelDuration;
-    }
-
-    void IncreaseDifficulty()
-    {
-        Debug.Log("Difficulty increased!");
-        // Example: spawn more obstacles, increase speed, etc.
     }
 }

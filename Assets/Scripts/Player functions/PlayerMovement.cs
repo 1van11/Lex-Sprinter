@@ -63,6 +63,13 @@ public class PlayerMovement : MonoBehaviour
     private float targetTilt = 0f;
     private float targetYaw = 0f;
 
+
+    // 🟩 Swipe Controls
+    private Vector2 startTouchPos;
+    private Vector2 endTouchPos;
+    private bool swipeDetected = false;
+    private float swipeThreshold = 50f; // minimum distance in pixels to count as a swipe
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -196,7 +203,7 @@ forwardSpeed = 10f * bonus; // apply multiplier to base speed
 void UpdateScoreUI()
 {
     if (scoreText != null)
-        scoreText.text = $"Score: {score}";
+        scoreText.text = $"{score}";
 }
 
 
@@ -353,7 +360,73 @@ void UpdateScoreUI()
         }
     }
 
-   IEnumerator Slide()
+void DetectSwipe()
+{
+    if (Input.touchCount > 0)
+    {
+        Touch touch = Input.GetTouch(0);
+
+        switch (touch.phase)
+        {
+            case TouchPhase.Began:
+                startTouchPos = touch.position;
+                swipeDetected = true;
+                break;
+
+            case TouchPhase.Ended:
+                if (!swipeDetected) return;
+
+                endTouchPos = touch.position;
+                Vector2 swipeDelta = endTouchPos - startTouchPos;
+
+                if (swipeDelta.magnitude < swipeThreshold)
+                    return; // too short, ignore
+
+                float x = swipeDelta.x;
+                float y = swipeDelta.y;
+
+                if (Mathf.Abs(x) > Mathf.Abs(y))
+                {
+                    // 🔹 Horizontal Swipe
+                    if (x > 0 && currentLane < 2)
+                    {
+                        currentLane++;
+                        SetTargetPosition();
+                        targetTilt = -tiltAngle;
+                        targetYaw = lookAngle;
+                    }
+                    else if (x < 0 && currentLane > 0)
+                    {
+                        currentLane--;
+                        SetTargetPosition();
+                        targetTilt = tiltAngle;
+                        targetYaw = -lookAngle;
+                    }
+                }
+                else
+                {
+                    // 🔹 Vertical Swipe
+                    if (y > 0)
+                    {
+                        // Swipe Up = Jump
+                        lastJumpPressedTime = Time.time;
+                        jumpHeld = true;
+                    }
+                    else if (y < 0)
+                    {
+                        // Swipe Down = Slide
+                        if (IsGrounded()) StartCoroutine(Slide());
+                        else StartCoroutine(AirSlide());
+                    }
+                }
+
+                swipeDetected = false;
+                break;
+        }
+    }
+}
+
+    IEnumerator Slide()
 {
     isSliding = true;
 
