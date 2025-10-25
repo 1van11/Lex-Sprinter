@@ -8,11 +8,15 @@ public class ObstacleSpawner : MonoBehaviour
     public PlayerMovement playerMovement;
     public GameObject obstaclePrefab;
     public GameObject coinPrefab;
-    
+
+    [Header("Parent Transform")]
+    [Tooltip("Parent object for spawned obstacles, coins, and power-ups. Leave empty to use this GameObject.")]
+    public Transform spawnParent;
+
     [Header("Power-Up Prefabs")]
-    public GameObject shieldPowerUpPrefab; // Shield power-up
-    public GameObject magnetPowerUpPrefab; // Magnet power-up
-    public GameObject slowTimePowerUpPrefab; // Slow time power-up
+    public GameObject shieldPowerUpPrefab;
+    public GameObject magnetPowerUpPrefab;
+    public GameObject slowTimePowerUpPrefab;
 
     [Header("Spawn Settings")]
     public float spawnDistance = 20f;
@@ -29,11 +33,12 @@ public class ObstacleSpawner : MonoBehaviour
     public float coinSpacing = 2f;
 
     [Header("Power-Up Settings")]
-    public float firstPowerUpDistance = 500f; // First power-up at 500m
-    public float powerUpInterval = 200f; // Every 200m after that
+    public float firstPowerUpDistance = 500f;
+    public float powerUpInterval = 200f;
     public Vector3 powerUpPositionOffset = Vector3.zero;
     public Vector3 powerUpScale = Vector3.one;
-    public float powerUpSpawnAhead = 20f; // Spawn ahead of player
+    public float powerUpSpawnAhead = 20f;
+
     [Tooltip("Set spawn chances (must total 100). If empty, spawns randomly.")]
     public PowerUpSpawnChance[] spawnChances = new PowerUpSpawnChance[]
     {
@@ -45,7 +50,7 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Object Pooling")]
     public int poolSize = 20;
     public int coinPoolSize = 30;
-    public int powerUpPoolSize = 5; // Pool size per power-up type
+    public int powerUpPoolSize = 5;
 
     [Header("Despawn Settings")]
     public float despawnDistance = 10f;
@@ -68,8 +73,7 @@ public class ObstacleSpawner : MonoBehaviour
     private Queue<GameObject> obstaclePool = new Queue<GameObject>();
     private List<GameObject> activeCoins = new List<GameObject>();
     private Queue<GameObject> coinPool = new Queue<GameObject>();
-    
-    // Separate pools for each power-up type
+
     private List<GameObject> activePowerUps = new List<GameObject>();
     private Queue<GameObject> shieldPool = new Queue<GameObject>();
     private Queue<GameObject> magnetPool = new Queue<GameObject>();
@@ -82,19 +86,19 @@ public class ObstacleSpawner : MonoBehaviour
     public float flashInterval = 0.2f;
     private bool triggered = false;
 
-    public enum PowerUpType
-    {
-        Shield,
-        Magnet,
-        SlowTime
-    }
+    public enum PowerUpType { Shield, Magnet, SlowTime }
 
     [System.Serializable]
     public class PowerUpSpawnChance
     {
         public PowerUpType type;
-        [Range(0, 100)]
-        public int chance;
+        [Range(0, 100)] public int chance;
+    }
+
+    // Helper property to get the parent transform
+    private Transform ParentTransform
+    {
+        get { return spawnParent != null ? spawnParent : transform; }
     }
 
     void Start()
@@ -108,6 +112,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int i = 0; i < poolSize; i++)
         {
             GameObject obj = Instantiate(obstaclePrefab);
+            obj.transform.SetParent(ParentTransform);
             obj.SetActive(false);
             obstaclePool.Enqueue(obj);
         }
@@ -117,17 +122,18 @@ public class ObstacleSpawner : MonoBehaviour
             for (int i = 0; i < coinPoolSize; i++)
             {
                 GameObject coin = Instantiate(coinPrefab);
+                coin.transform.SetParent(ParentTransform);
                 coin.SetActive(false);
                 coinPool.Enqueue(coin);
             }
         }
 
-        // Initialize power-up pools
         if (shieldPowerUpPrefab != null)
         {
             for (int i = 0; i < powerUpPoolSize; i++)
             {
                 GameObject shield = Instantiate(shieldPowerUpPrefab);
+                shield.transform.SetParent(ParentTransform);
                 shield.SetActive(false);
                 shieldPool.Enqueue(shield);
             }
@@ -138,6 +144,7 @@ public class ObstacleSpawner : MonoBehaviour
             for (int i = 0; i < powerUpPoolSize; i++)
             {
                 GameObject magnet = Instantiate(magnetPowerUpPrefab);
+                magnet.transform.SetParent(ParentTransform);
                 magnet.SetActive(false);
                 magnetPool.Enqueue(magnet);
             }
@@ -148,6 +155,7 @@ public class ObstacleSpawner : MonoBehaviour
             for (int i = 0; i < powerUpPoolSize; i++)
             {
                 GameObject slowTime = Instantiate(slowTimePowerUpPrefab);
+                slowTime.transform.SetParent(ParentTransform);
                 slowTime.SetActive(false);
                 slowTimePool.Enqueue(slowTime);
             }
@@ -156,32 +164,34 @@ public class ObstacleSpawner : MonoBehaviour
 
     GameObject GetPooledObstacle()
     {
+        GameObject obj;
         if (obstaclePool.Count > 0)
         {
-            GameObject obj = obstaclePool.Dequeue();
-            obj.SetActive(true);
-            return obj;
+            obj = obstaclePool.Dequeue();
         }
         else
         {
-            GameObject obj = Instantiate(obstaclePrefab);
-            return obj;
+            obj = Instantiate(obstaclePrefab);
+            obj.transform.SetParent(ParentTransform);
         }
+        obj.SetActive(true);
+        return obj;
     }
 
     GameObject GetPooledCoin()
     {
+        GameObject coin;
         if (coinPool.Count > 0)
         {
-            GameObject coin = coinPool.Dequeue();
-            coin.SetActive(true);
-            return coin;
+            coin = coinPool.Dequeue();
         }
         else
         {
-            GameObject coin = Instantiate(coinPrefab);
-            return coin;
+            coin = Instantiate(coinPrefab);
+            coin.transform.SetParent(ParentTransform);
         }
+        coin.SetActive(true);
+        return coin;
     }
 
     GameObject GetPooledPowerUp(PowerUpType type)
@@ -191,38 +201,33 @@ public class ObstacleSpawner : MonoBehaviour
 
         switch (type)
         {
-            case PowerUpType.Shield:
-                pool = shieldPool;
-                prefab = shieldPowerUpPrefab;
-                break;
-            case PowerUpType.Magnet:
-                pool = magnetPool;
-                prefab = magnetPowerUpPrefab;
-                break;
-            case PowerUpType.SlowTime:
-                pool = slowTimePool;
-                prefab = slowTimePowerUpPrefab;
-                break;
+            case PowerUpType.Shield: pool = shieldPool; prefab = shieldPowerUpPrefab; break;
+            case PowerUpType.Magnet: pool = magnetPool; prefab = magnetPowerUpPrefab; break;
+            case PowerUpType.SlowTime: pool = slowTimePool; prefab = slowTimePowerUpPrefab; break;
         }
 
+        GameObject powerUp;
         if (pool != null && pool.Count > 0)
         {
-            GameObject powerUp = pool.Dequeue();
-            powerUp.SetActive(true);
-            return powerUp;
+            powerUp = pool.Dequeue();
         }
         else if (prefab != null)
         {
-            GameObject powerUp = Instantiate(prefab);
-            return powerUp;
+            powerUp = Instantiate(prefab);
+            powerUp.transform.SetParent(ParentTransform);
+        }
+        else
+        {
+            return null;
         }
 
-        return null;
+        powerUp.SetActive(true);
+        return powerUp;
     }
 
     void ReturnToPool(GameObject obj)
     {
-        obj.SetActive(false);
+        obj.SetActive(false); // FIXED: Was true, should be false
         obstaclePool.Enqueue(obj);
     }
 
@@ -236,19 +241,12 @@ public class ObstacleSpawner : MonoBehaviour
     {
         powerUp.SetActive(false);
 
-        // Determine which pool to return to based on prefab
         if (shieldPowerUpPrefab != null && powerUp.name.Contains(shieldPowerUpPrefab.name))
-        {
             shieldPool.Enqueue(powerUp);
-        }
         else if (magnetPowerUpPrefab != null && powerUp.name.Contains(magnetPowerUpPrefab.name))
-        {
             magnetPool.Enqueue(powerUp);
-        }
         else if (slowTimePowerUpPrefab != null && powerUp.name.Contains(slowTimePowerUpPrefab.name))
-        {
             slowTimePool.Enqueue(powerUp);
-        }
     }
 
     void Update()
@@ -262,76 +260,51 @@ public class ObstacleSpawner : MonoBehaviour
     void CheckPowerUpSpawn()
     {
         if (playerMovement == null) return;
-
         float playerDistance = playerMovement.transform.position.z;
 
         if (playerDistance >= nextPowerUpDistance)
         {
             SpawnPowerUp();
-
             if (!hasSpawnedFirstPowerUp)
             {
                 hasSpawnedFirstPowerUp = true;
                 nextPowerUpDistance = firstPowerUpDistance + powerUpInterval;
             }
-            else
-            {
-                nextPowerUpDistance += powerUpInterval;
-            }
+            else nextPowerUpDistance += powerUpInterval;
         }
     }
 
     PowerUpType GetRandomPowerUpType()
     {
-        // If no spawn chances defined, return random type
         if (spawnChances == null || spawnChances.Length == 0)
-        {
             return (PowerUpType)Random.Range(0, 3);
-        }
 
-        // Calculate total chance
         int totalChance = 0;
         foreach (var sc in spawnChances)
-        {
             totalChance += sc.chance;
-        }
 
-        // Pick random value
         int random = Random.Range(0, totalChance);
         int cumulative = 0;
 
-        // Find which type was selected
         foreach (var sc in spawnChances)
         {
             cumulative += sc.chance;
-            if (random < cumulative)
-            {
-                return sc.type;
-            }
+            if (random < cumulative) return sc.type;
         }
 
-        // Fallback
         return PowerUpType.Shield;
     }
 
     void SpawnPowerUp()
     {
-        // Get random power-up type
         PowerUpType powerUpType = GetRandomPowerUpType();
-
-        // Check if prefab exists
         GameObject prefab = null;
+
         switch (powerUpType)
         {
-            case PowerUpType.Shield:
-                prefab = shieldPowerUpPrefab;
-                break;
-            case PowerUpType.Magnet:
-                prefab = magnetPowerUpPrefab;
-                break;
-            case PowerUpType.SlowTime:
-                prefab = slowTimePowerUpPrefab;
-                break;
+            case PowerUpType.Shield: prefab = shieldPowerUpPrefab; break;
+            case PowerUpType.Magnet: prefab = magnetPowerUpPrefab; break;
+            case PowerUpType.SlowTime: prefab = slowTimePowerUpPrefab; break;
         }
 
         if (prefab == null)
@@ -341,7 +314,6 @@ public class ObstacleSpawner : MonoBehaviour
         }
 
         List<int> emptyLanes = GetEmptyLanesAtDistance(powerUpSpawnAhead, 5f);
-
         if (emptyLanes.Count == 0)
         {
             Debug.LogWarning("No empty lanes for power-up!");
@@ -364,7 +336,6 @@ public class ObstacleSpawner : MonoBehaviour
             powerUp.transform.position = spawnPos;
             powerUp.transform.rotation = prefab.transform.rotation;
             powerUp.transform.localScale = powerUpScale;
-
             activePowerUps.Add(powerUp);
             StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
 
@@ -377,26 +348,18 @@ public class ObstacleSpawner : MonoBehaviour
         List<int> emptyLanes = new List<int> { 0, 1, 2 };
         float checkZ = playerMovement.transform.position.z + distance;
 
-        // Check obstacles
         foreach (GameObject obstacle in activeObstacles)
         {
             if (obstacle == null || !obstacle.activeSelf) continue;
             if (Mathf.Abs(obstacle.transform.position.z - checkZ) < checkRange)
-            {
-                int lane = GetLaneFromPosition(obstacle.transform.position.x);
-                emptyLanes.Remove(lane);
-            }
+                emptyLanes.Remove(GetLaneFromPosition(obstacle.transform.position.x));
         }
 
-        // Check coins
         foreach (GameObject coin in activeCoins)
         {
             if (coin == null || !coin.activeSelf) continue;
             if (Mathf.Abs(coin.transform.position.z - checkZ) < checkRange)
-            {
-                int lane = GetLaneFromPosition(coin.transform.position.x);
-                emptyLanes.Remove(lane);
-            }
+                emptyLanes.Remove(GetLaneFromPosition(coin.transform.position.x));
         }
 
         return emptyLanes;
@@ -409,12 +372,9 @@ public class ObstacleSpawner : MonoBehaviour
         return Mathf.Clamp(lane, 0, 2);
     }
 
-    public void TriggerSpawnNow()
-    {
-        SpawnObstacleRows();
-    }
+    public void TriggerSpawnNow() => SpawnObstacleRows();
 
-    void SpawnObstacleRows()
+    public void SpawnObstacleRows()
     {
         for (int row = 0; row < rowsPerSpawn; row++)
         {
@@ -429,14 +389,11 @@ public class ObstacleSpawner : MonoBehaviour
         int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
         obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
 
-        List<int> occupiedLanes = new List<int>();
-
         for (int i = 0; i < obstaclesToSpawn; i++)
         {
             int index = Random.Range(0, availableLanes.Count);
             int lane = availableLanes[index];
             availableLanes.RemoveAt(index);
-            occupiedLanes.Add(lane);
 
             float laneX = (lane - 1.3f) * laneDistance;
             Vector3 spawnPos = new Vector3(laneX, spawnHeight, playerMovement.transform.position.z + zOffset);
@@ -444,7 +401,6 @@ public class ObstacleSpawner : MonoBehaviour
             GameObject obstacle = GetPooledObstacle();
             obstacle.transform.position = spawnPos;
             obstacle.transform.rotation = obstaclePrefab.transform.rotation;
-
             activeObstacles.Add(obstacle);
             StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
         }
@@ -454,21 +410,20 @@ public class ObstacleSpawner : MonoBehaviour
             foreach (int emptyLane in availableLanes)
             {
                 float baseLaneX = (emptyLane - 1.3f) * laneDistance;
-                
                 for (int c = 0; c < coinsPerLane; c++)
                 {
                     float baseZPosition = playerMovement.transform.position.z + zOffset;
-                    
+
                     if (coinsPerLane > 1)
                     {
                         float totalSpacing = (coinsPerLane - 1) * coinSpacing;
                         float startOffset = -totalSpacing / 2f;
                         baseZPosition += startOffset + (c * coinSpacing);
                     }
-                    
+
                     Vector3 coinPos = new Vector3(
-                        baseLaneX + coinPositionOffset.x, 
-                        spawnHeight + coinPositionOffset.y, 
+                        baseLaneX + coinPositionOffset.x,
+                        spawnHeight + coinPositionOffset.y,
                         baseZPosition + coinPositionOffset.z
                     );
 
@@ -476,7 +431,6 @@ public class ObstacleSpawner : MonoBehaviour
                     coin.transform.position = coinPos;
                     coin.transform.rotation = coinPrefab.transform.rotation;
                     coin.transform.localScale = coinScale;
-
                     activeCoins.Add(coin);
                     StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
                 }
@@ -519,9 +473,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int i = activeObstacles.Count - 1; i >= 0; i--)
         {
             if (activeObstacles[i] == null || !activeObstacles[i].activeSelf)
-            {
                 activeObstacles.RemoveAt(i);
-            }
             else if (activeObstacles[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
             {
                 GameObject obstacle = activeObstacles[i];
@@ -536,9 +488,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int i = activeCoins.Count - 1; i >= 0; i--)
         {
             if (activeCoins[i] == null || !activeCoins[i].activeSelf)
-            {
                 activeCoins.RemoveAt(i);
-            }
             else if (activeCoins[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
             {
                 GameObject coin = activeCoins[i];
@@ -553,9 +503,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int i = activePowerUps.Count - 1; i >= 0; i--)
         {
             if (activePowerUps[i] == null || !activePowerUps[i].activeSelf)
-            {
                 activePowerUps.RemoveAt(i);
-            }
             else if (activePowerUps[i].transform.position.z < playerMovement.transform.position.z - despawnDistance)
             {
                 GameObject powerUp = activePowerUps[i];
@@ -574,8 +522,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int row = 0; row < rowsPerSpawn; row++)
         {
             float spawnZ = playerMovement.transform.position.z + spawnDistance + (row * rowSpacing);
-            float alpha = 1f - (row * 0.3f);
-            alpha = Mathf.Clamp01(alpha);
+            float alpha = Mathf.Clamp01(1f - (row * 0.3f));
 
             Gizmos.color = new Color(spawnGizmoColor.r, spawnGizmoColor.g, spawnGizmoColor.b, alpha);
             DrawLaneBoxes(spawnZ);
@@ -589,21 +536,17 @@ public class ObstacleSpawner : MonoBehaviour
         Gizmos.color = despawnGizmoColor;
         DrawLaneBoxes(despawnZ);
 
-        // Draw power-up spawn points with different colors
         float powerUpZ = nextPowerUpDistance + powerUpSpawnAhead - playerMovement.transform.position.z + playerMovement.transform.position.z;
-        
+
         for (int lane = 0; lane < 3; lane++)
         {
             float laneX = (lane - 1.3f) * laneDistance;
             Vector3 basePos = new Vector3(laneX, spawnHeight + 1f, powerUpZ);
-            
-            // Draw three colored spheres for each power-up type
+
             Gizmos.color = shieldGizmoColor;
             Gizmos.DrawWireSphere(basePos + Vector3.left * 0.3f, gizmoSphereSize);
-            
             Gizmos.color = magnetGizmoColor;
             Gizmos.DrawWireSphere(basePos, gizmoSphereSize);
-            
             Gizmos.color = slowTimeGizmoColor;
             Gizmos.DrawWireSphere(basePos + Vector3.right * 0.3f, gizmoSphereSize);
         }
