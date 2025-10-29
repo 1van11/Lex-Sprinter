@@ -8,6 +8,6 @@ public class MainMenuOnclicks : MonoBehaviour
     public void PlayButton()
     {
         
-        SceneManager.LoadScene("Samplescene");
+        SceneManager.LoadScene("EasyMode");
     }
 }
