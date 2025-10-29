@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +22,14 @@ public class PlayerMovement : MonoBehaviour
     public float distanceTraveled = 0f;
     private Vector3 lastPosition;
     public TMPro.TMP_Text distanceText;
+    
+    [Header("Health System")]
+    public int maxHealth = 5;
+    public int currentHealth = 5;
+    public TMPro.TMP_Text healthText;
+    public UnityEngine.UI.Image[] healthImages; // Drag your heart sprites here
+    public Sprite fullHealthSprite;
+    public Sprite emptyHealthSprite;
     
     [Header("Jump")]
     public float jumpForce = 9f;
@@ -58,9 +66,9 @@ public class PlayerMovement : MonoBehaviour
     public bool isSlowTime = false;
     
     [Header("Buff Durations")]
-    public float shieldDuration = 8f;      // Shield lasts longer for protection
-    public float magnetDuration = 6f;      // Magnet medium duration
-    public float slowTimeDuration = 4f;    // Slow time shorter (very powerful)
+    public float shieldDuration = 8f;
+    public float magnetDuration = 6f;
+    public float slowTimeDuration = 4f;
 
     [Header("Magnet Settings")]
     public float magnetRadius = 7f;
@@ -71,6 +79,9 @@ public class PlayerMovement : MonoBehaviour
     public GameObject shieldVisual;
     public GameObject magnetVisual;
 
+    [Header("Game Over")]
+    public GameObject gameOverPanel;
+
     private Rigidbody rb;
     private CapsuleCollider col;
     private Renderer[] renderers;
@@ -80,6 +91,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isChangingLanes = false;
     private bool isJumping = false;
     private bool jumpHeld = false;
+    private bool isDead = false;
 
     private float inputCooldown = 0.2f;
     private float lastInputTime;
@@ -93,15 +105,11 @@ public class PlayerMovement : MonoBehaviour
     private bool swipeDetected = false;
     private float swipeThreshold = 50f;
 
-    private PlayerHealth playerHealth;
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
         renderers = GetComponentsInChildren<Renderer>();
-
-        playerHealth = GetComponent<PlayerHealth>(); // ✅ LINK HEALTH
 
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 
@@ -111,19 +119,33 @@ public class PlayerMovement : MonoBehaviour
         targetPosition = new Vector3(0, transform.position.y, transform.position.z);
         transform.position = targetPosition;
         lastPosition = transform.position;
+
+        // Initialize health
+        currentHealth = maxHealth;
+        UpdateHealthUI();
+
+        // Hide buff visuals and game over panel at start
+        if (shieldVisual != null) shieldVisual.SetActive(false);
+        if (magnetVisual != null) magnetVisual.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
     }
 
     void Update()
     {
+        if (isDead) return; // Stop all input if dead
+
+        // Constant forward movement
         Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
         transform.position += forwardMove;
 
+        // Track distance
         distanceTraveled += Vector3.Distance(transform.position, lastPosition);
         lastPosition = transform.position;
 
         if (distanceText != null)
             distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
 
+        // Speed increase logic
         float bonus = 1f;
         for (int i = 300; i <= distanceTraveled; i += 300)
         {
@@ -141,35 +163,43 @@ public class PlayerMovement : MonoBehaviour
         ApplyExtraGravity();
         DetectSwipe();
 
+        // Track grounded time
         if (IsGrounded())
             lastGroundedTime = Time.time;
 
+        // Track jump input
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             lastJumpPressedTime = Time.time;
     }
+
     void OnTriggerEnter(Collider other)
     {
+        if (isDead) return; // Ignore collisions if dead
+
+        // Coin collection
         if (other.CompareTag("Coin"))
         {
             score += 1;
             UpdateScoreUI();
             other.gameObject.SetActive(false);
+            Debug.Log("💰 Coin collected!");
             return;
         }
 
-        // ✅ Trap Damage Now Uses Hearts
-        if (other.CompareTag("Trap"))
+        // Trap - only triggers iframe if no shield
+        if (other.CompareTag("Trap") && !isInvincible)
         {
-            if (!hasShield)
-                playerHealth.TakeDamage();
-            else
-                Debug.Log("🛡️ Shield blocked trap!");
-
-            return;
+            if (hasShield)
+            {
+                Debug.Log("🛡️ Shield blocked the trap!");
+                return;
+            }
+            
+            TakeDamage(1);
         }
 
-        // ✅ Answer Check Uses Hearts
-        if (other.CompareTag("AnswerOptions"))
+        // Answer options
+        if (other.CompareTag("AnswerOptions") && !isInvincible)
         {
             QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
 
@@ -182,29 +212,28 @@ public class PlayerMovement : MonoBehaviour
 
                 if (isCorrect)
                 {
+                    Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
                     score += 5;
                     UpdateScoreUI();
                 }
                 else
                 {
-                    if (!hasShield)
-                        playerHealth.TakeDamage();
+                    Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
+
+                    if (hasShield)
+                    {
+                        Debug.Log("🛡️ Shield protected you from wrong answer!");
+                    }
                     else
-                        Debug.Log("🛡️ Shield protected wrong answer!");
+                    {
+                        TakeDamage(1);
+                    }
                 }
 
-                Destroy(other.transform.parent.gameObject);
+                if (other.transform.parent != null)
+                    Destroy(other.transform.parent.gameObject);
             }
         }
-
-        if (other.CompareTag("Shield"))
-        {
-            hasShield = true;
-            Destroy(other.gameObject);
-            Debug.Log("🛡️ Shield on!");
-        }
-    
-
 
         // 🟢 SHIELD BUFF
         if (other.CompareTag("Shield"))
@@ -231,11 +260,89 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void TakeDamage(int damage)
+    {
+        if (isDead) return;
+
+        currentHealth -= damage;
+        currentHealth = Mathf.Max(0, currentHealth);
+        
+        Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
+        UpdateHealthUI();
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+        }
+    }
+
+    void UpdateHealthUI()
+    {
+        // Update text UI
+        if (healthText != null)
+            healthText.text = $"❤️ {currentHealth}";
+
+        // Update heart sprite UI
+        if (healthImages != null && healthImages.Length > 0)
+        {
+            for (int i = 0; i < healthImages.Length; i++)
+            {
+                if (healthImages[i] != null)
+                {
+                    if (i < currentHealth)
+                    {
+                        healthImages[i].sprite = fullHealthSprite;
+                        healthImages[i].enabled = true;
+                    }
+                    else
+                    {
+                        if (emptyHealthSprite != null)
+                        {
+                            healthImages[i].sprite = emptyHealthSprite;
+                            healthImages[i].enabled = true;
+                        }
+                        else
+                        {
+                            healthImages[i].enabled = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Die()
+    {
+        isDead = true;
+        Debug.Log("💀 Game Over!");
+
+        // Stop all movement
+        rb.velocity = Vector3.zero;
+        forwardSpeed = 0f;
+
+        // Show game over panel
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
+
+        // You can add more death effects here:
+        // - Play death animation
+        // - Play death sound
+        // - Save high score
+        // - etc.
+    }
+
     void UpdateScoreUI()
     {
         if (scoreText != null)
             scoreText.text = $"{score}";
     }
+
     public IEnumerator TriggerIFrames(float duration, float flashInterval)
     {
         isInvincible = true;
@@ -291,24 +398,20 @@ public class PlayerMovement : MonoBehaviour
         float timer = magnetDuration;
         while (timer > 0)
         {
-            // Find all coins within radius (using tag instead of layer for simplicity)
             GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
             
             int pulledCount = 0;
             
             foreach (GameObject coinObj in allCoins)
             {
-                // Skip disabled/pooled coins
                 if (coinObj == null || !coinObj.activeInHierarchy)
                     continue;
                 
-                // Check if coin is within magnet radius
                 float distance = Vector3.Distance(transform.position, coinObj.transform.position);
                 if (distance <= magnetRadius)
                 {
                     pulledCount++;
                     
-                    // Pull coin toward player (it will trigger OnTriggerEnter when it touches)
                     coinObj.transform.position = Vector3.MoveTowards(
                         coinObj.transform.position,
                         transform.position,
@@ -331,14 +434,13 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator SlowTimeBuff()
     {
         isSlowTime = true;
-        Time.timeScale = 0.5f; // Slow to 50% speed
+        Time.timeScale = 0.5f;
 
         Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
         
-        // Wait for real-time duration (not affected by timeScale)
         yield return new WaitForSecondsRealtime(slowTimeDuration);
 
-        Time.timeScale = 1f; // Return to normal speed
+        Time.timeScale = 1f;
         isSlowTime = false;
         Debug.Log("⏰ Slow Time expired");
     }
@@ -491,7 +593,6 @@ public class PlayerMovement : MonoBehaviour
 
                     if (Mathf.Abs(x) > Mathf.Abs(y))
                     {
-                        // Horizontal Swipe
                         if (x > 0 && currentLane < 2)
                         {
                             currentLane++;
@@ -509,7 +610,6 @@ public class PlayerMovement : MonoBehaviour
                     }
                     else
                     {
-                        // Vertical Swipe
                         if (y > 0)
                         {
                             lastJumpPressedTime = Time.time;
@@ -603,7 +703,6 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(targetPosition, 0.5f);
 
-        // Draw magnet radius when active
         if (hasMagnet)
         {
             Gizmos.color = Color.cyan;
