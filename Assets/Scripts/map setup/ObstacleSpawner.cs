@@ -296,52 +296,55 @@ public class ObstacleSpawner : MonoBehaviour
     }
 
     void SpawnPowerUp()
+{
+    PowerUpType powerUpType = GetRandomPowerUpType();
+    GameObject prefab = null;
+
+    switch (powerUpType)
     {
-        PowerUpType powerUpType = GetRandomPowerUpType();
-        GameObject prefab = null;
-
-        switch (powerUpType)
-        {
-            case PowerUpType.Shield: prefab = shieldPowerUpPrefab; break;
-            case PowerUpType.Magnet: prefab = magnetPowerUpPrefab; break;
-            case PowerUpType.SlowTime: prefab = slowTimePowerUpPrefab; break;
-        }
-
-        if (prefab == null)
-        {
-            Debug.LogWarning($"Power-up prefab for {powerUpType} not assigned!");
-            return;
-        }
-
-        List<int> emptyLanes = GetEmptyLanesAtDistance(powerUpSpawnAhead, 5f);
-        if (emptyLanes.Count == 0)
-        {
-            Debug.LogWarning("No empty lanes for power-up!");
-            return;
-        }
-
-        int randomLane = emptyLanes[Random.Range(0, emptyLanes.Count)];
-        float laneX = (randomLane - 1.3f) * laneDistance;
-        float spawnZ = playerMovement.transform.position.z + powerUpSpawnAhead;
-
-        Vector3 spawnPos = new Vector3(
-            laneX + powerUpPositionOffset.x,
-            spawnHeight + powerUpPositionOffset.y,
-            spawnZ + powerUpPositionOffset.z
-        );
-
-        GameObject powerUp = GetPooledPowerUp(powerUpType);
-        if (powerUp != null)
-        {
-            powerUp.transform.position = spawnPos;
-            powerUp.transform.rotation = prefab.transform.rotation;
-            powerUp.transform.localScale = powerUpScale;
-            activePowerUps.Add(powerUp);
-            StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
-
-            Debug.Log($"Spawned {powerUpType} power-up at {playerMovement.transform.position.z}m in lane {randomLane}");
-        }
+        case PowerUpType.Shield: prefab = shieldPowerUpPrefab; break;
+        case PowerUpType.Magnet: prefab = magnetPowerUpPrefab; break;
+        case PowerUpType.SlowTime: prefab = slowTimePowerUpPrefab; break;
     }
+
+    if (prefab == null)
+    {
+        Debug.LogWarning($"Power-up prefab for {powerUpType} not assigned!");
+        return;
+    }
+
+    List<int> emptyLanes = GetEmptyLanesAtDistance(powerUpSpawnAhead, 5f);
+    if (emptyLanes.Count == 0)
+    {
+        Debug.LogWarning("No empty lanes for power-up!");
+        return;
+    }
+
+    int randomLane = emptyLanes[Random.Range(0, emptyLanes.Count)];
+    float laneX = (randomLane - 1.3f) * laneDistance;
+    float spawnZ = playerMovement.transform.position.z + powerUpSpawnAhead;
+
+    Vector3 spawnPos = new Vector3(
+        laneX + powerUpPositionOffset.x,
+        spawnHeight + powerUpPositionOffset.y,
+        spawnZ + powerUpPositionOffset.z
+    );
+
+    GameObject powerUp = GetPooledPowerUp(powerUpType);
+    if (powerUp != null)
+    {
+        powerUp.transform.position = spawnPos;
+
+        // ✅ Copy the exact look of the prefab
+        powerUp.transform.rotation = prefab.transform.rotation;
+        powerUp.transform.localScale = prefab.transform.localScale;
+
+        activePowerUps.Add(powerUp);
+        StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
+
+        Debug.Log($"Spawned {powerUpType} power-up at {playerMovement.transform.position.z}m in lane {randomLane}");
+    }
+}
 
     List<int> GetEmptyLanesAtDistance(float distance, float checkRange)
     {
@@ -383,60 +386,68 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    void SpawnObstacleRow(float zOffset)
+  void SpawnObstacleRow(float zOffset)
+{
+    List<int> availableLanes = new List<int> { 0, 1, 2 };
+    int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
+    obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
+
+    for (int i = 0; i < obstaclesToSpawn; i++)
     {
-        List<int> availableLanes = new List<int> { 0, 1, 2 };
-        int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
-        obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
+        int index = Random.Range(0, availableLanes.Count);
+        int lane = availableLanes[index];
+        availableLanes.RemoveAt(index);
 
-        for (int i = 0; i < obstaclesToSpawn; i++)
+        float laneX = (lane - 1.3f) * laneDistance;
+        Vector3 spawnPos = new Vector3(laneX, spawnHeight, playerMovement.transform.position.z + zOffset);
+
+        GameObject obstacle = GetPooledObstacle();
+        obstacle.transform.position = spawnPos;
+
+        // ✅ Copy your prefab's exact rotation and scale
+        obstacle.transform.rotation = obstaclePrefab.transform.rotation;
+        obstacle.transform.localScale = obstaclePrefab.transform.localScale;
+
+        activeObstacles.Add(obstacle);
+        StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
+    }
+
+    if (coinPrefab != null)
+    {
+        foreach (int emptyLane in availableLanes)
         {
-            int index = Random.Range(0, availableLanes.Count);
-            int lane = availableLanes[index];
-            availableLanes.RemoveAt(index);
-
-            float laneX = (lane - 1.3f) * laneDistance;
-            Vector3 spawnPos = new Vector3(laneX, spawnHeight, playerMovement.transform.position.z + zOffset);
-
-            GameObject obstacle = GetPooledObstacle();
-            obstacle.transform.position = spawnPos;
-            obstacle.transform.rotation = obstaclePrefab.transform.rotation;
-            activeObstacles.Add(obstacle);
-            StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
-        }
-
-        if (coinPrefab != null)
-        {
-            foreach (int emptyLane in availableLanes)
+            float baseLaneX = (emptyLane - 1.3f) * laneDistance;
+            for (int c = 0; c < coinsPerLane; c++)
             {
-                float baseLaneX = (emptyLane - 1.3f) * laneDistance;
-                for (int c = 0; c < coinsPerLane; c++)
+                float baseZPosition = playerMovement.transform.position.z + zOffset;
+
+                if (coinsPerLane > 1)
                 {
-                    float baseZPosition = playerMovement.transform.position.z + zOffset;
-
-                    if (coinsPerLane > 1)
-                    {
-                        float totalSpacing = (coinsPerLane - 1) * coinSpacing;
-                        float startOffset = -totalSpacing / 2f;
-                        baseZPosition += startOffset + (c * coinSpacing);
-                    }
-
-                    Vector3 coinPos = new Vector3(
-                        baseLaneX + coinPositionOffset.x,
-                        spawnHeight + coinPositionOffset.y,
-                        baseZPosition + coinPositionOffset.z
-                    );
-
-                    GameObject coin = GetPooledCoin();
-                    coin.transform.position = coinPos;
-                    coin.transform.rotation = coinPrefab.transform.rotation;
-                    coin.transform.localScale = coinScale;
-                    activeCoins.Add(coin);
-                    StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
+                    float totalSpacing = (coinsPerLane - 1) * coinSpacing;
+                    float startOffset = -totalSpacing / 2f;
+                    baseZPosition += startOffset + (c * coinSpacing);
                 }
+
+                Vector3 coinPos = new Vector3(
+                    baseLaneX + coinPositionOffset.x,
+                    spawnHeight + coinPositionOffset.y,
+                    baseZPosition + coinPositionOffset.z
+                );
+
+                GameObject coin = GetPooledCoin();
+                coin.transform.position = coinPos;
+
+                // ✅ Copy exact rotation + scale from prefab
+                coin.transform.rotation = coinPrefab.transform.rotation;
+                coin.transform.localScale = coinPrefab.transform.localScale;
+
+                activeCoins.Add(coin);
+                StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
             }
         }
     }
+}
+
 
     IEnumerator AutoDespawnObstacle(GameObject obstacle, float lifetime)
     {

@@ -5,19 +5,24 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public Animator galaw;
+
+    
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
     [Header("Lane System")]
     public float laneDistance = 3f;
     public float laneChangeSpeed = 10f;
+    
     [Header("Score")]
-    public int score = 0;                  // tracks current score
-    public TMPro.TMP_Text scoreText;       // assign your TMP Text in Inspector
+    public int score = 0;
+    public TMPro.TMP_Text scoreText;
+    
     [Header("Distance")]
     public float distanceTraveled = 0f;
     private Vector3 lastPosition;
     public TMPro.TMP_Text distanceText;
+    
     [Header("Jump")]
     public float jumpForce = 9f;
     public float extraFallForce = 10f;
@@ -25,8 +30,8 @@ public class PlayerMovement : MonoBehaviour
     private float lastJumpTime;
 
     [Header("Jump Assist")]
-    public float coyoteTime = 0.2f;       // grace period after leaving ground
-    public float jumpBufferTime = 0.2f;   // grace period after pressing jump
+    public float coyoteTime = 0.2f;
+    public float jumpBufferTime = 0.2f;
     private float lastGroundedTime;
     private float lastJumpPressedTime;
 
@@ -47,6 +52,25 @@ public class PlayerMovement : MonoBehaviour
     public float flashInterval = 0.1f;
     [HideInInspector] public bool isInvincible = false;
 
+    [Header("Buffs")]
+    public bool hasShield = false;
+    public bool hasMagnet = false;
+    public bool isSlowTime = false;
+    
+    [Header("Buff Durations")]
+    public float shieldDuration = 8f;      // Shield lasts longer for protection
+    public float magnetDuration = 6f;      // Magnet medium duration
+    public float slowTimeDuration = 4f;    // Slow time shorter (very powerful)
+
+    [Header("Magnet Settings")]
+    public float magnetRadius = 7f;
+    public float magnetPullSpeed = 10f;
+    public LayerMask coinLayer;
+
+    [Header("Buff Visual Feedback (Optional)")]
+    public GameObject shieldVisual;
+    public GameObject magnetVisual;
+
     private Rigidbody rb;
     private CapsuleCollider col;
     private Renderer[] renderers;
@@ -63,22 +87,22 @@ public class PlayerMovement : MonoBehaviour
     private float targetTilt = 0f;
     private float targetYaw = 0f;
 
-
-    // 🟩 Swipe Controls
+    // Swipe Controls
     private Vector2 startTouchPos;
     private Vector2 endTouchPos;
     private bool swipeDetected = false;
-    private float swipeThreshold = 50f; // minimum distance in pixels to count as a swipe
+    private float swipeThreshold = 50f;
+
+    private PlayerHealth playerHealth;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
-
-        // Get all renderers in player (including children)
         renderers = GetComponentsInChildren<Renderer>();
 
-        // Freeze X and Z velocity so Rigidbody doesn't interfere with transform movement
+        playerHealth = GetComponent<PlayerHealth>(); // ✅ LINK HEALTH
+
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 
         originalColliderHeight = col.height;
@@ -86,127 +110,132 @@ public class PlayerMovement : MonoBehaviour
 
         targetPosition = new Vector3(0, transform.position.y, transform.position.z);
         transform.position = targetPosition;
-
-            lastPosition = transform.position; // store starting position
-
+        lastPosition = transform.position;
     }
 
     void Update()
-{
-    // Constant forward movement
-    Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
-    transform.position += forwardMove;
-
-    // Track distance
-    distanceTraveled += Vector3.Distance(transform.position, lastPosition);
-    lastPosition = transform.position;
-
-    if (distanceText != null)
-        distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
-
-    // 🔹 Speed increase logic with for loop
-float bonus = 1f; // start multiplier
-for (int i = 300; i <= distanceTraveled; i += 300)
-{
-    bonus *= 1.125f;        // grow gradually (1.2x each 300m)
-    if (bonus >= 1.8f)    // limit multiplier
-        break;
-}
-forwardSpeed = 10f * bonus; // apply multiplier to base speed
-
-    HandleLaneInput();
-    MoveBetweenLanes();
-    HandleJump();
-    HandleSlide();
-    HandleTiltAndLook();
-    ApplyExtraGravity();
-
-    // Track grounded time
-    if (IsGrounded())
-        lastGroundedTime = Time.time;
-
-    // Track jump input
-    if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
-        lastJumpPressedTime = Time.time;
-}
-
-  void OnTriggerEnter(Collider other)
     {
-    
-    // Coin collection
-    if (other.CompareTag("Coin"))
-    {
-        score += 1;                     // +1 point per coin
-        UpdateScoreUI();                // update text
-        other.gameObject.SetActive(false); // disable coin (for pooling)
-        return;                         // stop further checks
-    }
-    //  Trap
-    if (other.CompareTag("Trap") && !isInvincible)
-    {
-        StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
-    }
+        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+        transform.position += forwardMove;
 
-    //Answer option
-    if (other.CompareTag("AnswerOptions") && !isInvincible)
-    {
-        // Hardcoded correct answers
-        string[] correctAnswers = new string[]
+        distanceTraveled += Vector3.Distance(transform.position, lastPosition);
+        lastPosition = transform.position;
+
+        if (distanceText != null)
+            distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
+
+        float bonus = 1f;
+        for (int i = 300; i <= distanceTraveled; i += 300)
         {
-            "CAT", "CUP", "NOSE", "BOY", "FAST", "DOG", "HAT", "LIP", "GIRL", "SLOW",
-            "FISH", "BED", "LEG", "KID", "GOOD", "BIRD", "BOX", "ARM", "BABY", "BAD",
-            "COW", "PEN", "HAND", "AUNT", "HAPPY", "PIG", "BOOK", "FOOT", "UNCLE",
-            "SAD", "HEN", "CHAIR", "HAIR", "FRIEND", "TOY", "DUCK", "DESK", "TOOTH",
-            "RUN", "MAP", "GOAT", "BAG", "RICE", "HOP", "CAR", "MOUSE", "SUN", "EGG",
-            "SIT", "BUS", "RED", "MOON", "MILK", "STAND", "DOOR", "BLUE", "STAR",
-            "MEAT", "WALK", "BELL", "GREEN", "RAIN", "CORN", "JUMP", "ME", "PINK",
-            "SNOW", "PEAR", "SWIM", "YOU", "YELLOW", "TREE", "CAKE", "READ", "HIM",
-            "BLACK", "LEAF", "BREAD", "WRITE", "HER", "WHITE", "WIND", "JAM", "SING",
-            "BROWN", "CLOUD", "SOUP", "HOT", "GRAY", "ROCK", "MOM", "COLD", "ORANGE",
-            "EYE", "DAD", "BIG", "BALL", "EAR", "MAN", "SMALL"
-        };
+            bonus *= 1.125f;
+            if (bonus >= 1.8f)
+                break;
+        }
+        forwardSpeed = 10f * bonus;
 
-        // Get the parent QuestionRandomizer to find the correct answer
-        QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
-        
-        if (questionRandomizer != null)
+        HandleLaneInput();
+        MoveBetweenLanes();
+        HandleJump();
+        HandleSlide();
+        HandleTiltAndLook();
+        ApplyExtraGravity();
+        DetectSwipe();
+
+        if (IsGrounded())
+            lastGroundedTime = Time.time;
+
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+            lastJumpPressedTime = Time.time;
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Coin"))
         {
-            // Determine which answer this is based on the GameObject name
-            bool isJumpOption = other.gameObject.name.Contains("Jump");
-            string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
-            
-            // Check if the selected answer is correct (jumpText is always correct in your pairs)
-            bool isCorrect = (selectedAnswer == questionRandomizer.jumpText.text);
+            score += 1;
+            UpdateScoreUI();
+            other.gameObject.SetActive(false);
+            return;
+        }
 
-            if (isCorrect)
-            {
-                    Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
-                    score += 5;                        // add points
-                    UpdateScoreUI();
-            }
+        // ✅ Trap Damage Now Uses Hearts
+        if (other.CompareTag("Trap"))
+        {
+            if (!hasShield)
+                playerHealth.TakeDamage();
             else
-            {
-                    Debug.Log($"❌ Wrong Answer! (-0 points) [{selectedAnswer}] - Correct was: {questionRandomizer.jumpText.text}");
-                    score -= 0;                         // deduct points
-                    if (score < 0) score = 0;           // optional: prevent negative score
-                    UpdateScoreUI();                
-                    StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
-                // TODO: Deduct score
-            }
+                Debug.Log("🛡️ Shield blocked trap!");
 
-            // Destroy the whole question object
-            if (other.transform.parent != null)
+            return;
+        }
+
+        // ✅ Answer Check Uses Hearts
+        if (other.CompareTag("AnswerOptions"))
+        {
+            QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+
+            if (questionRandomizer != null)
+            {
+                bool isJumpOption = other.gameObject.name.Contains("Jump");
+                string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
+
+                bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
+
+                if (isCorrect)
+                {
+                    score += 5;
+                    UpdateScoreUI();
+                }
+                else
+                {
+                    if (!hasShield)
+                        playerHealth.TakeDamage();
+                    else
+                        Debug.Log("🛡️ Shield protected wrong answer!");
+                }
+
                 Destroy(other.transform.parent.gameObject);
+            }
+        }
+
+        if (other.CompareTag("Shield"))
+        {
+            hasShield = true;
+            Destroy(other.gameObject);
+            Debug.Log("🛡️ Shield on!");
+        }
+    
+
+
+        // 🟢 SHIELD BUFF
+        if (other.CompareTag("Shield"))
+        {
+            StartCoroutine(ShieldBuff());
+            Destroy(other.gameObject);
+            Debug.Log("🛡️ Shield activated!");
+        }
+
+        // 🟢 MAGNET BUFF
+        if (other.CompareTag("Magnet"))
+        {
+            StartCoroutine(MagnetBuff());
+            Destroy(other.gameObject);
+            Debug.Log("🧲 Magnet activated!");
+        }
+
+        // 🟢 SLOW TIME BUFF
+        if (other.CompareTag("SlowTime"))
+        {
+            StartCoroutine(SlowTimeBuff());
+            Destroy(other.gameObject);
+            Debug.Log("⏰ Slow Time activated!");
         }
     }
-}
-void UpdateScoreUI()
-{
-    if (scoreText != null)
-        scoreText.text = $"{score}";
-}
 
-
+    void UpdateScoreUI()
+    {
+        if (scoreText != null)
+            scoreText.text = $"{score}";
+    }
     public IEnumerator TriggerIFrames(float duration, float flashInterval)
     {
         isInvincible = true;
@@ -216,20 +245,102 @@ void UpdateScoreUI()
         {
             foreach (Renderer r in renderers)
             {
-                r.enabled = !r.enabled; // toggle visibility
+                r.enabled = !r.enabled;
             }
 
             timer += flashInterval;
             yield return new WaitForSeconds(flashInterval);
         }
 
-        // Ensure all renderers are visible at the end
         foreach (Renderer r in renderers)
         {
             r.enabled = true;
         }
 
         isInvincible = false;
+    }
+
+    IEnumerator ShieldBuff()
+    {
+        hasShield = true;
+        isInvincible = true;
+        
+        if (shieldVisual != null)
+            shieldVisual.SetActive(true);
+
+        Debug.Log($"🛡️ Shield active for {shieldDuration} seconds");
+        yield return new WaitForSeconds(shieldDuration);
+
+        if (shieldVisual != null)
+            shieldVisual.SetActive(false);
+        
+        hasShield = false;
+        isInvincible = false;
+        Debug.Log("🛡️ Shield expired");
+    }
+
+    IEnumerator MagnetBuff()
+    {
+        hasMagnet = true;
+
+        if (magnetVisual != null)
+            magnetVisual.SetActive(true);
+
+        Debug.Log($"🧲 Magnet active for {magnetDuration} seconds");
+
+        float timer = magnetDuration;
+        while (timer > 0)
+        {
+            // Find all coins within radius (using tag instead of layer for simplicity)
+            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
+            
+            int pulledCount = 0;
+            
+            foreach (GameObject coinObj in allCoins)
+            {
+                // Skip disabled/pooled coins
+                if (coinObj == null || !coinObj.activeInHierarchy)
+                    continue;
+                
+                // Check if coin is within magnet radius
+                float distance = Vector3.Distance(transform.position, coinObj.transform.position);
+                if (distance <= magnetRadius)
+                {
+                    pulledCount++;
+                    
+                    // Pull coin toward player (it will trigger OnTriggerEnter when it touches)
+                    coinObj.transform.position = Vector3.MoveTowards(
+                        coinObj.transform.position,
+                        transform.position,
+                        magnetPullSpeed * Time.deltaTime
+                    );
+                }
+            }
+
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (magnetVisual != null)
+            magnetVisual.SetActive(false);
+
+        hasMagnet = false;
+        Debug.Log("🧲 Magnet expired");
+    }
+
+    IEnumerator SlowTimeBuff()
+    {
+        isSlowTime = true;
+        Time.timeScale = 0.5f; // Slow to 50% speed
+
+        Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
+        
+        // Wait for real-time duration (not affected by timeScale)
+        yield return new WaitForSecondsRealtime(slowTimeDuration);
+
+        Time.timeScale = 1f; // Return to normal speed
+        isSlowTime = false;
+        Debug.Log("⏰ Slow Time expired");
     }
 
     void HandleLaneInput()
@@ -295,14 +406,12 @@ void UpdateScoreUI()
 
     void HandleJump()
     {
-        // Detect initial jump press (not hold)
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
             lastJumpPressedTime = Time.time;
             jumpHeld = true;
         }
 
-        // Reset hold when released
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
         {
             jumpHeld = false;
@@ -312,7 +421,7 @@ void UpdateScoreUI()
                        Time.time - lastJumpPressedTime <= jumpBufferTime &&
                        Time.time - lastJumpTime >= jumpCooldown &&
                        !isJumping &&
-                       jumpHeld; // Only true on the first press
+                       jumpHeld;
 
         if (canJump)
         {
@@ -325,23 +434,18 @@ void UpdateScoreUI()
                 isSliding = false;
             }
 
-            // Stop all vertical velocity before new jump
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
 
-            // Prevent holding from stacking
             isJumping = true;
-            jumpHeld = false; // block continuous pressing
+            jumpHeld = false;
             lastJumpPressedTime = -999f;
         }
 
-        // Reset when grounded
         if (IsGrounded() && rb.velocity.y <= 0.1f)
             isJumping = false;
     }
-
-
 
     void ApplyExtraGravity()
     {
@@ -360,112 +464,108 @@ void UpdateScoreUI()
         }
     }
 
-void DetectSwipe()
-{
-    if (Input.touchCount > 0)
+    void DetectSwipe()
     {
-        Touch touch = Input.GetTouch(0);
-
-        switch (touch.phase)
+        if (Input.touchCount > 0)
         {
-            case TouchPhase.Began:
-                startTouchPos = touch.position;
-                swipeDetected = true;
-                break;
+            Touch touch = Input.GetTouch(0);
 
-            case TouchPhase.Ended:
-                if (!swipeDetected) return;
+            switch (touch.phase)
+            {
+                case TouchPhase.Began:
+                    startTouchPos = touch.position;
+                    swipeDetected = true;
+                    break;
 
-                endTouchPos = touch.position;
-                Vector2 swipeDelta = endTouchPos - startTouchPos;
+                case TouchPhase.Ended:
+                    if (!swipeDetected) return;
 
-                if (swipeDelta.magnitude < swipeThreshold)
-                    return; // too short, ignore
+                    endTouchPos = touch.position;
+                    Vector2 swipeDelta = endTouchPos - startTouchPos;
 
-                float x = swipeDelta.x;
-                float y = swipeDelta.y;
+                    if (swipeDelta.magnitude < swipeThreshold)
+                        return;
 
-                if (Mathf.Abs(x) > Mathf.Abs(y))
-                {
-                    // 🔹 Horizontal Swipe
-                    if (x > 0 && currentLane < 2)
+                    float x = swipeDelta.x;
+                    float y = swipeDelta.y;
+
+                    if (Mathf.Abs(x) > Mathf.Abs(y))
                     {
-                        currentLane++;
-                        SetTargetPosition();
-                        targetTilt = -tiltAngle;
-                        targetYaw = lookAngle;
+                        // Horizontal Swipe
+                        if (x > 0 && currentLane < 2)
+                        {
+                            currentLane++;
+                            SetTargetPosition();
+                            targetTilt = -tiltAngle;
+                            targetYaw = lookAngle;
+                        }
+                        else if (x < 0 && currentLane > 0)
+                        {
+                            currentLane--;
+                            SetTargetPosition();
+                            targetTilt = tiltAngle;
+                            targetYaw = -lookAngle;
+                        }
                     }
-                    else if (x < 0 && currentLane > 0)
+                    else
                     {
-                        currentLane--;
-                        SetTargetPosition();
-                        targetTilt = tiltAngle;
-                        targetYaw = -lookAngle;
+                        // Vertical Swipe
+                        if (y > 0)
+                        {
+                            lastJumpPressedTime = Time.time;
+                            jumpHeld = true;
+                        }
+                        else if (y < 0)
+                        {
+                            if (IsGrounded()) StartCoroutine(Slide());
+                            else StartCoroutine(AirSlide());
+                        }
                     }
-                }
-                else
-                {
-                    // 🔹 Vertical Swipe
-                    if (y > 0)
-                    {
-                        // Swipe Up = Jump
-                        lastJumpPressedTime = Time.time;
-                        jumpHeld = true;
-                    }
-                    else if (y < 0)
-                    {
-                        // Swipe Down = Slide
-                        if (IsGrounded()) StartCoroutine(Slide());
-                        else StartCoroutine(AirSlide());
-                    }
-                }
 
-                swipeDetected = false;
-                break;
+                    swipeDetected = false;
+                    break;
+            }
         }
     }
-}
 
     IEnumerator Slide()
-{
-    isSliding = true;
-
-    col.height = slideColliderHeight;
-    col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
-
-    Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-    float t = 0f;
-    while (t < 0.5f)
     {
-        transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
-        t += Time.deltaTime;
-        yield return null;
+        isSliding = true;
+
+        col.height = slideColliderHeight;
+        col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
+
+        Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        float t = 0f;
+        while (t < 0.5f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(slideDuration - 1f);
+
+        t = 0f;
+        Quaternion startRot = transform.rotation;
+        while (t < 0.3f)
+        {
+            transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        transform.rotation = Quaternion.identity;
+
+        col.height = originalColliderHeight;
+        col.center = originalColliderCenter;
+
+        isSliding = false;
     }
-
-    yield return new WaitForSeconds(slideDuration - 1f);
-
-    t = 0f;
-    Quaternion startRot = transform.rotation;
-    while (t < 0.3f)
-    {
-        transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
-        t += Time.deltaTime;
-        yield return null;
-    }
-    transform.rotation = Quaternion.identity;
-
-    col.height = originalColliderHeight;
-    col.center = originalColliderCenter;
-
-    isSliding = false;
-}
-
 
     IEnumerator AirSlide()
     {
         isSliding = true;
 
-        // Store current velocities and only modify Y
         Vector3 currentVel = rb.velocity;
         rb.velocity = new Vector3(currentVel.x, -jumpForce * 2f, currentVel.z);
 
@@ -486,7 +586,6 @@ void DetectSwipe()
 
     bool IsGrounded()
     {
-        // Raycast from center of collider downwards
         return Physics.Raycast(transform.position, Vector3.down, col.bounds.extents.y + 0.1f);
     }
 
@@ -503,5 +602,12 @@ void DetectSwipe()
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(targetPosition, 0.5f);
+
+        // Draw magnet radius when active
+        if (hasMagnet)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, magnetRadius);
+        }
     }
 }

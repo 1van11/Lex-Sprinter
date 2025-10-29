@@ -4,10 +4,13 @@ public class BossFunction : MonoBehaviour
 {
     [Header("Boss Settings")]
     [SerializeField] private GameObject bossPrefab;
-    [SerializeField] private float spawnInterval = 300f; // e.g. 10 for testing
+    [SerializeField] private float spawnInterval = 300f;
     [SerializeField] private float spawnDistanceAhead = 50f;
     [SerializeField] private float spawnHeightAbove = 20f;
     [SerializeField] private float slideDownSpeed = 5f;
+
+    [Header("Boss Size (Scale)")]
+    [SerializeField] private Vector3 bossScale = new Vector3(1f, 1f, 1f);
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -16,11 +19,20 @@ public class BossFunction : MonoBehaviour
     [SerializeField] private GameObject questionaireSpawnerObject;
     [SerializeField] private GameObject obstacleSpawnerObject;
 
+    [Header("Lane Settings")]
+    [SerializeField] private float laneDistance = 3f;
+    [SerializeField] private int laneCount = 3;
+
+    [Header("Spawned Object After Landing")]
+    [SerializeField] private GameObject objectToSpawnAfterLanding;
+
     private float timer = 0f;
     private GameObject currentBoss;
     private bool bossSliding = false;
     private bool bossActive = false;
     private float targetYPosition;
+    private float landedZ; // remember z for spawned object
+    private float landedX; // remember x (lane) for spawned object
 
     void Start()
     {
@@ -34,12 +46,9 @@ public class BossFunction : MonoBehaviour
 
     void Update()
     {
-        // Only count timer when boss is NOT active and NOT sliding
         if (!bossActive && currentBoss == null)
         {
             timer += Time.deltaTime;
-
-            // Spawn only when interval reached and no active boss
             if (timer >= spawnInterval)
             {
                 SpawnBoss();
@@ -53,30 +62,28 @@ public class BossFunction : MonoBehaviour
 
     void SpawnBoss()
     {
-        if (bossActive || currentBoss != null)
-        {
-            Debug.LogWarning("Boss already exists, skipping spawn.");
-            return;
-        }
+        if (bossActive || currentBoss != null) return;
+        if (bossPrefab == null || player == null) return;
 
-        if (bossPrefab == null || player == null)
-        {
-            Debug.LogError("BossFunction: Missing references!");
-            return;
-        }
+        // Choose random lane
+        int laneIndex = Random.Range(0, laneCount);
+        float laneX = (laneIndex - 1) * laneDistance;
 
         Vector3 spawnPosition = player.position + player.forward * spawnDistanceAhead;
+        spawnPosition.x = laneX;
         spawnPosition.y = player.position.y + spawnHeightAbove;
-        targetYPosition = player.position.y;
 
-        currentBoss = Instantiate(bossPrefab, spawnPosition, Quaternion.identity);
-        currentBoss.transform.LookAt(new Vector3(player.position.x, currentBoss.transform.position.y, player.position.z));
+        targetYPosition = player.position.y;
+        landedX = laneX;
+        landedZ = spawnPosition.z;
+
+        currentBoss = Instantiate(bossPrefab, spawnPosition, bossPrefab.transform.rotation);
+        //currentBoss.transform.localScale = bossScale;
 
         bossSliding = true;
         bossActive = true;
 
         DisableSpawners();
-        Debug.Log("Boss spawned!");
     }
 
     void UpdateBossPosition()
@@ -88,17 +95,30 @@ public class BossFunction : MonoBehaviour
         if (bossSliding)
         {
             float newY = Mathf.MoveTowards(currentBoss.transform.position.y, targetYPosition, slideDownSpeed * Time.deltaTime);
-            currentBoss.transform.position = new Vector3(targetPosition.x, newY, targetPosition.z);
+            currentBoss.transform.position = new Vector3(currentBoss.transform.position.x, newY, targetPosition.z);
 
             if (Mathf.Abs(newY - targetYPosition) < 0.1f)
+            {
                 bossSliding = false;
+                OnBossLanded();
+            }
         }
         else
         {
-            currentBoss.transform.position = new Vector3(targetPosition.x, targetYPosition, targetPosition.z);
+            currentBoss.transform.position = new Vector3(currentBoss.transform.position.x, targetYPosition, targetPosition.z);
         }
+    }
 
-        currentBoss.transform.LookAt(new Vector3(player.position.x, currentBoss.transform.position.y, player.position.z));
+    void OnBossLanded()
+    {
+        if (objectToSpawnAfterLanding != null)
+        {
+            Vector3 spawnPos = new Vector3(landedX, targetYPosition, landedZ);
+            GameObject spawnedObj = Instantiate(objectToSpawnAfterLanding, spawnPos, objectToSpawnAfterLanding.transform.rotation);
+            spawnedObj.transform.localScale = objectToSpawnAfterLanding.transform.localScale;
+
+            Debug.Log("Boss landed! Spawned object at lane.");
+        }
     }
 
     void DisableSpawners()
@@ -123,7 +143,7 @@ public class BossFunction : MonoBehaviour
 
         bossSliding = false;
         bossActive = false;
-        timer = 0f; // Reset timer only after boss is gone
+        timer = 0f;
         EnableSpawners();
     }
 

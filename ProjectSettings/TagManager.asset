@@ -10,6 +10,9 @@ TagManager:
   - Trap
   - AnswerOptions
   - Coin
+  - SlowTime
+  - Shield
+  - Magnet
   layers:
   - Default
   - TransparentFX
