@@ -11,8 +11,13 @@ public class QuestionRandomizer : MonoBehaviour
     // Store the correct answer for the current question
     public string correctAnswer;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip[] pronunciationSounds; // same length as spellingPairs rows
+    public AudioClip[] sentencePronunciations; // optional for sentence questions
+
     // -------------------- Correct the Spelling --------------------
-    private string[,] spellingPairs = new string[,]
+    public string[,] spellingPairs = new string[,]
     {
         { "A common pet that barks", "DOG", "DAG" },
         { "Something you wear on your head", "HAT", "HOT" },
@@ -72,8 +77,13 @@ public class QuestionRandomizer : MonoBehaviour
     };
 
 
-   public void SetSpellingQuestion(int index)
+  
+    public void SetSpellingQuestion(int index)
     {
+        // 🔊 Play pronunciation assigned to this word index
+        if (pronunciationSounds != null && index < pronunciationSounds.Length && pronunciationSounds[index] != null)
+            audioSource.PlayOneShot(pronunciationSounds[index]);
+
         string correct = spellingPairs[index, 1];
         string wrong = spellingPairs[index, 2];
         correctAnswer = correct;
@@ -90,6 +100,7 @@ public class QuestionRandomizer : MonoBehaviour
             slideText.text = correct;
         }
     }
+
 
 
     // Randomize only a single pair (used when randomizePerQuestion is true)
@@ -134,8 +145,12 @@ public class QuestionRandomizer : MonoBehaviour
     { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
 
-   public void SetSentenceQuestion(int index)
+    public void SetSentenceQuestion(int index)
     {
+        // 🔊 Play pronunciation for sentence correct word
+        if (sentencePronunciations != null && index < sentencePronunciations.Length && sentencePronunciations[index] != null)
+            audioSource.PlayOneShot(sentencePronunciations[index]);
+
         clueText.text = sentencePairs[index, 0];
         string correct = sentencePairs[index, 1];
         string wrong = sentencePairs[index, 2];

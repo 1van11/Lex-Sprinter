@@ -5,7 +5,7 @@ using UnityEngine;
 public class QuestionnaireSpawner : MonoBehaviour
 {
     [Header("References")]
-    public PlayerMovement playerMovement;
+    public PlayerFunctions PlayerFunctions;
 
     [Tooltip("Prefab for 'Correct the Spelling' questions")]
     public GameObject questionPrefab;
@@ -45,19 +45,19 @@ public class QuestionnaireSpawner : MonoBehaviour
     void Start()
     {
         rng = new System.Random();
-        lastSpawnZ = playerMovement.transform.position.z + firstQuestionDelay - spawnDistance;
+        lastSpawnZ = PlayerFunctions.transform.position.z + firstQuestionDelay - spawnDistance;
     }
 
     void Update()
     {
-        if (playerMovement == null) return;
+        if (PlayerFunctions == null) return;
         CheckQuestionSpawn();
         DespawnOldQuestions();
     }
 
     void CheckQuestionSpawn()
     {
-        float playerZ = playerMovement.transform.position.z;
+        float playerZ = PlayerFunctions.transform.position.z;
         float nextSpawnZ = lastSpawnZ + rowSpacing;
 
         if (playerZ >= nextSpawnZ)
@@ -89,7 +89,7 @@ public class QuestionnaireSpawner : MonoBehaviour
         Vector3 spawnPos = new Vector3(
             0f,
             spawnHeight,
-            playerMovement.transform.position.z + spawnDistance + zOffset
+            PlayerFunctions.transform.position.z + spawnDistance + zOffset
         );
 
         GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
@@ -141,7 +141,7 @@ public class QuestionnaireSpawner : MonoBehaviour
                 continue;
             }
 
-            float distanceFromPlayer = playerMovement.transform.position.z - q.transform.position.z;
+            float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
             if (distanceFromPlayer > despawnDistance)
             {
                 Destroy(q);
@@ -158,7 +158,7 @@ public class QuestionnaireSpawner : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!showGizmos || playerMovement == null) return;
+        if (!showGizmos || PlayerFunctions == null) return;
 
         float nextSpawnZ = lastSpawnZ + rowSpacing;
         Vector3 spawnPos = new Vector3(0f, spawnHeight, nextSpawnZ);
@@ -166,7 +166,7 @@ public class QuestionnaireSpawner : MonoBehaviour
         Gizmos.color = spawnGizmoColor;
         Gizmos.DrawWireSphere(spawnPos, gizmoSphereSize);
 
-        Vector3 playerPos = playerMovement.transform.position;
+        Vector3 playerPos = PlayerFunctions.transform.position;
         Gizmos.DrawLine(playerPos, spawnPos);
     }
 }
