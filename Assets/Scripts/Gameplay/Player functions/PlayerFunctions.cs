@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerFunctions : MonoBehaviour
 {
     public Animator galaw;
-
-    
+    [Header("Audio Sounds")]    public AudioSource audioSource; // drag your AudioSource here
+public AudioClip coinSound;
+public AudioClip hurtSound;    
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
@@ -172,31 +173,38 @@ public class PlayerMovement : MonoBehaviour
             lastJumpPressedTime = Time.time;
     }
 
-    void OnTriggerEnter(Collider other)
+   void OnTriggerEnter(Collider other)
+{
+    if (isDead) return; // Ignore collisions if dead
+
+    // Coin collection
+   if (other.CompareTag("Coin"))
+{
+    score += 1;
+    UpdateScoreUI();
+
+    if (audioSource != null && coinSound != null)
+        audioSource.PlayOneShot(coinSound);
+
+    other.gameObject.SetActive(false);
+    Debug.Log("💰 Coin collected!");
+    return;
+}
+
+if (other.CompareTag("Trap") && !isInvincible)
+{
+    if (hasShield)
     {
-        if (isDead) return; // Ignore collisions if dead
+        Debug.Log("🛡️ Shield blocked the trap!");
+        return;
+    }
+    
+    TakeDamage(1);
 
-        // Coin collection
-        if (other.CompareTag("Coin"))
-        {
-            score += 1;
-            UpdateScoreUI();
-            other.gameObject.SetActive(false);
-            Debug.Log("💰 Coin collected!");
-            return;
-        }
+    if (audioSource != null && hurtSound != null)
+        audioSource.PlayOneShot(hurtSound);
+}
 
-        // Trap - only triggers iframe if no shield
-        if (other.CompareTag("Trap") && !isInvincible)
-        {
-            if (hasShield)
-            {
-                Debug.Log("🛡️ Shield blocked the trap!");
-                return;
-            }
-            
-            TakeDamage(1);
-        }
 
         // Answer options
         if (other.CompareTag("AnswerOptions") && !isInvincible)
