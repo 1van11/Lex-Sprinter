@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 3
+  m_AmbientIntensity: 1.5
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.5294118, g: 0.80784315, b: 0.92156863, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -476,6 +476,7 @@ GameObject:
   - component: {fileID: 93047270}
   - component: {fileID: 93047269}
   - component: {fileID: 93047272}
+  - component: {fileID: 93047273}
   m_Layer: 5
   m_Name: SHOP BTN
   m_TagString: Untagged
@@ -720,10 +721,28 @@ MonoBehaviour:
   targetImage: {fileID: 93047270}
   defaultSprite: {fileID: 21300000, guid: c305c192175d217448eae0a62fb578f3, type: 3}
   clickedSprite: {fileID: 21300000, guid: c9d3b931baaa97a4299c4631934f5161, type: 3}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowMaxThickness: 10
+  pulseSpeed: 2
+  fadeSpeed: 0.2
   animationSpeed: 0.15
   raisedY: 30
   expandedScale: 1.15
-  moveDistance: 30
+--- !u!114 &93047273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93047267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &130617058
 GameObject:
   m_ObjectHideFlags: 0
@@ -1571,6 +1590,7 @@ GameObject:
   - component: {fileID: 297943089}
   - component: {fileID: 297943088}
   - component: {fileID: 297943091}
+  - component: {fileID: 297943092}
   m_Layer: 5
   m_Name: CLOSET BTN
   m_TagString: Untagged
@@ -1815,10 +1835,28 @@ MonoBehaviour:
   targetImage: {fileID: 297943089}
   defaultSprite: {fileID: 21300000, guid: 2794744e5f64b3547b844e0e382f5806, type: 3}
   clickedSprite: {fileID: 21300000, guid: dd1fb999c75e92a4783434e3501e9b21, type: 3}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowMaxThickness: 10
+  pulseSpeed: 2
+  fadeSpeed: 0.2
   animationSpeed: 0.15
   raisedY: 30
   expandedScale: 1.15
-  moveDistance: 30
+--- !u!114 &297943092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297943086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &306804698
 GameObject:
   m_ObjectHideFlags: 0
@@ -4785,6 +4823,7 @@ GameObject:
   - component: {fileID: 934807670}
   - component: {fileID: 934807669}
   - component: {fileID: 934807672}
+  - component: {fileID: 934807673}
   m_Layer: 5
   m_Name: SHELF BTN
   m_TagString: Untagged
@@ -5029,10 +5068,28 @@ MonoBehaviour:
   targetImage: {fileID: 934807670}
   defaultSprite: {fileID: 21300000, guid: f949ff44f7a842342b52597356568e2b, type: 3}
   clickedSprite: {fileID: 21300000, guid: 3c935f753bc18ce4ead25acbaefbb07d, type: 3}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowMaxThickness: 10
+  pulseSpeed: 2
+  fadeSpeed: 0.2
   animationSpeed: 0.15
   raisedY: 30
   expandedScale: 1.15
-  moveDistance: 30
+--- !u!114 &934807673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934807667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &965943144
 GameObject:
   m_ObjectHideFlags: 0
@@ -8144,6 +8201,7 @@ GameObject:
   - component: {fileID: 1561687327}
   - component: {fileID: 1561687326}
   - component: {fileID: 1561687329}
+  - component: {fileID: 1561687330}
   m_Layer: 5
   m_Name: DICTIONARY BTN
   m_TagString: Untagged
@@ -8388,10 +8446,28 @@ MonoBehaviour:
   targetImage: {fileID: 1561687327}
   defaultSprite: {fileID: 21300000, guid: 3c889e9904d13cd478a35225bcc193bb, type: 3}
   clickedSprite: {fileID: 21300000, guid: 936d0ac4fa39819418755f73d5717d2a, type: 3}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowMaxThickness: 10
+  pulseSpeed: 2
+  fadeSpeed: 0.2
   animationSpeed: 0.15
   raisedY: 30
   expandedScale: 1.15
-  moveDistance: 30
+--- !u!114 &1561687330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561687324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1573619960
 GameObject:
   m_ObjectHideFlags: 0
@@ -10948,6 +11024,7 @@ GameObject:
   - component: {fileID: 2032861370}
   - component: {fileID: 2032861369}
   - component: {fileID: 2032861372}
+  - component: {fileID: 2032861373}
   m_Layer: 5
   m_Name: ROOM BTN
   m_TagString: Untagged
@@ -11180,10 +11257,28 @@ MonoBehaviour:
   targetImage: {fileID: 2032861370}
   defaultSprite: {fileID: 21300000, guid: 47db024e20e0e384eb60506efd1fbc45, type: 3}
   clickedSprite: {fileID: 21300000, guid: 4b53c5f703279bf47932a5cf5a12c534, type: 3}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowMaxThickness: 10
+  pulseSpeed: 2
+  fadeSpeed: 0.2
   animationSpeed: 0.15
   raisedY: 30
   expandedScale: 1.15
-  moveDistance: 30
+--- !u!114 &2032861373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032861367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2054515607
 GameObject:
   m_ObjectHideFlags: 0
