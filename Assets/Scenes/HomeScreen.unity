@@ -721,7 +721,7 @@ MonoBehaviour:
   targetImage: {fileID: 93047270}
   defaultSprite: {fileID: 21300000, guid: c305c192175d217448eae0a62fb578f3, type: 3}
   clickedSprite: {fileID: 21300000, guid: c9d3b931baaa97a4299c4631934f5161, type: 3}
-  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 0, g: 0.08237791, b: 1, a: 1}
   glowMaxThickness: 10
   pulseSpeed: 2
   fadeSpeed: 0.2
@@ -1835,7 +1835,7 @@ MonoBehaviour:
   targetImage: {fileID: 297943089}
   defaultSprite: {fileID: 21300000, guid: 2794744e5f64b3547b844e0e382f5806, type: 3}
   clickedSprite: {fileID: 21300000, guid: dd1fb999c75e92a4783434e3501e9b21, type: 3}
-  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 0, g: 0.08237791, b: 1, a: 1}
   glowMaxThickness: 10
   pulseSpeed: 2
   fadeSpeed: 0.2
@@ -5068,7 +5068,7 @@ MonoBehaviour:
   targetImage: {fileID: 934807670}
   defaultSprite: {fileID: 21300000, guid: f949ff44f7a842342b52597356568e2b, type: 3}
   clickedSprite: {fileID: 21300000, guid: 3c935f753bc18ce4ead25acbaefbb07d, type: 3}
-  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 0, g: 0.08237791, b: 1, a: 1}
   glowMaxThickness: 10
   pulseSpeed: 2
   fadeSpeed: 0.2
@@ -5944,11 +5944,11 @@ RectTransform:
   m_Father: {fileID: 1587577035}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -25.11914, y: 92.36914}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -25.11914, y: -792}
   m_SizeDelta: {x: 138.76196, y: 153.28003}
-  m_Pivot: {x: 1, y: 0.5}
+  m_Pivot: {x: 1, y: 1}
 --- !u!114 &1119789357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8446,7 +8446,7 @@ MonoBehaviour:
   targetImage: {fileID: 1561687327}
   defaultSprite: {fileID: 21300000, guid: 3c889e9904d13cd478a35225bcc193bb, type: 3}
   clickedSprite: {fileID: 21300000, guid: 936d0ac4fa39819418755f73d5717d2a, type: 3}
-  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 0, g: 0.08237791, b: 1, a: 1}
   glowMaxThickness: 10
   pulseSpeed: 2
   fadeSpeed: 0.2
@@ -8554,14 +8554,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1573619960}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 550, z: 0}
+  m_LocalRotation: {x: 0.23800546, y: -0.21008952, z: 0.1511612, w: 0.93614435}
+  m_LocalPosition: {x: 0, y: 485.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 30.606, y: -21.926, z: 12.277}
 --- !u!1 &1587577034
 GameObject:
   m_ObjectHideFlags: 0
@@ -11257,7 +11257,7 @@ MonoBehaviour:
   targetImage: {fileID: 2032861370}
   defaultSprite: {fileID: 21300000, guid: 47db024e20e0e384eb60506efd1fbc45, type: 3}
   clickedSprite: {fileID: 21300000, guid: 4b53c5f703279bf47932a5cf5a12c534, type: 3}
-  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 0, g: 0.08237791, b: 1, a: 1}
   glowMaxThickness: 10
   pulseSpeed: 2
   fadeSpeed: 0.2
@@ -11524,7 +11524,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 1}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
