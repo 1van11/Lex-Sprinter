@@ -5,9 +5,13 @@ using UnityEngine;
 public class PlayerFunctions : MonoBehaviour
 {
     public Animator galaw;
-    [Header("Audio Sounds")]    public AudioSource audioSource; // drag your AudioSource here
-public AudioClip coinSound;
-public AudioClip hurtSound;    
+    [Header("Audio Sounds")]    
+    public AudioSource audioSource; // drag your AudioSource here
+    public AudioClip coinSound;
+    public AudioClip hurtSound;
+    public AudioClip correctAnswerSound;
+     public AudioClip wrongAnswerSound;
+    
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
@@ -82,6 +86,11 @@ public AudioClip hurtSound;
 
     [Header("Game Over")]
     public GameObject gameOverPanel;
+
+    [Header("Answer Feedback")]
+    public GameObject correctAnswerPrefab; // Drag your green checkmark 3D model here
+    public GameObject wrongAnswerPrefab;   // Drag your red X 3D model here
+    public float feedbackDisplayTime = 1.5f; // How long to show the feedback before destroying
 
     private Rigidbody rb;
     private CapsuleCollider col;
@@ -178,95 +187,131 @@ public AudioClip hurtSound;
     if (isDead) return; // Ignore collisions if dead
 
     // Coin collection
-   if (other.CompareTag("Coin"))
-{
-    score += 1;
-    UpdateScoreUI();
-
-    if (audioSource != null && coinSound != null)
-        audioSource.PlayOneShot(coinSound);
-
-    other.gameObject.SetActive(false);
-    Debug.Log("💰 Coin collected!");
-    return;
-}
-
-if (other.CompareTag("Trap") && !isInvincible)
-{
-    if (hasShield)
+    if (other.CompareTag("Coin"))
     {
-        Debug.Log("🛡️ Shield blocked the trap!");
+        score += 1;
+        UpdateScoreUI();
+
+        if (audioSource != null && coinSound != null)
+            audioSource.PlayOneShot(coinSound);
+
+        other.gameObject.SetActive(false);
+        Debug.Log("💰 Coin collected!");
         return;
     }
-    
-    TakeDamage(1);
 
-    if (audioSource != null && hurtSound != null)
-        audioSource.PlayOneShot(hurtSound);
-}
-
-
-        // Answer options
-        if (other.CompareTag("AnswerOptions") && !isInvincible)
+    if (other.CompareTag("Trap") && !isInvincible)
+    {
+        if (hasShield)
         {
-            QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+            Debug.Log("🛡️ Shield blocked the trap!");
+            return;
+        }
 
-            if (questionRandomizer != null)
+        TakeDamage(1);
+
+        if (audioSource != null && hurtSound != null)
+            audioSource.PlayOneShot(hurtSound);
+    }
+
+    // Answer options
+    if (other.CompareTag("AnswerOptions") && !isInvincible)
+    {
+        QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+
+        if (questionRandomizer != null)
+        {
+            bool isJumpOption = other.gameObject.name.Contains("Jump");
+            string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
+
+            bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
+
+            if (isCorrect)
             {
-                bool isJumpOption = other.gameObject.name.Contains("Jump");
-                string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
+                Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
+                score += 5;
+                UpdateScoreUI();
 
-                bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
+                // ✅ added correct answer sound
+                if (audioSource != null && correctAnswerSound != null)
+                    audioSource.PlayOneShot(correctAnswerSound);
 
-                if (isCorrect)
-                {
-                    Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
-                    score += 5;
-                    UpdateScoreUI();
-                }
+                ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
+            }
+            else
+            {
+                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
+
+                // ❌ added wrong answer sound
+                if (audioSource != null && wrongAnswerSound != null)
+                    audioSource.PlayOneShot(wrongAnswerSound);
+
+                ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
+
+                if (!hasShield)
+                    TakeDamage(1);
                 else
-                {
-                    Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
+                    Debug.Log("🛡️ Shield protected you from wrong answer!");
+            }
 
-                    if (hasShield)
+            // Optional: Show the correct answer model if the player chose wrong
+            if (!isCorrect)
+            {
+                GameObject otherOption = null;
+                Transform parent = other.transform.parent;
+
+                if (parent != null)
+                {
+                    foreach (Transform child in parent)
                     {
-                        Debug.Log("🛡️ Shield protected you from wrong answer!");
-                    }
-                    else
-                    {
-                        TakeDamage(1);
+                        if (child.CompareTag("AnswerOptions") && child.gameObject != other.gameObject)
+                        {
+                            otherOption = child.gameObject;
+                            break;
+                        }
                     }
                 }
 
-                if (other.transform.parent != null)
-                    Destroy(other.transform.parent.gameObject);
+                if (otherOption != null)
+                    ReplaceWithFeedbackModel(otherOption, correctAnswerPrefab);
+            }
+
+            // Remove colliders and destroy question after a short delay
+            if (other.transform.parent != null)
+            {
+                Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
+                foreach (Collider col in colliders)
+                    Destroy(col);
+
+                StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
             }
         }
-
-        // 🟢 SHIELD BUFF
-        if (other.CompareTag("Shield"))
-        {
-            StartCoroutine(ShieldBuff());
-            Destroy(other.gameObject);
-            Debug.Log("🛡️ Shield activated!");
-        }
-
-        // 🟢 MAGNET BUFF
-        if (other.CompareTag("Magnet"))
-        {
-            StartCoroutine(MagnetBuff());
-            Destroy(other.gameObject);
-            Debug.Log("🧲 Magnet activated!");
-        }
-
-        // 🟢 SLOW TIME BUFF
-        if (other.CompareTag("SlowTime"))
-        {
-            StartCoroutine(SlowTimeBuff());
-            Destroy(other.gameObject);
-            Debug.Log("⏰ Slow Time activated!");
-        }
     }
+
+    // SHIELD
+    if (other.CompareTag("Shield"))
+    {
+        StartCoroutine(ShieldBuff());
+        Destroy(other.gameObject);
+        Debug.Log("🛡️ Shield activated!");
+    }
+
+    // MAGNET
+    if (other.CompareTag("Magnet"))
+    {
+        StartCoroutine(MagnetBuff());
+        Destroy(other.gameObject);
+        Debug.Log("🧲 Magnet activated!");
+    }
+
+    // SLOW TIME
+    if (other.CompareTag("SlowTime"))
+    {
+        StartCoroutine(SlowTimeBuff());
+        Destroy(other.gameObject);
+        Debug.Log("⏰ Slow Time activated!");
+    }
+}
 
     void TakeDamage(int damage)
     {
@@ -451,6 +496,26 @@ if (other.CompareTag("Trap") && !isInvincible)
         Time.timeScale = 1f;
         isSlowTime = false;
         Debug.Log("⏰ Slow Time expired");
+    }
+
+    // Helper method to spawn feedback 3D model next to answer option
+    void ReplaceWithFeedbackModel(GameObject answerOption, GameObject feedbackPrefab)
+    {
+        if (feedbackPrefab == null) return;
+
+        // Spawn the feedback model at the answer's position with prefab's original rotation
+        GameObject feedback = Instantiate(feedbackPrefab, answerOption.transform.position, feedbackPrefab.transform.rotation);
+        
+        // Optional: Make it slightly bigger or adjust position
+        // feedback.transform.localScale = Vector3.one * 1.5f;
+        // feedback.transform.position += Vector3.up * 0.5f; // Spawn slightly above
+    }
+
+    // Coroutine to delay destruction
+    IEnumerator DestroyAfterDelay(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(obj);
     }
 
     void HandleLaneInput()
