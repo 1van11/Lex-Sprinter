@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerFunctions : MonoBehaviour
 {
@@ -323,7 +324,80 @@ public class PlayerFunctions : MonoBehaviour
     void UpdateScoreUI()
     {
         if (scoreText != null)
-            scoreText.text = $"{score}";
+            scoreText.text = FormatNumber(score);
+    }
+
+    // ===== NUMBER FORMATTING SYSTEM =====
+
+    /// <summary>
+    /// Formats numbers to compact format (1000 -> 1k, 1500 -> 1.5k, 1000000 -> 1M, etc.)
+    /// </summary>
+    /// <param name="number">The number to format</param>
+    /// <returns>Formatted string with appropriate suffix</returns>
+    public string FormatNumber(int number)
+    {
+        if (number < 1000)
+        {
+            return number.ToString();
+        }
+        else if (number < 1000000) // Thousands
+        {
+            float thousands = number / 1000f;
+            
+            // Check if it's a whole number (e.g., 1000, 2000, 3000)
+            if (number % 1000 == 0)
+            {
+                return $"{thousands:F0}k";
+            }
+            else
+            {
+                // For numbers like 1500, show 1.5k
+                // For numbers like 1234, show 1.2k
+                return $"{thousands:F1}k".Replace(".0", "");
+            }
+        }
+        else if (number < 1000000000) // Millions
+        {
+            float millions = number / 1000000f;
+            
+            if (number % 1000000 == 0)
+            {
+                return $"{millions:F0}M";
+            }
+            else
+            {
+                return $"{millions:F1}M".Replace(".0", "");
+            }
+        }
+        else // Billions
+        {
+            float billions = number / 1000000000f;
+            
+            if (number % 1000000000 == 0)
+            {
+                return $"{billions:F0}B";
+            }
+            else
+            {
+                return $"{billions:F1}B".Replace(".0", "");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Formats coins specifically for UI display
+    /// </summary>
+    public string FormatCoins(int coins)
+    {
+        return FormatNumber(coins);
+    }
+
+    /// <summary>
+    /// Gets formatted coins string for display
+    /// </summary>
+    public string GetFormattedCoins()
+    {
+        return FormatCoins(totalCoins);
     }
 
     // ===== BACKEND COIN SYSTEM =====
