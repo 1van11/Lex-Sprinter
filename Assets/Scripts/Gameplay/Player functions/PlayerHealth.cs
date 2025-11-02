@@ -21,6 +21,9 @@ public class PlayerHealth : MonoBehaviour
     public float flashInterval = 0.1f;
     private bool isInvincible = false;
 
+    [Header("Death State")]
+    public bool isDead = false; // track if player is dead
+
     private SpriteRenderer[] sprites;
 
     void Awake()
@@ -32,21 +35,20 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHearts = maxHearts;
         UpdateHeartsUI();
-
-        // ✅ FIX: Use SpriteRenderer, not Renderer
         sprites = GetComponentsInChildren<SpriteRenderer>();
     }
 
     public void TakeDamage(int amount = 1)
     {
-        if (isInvincible) return;
+        if (isInvincible || isDead) return;
 
         currentHearts -= amount;
         UpdateHeartsUI();
 
         if (currentHearts <= 0)
         {
-            SceneManager.LoadScene("MainMenuSplash");
+            isDead = true;
+            Debug.Log("💀 Player dead! Show game over panel.");
             return;
         }
 
@@ -61,7 +63,7 @@ public class PlayerHealth : MonoBehaviour
         while (timer < iFrameDuration)
         {
             foreach (SpriteRenderer s in sprites)
-                s.enabled = !s.enabled; // ✅ THIS NOW BLINKS
+                s.enabled = !s.enabled;
 
             timer += flashInterval;
             yield return new WaitForSeconds(flashInterval);
@@ -75,8 +77,14 @@ public class PlayerHealth : MonoBehaviour
 
     public void Heal(int amount)
     {
+        if (isDead) isDead = false; // revive if dead
         currentHearts = Mathf.Min(currentHearts + amount, maxHearts);
         UpdateHeartsUI();
+    }
+
+    public void FullHeal()
+    {
+        Heal(maxHearts);
     }
 
     private void UpdateHeartsUI()
