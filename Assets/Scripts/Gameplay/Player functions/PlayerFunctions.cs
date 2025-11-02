@@ -14,22 +14,22 @@ public class PlayerFunctions : MonoBehaviour
     
     [Header("Score")]
     public int score = 0;
-    public TMPro.TMP_Text scoreText;
+    public TMP_Text scoreText;
     
-    // Backend coin tracking that persists between games
     [Header("Total Coins (Persistent)")]
     public int totalCoins = 0;
     public string coinSaveKey = "PlayerTotalCoins";
+    public TMP_Text totalCoinsText; // Added TextMeshPro for total coins display
     
     [Header("Distance")]
     public float distanceTraveled = 0f;
     private Vector3 lastPosition;
-    public TMPro.TMP_Text distanceText;
+    public TMP_Text distanceText;
     
     [Header("Health System")]
     public int maxHealth = 5;
     public int currentHealth = 5;
-    public TMPro.TMP_Text healthText;
+    public TMP_Text healthText;
     public UnityEngine.UI.Image[] healthImages;
     public Sprite fullHealthSprite;
     public Sprite emptyHealthSprite;
@@ -86,6 +86,9 @@ public class PlayerFunctions : MonoBehaviour
         // Load total coins from PlayerPrefs
         LoadTotalCoins();
 
+        // Update total coins UI on start
+        UpdateTotalCoinsUI();
+
         // Hide buff visuals and game over panel at start
         if (shieldVisual != null) shieldVisual.SetActive(false);
         if (magnetVisual != null) magnetVisual.SetActive(false);
@@ -127,6 +130,7 @@ public class PlayerFunctions : MonoBehaviour
             score += 1;
             totalCoins += 1; // Also add to total coins
             UpdateScoreUI();
+            UpdateTotalCoinsUI(); // Update total coins display
 
             if (audioSource != null && coinSound != null)
                 audioSource.PlayOneShot(coinSound);
@@ -169,6 +173,7 @@ public class PlayerFunctions : MonoBehaviour
                     score += 5;
                     totalCoins += 5; // Also add to total coins
                     UpdateScoreUI();
+                    UpdateTotalCoinsUI(); // Update total coins display
 
                     if (audioSource != null && correctAnswerSound != null)
                         audioSource.PlayOneShot(correctAnswerSound);
@@ -327,129 +332,87 @@ public class PlayerFunctions : MonoBehaviour
             scoreText.text = FormatNumber(score);
     }
 
-    // ===== NUMBER FORMATTING SYSTEM =====
+    void UpdateTotalCoinsUI()
+    {
+        if (totalCoinsText != null)
+            totalCoinsText.text = $" {FormatCoins(totalCoins)}";
+    }
 
-    /// <summary>
-    /// Formats numbers to compact format (1000 -> 1k, 1500 -> 1.5k, 1000000 -> 1M, etc.)
-    /// </summary>
-    /// <param name="number">The number to format</param>
-    /// <returns>Formatted string with appropriate suffix</returns>
     public string FormatNumber(int number)
     {
         if (number < 1000)
         {
             return number.ToString();
         }
-        else if (number < 1000000) // Thousands
+        else if (number < 1000000) 
         {
             float thousands = number / 1000f;
-            
-            // Check if it's a whole number (e.g., 1000, 2000, 3000)
             if (number % 1000 == 0)
-            {
                 return $"{thousands:F0}k";
-            }
             else
-            {
-                // For numbers like 1500, show 1.5k
-                // For numbers like 1234, show 1.2k
                 return $"{thousands:F1}k".Replace(".0", "");
-            }
         }
-        else if (number < 1000000000) // Millions
+        else if (number < 1000000000)
         {
             float millions = number / 1000000f;
-            
             if (number % 1000000 == 0)
-            {
                 return $"{millions:F0}M";
-            }
             else
-            {
                 return $"{millions:F1}M".Replace(".0", "");
-            }
         }
-        else // Billions
+        else
         {
             float billions = number / 1000000000f;
-            
             if (number % 1000000000 == 0)
-            {
                 return $"{billions:F0}B";
-            }
             else
-            {
                 return $"{billions:F1}B".Replace(".0", "");
-            }
         }
     }
 
-    /// <summary>
-    /// Formats coins specifically for UI display
-    /// </summary>
     public string FormatCoins(int coins)
     {
         return FormatNumber(coins);
     }
 
-    /// <summary>
-    /// Gets formatted coins string for display
-    /// </summary>
     public string GetFormattedCoins()
     {
         return FormatCoins(totalCoins);
     }
 
-    // ===== BACKEND COIN SYSTEM =====
-
-    /// <summary>
-    /// Loads total coins from PlayerPrefs
-    /// </summary>
     public void LoadTotalCoins()
     {
-        // ✅ Load saved coins normally
         totalCoins = PlayerPrefs.GetInt(coinSaveKey, 0);
         Debug.Log($"💰 Loaded total coins: {totalCoins}");
     }
 
-    /// <summary>
-    /// Saves total coins to PlayerPrefs (but only on phone builds, not Unity Editor)
-    /// </summary>
     public void SaveTotalCoins()
     {
 #if UNITY_ANDROID || UNITY_IOS
-    PlayerPrefs.SetInt(coinSaveKey, totalCoins);
-    PlayerPrefs.Save();
-    Debug.Log($"📱💾 Saved total coins (mobile build): {totalCoins}");
+        PlayerPrefs.SetInt(coinSaveKey, totalCoins);
+        PlayerPrefs.Save();
+        Debug.Log($"📱💾 Saved total coins (mobile build): {totalCoins}");
 #else
         Debug.Log("🧩 Running in Unity Editor — skipping save to PlayerPrefs.");
 #endif
     }
 
-
-    /// <summary>
-    /// Adds coins to both current score and total coins
-    /// </summary>
-    /// <param name="amount">Number of coins to add</param>
     public void AddCoins(int amount)
     {
         score += amount;
         totalCoins += amount;
         UpdateScoreUI();
+        UpdateTotalCoinsUI(); // Update total coins display
         Debug.Log($"💰 Added {amount} coins. Total: {totalCoins}");
     }
 
-    /// <summary>
-    /// Spends coins from total (use for shop purchases)
-    /// </summary>
-    /// <param name="amount">Number of coins to spend</param>
-    /// <returns>True if successful, false if not enough coins</returns>
     public bool SpendCoins(int amount)
     {
         if (totalCoins >= amount)
         {
             totalCoins -= amount;
-            SaveTotalCoins(); // Save immediately after spending
+            UpdateTotalCoinsUI(); // Update total coins display
+            SaveTotalCoins();
             Debug.Log($"💰 Spent {amount} coins. Remaining: {totalCoins}");
             return true;
         }
@@ -460,39 +423,28 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Gets the current total coins count
-    /// </summary>
-    /// <returns>Total coins accumulated across all games</returns>
     public int GetTotalCoins()
     {
         return totalCoins;
     }
 
-    /// <summary>
-    /// Resets total coins to zero (use carefully!)
-    /// </summary>
     public void ResetTotalCoins()
     {
         totalCoins = 0;
         PlayerPrefs.SetInt(coinSaveKey, 0);
         PlayerPrefs.Save();
+        UpdateTotalCoinsUI(); // Update total coins display
         Debug.Log("💰 Total coins reset to 0");
     }
 
-    /// <summary>
-    /// Manually sets total coins to a specific value
-    /// </summary>
-    /// <param name="amount">New total coins value</param>
     public void SetTotalCoins(int amount)
     {
         totalCoins = Mathf.Max(0, amount);
         PlayerPrefs.SetInt(coinSaveKey, totalCoins);
         PlayerPrefs.Save();
+        UpdateTotalCoinsUI(); // Update total coins display
         Debug.Log($"💰 Total coins set to: {totalCoins}");
     }
-
-    // ===== BUFF COROUTINES =====
 
     public IEnumerator TriggerIFrames(float duration, float flashInterval)
     {
@@ -605,36 +557,28 @@ public class PlayerFunctions : MonoBehaviour
         Destroy(obj);
     }
 
-    /// <summary>
-    /// Resets coins when exiting Play Mode in Unity
-    /// </summary>
     void OnApplicationQuit()
     {
 #if UNITY_ANDROID || UNITY_IOS
-    // ✅ Save coins only on actual phone build
-    SaveTotalCoins();
+        SaveTotalCoins();
 #else
-        // 🧩 Reset coins completely in Unity Editor
         totalCoins = 0;
         PlayerPrefs.DeleteKey(coinSaveKey);
         PlayerPrefs.Save();
+        UpdateTotalCoinsUI(); // Update total coins display
         Debug.Log("🧹 Unity Editor stopped — coins reset to 0.");
 #endif
     }
 
-
-        /// <summary>
-        /// Save when pausing app on phone (e.g., minimize or switch apps)
-        /// </summary>
-        void OnApplicationPause(bool pauseStatus)
-        {
-    #if UNITY_ANDROID || UNITY_IOS
+    void OnApplicationPause(bool pauseStatus)
+    {
+#if UNITY_ANDROID || UNITY_IOS
         if (pauseStatus)
         {
             SaveTotalCoins();
         }
-    #endif
-        }
+#endif
+    }
 
     void OnDrawGizmos()
     {
@@ -646,7 +590,6 @@ public class PlayerFunctions : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    // 🔹 This ensures coins reset every time you stop Play Mode in the Unity Editor
     [UnityEditor.InitializeOnLoadMethod]
     static void ClearCoinsOnEditorPlayStop()
     {
