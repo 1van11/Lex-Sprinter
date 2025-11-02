@@ -4,10 +4,12 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviour
 {
     [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject OtherThingsCanvas;
 
     public void Pause()
     {
         pauseMenu.SetActive(true);
+        OtherThingsCanvas.SetActive(false);
         Time.timeScale = 0;
     }
 
@@ -20,6 +22,7 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         pauseMenu.SetActive(false);
+        OtherThingsCanvas.SetActive(true);
         Time.timeScale = 1;
     }
 
