@@ -401,25 +401,31 @@ public class PlayerFunctions : MonoBehaviour
     }
 
     // ===== BACKEND COIN SYSTEM =====
-    
+
     /// <summary>
     /// Loads total coins from PlayerPrefs
     /// </summary>
     public void LoadTotalCoins()
     {
+        // ✅ Load saved coins normally
         totalCoins = PlayerPrefs.GetInt(coinSaveKey, 0);
         Debug.Log($"💰 Loaded total coins: {totalCoins}");
     }
 
     /// <summary>
-    /// Saves total coins to PlayerPrefs
+    /// Saves total coins to PlayerPrefs (but only on phone builds, not Unity Editor)
     /// </summary>
     public void SaveTotalCoins()
     {
-        PlayerPrefs.SetInt(coinSaveKey, totalCoins);
-        PlayerPrefs.Save();
-        Debug.Log($"💰 Saved total coins: {totalCoins}");
+#if UNITY_ANDROID || UNITY_IOS
+    PlayerPrefs.SetInt(coinSaveKey, totalCoins);
+    PlayerPrefs.Save();
+    Debug.Log($"📱💾 Saved total coins (mobile build): {totalCoins}");
+#else
+        Debug.Log("🧩 Running in Unity Editor — skipping save to PlayerPrefs.");
+#endif
     }
+
 
     /// <summary>
     /// Adds coins to both current score and total coins
@@ -599,20 +605,36 @@ public class PlayerFunctions : MonoBehaviour
         Destroy(obj);
     }
 
-    // Save coins when application quits
+    /// <summary>
+    /// Resets coins when exiting Play Mode in Unity
+    /// </summary>
     void OnApplicationQuit()
     {
-        SaveTotalCoins();
+#if UNITY_ANDROID || UNITY_IOS
+    // ✅ Save coins only on actual phone build
+    SaveTotalCoins();
+#else
+        // 🧩 Reset coins completely in Unity Editor
+        totalCoins = 0;
+        PlayerPrefs.DeleteKey(coinSaveKey);
+        PlayerPrefs.Save();
+        Debug.Log("🧹 Unity Editor stopped — coins reset to 0.");
+#endif
     }
 
-    // Save coins when application pauses (mobile)
-    void OnApplicationPause(bool pauseStatus)
-    {
+
+        /// <summary>
+        /// Save when pausing app on phone (e.g., minimize or switch apps)
+        /// </summary>
+        void OnApplicationPause(bool pauseStatus)
+        {
+    #if UNITY_ANDROID || UNITY_IOS
         if (pauseStatus)
         {
             SaveTotalCoins();
         }
-    }
+    #endif
+        }
 
     void OnDrawGizmos()
     {
@@ -622,4 +644,21 @@ public class PlayerFunctions : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, magnetRadius);
         }
     }
+
+#if UNITY_EDITOR
+    // 🔹 This ensures coins reset every time you stop Play Mode in the Unity Editor
+    [UnityEditor.InitializeOnLoadMethod]
+    static void ClearCoinsOnEditorPlayStop()
+    {
+        UnityEditor.EditorApplication.playModeStateChanged += (state) =>
+        {
+            if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+            {
+                PlayerPrefs.DeleteKey("PlayerTotalCoins");
+                PlayerPrefs.Save();
+                Debug.Log("🧹 Editor exiting Play Mode — coins cleared to 0.");
+            }
+        };
+    }
+#endif
 }
