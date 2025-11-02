@@ -56,15 +56,14 @@ public class PlayerControls : MonoBehaviour
     private bool swipeDetected = false;
     private float swipeThreshold = 50f;
 
-    // Reference to PlayerFunctions for checking death state
-    private PlayerFunctions playerFunctions;
+    // ======= CAN MOVE SYSTEM =======
+    [HideInInspector] public bool canMove = true;
 
     void Start()
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
-        playerFunctions = GetComponent<PlayerFunctions>();
 
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 
@@ -77,9 +76,8 @@ public class PlayerControls : MonoBehaviour
 
     void Update()
     {
-        if (playerFunctions != null && playerFunctions.isDead) return; // Stop all input if dead
+        if (!canMove) return;
 
-        // Constant forward movement
         Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
         transform.position += forwardMove;
 
@@ -91,19 +89,16 @@ public class PlayerControls : MonoBehaviour
         ApplyExtraGravity();
         DetectSwipe();
 
-        // Track grounded time
         if (IsGrounded())
             lastGroundedTime = Time.time;
 
-        // Track jump input
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             lastJumpPressedTime = Time.time;
     }
 
     void HandleLaneInput()
     {
-        if (Time.time - lastInputTime < inputCooldown)
-            return;
+        if (Time.time - lastInputTime < inputCooldown) return;
 
         if ((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) && currentLane > 0)
         {
@@ -202,7 +197,6 @@ public class PlayerControls : MonoBehaviour
             jumpHeld = false;
             lastJumpPressedTime = -999f;
 
-            // Trigger jump animation
             if (anim != null)
                 StartCoroutine(JumpForSeconds(1f));
         }
@@ -216,19 +210,15 @@ public class PlayerControls : MonoBehaviour
     void ApplyExtraGravity()
     {
         if (!IsGrounded() && rb.velocity.y < 0)
-        {
             rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
-        }
     }
 
     void HandleSlide()
     {
         if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isSliding)
         {
-            if (IsGrounded()) 
-                StartCoroutine(Slide());
-            else 
-                StartCoroutine(AirSlide());
+            if (IsGrounded()) StartCoroutine(Slide());
+            else StartCoroutine(AirSlide());
         }
     }
 
@@ -237,7 +227,6 @@ public class PlayerControls : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-
             switch (touch.phase)
             {
                 case TouchPhase.Began:
@@ -247,12 +236,9 @@ public class PlayerControls : MonoBehaviour
 
                 case TouchPhase.Ended:
                     if (!swipeDetected) return;
-
                     endTouchPos = touch.position;
                     Vector2 swipeDelta = endTouchPos - startTouchPos;
-
-                    if (swipeDelta.magnitude < swipeThreshold)
-                        return;
+                    if (swipeDelta.magnitude < swipeThreshold) return;
 
                     float x = swipeDelta.x;
                     float y = swipeDelta.y;
@@ -283,10 +269,8 @@ public class PlayerControls : MonoBehaviour
                         }
                         else if (y < 0)
                         {
-                            if (IsGrounded()) 
-                                StartCoroutine(Slide());
-                            else 
-                                StartCoroutine(AirSlide());
+                            if (IsGrounded()) StartCoroutine(Slide());
+                            else StartCoroutine(AirSlide());
                         }
                     }
 
@@ -298,22 +282,15 @@ public class PlayerControls : MonoBehaviour
 
     IEnumerator JumpForSeconds(float duration)
     {
-        if (anim != null)
-            anim.SetBool("isJumping", true);
-        
+        if (anim != null) anim.SetBool("isJumping", true);
         yield return new WaitForSeconds(duration);
-        
-        if (anim != null)
-            anim.SetBool("isJumping", false);
+        if (anim != null) anim.SetBool("isJumping", false);
     }
 
     IEnumerator Slide()
     {
         isSliding = true;
-
-        // Trigger slide animation
-        if (anim != null)
-            StartCoroutine(SlideForSeconds(slideDuration));
+        if (anim != null) StartCoroutine(SlideForSeconds(slideDuration));
 
         col.height = slideColliderHeight;
         col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
@@ -347,22 +324,15 @@ public class PlayerControls : MonoBehaviour
 
     IEnumerator SlideForSeconds(float duration)
     {
-        if (anim != null)
-            anim.SetBool("isSliding", true);
-        
+        if (anim != null) anim.SetBool("isSliding", true);
         yield return new WaitForSeconds(duration);
-        
-        if (anim != null)
-            anim.SetBool("isSliding", false);
+        if (anim != null) anim.SetBool("isSliding", false);
     }
 
     IEnumerator AirSlide()
     {
         isSliding = true;
-
-        // Trigger slide animation
-        if (anim != null)
-            StartCoroutine(SlideForSeconds(0.4f));
+        if (anim != null) StartCoroutine(SlideForSeconds(0.4f));
 
         Vector3 currentVel = rb.velocity;
         rb.velocity = new Vector3(currentVel.x, -jumpForce * 2f, currentVel.z);
@@ -377,7 +347,6 @@ public class PlayerControls : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.2f);
-
         transform.rotation = Quaternion.identity;
         isSliding = false;
     }
@@ -387,20 +356,22 @@ public class PlayerControls : MonoBehaviour
         return Physics.Raycast(transform.position, Vector3.down, col.bounds.extents.y + 0.1f);
     }
 
-    public float GetForwardSpeed()
-    {
-        return forwardSpeed;
-    }
+    public float GetForwardSpeed() => forwardSpeed;
 
-    public void SetForwardSpeed(float speed)
-    {
-        forwardSpeed = speed;
-    }
+    public void SetForwardSpeed(float speed) => forwardSpeed = speed;
 
+    // ======= STOP/RESUME MOVEMENT =======
     public void StopMovement()
     {
+        canMove = false;
         rb.velocity = Vector3.zero;
         forwardSpeed = 0f;
+    }
+
+    public void ResumeMovement()
+    {
+        canMove = true;
+        forwardSpeed = 10f; // or your default speed
     }
 
     void OnDrawGizmos()
