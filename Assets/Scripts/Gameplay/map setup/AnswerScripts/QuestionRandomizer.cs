@@ -34,7 +34,7 @@ public class QuestionRandomizer : MonoBehaviour
 { "body part used for walking", "leg", "log" },
 { "food from animals, often eaten cooked", "meat", "met" },
 { "a small container for drinking", "cup", "cap" },
-{ "you listen with this", "ear", "air" },
+{ "you listen with this", "pair", "pear" },
 { "a plant with leaves and branches", "tree", "tri" },
 { "opposite of white", "black", "block" },
 { "moving quickly", "fast", "fest" },
