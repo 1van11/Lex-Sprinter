@@ -9,12 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Splashscreen.unity
     guid: a54ac22dc3e0b8d44929001247bca497
   - enabled: 1
+    path: Assets/Scenes/Name&Character.unity
+    guid: 1060f266b4cb6494085690b02bb056df
+  - enabled: 1
     path: Assets/Scenes/HomeScreen.unity
     guid: b28c64d6b26cf7b4383edc050b71923a
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/EasyMode.unity
     guid: 3cb7a793d060550489cf03b9dccdfa19
-  - enabled: 1
-    path: Assets/Scenes/SecondScene.unity
-    guid: 1060f266b4cb6494085690b02bb056df
   m_configObjects: {}
