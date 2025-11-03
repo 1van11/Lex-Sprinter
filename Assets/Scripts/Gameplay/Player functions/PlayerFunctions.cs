@@ -155,6 +155,27 @@ public class PlayerFunctions : MonoBehaviour
                 audioSource.PlayOneShot(hurtSound);
         }
 
+    // LETTER HURDLE
+    if (other.CompareTag("LetterHurdle"))
+    {
+        Debug.Log("🔤 Hit a Letter Hurdle!");
+
+        if (!isInvincible && !hasShield)
+        {
+            TakeDamage(1);
+
+            if (audioSource != null && hurtSound != null)
+                audioSource.PlayOneShot(hurtSound);
+        }
+        else if (hasShield)
+        {
+            Debug.Log("🛡️ Shield protected you from the hurdle!");
+        }
+
+        // Disable or destroy the hurdle if you want:
+        other.gameObject.SetActive(false);
+    }
+
         // Answer options
         if (other.CompareTag("AnswerOptions") && !isInvincible)
         {
