@@ -109,7 +109,7 @@ public class QuestionnaireSpawner : MonoBehaviour
             }
             else
             {
-                int randomIndex = rng.Next(0, 55);
+                int randomIndex = rng.Next(0, 75);
                 randomizer.SetSpellingQuestion(randomIndex);
                 spellingCounter++;
                 Debug.Log($"Spawned spelling question index: {randomIndex} at Z: {spawnPos.z}");
