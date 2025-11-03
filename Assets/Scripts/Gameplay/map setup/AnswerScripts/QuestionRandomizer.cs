@@ -5,7 +5,6 @@ using System.Collections;
 public class QuestionRandomizer : MonoBehaviour
 {
     [Header("UI")]
-    public TMP_Text letterText;
     public TMP_Text clueText;
     public TMP_Text jumpText;
     public TMP_Text slideText;
@@ -131,63 +130,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
 
-    [Header("Letter Hurdle")]
-    public string[] letterChoices = new string[]
-    {
-        "A","B","C","D","E","F","G","H","I","J","K","L","M",
-        "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
-    };
-
-    public void SetRandomLetter()
-    {
-        // Pick a random letter as the correct answer
-        string correctLetter = letterChoices[Random.Range(0, letterChoices.Length)];
-        correctAnswer = correctLetter;
-        
-        // Get a wrong letter
-        string wrongLetter = GetRandomWrongLetter(correctLetter);
-        
-        // Display the correct letter in the letterText
-        if (letterText != null)
-        {
-            letterText.text = correctLetter;
-        }
-        
-        // Randomize placement on jump and slide
-        if (Random.value > 0.5f)
-        {
-            jumpText.text = correctLetter;
-            slideText.text = wrongLetter;
-        }
-        else
-        {
-            jumpText.text = wrongLetter;
-            slideText.text = correctLetter;
-        }
-        
-        // Reset audio state
-        currentQuestionIndex = -1;
-        isSentenceQuestion = false;
-        audioPlayed = false;
-        
-        // Hide clue text for letter questions
-        if (clueTextObject != null)
-        {
-            clueTextObject.SetActive(false);
-        }
-    }
     
-    private string GetRandomWrongLetter(string correctLetter)
-    {
-        string wrongLetter;
-        do
-        {
-            int index = Random.Range(0, letterChoices.Length);
-            wrongLetter = letterChoices[index];
-        } while (wrongLetter == correctLetter);
-        
-        return wrongLetter;
-    }
 
     void Start()
     {
