@@ -13,6 +13,7 @@ TagManager:
   - SlowTime
   - Shield
   - Magnet
+  - LetterHurdle
   layers:
   - Default
   - TransparentFX

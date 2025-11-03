@@ -18,20 +18,19 @@ public class LetterContainerSpawner : MonoBehaviour
     public float spawnHeight = 0.5f;
     public Vector3 spawnPositionOffset = Vector3.zero;
 
+    [Header("Spawner Offset (Editable Position)")]
+    public Vector3 spawnerOffset = Vector3.zero; // offset from player or world origin
+
     [Header("Initial Delay")]
     public float initialSpawnDelaySeconds = 1f;
 
-    private float nextSpawnZ;
-    private bool allowRegularSpawning = false;
+    [Header("GameObjects to Disable While Active")]
+    public GameObject[] spawnersToDisable; // assign other spawners here
 
     [Header("Event Spawn")]
     public float eventFrequency = 60f;
     public float eventInitialDelay = 10f;
     public float eventSpawnDistanceAhead = 25f;
-
-    [Header("Disable Event Object")]
-    public GameObject objectToDisable;
-    public float disableDelay = 5f;
 
     [Header("Prefab Transform")]
     public bool usePrefabTransform = true;
@@ -44,6 +43,8 @@ public class LetterContainerSpawner : MonoBehaviour
 
     private Queue<GameObject> pool = new Queue<GameObject>();
     private List<SpawnedInfo> activeObjects = new List<SpawnedInfo>();
+    private bool allowRegularSpawning = false;
+    private float nextSpawnZ;
 
     class SpawnedInfo
     {
@@ -51,13 +52,43 @@ public class LetterContainerSpawner : MonoBehaviour
         public float timer;
     }
 
+    void OnEnable()
+    {
+        foreach (GameObject go in spawnersToDisable)
+            if (go != null) go.SetActive(false);
+    }
+
+    void OnDisable()
+    {
+        foreach (GameObject go in spawnersToDisable)
+            if (go != null) go.SetActive(true);
+    }
+
     void Start()
     {
         CreatePool();
-
         nextSpawnZ = player.position.z + spawnDistanceAhead + 0.01f;
-        StartCoroutine(EventSpawner());
         StartCoroutine(EnableRegularSpawningAfterDelay(initialSpawnDelaySeconds));
+        StartCoroutine(EventSpawner());
+    }
+
+    void Update()
+    {
+        if (allowRegularSpawning && player.position.z + spawnDistanceAhead >= nextSpawnZ)
+        {
+            SpawnRandomLaneAtZ(nextSpawnZ);
+            nextSpawnZ += spawnInterval;
+        }
+
+        for (int i = activeObjects.Count - 1; i >= 0; i--)
+        {
+            activeObjects[i].timer += Time.deltaTime;
+            if (activeObjects[i].timer >= despawnTime)
+            {
+                ReturnToPool(activeObjects[i].obj);
+                activeObjects.RemoveAt(i);
+            }
+        }
     }
 
     void CreatePool()
@@ -75,7 +106,6 @@ public class LetterContainerSpawner : MonoBehaviour
         if (pool.Count > 0)
             return pool.Dequeue();
 
-        // expand if needed
         GameObject o = Instantiate(letterContainerPrefab, Vector3.zero, Quaternion.identity, spawnParent);
         return o;
     }
@@ -93,31 +123,11 @@ public class LetterContainerSpawner : MonoBehaviour
         allowRegularSpawning = true;
     }
 
-    void Update()
-    {
-        if (allowRegularSpawning && player.position.z + spawnDistanceAhead >= nextSpawnZ)
-        {
-            SpawnRandomLaneAtZ(nextSpawnZ);
-            nextSpawnZ += spawnInterval;
-        }
-
-        // ✅ handle despawning timers
-        for (int i = activeObjects.Count - 1; i >= 0; i--)
-        {
-            activeObjects[i].timer += Time.deltaTime;
-            if (activeObjects[i].timer >= despawnTime)
-            {
-                ReturnToPool(activeObjects[i].obj);
-                activeObjects.RemoveAt(i);
-            }
-        }
-    }
-
     void SpawnRandomLaneAtZ(float z)
     {
         int lane = Random.Range(-1, 2);
         float x = lane * laneDistance;
-        SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset);
+        SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset + spawnerOffset);
     }
 
     void SpawnFromPool(Vector3 pos)
@@ -159,13 +169,7 @@ public class LetterContainerSpawner : MonoBehaviour
                 lanes.RemoveAt(idx);
 
                 float x = lane * laneDistance;
-                SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset);
-            }
-
-            if (objectToDisable != null)
-            {
-                yield return new WaitForSeconds(disableDelay);
-                objectToDisable.SetActive(false);
+                SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset + spawnerOffset);
             }
         }
     }

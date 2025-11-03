@@ -824,7 +824,7 @@ GameObject:
   - component: {fileID: 161069996}
   - component: {fileID: 161069995}
   - component: {fileID: 161069994}
-  - component: {fileID: 161070002}
+  - component: {fileID: 161069998}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -921,7 +921,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &161070002
+--- !u!114 &161069998
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -930,14 +930,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 161069993}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da409fcaee07c6649a8790264ac9c12d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0aef89fb4f187514a864af8dee75e7c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target3D: {fileID: 264086230}
   uiElements:
+  - {fileID: 760115166}
   - {fileID: 1177350798}
   - {fileID: 1830821177}
-  - {fileID: 760115166}
 --- !u!1 &166845489 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 976bebe421d48024b96256f75533fd7f, type: 3}
@@ -1906,7 +1906,7 @@ GameObject:
   - component: {fileID: 265444576}
   m_Layer: 0
   m_Name: LETTERS
-  m_TagString: Untagged
+  m_TagString: LetterHurdle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1985,7 +1985,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -2014,7 +2014,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -0.5464642, y: 0, z: -0.7649878, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -2666,20 +2666,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
   m_PrefabInstance: {fileID: 801281625}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &423503220
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 423503212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da409fcaee07c6649a8790264ac9c12d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target3D: {fileID: 0}
-  uiElements: []
 --- !u!114 &423503223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2689,46 +2675,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 423503212}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
+  m_Script: {fileID: 11500000, guid: af5b7e8cea0821740a211643d784661c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letterText: {fileID: 265444576}
-  clueText: {fileID: 0}
-  jumpText: {fileID: 0}
-  slideText: {fileID: 0}
-  clueTextObject: {fileID: 0}
-  correctAnswer: 
-  audioSource: {fileID: 0}
-  pronunciationSounds: []
-  sentencePronunciations: []
-  playAudioOnTrigger: 1
-  letterChoices:
-  - A
-  - B
-  - C
-  - D
-  - E
-  - F
-  - G
-  - H
-  - I
-  - J
-  - K
-  - L
-  - M
-  - N
-  - O
-  - P
-  - Q
-  - R
-  - S
-  - T
-  - U
-  - V
-  - W
-  - X
-  - Y
-  - Z
+  displayText: {fileID: 265444576}
 --- !u!1 &458323856 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
@@ -3559,7 +3509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &760115166
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3831,14 +3781,15 @@ MonoBehaviour:
   laneDistance: 3
   spawnDistanceAhead: 20
   spawnInterval: 10
-  spawnHeight: 0.5
-  spawnPositionOffset: {x: 0, y: 4, z: 0}
-  initialSpawnDelaySeconds: 3
+  spawnHeight: 5
+  spawnPositionOffset: {x: 0, y: 0, z: 0}
+  spawnerOffset: {x: 0, y: 0, z: 0}
+  initialSpawnDelaySeconds: 1
+  spawnersToDisable:
+  - {fileID: 534552812}
   eventFrequency: 60
   eventInitialDelay: 10
-  eventSpawnDistanceAhead: 40
-  objectToDisable: {fileID: 534552812}
-  disableDelay: 5
+  eventSpawnDistanceAhead: 25
   usePrefabTransform: 1
   spawnRotationEuler: {x: 0, y: 0, z: 0}
   spawnScale: {x: 1, y: 1, z: 1}
@@ -3857,15 +3808,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.x
-      value: 97.666046
+      value: 97.66606
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.y
-      value: 60.32703
+      value: 60.327038
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.z
-      value: 83.26377
+      value: 83.263756
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4482,7 +4433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56.000854}
+  m_AnchoredPosition: {x: 0, y: -56.000977}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1087152232
@@ -4692,7 +4643,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56.000854}
+  m_AnchoredPosition: {x: 0, y: -56.000977}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -6275,7 +6226,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letterText: {fileID: 0}
   clueText: {fileID: 529262465}
   jumpText: {fileID: 110658086}
   slideText: {fileID: 228163191}
@@ -6285,33 +6235,6 @@ MonoBehaviour:
   pronunciationSounds: []
   sentencePronunciations: []
   playAudioOnTrigger: 1
-  letterChoices:
-  - A
-  - B
-  - C
-  - D
-  - E
-  - F
-  - G
-  - H
-  - I
-  - J
-  - K
-  - L
-  - M
-  - N
-  - O
-  - P
-  - Q
-  - R
-  - S
-  - T
-  - U
-  - V
-  - W
-  - X
-  - Y
-  - Z
 --- !u!65 &1660453008
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6505,7 +6428,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letterText: {fileID: 0}
   clueText: {fileID: 0}
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
@@ -6590,33 +6512,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 74e128f384eb3b147be7a40658cf9c03, type: 3}
   sentencePronunciations: []
   playAudioOnTrigger: 1
-  letterChoices:
-  - A
-  - B
-  - C
-  - D
-  - E
-  - F
-  - G
-  - H
-  - I
-  - J
-  - K
-  - L
-  - M
-  - N
-  - O
-  - P
-  - Q
-  - R
-  - S
-  - T
-  - U
-  - V
-  - W
-  - X
-  - Y
-  - Z
 --- !u!65 &1688170024
 BoxCollider:
   m_ObjectHideFlags: 0
