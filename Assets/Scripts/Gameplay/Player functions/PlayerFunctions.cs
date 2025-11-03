@@ -141,43 +141,37 @@ public class PlayerFunctions : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Trap") && !isInvincible)
+        if (other.CompareTag("Trap") && !isInvincible && !hasShield)
         {
-            if (hasShield)
+            TakeDamage(1);
+
+            if (audioSource != null && hurtSound != null)
+                audioSource.PlayOneShot(hurtSound);
+        }
+
+        // LETTER HURDLE
+        if (other.CompareTag("LetterHurdle"))
+        {
+            Debug.Log("🔤 Hit a Letter Hurdle!");
+
+            if (!isInvincible && !hasShield)
             {
-                Debug.Log("🛡️ Shield blocked the trap!");
-                return;
+                TakeDamage(1);
+
+                if (audioSource != null && hurtSound != null)
+                    audioSource.PlayOneShot(hurtSound);
+            }
+            else if (hasShield)
+            {
+                Debug.Log("🛡️ Shield protected you from the hurdle!");
             }
 
-            TakeDamage(1);
-
-            if (audioSource != null && hurtSound != null)
-                audioSource.PlayOneShot(hurtSound);
+            // Disable or destroy the hurdle if you want:
+            other.gameObject.SetActive(false);
         }
 
-    // LETTER HURDLE
-    if (other.CompareTag("LetterHurdle"))
-    {
-        Debug.Log("🔤 Hit a Letter Hurdle!");
-
-        if (!isInvincible && !hasShield)
-        {
-            TakeDamage(1);
-
-            if (audioSource != null && hurtSound != null)
-                audioSource.PlayOneShot(hurtSound);
-        }
-        else if (hasShield)
-        {
-            Debug.Log("🛡️ Shield protected you from the hurdle!");
-        }
-
-        // Disable or destroy the hurdle if you want:
-        other.gameObject.SetActive(false);
-    }
-
-        // Answer options
-        if (other.CompareTag("AnswerOptions") && !isInvincible)
+        // Answer options - REMOVED the isInvincible check so shield doesn't block answers
+        if (other.CompareTag("AnswerOptions"))
         {
             QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
 
@@ -277,7 +271,7 @@ public class PlayerFunctions : MonoBehaviour
 
     void TakeDamage(int damage)
     {
-        if (isDead) return;
+        if (isDead || hasShield) return; // Shield prevents damage
 
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
@@ -494,7 +488,7 @@ public class PlayerFunctions : MonoBehaviour
     IEnumerator ShieldBuff()
     {
         hasShield = true;
-        isInvincible = true;
+        // REMOVED: isInvincible = true; - Shield should not block answer interactions
         
         if (shieldVisual != null)
             shieldVisual.SetActive(true);
@@ -506,7 +500,7 @@ public class PlayerFunctions : MonoBehaviour
             shieldVisual.SetActive(false);
         
         hasShield = false;
-        isInvincible = false;
+        // REMOVED: isInvincible = false;
         Debug.Log("🛡️ Shield expired");
     }
 
