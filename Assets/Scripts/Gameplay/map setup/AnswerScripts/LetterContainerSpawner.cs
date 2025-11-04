@@ -19,13 +19,10 @@ public class LetterContainerSpawner : MonoBehaviour
     public Vector3 spawnPositionOffset = Vector3.zero;
 
     [Header("Spawner Offset (Editable Position)")]
-    public Vector3 spawnerOffset = Vector3.zero; // offset from player or world origin
+    public Vector3 spawnerOffset = Vector3.zero; 
 
     [Header("Initial Delay")]
     public float initialSpawnDelaySeconds = 1f;
-
-    [Header("GameObjects to Disable While Active")]
-    public GameObject[] spawnersToDisable; // assign other spawners here
 
     [Header("Event Spawn")]
     public float eventFrequency = 60f;
@@ -46,23 +43,10 @@ public class LetterContainerSpawner : MonoBehaviour
     private bool allowRegularSpawning = false;
     private float nextSpawnZ;
 
-
     class SpawnedInfo
     {
         public GameObject obj;
         public float timer;
-    }
-
-    void OnEnable()
-    {
-        foreach (GameObject go in spawnersToDisable)
-            if (go != null) go.SetActive(false);
-    }
-
-    void OnDisable()
-    {
-        foreach (GameObject go in spawnersToDisable)
-            if (go != null) go.SetActive(true);
     }
 
     void Start()
@@ -159,7 +143,7 @@ public class LetterContainerSpawner : MonoBehaviour
             yield return new WaitForSeconds(eventFrequency);
 
             float z = player.position.z + eventSpawnDistanceAhead;
-            int count = Random.Range(1, 3); // 1–2 lanes
+            int count = Random.Range(1, 3);
 
             List<int> lanes = new List<int>() { -1, 0, 1 };
 
@@ -174,5 +158,4 @@ public class LetterContainerSpawner : MonoBehaviour
             }
         }
     }
-    
 }

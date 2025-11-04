@@ -9,6 +9,9 @@ public class LetterHurdleManager : MonoBehaviour
     public TMP_Text targetWordText;     // Shows the word player needs to spell
     public TMP_Text feedbackText;       // Shows "Correct!" or "Wrong Letter!"
     public TMP_Text scoreText;          // Shows current score
+
+    [Header("Boss Reference")]
+    public EventTimingManager bossManager; // Assign your EventTimingManager object here in Inspector
     
     private string[] wordList = {
         "dog","hat","pink","sun","leg","meat","cup","pair","tree","black",
@@ -20,35 +23,35 @@ public class LetterHurdleManager : MonoBehaviour
         "boy","uncle","good","bad","walk","stand","sing","bus","door","map",
         "egg","pear","duck","mouse","wind"
     };
-    
+
     private string currentTargetWord;
     private int score = 0;
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
     private string previousCollectedText = "";
-    
+
     void Start()
     {
         // Shuffle the word list
         shuffledWords = wordList.OrderBy(x => Random.value).ToList();
-        
+
         // Set first target word
         SetNewTargetWord();
-        
+
         // Initialize UI
         if (feedbackText != null)
             feedbackText.text = "";
-        
+
         UpdateScoreText();
     }
-    
+
     void Update()
     {
         // Check spelling only when new letter is added
         if (collectedText != null)
         {
             string currentCollected = collectedText.text.ToLower().Trim();
-            
+
             // Only check if text changed
             if (currentCollected != previousCollectedText)
             {
@@ -57,7 +60,7 @@ public class LetterHurdleManager : MonoBehaviour
             }
         }
     }
-    
+
     void SetNewTargetWord()
     {
         if (currentWordIndex >= shuffledWords.Count)
@@ -66,36 +69,36 @@ public class LetterHurdleManager : MonoBehaviour
             shuffledWords = wordList.OrderBy(x => Random.value).ToList();
             currentWordIndex = 0;
         }
-        
+
         currentTargetWord = shuffledWords[currentWordIndex];
-        
+
         if (targetWordText != null)
             targetWordText.text = "Spell: " + currentTargetWord.ToUpper();
-        
+
         // Clear collected text for new word
         if (collectedText != null)
             collectedText.text = "";
-        
+
         previousCollectedText = "";
-        
+
         if (feedbackText != null)
             feedbackText.text = "";
     }
-    
+
     void CheckSpelling(string collected)
     {
         if (string.IsNullOrEmpty(collected))
             return;
-        
+
         int collectedLength = collected.Length;
-        
+
         // Check if each letter matches the target word in sequence
         if (collectedLength <= currentTargetWord.Length)
         {
             // Get the expected letter at this position
             char expectedLetter = currentTargetWord[collectedLength - 1];
             char collectedLetter = collected[collectedLength - 1];
-            
+
             if (collectedLetter == expectedLetter)
             {
                 // Correct letter in correct position
@@ -107,10 +110,13 @@ public class LetterHurdleManager : MonoBehaviour
                         feedbackText.text = "Correct!";
                         feedbackText.color = Color.green;
                     }
-                    
+
                     score += 10;
                     UpdateScoreText();
-                    
+
+                    // Check if boss should finish
+                    CheckBossSpell();
+
                     // Move to next word after a short delay
                     currentWordIndex++;
                     Invoke("SetNewTargetWord", 2f);
@@ -130,37 +136,37 @@ public class LetterHurdleManager : MonoBehaviour
                     feedbackText.text = "Wrong Letter!";
                     feedbackText.color = Color.red;
                 }
-                
+
                 // Remove the wrong letter
                 collectedText.text = collected.Substring(0, collectedLength - 1);
                 previousCollectedText = collectedText.text;
-                
+
                 // Clear feedback after 1 second
                 Invoke("ClearFeedback", 1f);
             }
         }
     }
-    
+
     void ClearFeedback()
     {
         if (feedbackText != null)
             feedbackText.text = "";
     }
-    
+
     void UpdateScoreText()
     {
         if (scoreText != null)
             scoreText.text = "Score: " + score;
     }
-    
+
     // Public method to clear collected letters (can be called by a button)
     public void ClearCollectedLetters()
     {
         if (collectedText != null)
             collectedText.text = "";
-        
+
         previousCollectedText = "";
-        
+
         if (feedbackText != null)
             feedbackText.text = "";
     }
@@ -171,10 +177,24 @@ public class LetterHurdleManager : MonoBehaviour
         currentWordIndex++;
         SetNewTargetWord();
     }
-    
-        public string GetCurrentWord()
-{
-    return currentTargetWord;
-}
 
+    public string GetCurrentWord()
+    {
+        return currentTargetWord;
+    }
+
+    // ----------------- BOSS CHECK FUNCTION -----------------
+    // Call this function to check if collected text matches target word and finish boss
+    public void CheckBossSpell()
+    {
+        if (collectedText == null || bossManager == null) return;
+
+        string typed = collectedText.text.ToLower().Trim();
+        string target = currentTargetWord.ToLower().Trim();
+
+        if (typed == target)
+        {
+            bossManager.FinishBoss();
+        }
+    }
 }
