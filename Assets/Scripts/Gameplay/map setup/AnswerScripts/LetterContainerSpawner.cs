@@ -38,13 +38,14 @@ public class LetterContainerSpawner : MonoBehaviour
     public Vector3 spawnScale = Vector3.one;
 
     [Header("Pooling Settings")]
-    public int poolSize = 20;
+    public int poolSize = 50;
     public float despawnTime = 5f;
 
     private Queue<GameObject> pool = new Queue<GameObject>();
     private List<SpawnedInfo> activeObjects = new List<SpawnedInfo>();
     private bool allowRegularSpawning = false;
     private float nextSpawnZ;
+
 
     class SpawnedInfo
     {
@@ -173,4 +174,5 @@ public class LetterContainerSpawner : MonoBehaviour
             }
         }
     }
+    
 }
