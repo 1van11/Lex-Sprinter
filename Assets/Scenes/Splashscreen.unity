@@ -374,8 +374,12 @@ MonoBehaviour:
   loadingScreenParent: {fileID: 412919113}
   loadingSlider: {fileID: 1423138981}
   progressText: {fileID: 875874940}
+<<<<<<< Updated upstream
   setupSceneName: Name&Character
   homeSceneName: HomeScreen
+=======
+  nextSceneName: Name&Character
+>>>>>>> Stashed changes
   fakeLoadSpeed: 0.5
 --- !u!1 &552908373
 GameObject:

@@ -1221,8 +1221,13 @@ MonoBehaviour:
       m_Calls: []
   m_text: confirm
   m_isRightToLeft: 0
+<<<<<<< Updated upstream
   m_fontAsset: {fileID: 11400000, guid: 6ac713502ae594b4bada7d6dedc94193, type: 2}
   m_sharedMaterial: {fileID: -3484134531581669359, guid: 6ac713502ae594b4bada7d6dedc94193, type: 2}
+=======
+  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+>>>>>>> Stashed changes
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
