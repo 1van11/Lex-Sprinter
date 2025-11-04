@@ -481,8 +481,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: word
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -571,7 +571,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1312,8 +1312,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: word
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1402,7 +1402,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1776,8 +1776,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2089,8 +2089,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: a
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2179,7 +2179,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3821,8 +3821,7 @@ GameObject:
   - component: {fileID: 774635558}
   - component: {fileID: 774635557}
   - component: {fileID: 774635560}
-  - component: {fileID: 774635561}
-  - component: {fileID: 774635562}
+  - component: {fileID: 774635563}
   m_Layer: 0
   m_Name: MapEventSystem
   m_TagString: Untagged
@@ -3901,54 +3900,21 @@ MonoBehaviour:
   poolSize: 12
   tilesPerMap: 6
   spawnPoint: {fileID: 774635559}
---- !u!114 &774635561
+--- !u!114 &774635563
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 774635556}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0adc035669211c408a80b35f5e09fd6, type: 3}
+  m_Script: {fileID: 11500000, guid: 9daaee688a2c7704ab6d5bf692c6612d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 264086230}
-  spawnParent: {fileID: 774635559}
-  letterContainerPrefab: {fileID: 423503212}
-  laneDistance: 3
-  spawnDistanceAhead: 20
-  spawnInterval: 10
-  spawnHeight: 5
-  spawnPositionOffset: {x: 0, y: 0, z: 0}
-  spawnerOffset: {x: 0, y: 0, z: 0}
-  initialSpawnDelaySeconds: 1
-  spawnersToDisable:
-  - {fileID: 534552812}
-  eventFrequency: 60
-  eventInitialDelay: 10
-  eventSpawnDistanceAhead: 25
-  usePrefabTransform: 1
-  spawnRotationEuler: {x: 0, y: 0, z: 0}
-  spawnScale: {x: 1, y: 1, z: 1}
-  poolSize: 20
-  despawnTime: 5
---- !u!114 &774635562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774635556}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a26dfbd75e924064c81c27574df82338, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  collectedText: {fileID: 0}
-  targetWordText: {fileID: 0}
-  feedbackText: {fileID: 0}
-  scoreText: {fileID: 0}
+  gameA: {fileID: 534552812}
+  bossB: {fileID: 2069723962}
+  gameADuration: 2
 --- !u!1001 &801281625
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3962,27 +3928,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.x
-      value: 97.66606
+      value: 97.66608
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.y
-      value: 60.327038
+      value: 60.32704
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalScale.z
-      value: 83.263756
+      value: 83.26375
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.96
+      value: -2.959999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.55
+      value: 4.5499988
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -84.15
+      value: -84.149994
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4022,7 +3988,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
@@ -4587,7 +4553,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -55.999756}
+  m_AnchoredPosition: {x: 0, y: -56}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1062179859
@@ -4644,6 +4610,7 @@ MonoBehaviour:
   targetWordText: {fileID: 1767967936}
   feedbackText: {fileID: 0}
   scoreText: {fileID: 0}
+  bossManager: {fileID: 0}
 --- !u!1 &1087152232
 GameObject:
   m_ObjectHideFlags: 0
@@ -4851,7 +4818,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -55.999756}
+  m_AnchoredPosition: {x: 0, y: -56}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -5345,8 +5312,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: word
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5435,7 +5402,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5639,8 +5606,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: clue
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5729,7 +5696,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6261,8 +6228,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: word
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
-  m_sharedMaterial: {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6351,7 +6318,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2499442838080359057, guid: 4c81cdf2f39e7f246bbf51b1a2b9612e, type: 2}
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7943,6 +7910,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2069723963}
+  - component: {fileID: 2069723964}
   m_Layer: 0
   m_Name: BossEvent
   m_TagString: Untagged
@@ -7967,6 +7935,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2069723964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069723962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0adc035669211c408a80b35f5e09fd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 264086230}
+  spawnParent: {fileID: 774635559}
+  letterContainerPrefab: {fileID: 423503212}
+  laneDistance: 3
+  spawnDistanceAhead: 60
+  spawnInterval: 10
+  spawnHeight: 4
+  spawnPositionOffset: {x: 0, y: 0, z: 0}
+  spawnerOffset: {x: 0, y: 0, z: 0}
+  initialSpawnDelaySeconds: 10
+  eventFrequency: 60
+  eventInitialDelay: 10
+  eventSpawnDistanceAhead: 25
+  usePrefabTransform: 1
+  spawnRotationEuler: {x: 0, y: 0, z: 0}
+  spawnScale: {x: 1, y: 1, z: 1}
+  poolSize: 50
+  despawnTime: 5
 --- !u!1 &2086456820
 GameObject:
   m_ObjectHideFlags: 0
@@ -8030,7 +8028,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2096460053
 RectTransform:
   m_ObjectHideFlags: 0
