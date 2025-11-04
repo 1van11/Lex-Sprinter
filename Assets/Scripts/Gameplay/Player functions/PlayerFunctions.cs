@@ -5,6 +5,9 @@ using TMPro;
 
 public class PlayerFunctions : MonoBehaviour
 {
+      [Header("Debug / Cheat Options")]
+    public bool alwaysInvincible = false; // toggle in Inspector or via code
+
     [Header("Audio Sounds")]    
     public AudioSource audioSource;
     public AudioClip coinSound;
@@ -66,6 +69,7 @@ public class PlayerFunctions : MonoBehaviour
     public GameObject wrongAnswerPrefab;
     public float feedbackDisplayTime = 1.5f;
 
+  
     private Renderer[] renderers;
     [HideInInspector] public bool isDead = false;
 
@@ -141,7 +145,8 @@ public class PlayerFunctions : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Trap") && !isInvincible && !hasShield)
+        // Trap collision
+        if (other.CompareTag("Trap") && !isInvincible && !hasShield && !alwaysInvincible)
         {
             TakeDamage(1);
 
@@ -154,19 +159,19 @@ public class PlayerFunctions : MonoBehaviour
         {
             Debug.Log("🔤 Hit a Letter Hurdle!");
 
-            if (!isInvincible && !hasShield)
+            // If invincible cheat or shield, skip damage
+            if (alwaysInvincible || hasShield || isInvincible)
+            {
+                if (hasShield) Debug.Log("🛡️ Shield protected you from the hurdle!");
+                if (alwaysInvincible) Debug.Log("🛡️ Player is invincible, no damage taken!");
+            }
+            else
             {
                 TakeDamage(1);
-
                 if (audioSource != null && hurtSound != null)
                     audioSource.PlayOneShot(hurtSound);
             }
-            else if (hasShield)
-            {
-                Debug.Log("🛡️ Shield protected you from the hurdle!");
-            }
 
-            // Disable or destroy the hurdle if you want:
             other.gameObject.SetActive(false);
         }
 
@@ -204,10 +209,10 @@ public class PlayerFunctions : MonoBehaviour
 
                     ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
 
-                    if (!hasShield)
+                    if (!hasShield && !alwaysInvincible)
                         TakeDamage(1);
                     else
-                        Debug.Log("🛡️ Shield protected you from wrong answer!");
+                        Debug.Log("🛡️ Shield or invincibility prevented damage from wrong answer!");
                 }
 
                 // Show correct answer if player chose wrong
@@ -271,11 +276,11 @@ public class PlayerFunctions : MonoBehaviour
 
     void TakeDamage(int damage)
     {
-        if (isDead || hasShield) return; // Shield prevents damage
+        if (isDead || hasShield || alwaysInvincible) return; // respect shield & cheat
 
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
-        
+
         Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
         UpdateHealthUI();
 
@@ -287,6 +292,37 @@ public class PlayerFunctions : MonoBehaviour
         {
             StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
         }
+    }
+
+    public void TakeDamageFromWrongLetter()
+    {
+        if (isDead || alwaysInvincible) return;
+
+        if (hasShield)
+        {
+            Debug.Log("🛡️ Shield protected you from wrong letter!");
+            return;
+        }
+
+        TakeDamage(1);
+
+        if (audioSource != null && hurtSound != null)
+            audioSource.PlayOneShot(hurtSound);
+
+        Debug.Log("❌ Wrong letter! Took damage.");
+    }
+
+    // Toggleable invincibility helpers
+    public void EnableInvincibility()
+    {
+        alwaysInvincible = true;
+        Debug.Log("🛡️ Player is now always invincible!");
+    }
+
+    public void DisableInvincibility()
+    {
+        alwaysInvincible = false;
+        Debug.Log("❌ Player invincibility disabled.");
     }
 
     void UpdateHealthUI()
@@ -327,18 +363,13 @@ public class PlayerFunctions : MonoBehaviour
         isDead = true;
         Debug.Log("💀 Game Over!");
 
-        // Save total coins when game ends
         SaveTotalCoins();
 
-        // Stop movement
         if (playerControls != null)
             playerControls.StopMovement();
 
-        // Show game over panel
         if (gameOverPanel != null)
-        {
             gameOverPanel.SetActive(true);
-        }
     }
 
     void UpdateScoreUI()
@@ -355,45 +386,25 @@ public class PlayerFunctions : MonoBehaviour
 
     public string FormatNumber(int number)
     {
-        if (number < 1000)
-        {
-            return number.ToString();
-        }
+        if (number < 1000) return number.ToString();
         else if (number < 1000000) 
         {
             float thousands = number / 1000f;
-            if (number % 1000 == 0)
-                return $"{thousands:F0}k";
-            else
-                return $"{thousands:F1}k".Replace(".0", "");
+            return (number % 1000 == 0) ? $"{thousands:F0}k" : $"{thousands:F1}k".Replace(".0", "");
         }
         else if (number < 1000000000)
         {
             float millions = number / 1000000f;
-            if (number % 1000000 == 0)
-                return $"{millions:F0}M";
-            else
-                return $"{millions:F1}M".Replace(".0", "");
+            return (number % 1000000 == 0) ? $"{millions:F0}M" : $"{millions:F1}M".Replace(".0", "");
         }
         else
         {
             float billions = number / 1000000000f;
-            if (number % 1000000000 == 0)
-                return $"{billions:F0}B";
-            else
-                return $"{billions:F1}B".Replace(".0", "");
+            return (number % 1000000000 == 0) ? $"{billions:F0}B" : $"{billions:F1}B".Replace(".0", "");
         }
     }
 
-    public string FormatCoins(int coins)
-    {
-        return FormatNumber(coins);
-    }
-
-    public string GetFormattedCoins()
-    {
-        return FormatCoins(totalCoins);
-    }
+    public string FormatCoins(int coins) => FormatNumber(coins);
 
     public void LoadTotalCoins()
     {
@@ -417,7 +428,7 @@ public class PlayerFunctions : MonoBehaviour
         score += amount;
         totalCoins += amount;
         UpdateScoreUI();
-        UpdateTotalCoinsUI(); // Update total coins display
+        UpdateTotalCoinsUI();
         Debug.Log($"💰 Added {amount} coins. Total: {totalCoins}");
     }
 
@@ -426,7 +437,7 @@ public class PlayerFunctions : MonoBehaviour
         if (totalCoins >= amount)
         {
             totalCoins -= amount;
-            UpdateTotalCoinsUI(); // Update total coins display
+            UpdateTotalCoinsUI();
             SaveTotalCoins();
             Debug.Log($"💰 Spent {amount} coins. Remaining: {totalCoins}");
             return true;
@@ -438,17 +449,14 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
-    public int GetTotalCoins()
-    {
-        return totalCoins;
-    }
+    public int GetTotalCoins() => totalCoins;
 
     public void ResetTotalCoins()
     {
         totalCoins = 0;
         PlayerPrefs.SetInt(coinSaveKey, 0);
         PlayerPrefs.Save();
-        UpdateTotalCoinsUI(); // Update total coins display
+        UpdateTotalCoinsUI();
         Debug.Log("💰 Total coins reset to 0");
     }
 
@@ -457,7 +465,7 @@ public class PlayerFunctions : MonoBehaviour
         totalCoins = Mathf.Max(0, amount);
         PlayerPrefs.SetInt(coinSaveKey, totalCoins);
         PlayerPrefs.Save();
-        UpdateTotalCoinsUI(); // Update total coins display
+        UpdateTotalCoinsUI();
         Debug.Log($"💰 Total coins set to: {totalCoins}");
     }
 
@@ -469,18 +477,14 @@ public class PlayerFunctions : MonoBehaviour
         while (timer < duration)
         {
             foreach (Renderer r in renderers)
-            {
                 r.enabled = !r.enabled;
-            }
 
             timer += flashInterval;
             yield return new WaitForSeconds(flashInterval);
         }
 
         foreach (Renderer r in renderers)
-        {
             r.enabled = true;
-        }
 
         isInvincible = false;
     }
@@ -488,8 +492,7 @@ public class PlayerFunctions : MonoBehaviour
     IEnumerator ShieldBuff()
     {
         hasShield = true;
-        // REMOVED: isInvincible = true; - Shield should not block answer interactions
-        
+
         if (shieldVisual != null)
             shieldVisual.SetActive(true);
 
@@ -500,7 +503,6 @@ public class PlayerFunctions : MonoBehaviour
             shieldVisual.SetActive(false);
         
         hasShield = false;
-        // REMOVED: isInvincible = false;
         Debug.Log("🛡️ Shield expired");
     }
 
@@ -517,21 +519,13 @@ public class PlayerFunctions : MonoBehaviour
         while (timer > 0)
         {
             GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
-            
             foreach (GameObject coinObj in allCoins)
             {
-                if (coinObj == null || !coinObj.activeInHierarchy)
-                    continue;
+                if (coinObj == null || !coinObj.activeInHierarchy) continue;
                 
                 float distance = Vector3.Distance(transform.position, coinObj.transform.position);
                 if (distance <= magnetRadius)
-                {
-                    coinObj.transform.position = Vector3.MoveTowards(
-                        coinObj.transform.position,
-                        transform.position,
-                        magnetPullSpeed * Time.deltaTime
-                    );
-                }
+                    coinObj.transform.position = Vector3.MoveTowards(coinObj.transform.position, transform.position, magnetPullSpeed * Time.deltaTime);
             }
 
             timer -= Time.deltaTime;
@@ -580,7 +574,7 @@ public class PlayerFunctions : MonoBehaviour
         totalCoins = 0;
         PlayerPrefs.DeleteKey(coinSaveKey);
         PlayerPrefs.Save();
-        UpdateTotalCoinsUI(); // Update total coins display
+        UpdateTotalCoinsUI();
         Debug.Log("🧹 Unity Editor stopped — coins reset to 0.");
 #endif
     }
@@ -588,10 +582,7 @@ public class PlayerFunctions : MonoBehaviour
     void OnApplicationPause(bool pauseStatus)
     {
 #if UNITY_ANDROID || UNITY_IOS
-        if (pauseStatus)
-        {
-            SaveTotalCoins();
-        }
+        if (pauseStatus) SaveTotalCoins();
 #endif
     }
 
