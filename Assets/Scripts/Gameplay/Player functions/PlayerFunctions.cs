@@ -5,7 +5,7 @@ using TMPro;
 
 public class PlayerFunctions : MonoBehaviour
 {
-      [Header("Debug / Cheat Options")]
+    [Header("Debug / Cheat Options")]
     public bool alwaysInvincible = false; // toggle in Inspector or via code
 
     [Header("Audio Sounds")]    
@@ -64,6 +64,9 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Game Over")]
     public GameObject gameOverPanel;
 
+    [Header("Revive Panel")]
+    public GameObject revivePanel; // NEW: Reference to revive panel
+
     [Header("Answer Feedback")]
     public GameObject correctAnswerPrefab;
     public GameObject wrongAnswerPrefab;
@@ -93,10 +96,11 @@ public class PlayerFunctions : MonoBehaviour
         // Update total coins UI on start
         UpdateTotalCoinsUI();
 
-        // Hide buff visuals and game over panel at start
+        // Hide buff visuals and panels at start
         if (shieldVisual != null) shieldVisual.SetActive(false);
         if (magnetVisual != null) magnetVisual.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (revivePanel != null) revivePanel.SetActive(false); // NEW: Hide revive panel at start
     }
 
     void Update()
@@ -325,7 +329,7 @@ public class PlayerFunctions : MonoBehaviour
         Debug.Log("❌ Player invincibility disabled.");
     }
 
-    void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (healthText != null)
             healthText.text = $"❤️ {currentHealth}";
@@ -361,15 +365,60 @@ public class PlayerFunctions : MonoBehaviour
     void Die()
     {
         isDead = true;
-        Debug.Log("💀 Game Over!");
+        Debug.Log("💀 Player died! Showing revive panel...");
 
         SaveTotalCoins();
 
         if (playerControls != null)
             playerControls.StopMovement();
 
+        // Show revive panel instead of game over panel
+        if (revivePanel != null)
+        {
+            revivePanel.SetActive(true);
+            Debug.Log("🔄 Revive panel activated");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Revive panel reference is missing! Showing game over panel instead.");
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(true);
+        }
+
+        // Time will be paused by the Revive script's OnEnable() method
+    }
+
+    // NEW METHOD: Revive the player from death
+    public void ReviveFromDeath()
+    {
+        // Reset death state
+        isDead = false;
+
+        // Restore health
+        currentHealth = maxHealth;
+        UpdateHealthUI();
+
+        // Reset all buff states
+        isInvincible = false;
+        hasShield = false;
+        hasMagnet = false;
+        isSlowTime = false;
+
+        // Hide buff visuals
+        if (shieldVisual != null)
+            shieldVisual.SetActive(false);
+        if (magnetVisual != null)
+            magnetVisual.SetActive(false);
+
+        // Re-enable player movement
+        if (playerControls != null)
+            playerControls.ResumeMovement();
+
+        // Hide game over panel
         if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+            gameOverPanel.SetActive(false);
+
+        Debug.Log("💖 Player revived successfully!");
     }
 
     void UpdateScoreUI()
