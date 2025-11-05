@@ -1359,8 +1359,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.030472, y: -165.52}
-  m_SizeDelta: {x: 255.8369, y: 110.7384}
+  m_AnchoredPosition: {x: -0.000010967, y: -165.52}
+  m_SizeDelta: {x: 593.47, y: 110.7384}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &97496532
 MonoBehaviour:
@@ -9884,9 +9884,9 @@ MonoBehaviour:
   buyButton: {fileID: 1391005392}
   priceText: {fileID: 1501580116}
   coinsDisplay: {fileID: 1340512575}
-  itemCost: 2
+  itemCost: 2500
   coinSaveKey: PlayerTotalCoins
-  purchaseKey: 
+  purchaseKey: purchased
   shakeDuration: 0.5
   shakeMagnitude: 10
   shakeCount: 3
@@ -10899,8 +10899,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 169.7656, y: 63.712}
+  m_AnchoredPosition: {x: 3.7281, y: 0}
+  m_SizeDelta: {x: 544.9006, y: 63.712}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1501580116
 MonoBehaviour:
