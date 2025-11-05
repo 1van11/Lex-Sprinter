@@ -8,7 +8,7 @@ public class ObstacleSpawner : MonoBehaviour
     public PlayerFunctions PlayerFunctions;
 
     [Header("Obstacle Prefabs")]
-    public GameObject[] obstaclePrefabs; // Changed to array
+    public GameObject[] obstaclePrefabs;
     public GameObject coinPrefab;
 
     [Header("Question Prefabs")]
@@ -96,7 +96,7 @@ public class ObstacleSpawner : MonoBehaviour
     public float gizmoHeight = 1f;
 
     private List<GameObject> activeObstacles = new List<GameObject>();
-    private List<Queue<GameObject>> obstaclePools = new List<Queue<GameObject>>(); // Changed to list of pools
+    private List<Queue<GameObject>> obstaclePools = new List<Queue<GameObject>>();
     private List<GameObject> activeCoins = new List<GameObject>();
     private Queue<GameObject> coinPool = new Queue<GameObject>();
     private List<GameObject> activePowerUps = new List<GameObject>();
@@ -110,6 +110,7 @@ public class ObstacleSpawner : MonoBehaviour
     private int patternIndex = 0;
     private int spellingCounter = 0;
     private System.Random rng;
+    private bool powerUpSpawnedThisFrame = false; // FIX: Add flag to prevent multiple spawns
 
     public enum PowerUpType { Shield, Magnet, SlowTime }
 
@@ -131,7 +132,6 @@ public class ObstacleSpawner : MonoBehaviour
 
     void InitializePool()
     {
-        // Initialize obstacle pools for each prefab type
         if (obstaclePrefabs != null && obstaclePrefabs.Length > 0)
         {
             for (int prefabIndex = 0; prefabIndex < obstaclePrefabs.Length; prefabIndex++)
@@ -270,7 +270,6 @@ public class ObstacleSpawner : MonoBehaviour
     {
         obj.SetActive(false);
         
-        // Find which pool this obstacle belongs to
         for (int i = 0; i < obstaclePrefabs.Length; i++)
         {
             if (obstaclePrefabs[i] != null && obj.name.Contains(obstaclePrefabs[i].name))
@@ -301,6 +300,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Update()
     {
+        powerUpSpawnedThisFrame = false; // FIX: Reset flag at start of frame
+        
         DespawnOldObstacles();
         DespawnOldCoins();
         DespawnOldPowerUps();
@@ -308,20 +309,31 @@ public class ObstacleSpawner : MonoBehaviour
         CheckPowerUpSpawn();
     }
 
+    // FIX: Modified method to prevent multiple spawns in one frame
     void CheckPowerUpSpawn()
     {
-        if (PlayerFunctions == null) return;
+        if (PlayerFunctions == null || powerUpSpawnedThisFrame) return;
+        
         float playerDistance = PlayerFunctions.transform.position.z;
 
+        // FIX: Only spawn if we've crossed the threshold and increment immediately
         if (playerDistance >= nextPowerUpDistance)
         {
             SpawnPowerUp();
+            powerUpSpawnedThisFrame = true; // FIX: Mark that we spawned this frame
+            
+            // FIX: Update nextPowerUpDistance BEFORE spawning to prevent multiple triggers
             if (!hasSpawnedFirstPowerUp)
             {
                 hasSpawnedFirstPowerUp = true;
                 nextPowerUpDistance = firstPowerUpDistance + powerUpInterval;
             }
-            else nextPowerUpDistance += powerUpInterval;
+            else
+            {
+                nextPowerUpDistance += powerUpInterval;
+            }
+            
+            Debug.Log($"Next power-up will spawn at distance: {nextPowerUpDistance}m");
         }
     }
 
@@ -393,6 +405,15 @@ public class ObstacleSpawner : MonoBehaviour
 
             Debug.Log($"Spawned {powerUpType} power-up at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
         }
+    }
+
+    // FIX: Add public method to reset power-up spawning (call this when retriggering/resetting game)
+    public void ResetPowerUpSpawning()
+    {
+        hasSpawnedFirstPowerUp = false;
+        nextPowerUpDistance = firstPowerUpDistance;
+        powerUpSpawnedThisFrame = false;
+        Debug.Log("Power-up spawning reset");
     }
 
     List<int> GetEmptyLanesAtDistance(float distance, float checkRange)
@@ -472,7 +493,6 @@ public class ObstacleSpawner : MonoBehaviour
             int lane = availableLanes[index];
             availableLanes.RemoveAt(index);
 
-            // Pick a random obstacle prefab
             int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
             GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
 
@@ -485,7 +505,6 @@ public class ObstacleSpawner : MonoBehaviour
             StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
         }
 
-        // Spawn coins in empty lanes
         if (coinPrefab != null)
         {
             foreach (int emptyLane in availableLanes)
