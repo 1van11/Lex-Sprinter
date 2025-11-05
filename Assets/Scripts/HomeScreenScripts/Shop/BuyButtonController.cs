@@ -42,7 +42,35 @@ public class BuyButtonController : MonoBehaviour
     {
         originalPosition = rectTransform.anchoredPosition;
         UpdatePriceDisplay();
-        CheckAffordability();
+
+        // Check if already purchased
+        CheckIfPurchased();
+
+        // Only check affordability if button is still active
+        if (buyButton != null && buyButton.interactable)
+        {
+            CheckAffordability();
+        }
+    }
+
+    /// <summary>
+    /// Checks if this item was already purchased and disables button if so
+    /// </summary>
+    void CheckIfPurchased()
+    {
+        if (string.IsNullOrEmpty(purchaseKey))
+        {
+            Debug.LogWarning("⚠️ Purchase Key is empty! Set a unique key for this item in the Inspector.");
+            return;
+        }
+
+        bool alreadyPurchased = PlayerPrefs.GetInt(purchaseKey, 0) == 1;
+
+        if (alreadyPurchased)
+        {
+            DisableBuyButton();
+            Debug.Log($"✅ Item already purchased: {purchaseKey}");
+        }
     }
 
     void UpdatePriceDisplay()
@@ -98,6 +126,13 @@ public class BuyButtonController : MonoBehaviour
         // Deduct coins
         int newCoins = currentCoins - itemCost;
         PlayerPrefs.SetInt(coinSaveKey, newCoins);
+
+        // Mark item as purchased
+        if (!string.IsNullOrEmpty(purchaseKey))
+        {
+            PlayerPrefs.SetInt(purchaseKey, 1);
+        }
+
         PlayerPrefs.Save();
 
         Debug.Log($"💰 Purchase successful! Spent {itemCost} coins. Remaining: {newCoins}");
@@ -108,11 +143,29 @@ public class BuyButtonController : MonoBehaviour
             coinsDisplay.RefreshCoinDisplay();
         }
 
-        // Check affordability again after purchase
-        CheckAffordability();
+        // Disable the buy button after purchase
+        DisableBuyButton();
 
         // Add your unlock logic here
         // Example: UnlockItem();
+    }
+
+    /// <summary>
+    /// Disables the buy button and shows "Purchased"
+    /// </summary>
+    void DisableBuyButton()
+    {
+        if (buyButton != null)
+        {
+            buyButton.interactable = false;
+        }
+
+        // Change text to show it's purchased
+        if (priceText != null)
+        {
+            priceText.text = "PURCHASED";
+            priceText.color = Color.gray;
+        }
     }
 
     /// <summary>
@@ -122,7 +175,6 @@ public class BuyButtonController : MonoBehaviour
     {
         isShaking = true;
 
-        float elapsed = 0f;
         float shakeDurationPerShake = shakeDuration / shakeCount;
 
         for (int i = 0; i < shakeCount; i++)
@@ -137,7 +189,6 @@ public class BuyButtonController : MonoBehaviour
                 rectTransform.anchoredPosition = new Vector2(x, y);
 
                 shakeElapsed += Time.deltaTime;
-                elapsed += Time.deltaTime;
                 yield return null;
             }
         }
