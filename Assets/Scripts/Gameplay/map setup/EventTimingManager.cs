@@ -3,33 +3,25 @@ using System.Collections;
 
 public class EventTimingManager : MonoBehaviour
 {
-    public static bool isBossActive = false;
-
-    public GameObject gameA;
-    public GameObject bossB;
+    public GameObject gameA;   // normal gameplay
+    public GameObject bossB;   // boss mode
 
     public float gameADuration = 60f; // time A stays active
-
-    [Header("Boss Duration")]
-    public float bossDuration = 30f; // ✅ Boss stays active for 30 seconds
-
-    [Header("Delay Before UI Disable (Boss Start)")]
-    public float uiDisableDelay = 2f;
+    public float bossDuration = 20f;  // NEW: time boss stays active
 
     [Header("Boss Guide UI")]
-    public GameObject bossGuideUI;
-    public float guideDelay = 1f;
+    public GameObject bossGuideUI; // assign your Canvas UI here
+    public float guideDelay = 1f;  // delay before showing guide
 
     [Header("Post Boss Delay")]
-    public float postBossDelay = 2f;
+    public float postBossDelay = 2f; // delay before switching back to gameA
 
-    [Header("UI to Disable During Boss")]
-    public GameObject[] uiToDisableDuringBoss;
+    private bool bossActive = false;
 
     void Start()
     {
         if (bossGuideUI != null)
-            bossGuideUI.SetActive(false);
+            bossGuideUI.SetActive(false); // hide at start
 
         StartCoroutine(CycleRoutine());
     }
@@ -38,57 +30,69 @@ public class EventTimingManager : MonoBehaviour
     {
         while (true)
         {
-            // --- NORMAL PLAY ---
+            // --- PLAY NORMAL GAME ---
             gameA.SetActive(true);
             bossB.SetActive(false);
-            isBossActive = false;
-
-            foreach (GameObject ui in uiToDisableDuringBoss)
-                if (ui != null) ui.SetActive(true);
-
             if (bossGuideUI != null)
-                bossGuideUI.SetActive(false);
+                bossGuideUI.SetActive(false); // hide guide during normal game
 
             yield return new WaitForSeconds(gameADuration);
 
             // --- START BOSS ---
-            isBossActive = true;
-            bossB.SetActive(true);
             gameA.SetActive(false);
+            bossB.SetActive(true);
+            bossActive = true;
 
-            StartCoroutine(DisableUIAfterDelay());
+            // Delay before showing guide
             if (bossGuideUI != null)
                 StartCoroutine(ShowGuideWithDelay());
 
-            // ✅ Boss automatically ends after 30 seconds
-            yield return new WaitForSeconds(bossDuration);
-            FinishBoss();
+            // Wait until boss is done or time limit reached
+            float bossTimer = 0f;
+            while (bossActive && bossTimer < bossDuration)
+            {
+                bossTimer += Time.deltaTime;
+                yield return null;
+            }
 
-            // ✅ Delay before going back to normal
+            // End boss automatically if time runs out
+            bossActive = false;
+            gameBToNormal(); // optional helper
+
+            // Boss finished, hide guide
             if (bossGuideUI != null)
                 bossGuideUI.SetActive(false);
 
+            // **WAIT BEFORE RESTARTING NORMAL GAME**
             yield return new WaitForSeconds(postBossDelay);
         }
-    }
-
-    IEnumerator DisableUIAfterDelay()
-    {
-        yield return new WaitForSeconds(uiDisableDelay);
-
-        foreach (GameObject ui in uiToDisableDuringBoss)
-            if (ui != null) ui.SetActive(false);
     }
 
     IEnumerator ShowGuideWithDelay()
     {
         yield return new WaitForSeconds(guideDelay);
-        if (isBossActive && bossGuideUI != null)
+        if (bossActive && bossGuideUI != null)
             bossGuideUI.SetActive(true);
     }
 
+    // Call this from boss logic when boss is finished manually
     public void FinishBoss()
     {
-        isBossActive = false;
+        bossActive = false;
+    }
+
+    private void gameBToNormal()
+    {
+        gameBToNormal(false);
+    }
+
+    private void gameBToNormal(bool manualEnd)
+    {
+        if (bossB != null)
+            bossB.SetActive(false);
+        if (gameA != null)
+            gameA.SetActive(true);
+
+        bossActive = false;
     }
 }

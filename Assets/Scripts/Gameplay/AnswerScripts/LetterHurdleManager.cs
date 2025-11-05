@@ -41,7 +41,6 @@ public class LetterHurdleManager : MonoBehaviour
     };
 
     private string[] wordList; // ACTIVE WORD LIST (changes by difficulty)
-
     private string currentTargetWord;
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
@@ -79,7 +78,7 @@ public class LetterHurdleManager : MonoBehaviour
             string currentCollected = collectedText.text.ToLower().Trim();
             if (currentCollected != previousCollectedText)
             {
-                CheckSpelling(currentCollected);
+                CheckSpellingFast(currentCollected);
                 previousCollectedText = currentCollected;
             }
         }
@@ -107,43 +106,38 @@ public class LetterHurdleManager : MonoBehaviour
             feedbackText.text = "";
     }
 
-    void CheckSpelling(string collected)
+    void CheckSpellingFast(string collected)
     {
         if (string.IsNullOrEmpty(collected))
             return;
 
-        int collectedLength = collected.Length;
+        string target = currentTargetWord.ToLower();
 
-        if (collectedLength <= currentTargetWord.Length)
+        // Full word correct
+        if (collected == target)
         {
-            char expectedLetter = currentTargetWord.ToLower()[collectedLength - 1];
-            char collectedLetter = collected.ToLower()[collectedLength - 1];
-
-            if (collectedLetter == expectedLetter)
+            if (feedbackText != null)
             {
-                if (collectedLength == currentTargetWord.Length)
-                {
-                    if (feedbackText != null)
-                    {
-                        feedbackText.text = "Correct!";
-                        feedbackText.color = Color.green;
-                    }
-
-                    if (playerFunctions != null)
-                        playerFunctions.AddCoins(25);
-
-                    CheckBossSpell();
-
-                    currentWordIndex++;
-                    Invoke("SetNewTargetWord", 2f);
-                }
-                else
-                {
-                    if (feedbackText != null)
-                        feedbackText.text = "";
-                }
+                feedbackText.text = "Correct!";
+                feedbackText.color = Color.green;
             }
-            else
+
+            if (playerFunctions != null)
+                playerFunctions.AddCoins(25);
+
+            if (bossManager != null)
+                bossManager.FinishBoss();
+
+            currentWordIndex++;
+            SetNewTargetWord(); // immediately next word
+            return;
+        }
+
+        // Check for wrong letters
+        int minLength = Mathf.Min(collected.Length, target.Length);
+        for (int i = 0; i < minLength; i++)
+        {
+            if (collected[i] != target[i])
             {
                 if (feedbackText != null)
                 {
@@ -154,12 +148,19 @@ public class LetterHurdleManager : MonoBehaviour
                 if (playerFunctions != null)
                     playerFunctions.TakeDamageFromWrongLetter();
 
-                collectedText.text = collected.Substring(0, collectedLength - 1);
+                collectedText.text = collected.Substring(0, i); // remove wrong letter
                 previousCollectedText = collectedText.text;
 
-                Invoke("ClearFeedback", 1f);
+                if (feedbackText != null)
+                    Invoke("ClearFeedback", 1f);
+
+                return;
             }
         }
+
+        // Clear feedback if all letters so far are correct
+        if (feedbackText != null)
+            feedbackText.text = "";
     }
 
     void ClearFeedback()

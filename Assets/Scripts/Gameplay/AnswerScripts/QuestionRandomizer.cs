@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class QuestionRandomizer : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class QuestionRandomizer : MonoBehaviour
 
     [Header("Trigger Settings")]
     public bool playAudioOnTrigger = true;
+
+    [Header("Clue Display Settings")]
+    public float clueDisplayTime = 6f; // Time in seconds to show the clue
+        private Coroutine clueCoroutine;
 
     // Current answer and state
     public string correctAnswer;
@@ -133,87 +138,86 @@ public class QuestionRandomizer : MonoBehaviour
     };
 
     // -------------------- MEDIUM MODE (More challenging words) --------------------
- private string[,] mediumSpellingPairs = new string[,]
-{
-    { "a small hopping animal with long ears", "rabbit", "rabblit" },
-    { "a primate that can climb trees", "monkey", "monkoo" },
-    { "a large striped wild cat", "tiger", "tygerru" },
-    { "a black and white striped animal", "zebra", "zeebara" },
-    { "a large bird with sharp eyesight", "eagle", "eeglun" },
-    { "a large wild cat that moves silently", "panther", "panthoro" },
-    { "a tall animal with a long neck", "giraffe", "jyrraffo" },
-    { "a large reptile with sharp teeth", "alligator", "alygattor" },
-    { "a sea creature with eight arms", "octopus", "oktaplis" },
-    { "a bird that cannot fly and likes cold places", "penguin", "pengwinu" },
-    { "a large area full of trees", "forest", "foryest" },
-    { "a hot, sandy area with few plants", "desert", "dezarto" },
-    { "a container for carrying items", "basket", "basklert" },
-    { "a tool used for climbing up or down", "ladder", "laddiru" },
-    { "a container for liquids", "bottle", "botelri" },
-    { "a soft object used for sleeping comfort", "pillow", "pilowu" },
-    { "a warm cover used on a bed", "blanket", "blanniko" },
-    { "a portable light source", "lantern", "lantroon" },
-    { "an object that attracts metal", "magnet", "magnetu" },
-    { "a plant found in dry places", "cactus", "caktizo" },
-    { "a long yellow fruit", "banana", "banoola" },
-    { "a sweet baked snack", "cookie", "kookria" },
-    { "a dairy product often eaten with bread", "cheese", "cheeso" },
-    { "a red fruit used in salads and sauces", "tomato", "tomaitoox" },
-    { "a juicy round fruit", "melon", "melanu" },
-    { "a place where people buy things", "market", "markato" },
-    { "a place where plants are grown", "garden", "gardonu" },
-    { "a place where students learn", "school", "skolehra" },
-    { "a place with roads and buildings", "street", "streelto" },
-    { "a large strong building for royalty", "castle", "castilo" },
-    { "a carved figure made of stone or metal", "statue", "stachuno" },
-    { "a symbol worn by a king or queen", "crown", "crowlix" },
-    { "a structure that crosses over water", "bridge", "brigdo" },
-    { "a heavy object used to keep a ship in place", "anchor", "ankuro" },
-    { "a mountain that can erupt", "volcano", "volkaino" },
-    { "a strong spinning storm", "hurricane", "hurikano" },
-    { "a large body of moving ice", "glacier", "glayshiru" },
-    { "a severe snowstorm", "blizzard", "blizardo" },
-    { "a tool that shows direction", "compass", "kompazzor" },
-    { "a tool used for cutting paper", "scissors", "sizzuro" },
-    { "a tool used to see far away", "telescope", "teleskopo" },
-    { "a tool used to see tiny objects", "microscope", "microskopo" },
-    { "a protective head covering", "helmet", "helmuto" },
-    { "decorative personal ornaments", "jewelry", "juwelriq" },
-    { "a tool used to make music", "instrument", "instruminko" },
-    { "protective metal covering worn in battle", "armor", "armuro" },
-    { "a sweet brown treat", "chocolate", "chokoliva" },
-    { "a long noodle dish often eaten with sauce", "spaghetti", "spagotto" },
-    { "a tall building that guides ships", "lighthouse", "lighthoovo" },
-    { "a machine that uses wind to turn blades", "windmill", "windmallo" }
-};
-private string[,] mediumSentencePairs = new string[,]
-{
-    { "The students will ____ for their final exams tomorrow.", "study", "relax" },
-    { "The construction workers ____ the new building quickly.", "built", "repaired" },
-    { "The author ____ a fascinating novel last year.", "wrote", "reviewed" },
-    { "The chef ____ the ingredients carefully for the recipe.", "measured", "washed" },
-    { "The athlete ____ every day to improve his skills.", "trains", "rests" },
-    { "The musician ____ a beautiful song for the audience.", "performed", "listened" },
-    { "The gardener ____ the plants every morning.", "waters", "trims" },
-    { "The programmer ____ a new software application.", "developed", "tested" },
-    { "The detective ____ the mystery carefully.", "investigated", "observed" },
-    { "The artist ____ the landscape with vibrant colors.", "painted", "sketched" },
-    { "The scientist ____ the results to confirm the hypothesis.", "analyzed", "ignored" },
-    { "The students ____ quietly while the teacher explained.", "listened", "whispered" },
-    { "The captain ____ the ship safely to shore.", "guided", "followed" },
-    { "The nurse ____ the patient throughout the night.", "cared for", "watched" },
-    { "The engineer ____ a new solution to the problem.", "designed", "reviewed" },
-    { "The actor ____ his lines before the performance.", "practiced", "forgot" },
-    { "The librarian ____ the books back on the shelves.", "organized", "stacked" },
-    { "The explorer ____ new regions of the jungle.", "discovered", "visited" },
-    { "The reporter ____ the event for the evening news.", "covered", "announced" },
-    { "The professor ____ the topic in great detail.", "explained", "mentioned" }
-};
-
-
-    void Awake()
+    private string[,] mediumSpellingPairs = new string[,]
     {
-        // Set active question sets based on current scene
+        { "a small hopping animal with long ears", "rabbit", "rabblit" },
+        { "a primate that can climb trees", "monkey", "monkoo" },
+        { "a large striped wild cat", "tiger", "tygerru" },
+        { "a black and white striped animal", "zebra", "zeebara" },
+        { "a large bird with sharp eyesight", "eagle", "eeglun" },
+        { "a large wild cat that moves silently", "panther", "panthoro" },
+        { "a tall animal with a long neck", "giraffe", "jyrraffo" },
+        { "a large reptile with sharp teeth", "alligator", "alygattor" },
+        { "a sea creature with eight arms", "octopus", "oktaplis" },
+        { "a bird that cannot fly and likes cold places", "penguin", "pengwinu" },
+        { "a large area full of trees", "forest", "foryest" },
+        { "a hot, sandy area with few plants", "desert", "dezarto" },
+        { "a container for carrying items", "basket", "basklert" },
+        { "a tool used for climbing up or down", "ladder", "laddiru" },
+        { "a container for liquids", "bottle", "botelri" },
+        { "a soft object used for sleeping comfort", "pillow", "pilowu" },
+        { "a warm cover used on a bed", "blanket", "blanniko" },
+        { "a portable light source", "lantern", "lantroon" },
+        { "an object that attracts metal", "magnet", "magnetu" },
+        { "a plant found in dry places", "cactus", "caktizo" },
+        { "a long yellow fruit", "banana", "banoola" },
+        { "a sweet baked snack", "cookie", "kookria" },
+        { "a dairy product often eaten with bread", "cheese", "cheeso" },
+        { "a red fruit used in salads and sauces", "tomato", "tomaitoox" },
+        { "a juicy round fruit", "melon", "melanu" },
+        { "a place where people buy things", "market", "markato" },
+        { "a place where plants are grown", "garden", "gardonu" },
+        { "a place where students learn", "school", "skolehra" },
+        { "a place with roads and buildings", "street", "streelto" },
+        { "a large strong building for royalty", "castle", "castilo" },
+        { "a carved figure made of stone or metal", "statue", "stachuno" },
+        { "a symbol worn by a king or queen", "crown", "crowlix" },
+        { "a structure that crosses over water", "bridge", "brigdo" },
+        { "a heavy object used to keep a ship in place", "anchor", "ankuro" },
+        { "a mountain that can erupt", "volcano", "volkaino" },
+        { "a strong spinning storm", "hurricane", "hurikano" },
+        { "a large body of moving ice", "glacier", "glayshiru" },
+        { "a severe snowstorm", "blizzard", "blizardo" },
+        { "a tool that shows direction", "compass", "kompazzor" },
+        { "a tool used for cutting paper", "scissors", "sizzuro" },
+        { "a tool used to see far away", "telescope", "teleskopo" },
+        { "a tool used to see tiny objects", "microscope", "microskopo" },
+        { "a protective head covering", "helmet", "helmuto" },
+        { "decorative personal ornaments", "jewelry", "juwelriq" },
+        { "a tool used to make music", "instrument", "instruminko" },
+        { "protective metal covering worn in battle", "armor", "armuro" },
+        { "a sweet brown treat", "chocolate", "chokoliva" },
+        { "a long noodle dish often eaten with sauce", "spaghetti", "spagotto" },
+        { "a tall building that guides ships", "lighthouse", "lighthoovo" },
+        { "a machine that uses wind to turn blades", "windmill", "windmallo" }
+    };
+
+    private string[,] mediumSentencePairs = new string[,]
+    {
+        { "The students will ____ for their final exams tomorrow.", "study", "relax" },
+        { "The construction workers ____ the new building quickly.", "built", "repaired" },
+        { "The author ____ a fascinating novel last year.", "wrote", "reviewed" },
+        { "The chef ____ the ingredients carefully for the recipe.", "measured", "washed" },
+        { "The athlete ____ every day to improve his skills.", "trains", "rests" },
+        { "The musician ____ a beautiful song for the audience.", "performed", "listened" },
+        { "The gardener ____ the plants every morning.", "waters", "trims" },
+        { "The programmer ____ a new software application.", "developed", "tested" },
+        { "The detective ____ the mystery carefully.", "investigated", "observed" },
+        { "The artist ____ the landscape with vibrant colors.", "painted", "sketched" },
+        { "The scientist ____ the results to confirm the hypothesis.", "analyzed", "ignored" },
+        { "The students ____ quietly while the teacher explained.", "listened", "whispered" },
+        { "The captain ____ the ship safely to shore.", "guided", "followed" },
+        { "The nurse ____ the patient throughout the night.", "cared for", "watched" },
+        { "The engineer ____ a new solution to the problem.", "designed", "reviewed" },
+        { "The actor ____ his lines before the performance.", "practiced", "forgot" },
+        { "The librarian ____ the books back on the shelves.", "organized", "stacked" },
+        { "The explorer ____ new regions of the jungle.", "discovered", "visited" },
+        { "The reporter ____ the event for the evening news.", "covered", "announced" },
+        { "The professor ____ the topic in great detail.", "explained", "mentioned" }
+    };
+
+ void Awake()
+    {
         string sceneName = SceneManager.GetActiveScene().name;
 
         if (sceneName == "EasyMode")
@@ -230,7 +234,6 @@ private string[,] mediumSentencePairs = new string[,]
         }
         else
         {
-            // Default to easy mode if scene name doesn't match
             activeSpellingPairs = easySpellingPairs;
             activeSentencePairs = easySentencePairs;
             Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE.");
@@ -239,105 +242,58 @@ private string[,] mediumSentencePairs = new string[,]
 
     void Start()
     {
-        // Ensure there's a collider set as trigger
         Collider collider = GetComponent<Collider>();
-        if (collider != null)
-        {
-            collider.isTrigger = true;
-        }
-        else
-        {
-            Debug.LogWarning("QuestionRandomizer: No collider found on question object. Add a Collider component.");
-        }
-        
-        // Hide clue text at start
-        if (clueTextObject != null)
-        {
-            clueTextObject.SetActive(false);
-        }
+        if (collider != null) collider.isTrigger = true;
+        else Debug.LogWarning("QuestionRandomizer: No collider found on question object. Add a Collider component.");
+
+        if (clueTextObject != null) clueTextObject.SetActive(false);
     }
 
     public void SetSpellingQuestion(int index)
     {
-        if (index < 0 || index >= activeSpellingPairs.GetLength(0)) 
-        {
-            Debug.LogError($"Invalid spelling question index: {index}");
-            return;
-        }
+        if (index < 0 || index >= activeSpellingPairs.GetLength(0)) { Debug.LogError($"Invalid spelling question index: {index}"); return; }
 
         string clue = activeSpellingPairs[index, 0];
         string correct = activeSpellingPairs[index, 1];
         string wrong = activeSpellingPairs[index, 2];
-        
+
         correctAnswer = correct;
         currentQuestionIndex = index;
         isSentenceQuestion = false;
         audioPlayed = false;
 
-        // Hide clue text for spelling questions
-        if (clueTextObject != null)
-        {
-            clueTextObject.SetActive(false);
-        }
+        if (clueTextObject != null) clueTextObject.SetActive(false);
 
-        // Randomize placement
-        if (Random.value > 0.5f)
-        {
-            jumpText.text = correct;
-            slideText.text = wrong;
-        }
-        else
-        {
-            jumpText.text = wrong;
-            slideText.text = correct;
-        }
+        if (Random.value > 0.5f) { jumpText.text = correct; slideText.text = wrong; }
+        else { jumpText.text = wrong; slideText.text = correct; }
 
         Debug.Log($"Spelling Question: {clue} | Correct: {correct} | Wrong: {wrong}");
     }
 
     public void SetSentenceQuestion(int index)
     {
-        if (index < 0 || index >= activeSentencePairs.GetLength(0)) 
-        {
-            Debug.LogError($"Invalid sentence question index: {index}");
-            return;
-        }
+        if (index < 0 || index >= activeSentencePairs.GetLength(0)) { Debug.LogError($"Invalid sentence question index: {index}"); return; }
 
         string sentence = activeSentencePairs[index, 0];
         string correct = activeSentencePairs[index, 1];
         string wrong = activeSentencePairs[index, 2];
-        
+
         clueText.text = sentence;
         correctAnswer = correct;
         currentQuestionIndex = index;
         isSentenceQuestion = true;
         audioPlayed = false;
 
-        // Hide clue text initially for sentence questions (will show on trigger)
-        if (clueTextObject != null)
-        {
-            clueTextObject.SetActive(false);
-        }
+        if (clueTextObject != null) clueTextObject.SetActive(false);
 
-        // Randomize placement
-        if (Random.value > 0.5f)
-        {
-            jumpText.text = correct;
-            slideText.text = wrong;
-        }
-        else
-        {
-            jumpText.text = wrong;
-            slideText.text = correct;
-        }
+        if (Random.value > 0.5f) { jumpText.text = correct; slideText.text = wrong; }
+        else { jumpText.text = wrong; slideText.text = correct; }
 
         Debug.Log($"Sentence Question: {sentence} | Correct: {correct} | Wrong: {wrong}");
     }
 
-    // Get a random question based on current difficulty
     public void SetRandomQuestion()
     {
-        // 50% chance for spelling vs sentence questions
         if (Random.value > 0.5f)
         {
             int randomIndex = Random.Range(0, activeSpellingPairs.GetLength(0));
@@ -350,17 +306,13 @@ private string[,] mediumSentencePairs = new string[,]
         }
     }
 
-    // Play pronunciation audio
     public void PlayQuestionAudio()
     {
         if (audioSource == null || audioPlayed) return;
 
         if (isSentenceQuestion)
         {
-            // Play sentence pronunciation
-            if (sentencePronunciations != null && 
-                currentQuestionIndex < sentencePronunciations.Length && 
-                sentencePronunciations[currentQuestionIndex] != null)
+            if (sentencePronunciations != null && currentQuestionIndex < sentencePronunciations.Length && sentencePronunciations[currentQuestionIndex] != null)
             {
                 audioSource.PlayOneShot(sentencePronunciations[currentQuestionIndex]);
                 audioPlayed = true;
@@ -368,10 +320,7 @@ private string[,] mediumSentencePairs = new string[,]
         }
         else
         {
-            // Play spelling pronunciation
-            if (pronunciationSounds != null && 
-                currentQuestionIndex < pronunciationSounds.Length && 
-                pronunciationSounds[currentQuestionIndex] != null)
+            if (pronunciationSounds != null && currentQuestionIndex < pronunciationSounds.Length && pronunciationSounds[currentQuestionIndex] != null)
             {
                 audioSource.PlayOneShot(pronunciationSounds[currentQuestionIndex]);
                 audioPlayed = true;
@@ -379,74 +328,73 @@ private string[,] mediumSentencePairs = new string[,]
         }
     }
 
-    // Trigger when player enters collider
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            // Only show clue text for sentence questions
+            Debug.Log($"Player entered collider. isSentenceQuestion: {isSentenceQuestion}");
+
             if (isSentenceQuestion && clueTextObject != null)
             {
-                clueTextObject.SetActive(true);
+                if (clueCoroutine != null) StopCoroutine(clueCoroutine);
+                clueCoroutine = StartCoroutine(ShowClueTemporarily());
             }
-            
-            if (playAudioOnTrigger)
-            {
-                PlayQuestionAudio();
-            }
+
+            if (playAudioOnTrigger) PlayQuestionAudio();
         }
     }
 
-    // Trigger when player exits collider
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            // Only hide clue text for sentence questions
+            Debug.Log("Player exited collider");
+
             if (isSentenceQuestion && clueTextObject != null)
             {
+                if (clueCoroutine != null) StopCoroutine(clueCoroutine);
                 clueTextObject.SetActive(false);
+                Debug.Log("✅ Clue text HIDDEN on exit");
             }
         }
     }
 
-    // Optional: Manual trigger method if you want to trigger audio from other scripts
-    public void TriggerQuestionAudio()
+    private IEnumerator ShowClueTemporarily()
     {
-        PlayQuestionAudio();
+        clueTextObject.SetActive(true);
+        Debug.Log("✅ Clue text SHOWN temporarily");
+
+        yield return new WaitForSeconds(clueDisplayTime);
+
+        clueTextObject.SetActive(false);
+        clueCoroutine = null;
+        Debug.Log("✅ Clue text HIDDEN after delay");
     }
 
-    // Manual methods to show/hide clue text from other scripts
+    // Call this when the player answers the question
+    public void HideClueOnAnswer()
+    {
+        if (clueCoroutine != null) StopCoroutine(clueCoroutine);
+        if (clueTextObject != null) clueTextObject.SetActive(false);
+        clueCoroutine = null;
+        Debug.Log("✅ Clue text HIDDEN after answering");
+    }
+
+    public void TriggerQuestionAudio() => PlayQuestionAudio();
+
     public void ShowClueText()
     {
-        if (clueTextObject != null && isSentenceQuestion)
-        {
-            clueTextObject.SetActive(true);
-        }
+        if (clueTextObject != null && isSentenceQuestion) clueTextObject.SetActive(true);
     }
 
     public void HideClueText()
     {
-        if (clueTextObject != null)
-        {
-            clueTextObject.SetActive(false);
-        }
+        if (clueTextObject != null) clueTextObject.SetActive(false);
     }
 
-    // Get current difficulty mode
-    public string GetCurrentDifficulty()
-    {
-        return SceneManager.GetActiveScene().name;
-    }
+    public string GetCurrentDifficulty() => SceneManager.GetActiveScene().name;
 
-    // Get number of available questions for current difficulty
-    public int GetSpellingQuestionCount()
-    {
-        return activeSpellingPairs?.GetLength(0) ?? 0;
-    }
+    public int GetSpellingQuestionCount() => activeSpellingPairs?.GetLength(0) ?? 0;
 
-    public int GetSentenceQuestionCount()
-    {
-        return activeSentencePairs?.GetLength(0) ?? 0;
-    }
-}   
+    public int GetSentenceQuestionCount() => activeSentencePairs?.GetLength(0) ?? 0;
+}

@@ -22,12 +22,9 @@ public class PlayerControls : MonoBehaviour
     private float lastGroundedTime;
     private float lastJumpPressedTime;
 
-    [Header("Slide")]
-    public float slideDuration = 0.5f;
-    public float slideColliderHeight = 0.5f;
-    private bool isSliding = false;
-    private float originalColliderHeight;
-    private Vector3 originalColliderCenter;
+    [Header("Jump Smash")]
+    public float smashDownForce = 20f;
+    private bool isSmashing = false;
 
     [Header("Rotation")]
     public float tiltAngle = 20f;
@@ -56,7 +53,6 @@ public class PlayerControls : MonoBehaviour
     private bool swipeDetected = false;
     private float swipeThreshold = 50f;
 
-    // ======= CAN MOVE SYSTEM =======
     [HideInInspector] public bool canMove = true;
 
     void Start()
@@ -66,9 +62,6 @@ public class PlayerControls : MonoBehaviour
         col = GetComponent<CapsuleCollider>();
 
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-
-        originalColliderHeight = col.height;
-        originalColliderCenter = col.center;
 
         targetPosition = new Vector3(0, transform.position.y, transform.position.z);
         transform.position = targetPosition;
@@ -84,10 +77,10 @@ public class PlayerControls : MonoBehaviour
         HandleLaneInput();
         MoveBetweenLanes();
         HandleJump();
-        HandleSlide();
         HandleTiltAndLook();
         ApplyExtraGravity();
         DetectSwipe();
+        UpdateJumpAnimation(); // NEW: Update animation based on grounded state
 
         if (IsGrounded())
             lastGroundedTime = Time.time;
@@ -158,6 +151,7 @@ public class PlayerControls : MonoBehaviour
 
     void HandleJump()
     {
+        // Regular jump input
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
             lastJumpPressedTime = Time.time;
@@ -165,10 +159,9 @@ public class PlayerControls : MonoBehaviour
         }
 
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
-        {
             jumpHeld = false;
-        }
 
+        // Jump execution
         bool canJump = Time.time - lastGroundedTime <= coyoteTime &&
                        Time.time - lastJumpPressedTime <= jumpBufferTime &&
                        Time.time - lastJumpTime >= jumpCooldown &&
@@ -177,18 +170,6 @@ public class PlayerControls : MonoBehaviour
 
         if (canJump)
         {
-            if (isSliding)
-            {
-                StopAllCoroutines();
-                col.height = originalColliderHeight;
-                col.center = originalColliderCenter;
-                transform.rotation = Quaternion.identity;
-                isSliding = false;
-                
-                if (anim != null)
-                    anim.SetBool("isSliding", false);
-            }
-
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
@@ -196,29 +177,40 @@ public class PlayerControls : MonoBehaviour
             isJumping = true;
             jumpHeld = false;
             lastJumpPressedTime = -999f;
-
-            if (anim != null)
-                StartCoroutine(JumpForSeconds(1f));
         }
 
+        // Jump smash input
+        if (!IsGrounded() && !isSmashing && (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)))
+        {
+            isSmashing = true;
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+        }
+
+        // Reset jump states when grounded
         if (IsGrounded() && rb.velocity.y <= 0.1f)
         {
             isJumping = false;
+            isSmashing = false;
         }
+    }
+
+    // NEW: Update jump animation based on mid-air state
+    void UpdateJumpAnimation()
+    {
+        if (anim == null) return;
+
+        // Only set isJumping to true when character is in the air
+        bool shouldPlayJumpAnim = !IsGrounded();
+        anim.SetBool("isJumping", shouldPlayJumpAnim);
     }
 
     void ApplyExtraGravity()
     {
         if (!IsGrounded() && rb.velocity.y < 0)
-            rb.AddForce(Vector3.down * extraFallForce, ForceMode.Acceleration);
-    }
-
-    void HandleSlide()
-    {
-        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isSliding)
         {
-            if (IsGrounded()) StartCoroutine(Slide());
-            else StartCoroutine(AirSlide());
+            float gravityMultiplier = isSmashing ? 2f : 1f;
+            rb.AddForce(Vector3.down * extraFallForce * gravityMultiplier, ForceMode.Acceleration);
         }
     }
 
@@ -267,88 +259,12 @@ public class PlayerControls : MonoBehaviour
                             lastJumpPressedTime = Time.time;
                             jumpHeld = true;
                         }
-                        else if (y < 0)
-                        {
-                            if (IsGrounded()) StartCoroutine(Slide());
-                            else StartCoroutine(AirSlide());
-                        }
                     }
 
                     swipeDetected = false;
                     break;
             }
         }
-    }
-
-    IEnumerator JumpForSeconds(float duration)
-    {
-        if (anim != null) anim.SetBool("isJumping", true);
-        yield return new WaitForSeconds(duration);
-        if (anim != null) anim.SetBool("isJumping", false);
-    }
-
-    IEnumerator Slide()
-    {
-        isSliding = true;
-        if (anim != null) StartCoroutine(SlideForSeconds(slideDuration));
-
-        col.height = slideColliderHeight;
-        col.center = new Vector3(col.center.x, slideColliderHeight / 2f, col.center.z);
-
-        Quaternion slideRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-        float t = 0f;
-        while (t < 0.5f)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, t / 0.2f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(slideDuration - 1f);
-
-        t = 0f;
-        Quaternion startRot = transform.rotation;
-        while (t < 0.3f)
-        {
-            transform.rotation = Quaternion.Slerp(startRot, Quaternion.identity, t / 0.3f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-        transform.rotation = Quaternion.identity;
-
-        col.height = originalColliderHeight;
-        col.center = originalColliderCenter;
-
-        isSliding = false;
-    }
-
-    IEnumerator SlideForSeconds(float duration)
-    {
-        if (anim != null) anim.SetBool("isSliding", true);
-        yield return new WaitForSeconds(duration);
-        if (anim != null) anim.SetBool("isSliding", false);
-    }
-
-    IEnumerator AirSlide()
-    {
-        isSliding = true;
-        if (anim != null) StartCoroutine(SlideForSeconds(0.4f));
-
-        Vector3 currentVel = rb.velocity;
-        rb.velocity = new Vector3(currentVel.x, -jumpForce * 2f, currentVel.z);
-
-        Quaternion airRotation = Quaternion.Euler(30f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-        float t = 0f;
-        while (t < 0.2f)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, airRotation, t / 0.2f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(0.2f);
-        transform.rotation = Quaternion.identity;
-        isSliding = false;
     }
 
     public bool IsGrounded()
@@ -360,7 +276,6 @@ public class PlayerControls : MonoBehaviour
 
     public void SetForwardSpeed(float speed) => forwardSpeed = speed;
 
-    // ======= STOP/RESUME MOVEMENT =======
     public void StopMovement()
     {
         canMove = false;
@@ -371,7 +286,7 @@ public class PlayerControls : MonoBehaviour
     public void ResumeMovement()
     {
         canMove = true;
-        forwardSpeed = 10f; // or your default speed
+        forwardSpeed = 10f;
     }
 
     void OnDrawGizmos()
