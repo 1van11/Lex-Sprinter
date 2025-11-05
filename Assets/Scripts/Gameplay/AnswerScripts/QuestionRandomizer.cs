@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class QuestionRandomizer : MonoBehaviour
 {
@@ -8,26 +8,28 @@ public class QuestionRandomizer : MonoBehaviour
     public TMP_Text clueText;
     public TMP_Text jumpText;
     public TMP_Text slideText;
-    public GameObject clueTextObject; // Assign the GameObject containing the clue text
-
-    // Store the correct answer for the current question
-    public string correctAnswer;
+    public GameObject clueTextObject;
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip[] pronunciationSounds; // same length as spellingPairs rows
-    public AudioClip[] sentencePronunciations; // optional for sentence questions
+    public AudioClip[] pronunciationSounds;
+    public AudioClip[] sentencePronunciations;
 
     [Header("Trigger Settings")]
     public bool playAudioOnTrigger = true;
-    
-    // Store the current question index for audio lookup
+
+    // Current answer and state
+    public string correctAnswer;
     private int currentQuestionIndex = -1;
     private bool isSentenceQuestion = false;
     private bool audioPlayed = false;
 
-    // -------------------- Correct the Spelling --------------------
-    public string[,] spellingPairs = new string[,]
+    // Active sets based on scene
+    private string[,] activeSpellingPairs;
+    private string[,] activeSentencePairs;
+
+    // -------------------- EASY MODE (Your existing arrays) --------------------
+    private string[,] easySpellingPairs = new string[,]
     {
         { "a common pet that barks", "dog", "dag" },
         { "something you wear on your head", "hat", "hot" },
@@ -106,7 +108,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "air in motion", "wind", "windz" },
     };
 
-    private string[,] sentencePairs = new string[,]
+    private string[,] easySentencePairs = new string[,]
     {
         { "The chef ____ a delicious meal.", "cooked", "taught" },
         { "The teacher ____ the students about history.", "taught", "slept" },
@@ -130,7 +132,110 @@ public class QuestionRandomizer : MonoBehaviour
         { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
 
-    
+    // -------------------- MEDIUM MODE (More challenging words) --------------------
+ private string[,] mediumSpellingPairs = new string[,]
+{
+    { "a small hopping animal with long ears", "rabbit", "rabblit" },
+    { "a primate that can climb trees", "monkey", "monkoo" },
+    { "a large striped wild cat", "tiger", "tygerru" },
+    { "a black and white striped animal", "zebra", "zeebara" },
+    { "a large bird with sharp eyesight", "eagle", "eeglun" },
+    { "a large wild cat that moves silently", "panther", "panthoro" },
+    { "a tall animal with a long neck", "giraffe", "jyrraffo" },
+    { "a large reptile with sharp teeth", "alligator", "alygattor" },
+    { "a sea creature with eight arms", "octopus", "oktaplis" },
+    { "a bird that cannot fly and likes cold places", "penguin", "pengwinu" },
+    { "a large area full of trees", "forest", "foryest" },
+    { "a hot, sandy area with few plants", "desert", "dezarto" },
+    { "a container for carrying items", "basket", "basklert" },
+    { "a tool used for climbing up or down", "ladder", "laddiru" },
+    { "a container for liquids", "bottle", "botelri" },
+    { "a soft object used for sleeping comfort", "pillow", "pilowu" },
+    { "a warm cover used on a bed", "blanket", "blanniko" },
+    { "a portable light source", "lantern", "lantroon" },
+    { "an object that attracts metal", "magnet", "magnetu" },
+    { "a plant found in dry places", "cactus", "caktizo" },
+    { "a long yellow fruit", "banana", "banoola" },
+    { "a sweet baked snack", "cookie", "kookria" },
+    { "a dairy product often eaten with bread", "cheese", "cheeso" },
+    { "a red fruit used in salads and sauces", "tomato", "tomaitoox" },
+    { "a juicy round fruit", "melon", "melanu" },
+    { "a place where people buy things", "market", "markato" },
+    { "a place where plants are grown", "garden", "gardonu" },
+    { "a place where students learn", "school", "skolehra" },
+    { "a place with roads and buildings", "street", "streelto" },
+    { "a large strong building for royalty", "castle", "castilo" },
+    { "a carved figure made of stone or metal", "statue", "stachuno" },
+    { "a symbol worn by a king or queen", "crown", "crowlix" },
+    { "a structure that crosses over water", "bridge", "brigdo" },
+    { "a heavy object used to keep a ship in place", "anchor", "ankuro" },
+    { "a mountain that can erupt", "volcano", "volkaino" },
+    { "a strong spinning storm", "hurricane", "hurikano" },
+    { "a large body of moving ice", "glacier", "glayshiru" },
+    { "a severe snowstorm", "blizzard", "blizardo" },
+    { "a tool that shows direction", "compass", "kompazzor" },
+    { "a tool used for cutting paper", "scissors", "sizzuro" },
+    { "a tool used to see far away", "telescope", "teleskopo" },
+    { "a tool used to see tiny objects", "microscope", "microskopo" },
+    { "a protective head covering", "helmet", "helmuto" },
+    { "decorative personal ornaments", "jewelry", "juwelriq" },
+    { "a tool used to make music", "instrument", "instruminko" },
+    { "protective metal covering worn in battle", "armor", "armuro" },
+    { "a sweet brown treat", "chocolate", "chokoliva" },
+    { "a long noodle dish often eaten with sauce", "spaghetti", "spagotto" },
+    { "a tall building that guides ships", "lighthouse", "lighthoovo" },
+    { "a machine that uses wind to turn blades", "windmill", "windmallo" }
+};
+private string[,] mediumSentencePairs = new string[,]
+{
+    { "The students will ____ for their final exams tomorrow.", "study", "relax" },
+    { "The construction workers ____ the new building quickly.", "built", "repaired" },
+    { "The author ____ a fascinating novel last year.", "wrote", "reviewed" },
+    { "The chef ____ the ingredients carefully for the recipe.", "measured", "washed" },
+    { "The athlete ____ every day to improve his skills.", "trains", "rests" },
+    { "The musician ____ a beautiful song for the audience.", "performed", "listened" },
+    { "The gardener ____ the plants every morning.", "waters", "trims" },
+    { "The programmer ____ a new software application.", "developed", "tested" },
+    { "The detective ____ the mystery carefully.", "investigated", "observed" },
+    { "The artist ____ the landscape with vibrant colors.", "painted", "sketched" },
+    { "The scientist ____ the results to confirm the hypothesis.", "analyzed", "ignored" },
+    { "The students ____ quietly while the teacher explained.", "listened", "whispered" },
+    { "The captain ____ the ship safely to shore.", "guided", "followed" },
+    { "The nurse ____ the patient throughout the night.", "cared for", "watched" },
+    { "The engineer ____ a new solution to the problem.", "designed", "reviewed" },
+    { "The actor ____ his lines before the performance.", "practiced", "forgot" },
+    { "The librarian ____ the books back on the shelves.", "organized", "stacked" },
+    { "The explorer ____ new regions of the jungle.", "discovered", "visited" },
+    { "The reporter ____ the event for the evening news.", "covered", "announced" },
+    { "The professor ____ the topic in great detail.", "explained", "mentioned" }
+};
+
+
+    void Awake()
+    {
+        // Set active question sets based on current scene
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "EasyMode")
+        {
+            activeSpellingPairs = easySpellingPairs;
+            activeSentencePairs = easySentencePairs;
+            Debug.Log("Difficulty: EASY MODE activated");
+        }
+        else if (sceneName == "MediumMode")
+        {
+            activeSpellingPairs = mediumSpellingPairs;
+            activeSentencePairs = mediumSentencePairs;
+            Debug.Log("Difficulty: MEDIUM MODE activated");
+        }
+        else
+        {
+            // Default to easy mode if scene name doesn't match
+            activeSpellingPairs = easySpellingPairs;
+            activeSentencePairs = easySentencePairs;
+            Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE.");
+        }
+    }
 
     void Start()
     {
@@ -154,8 +259,16 @@ public class QuestionRandomizer : MonoBehaviour
 
     public void SetSpellingQuestion(int index)
     {
-        string correct = spellingPairs[index, 1];
-        string wrong = spellingPairs[index, 2];
+        if (index < 0 || index >= activeSpellingPairs.GetLength(0)) 
+        {
+            Debug.LogError($"Invalid spelling question index: {index}");
+            return;
+        }
+
+        string clue = activeSpellingPairs[index, 0];
+        string correct = activeSpellingPairs[index, 1];
+        string wrong = activeSpellingPairs[index, 2];
+        
         correctAnswer = correct;
         currentQuestionIndex = index;
         isSentenceQuestion = false;
@@ -178,13 +291,23 @@ public class QuestionRandomizer : MonoBehaviour
             jumpText.text = wrong;
             slideText.text = correct;
         }
+
+        Debug.Log($"Spelling Question: {clue} | Correct: {correct} | Wrong: {wrong}");
     }
 
     public void SetSentenceQuestion(int index)
     {
-        clueText.text = sentencePairs[index, 0];
-        string correct = sentencePairs[index, 1];
-        string wrong = sentencePairs[index, 2];
+        if (index < 0 || index >= activeSentencePairs.GetLength(0)) 
+        {
+            Debug.LogError($"Invalid sentence question index: {index}");
+            return;
+        }
+
+        string sentence = activeSentencePairs[index, 0];
+        string correct = activeSentencePairs[index, 1];
+        string wrong = activeSentencePairs[index, 2];
+        
+        clueText.text = sentence;
         correctAnswer = correct;
         currentQuestionIndex = index;
         isSentenceQuestion = true;
@@ -206,6 +329,24 @@ public class QuestionRandomizer : MonoBehaviour
         {
             jumpText.text = wrong;
             slideText.text = correct;
+        }
+
+        Debug.Log($"Sentence Question: {sentence} | Correct: {correct} | Wrong: {wrong}");
+    }
+
+    // Get a random question based on current difficulty
+    public void SetRandomQuestion()
+    {
+        // 50% chance for spelling vs sentence questions
+        if (Random.value > 0.5f)
+        {
+            int randomIndex = Random.Range(0, activeSpellingPairs.GetLength(0));
+            SetSpellingQuestion(randomIndex);
+        }
+        else
+        {
+            int randomIndex = Random.Range(0, activeSentencePairs.GetLength(0));
+            SetSentenceQuestion(randomIndex);
         }
     }
 
@@ -292,16 +433,20 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
-    // Randomize only a single pair (used when randomizePerQuestion is true)
-    void RandomizeSpellingPairAt(int index)
+    // Get current difficulty mode
+    public string GetCurrentDifficulty()
     {
-        if (index < 0 || index >= spellingPairs.GetLength(0)) return;
-        if (Random.value < 0.5f)
-        {
-            string temp = spellingPairs[index, 1];
-            spellingPairs[index, 1] = spellingPairs[index, 2];
-            spellingPairs[index, 2] = temp;
-            Debug.Log($"RandomizeSpellingPairAt swapped index {index}");
-        }
+        return SceneManager.GetActiveScene().name;
     }
-}
+
+    // Get number of available questions for current difficulty
+    public int GetSpellingQuestionCount()
+    {
+        return activeSpellingPairs?.GetLength(0) ?? 0;
+    }
+
+    public int GetSentenceQuestionCount()
+    {
+        return activeSentencePairs?.GetLength(0) ?? 0;
+    }
+}   
