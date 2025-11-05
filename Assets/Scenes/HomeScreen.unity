@@ -6143,6 +6143,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 682919161}
   m_CullTransparentMesh: 1
+--- !u!137 &684933526 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5025116930715170411, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  m_PrefabInstance: {fileID: 579386285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &711108167
 GameObject:
   m_ObjectHideFlags: 0
@@ -8251,6 +8256,13 @@ MonoBehaviour:
   purchaseKey: 
   lockUI: {fileID: 0}
   button: {fileID: 0}
+  torsoRenderer: {fileID: 1177523180}
+  lowerTorsoRenderer: {fileID: 684933526}
+  torsoMaterials:
+  - {fileID: 1886820026795636259, guid: e3c7e9b89a0b2864b923eb7e138b3813, type: 3}
+  lowerTorsoMaterials:
+  - {fileID: -7198559261415225722, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  - {fileID: -876546973899608171, guid: 03498b178cf9fa64488ed9122a2773c2, type: 3}
 --- !u!1 &989580212
 GameObject:
   m_ObjectHideFlags: 0
@@ -9086,6 +9098,11 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!137 &1177523180 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -6542367647312899303, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  m_PrefabInstance: {fileID: 579386285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1188192163
 GameObject:
   m_ObjectHideFlags: 0
@@ -10621,6 +10638,13 @@ MonoBehaviour:
   purchaseKey: purchased
   lockUI: {fileID: 1997476665}
   button: {fileID: 1412127196}
+  torsoRenderer: {fileID: 1177523180}
+  lowerTorsoRenderer: {fileID: 684933526}
+  torsoMaterials:
+  - {fileID: 4362962105363994262, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
+  lowerTorsoMaterials:
+  - {fileID: 4362962105363994262, guid: 2ba844e950785c0498653ef8038adf16, type: 3}
+  - {fileID: 1886820026795636259, guid: dbf597d69157bd04fa4d07435b18fdaf, type: 3}
 --- !u!1 &1414094102
 GameObject:
   m_ObjectHideFlags: 0
