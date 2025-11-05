@@ -99,22 +99,24 @@ public class QuestionnaireSpawner : MonoBehaviour
         GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
 
         QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
-        if (randomizer != null)
-        {
-            if (spawnSentence)
-            {
-                int randomIndex = rng.Next(0, 20);
-                randomizer.SetSentenceQuestion(randomIndex);
-                Debug.Log($"Spawned sentence question index: {randomIndex} at Z: {spawnPos.z}");
-            }
-            else
-            {
-                int randomIndex = rng.Next(0, 75);
-                randomizer.SetSpellingQuestion(randomIndex);
-                spellingCounter++;
-                Debug.Log($"Spawned spelling question index: {randomIndex} at Z: {spawnPos.z}");
-            }
-        }
+       if (randomizer != null)
+{
+    if (spawnSentence)
+    {
+        int maxSentences = randomizer.GetSentenceQuestionCount();
+        int randomIndex = rng.Next(0, maxSentences);
+        randomizer.SetSentenceQuestion(randomIndex);
+        Debug.Log($"Spawned sentence question index: {randomIndex} at Z: {spawnPos.z}");
+    }
+    else
+    {
+        int maxSpellings = randomizer.GetSpellingQuestionCount();
+        int randomIndex = rng.Next(0, maxSpellings);
+        randomizer.SetSpellingQuestion(randomIndex);
+        spellingCounter++;
+        Debug.Log($"Spawned spelling question index: {randomIndex} at Z: {spawnPos.z}");
+    }
+}
 
         activeQuestions.Add(question);
         StartCoroutine(AutoDespawnQuestion(question, maxLifetime));

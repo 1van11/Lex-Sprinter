@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class LetterHurdleManager : MonoBehaviour
 {
@@ -15,9 +16,10 @@ public class LetterHurdleManager : MonoBehaviour
     public EventTimingManager bossManager;
     
     [Header("Player Reference")]
-    public PlayerFunctions playerFunctions; // Assign in Inspector
-    
-    private string[] wordList = {
+    public PlayerFunctions playerFunctions;
+
+    // EASY WORDS
+    private string[] easyWordList = {
         "dog","hat","pink","sun","leg","meat","cup","pair","tree","black",
         "fast","swim","you","bed","hand","bird","milk","jump","bread","cake",
         "foot","girl","nose","blue","car","corn","aunt","cow","happy","red",
@@ -28,6 +30,18 @@ public class LetterHurdleManager : MonoBehaviour
         "egg","pear","duck","mouse","wind"
     };
 
+    // MEDIUM WORDS
+    private string[] mediumWordList = {
+        "Rabbit","Monkey","Tiger","Zebra","Eagle","Panther","Giraffe","Alligator","Octopus","Penguin",
+        "Forest","Desert","Basket","Ladder","Bottle","Pillow","Blanket","Lantern","Magnet","Cactus",
+        "Banana","Cookie","Cheese","Tomato","Melon","Market","Garden","School","Street","Castle",
+        "Statue","Crown","Bridge","Anchor","Volcano","Hurricane","Glacier","Blizzard","Compass",
+        "Scissors","Telescope","Microscope","Helmet","Jewelry","Instrument","Armor","Chocolate",
+        "Spaghetti","Lighthouse","Windmill"
+    };
+
+    private string[] wordList; // ACTIVE WORD LIST (changes by difficulty)
+
     private string currentTargetWord;
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
@@ -35,6 +49,17 @@ public class LetterHurdleManager : MonoBehaviour
 
     void Start()
     {
+        // STRICT SCENE DETECTION
+        string scene = SceneManager.GetActiveScene().name;
+
+        if (scene == "MediumMode")
+            wordList = mediumWordList;
+        else if (scene == "EasyMode")
+            wordList = easyWordList;
+        else
+            wordList = easyWordList; // default fallback
+
+        // Shuffle active list
         shuffledWords = wordList.OrderBy(x => Random.value).ToList();
         SetNewTargetWord();
 
@@ -91,26 +116,21 @@ public class LetterHurdleManager : MonoBehaviour
 
         if (collectedLength <= currentTargetWord.Length)
         {
-            char expectedLetter = currentTargetWord[collectedLength - 1];
-            char collectedLetter = collected[collectedLength - 1];
+            char expectedLetter = currentTargetWord.ToLower()[collectedLength - 1];
+            char collectedLetter = collected.ToLower()[collectedLength - 1];
 
             if (collectedLetter == expectedLetter)
             {
-                // Correct letter
                 if (collectedLength == currentTargetWord.Length)
                 {
-                    // Word completed!
                     if (feedbackText != null)
                     {
                         feedbackText.text = "Correct!";
                         feedbackText.color = Color.green;
                     }
 
-                    // AWARD 25 POINTS THROUGH PLAYERFUNCTIONS
                     if (playerFunctions != null)
-                    {
                         playerFunctions.AddCoins(25);
-                    }
 
                     CheckBossSpell();
 
@@ -125,7 +145,6 @@ public class LetterHurdleManager : MonoBehaviour
             }
             else
             {
-                // Wrong letter collected! DAMAGE PLAYER
                 if (feedbackText != null)
                 {
                     feedbackText.text = "Wrong Letter!";
@@ -135,7 +154,6 @@ public class LetterHurdleManager : MonoBehaviour
                 if (playerFunctions != null)
                     playerFunctions.TakeDamageFromWrongLetter();
 
-                // Remove the wrong letter
                 collectedText.text = collected.Substring(0, collectedLength - 1);
                 previousCollectedText = collectedText.text;
 
