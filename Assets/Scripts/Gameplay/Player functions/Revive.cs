@@ -53,7 +53,6 @@ public class Revive : MonoBehaviour
     }
 
     public void RevivePlayer()
-
     {
         Time.timeScale = 1f;
         if (player == null)
@@ -65,35 +64,10 @@ public class Revive : MonoBehaviour
         if (revivePanel != null)
             revivePanel.SetActive(false);
 
-        StartCoroutine(ReviveCoroutine());
-    }
-
-    IEnumerator ReviveCoroutine()
-    {
-        Debug.Log("🔄 Starting revive process...");
-
-        player.isDead = false;
-        player.currentHealth = player.maxHealth;
-        player.UpdateHealthUI();
-
-        player.isInvincible = false;
-        player.hasShield = false;
-        player.hasMagnet = false;
-        player.isSlowTime = false;
-
-        if (player.shieldVisual != null)
-            player.shieldVisual.SetActive(false);
-        if (player.magnetVisual != null)
-            player.magnetVisual.SetActive(false);
-
-        PlayerControls playerControls = player.GetComponent<PlayerControls>();
-        if (playerControls != null)
-            playerControls.enabled = true;
-
-        if (player.gameOverPanel != null)
-            player.gameOverPanel.SetActive(false);
-
-        yield return null; // wait one frame
+        // Call the PlayerFunctions revive method instead of using coroutine
+        player.ReviveFromDeath();
+        
+        Debug.Log("🔄 Revive process completed!");
     }
 
     public void Home()
