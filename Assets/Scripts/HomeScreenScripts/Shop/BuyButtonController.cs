@@ -142,6 +142,11 @@ public class BuyButtonController : MonoBehaviour
         {
             coinsDisplay.RefreshCoinDisplay();
         }
+        // ✅ Notify UI buttons to refresh their state
+        foreach (var selector in FindObjectsOfType<UIButtonSelector>())
+        {
+            selector.CheckPurchaseStatus();
+        }
 
         // Disable the buy button after purchase
         DisableBuyButton();
