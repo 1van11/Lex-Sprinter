@@ -11,6 +11,11 @@ public class SpriteButton : MonoBehaviour
     public Sprite defaultSprite;
     public Sprite clickedSprite;
 
+    [Header("Lock Settings")]
+    public bool isLocked = false;
+    public GameObject lockIcon; // The UI sprite/image for the lock
+    public Sprite lockedSprite; // Optional: different sprite when locked
+
     [Header("Glow Effect")]
     public Color glowColor = Color.yellow;
     public float glowMaxThickness = 10f;
@@ -44,6 +49,9 @@ public class SpriteButton : MonoBehaviour
         outline = GetComponent<Outline>();
         outline.effectColor = Color.clear;
         outline.effectDistance = Vector2.zero;
+
+        // Initialize lock icon visibility
+        UpdateLockVisual();
     }
 
     IEnumerator Start()
@@ -56,8 +64,30 @@ public class SpriteButton : MonoBehaviour
         }
     }
 
+    private void UpdateLockVisual()
+    {
+        if (lockIcon != null)
+        {
+            lockIcon.SetActive(isLocked);
+        }
+
+        // Optional: Change sprite when locked
+        if (isLocked && lockedSprite != null)
+        {
+            targetImage.sprite = lockedSprite;
+        }
+    }
+
     public void OnButtonClick()
     {
+        // Prevent interaction if locked
+        if (isLocked)
+        {
+            // Optional: Add a shake animation or sound effect here
+            StartCoroutine(ShakeButton());
+            return;
+        }
+
         if (activeButton == this) return;
 
         if (activeButton != null)
@@ -71,8 +101,53 @@ public class SpriteButton : MonoBehaviour
         glowRoutine = StartCoroutine(PulseGlow());
     }
 
+    // Optional: Shake animation when trying to click locked button
+    private IEnumerator ShakeButton()
+    {
+        Vector2 originalPos = rectTransform.anchoredPosition;
+        float shakeDuration = 0.3f;
+        float shakeMagnitude = 5f;
+        float elapsed = 0f;
+
+        while (elapsed < shakeDuration)
+        {
+            float x = originalPos.x + Random.Range(-shakeMagnitude, shakeMagnitude);
+            float y = originalPos.y + Random.Range(-shakeMagnitude, shakeMagnitude);
+
+            rectTransform.anchoredPosition = new Vector2(x, y);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        rectTransform.anchoredPosition = originalPos;
+    }
+
+    // Public method to unlock the button
+    public void UnlockButton()
+    {
+        isLocked = false;
+        UpdateLockVisual();
+
+        // Restore default sprite
+        if (targetImage != null && defaultSprite != null)
+        {
+            targetImage.sprite = defaultSprite;
+        }
+    }
+
+    // Public method to lock the button
+    public void LockButton()
+    {
+        isLocked = true;
+        UpdateLockVisual();
+    }
+
     private void ResetToDefault()
     {
+        // Don't reset locked buttons
+        if (isLocked) return;
+
         targetImage.sprite = defaultSprite;
 
         if (glowRoutine != null) StopCoroutine(glowRoutine);
@@ -88,12 +163,11 @@ public class SpriteButton : MonoBehaviour
 
         while (true)
         {
-            angle += Time.deltaTime * 100f; // rotation speed
+            angle += Time.deltaTime * 100f;
             float pulse = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
 
             float thickness = Mathf.Lerp(0f, glowMaxThickness, pulse);
 
-            // Circular movement for rotating glow
             float rad = angle * Mathf.Deg2Rad;
             float offsetX = Mathf.Cos(rad) * thickness;
             float offsetY = Mathf.Sin(rad) * thickness;
@@ -104,7 +178,6 @@ public class SpriteButton : MonoBehaviour
             yield return null;
         }
     }
-
 
     private IEnumerator FadeGlowOut()
     {
@@ -126,11 +199,13 @@ public class SpriteButton : MonoBehaviour
         outline.effectDistance = Vector2.zero;
     }
 
-
     private void AnimateButtons()
     {
         foreach (var btn in allButtons)
         {
+            // Skip locked buttons in animation
+            if (btn.isLocked) continue;
+
             btn.StopAllCoroutines();
 
             if (btn == this)
