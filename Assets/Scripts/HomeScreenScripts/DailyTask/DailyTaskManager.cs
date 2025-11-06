@@ -339,6 +339,17 @@ public class DailyTaskManager : MonoBehaviour
         return true;
     }
 
+    // ✅ Allow other scripts (like WordUnlockManager) to safely access word data
+    public string[,] GetEasySpellingPairs()
+    {
+        return easySpellingPairs;
+    }
+
+    public string[,] GetEasySentencePairs()
+    {
+        return easySentencePairs;
+    }
+
     [ContextMenu("Force Reset Tasks")]
     public void ForceResetTasks()
     {
