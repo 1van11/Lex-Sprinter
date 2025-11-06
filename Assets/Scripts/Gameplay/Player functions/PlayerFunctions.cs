@@ -204,12 +204,19 @@ public class PlayerFunctions : MonoBehaviour
 
                     ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
 
-                    // ✅ NEW: Check if this answer completes a daily task
+                    // ✅ Save the last unlocked word for dictionary HomeScreen
+                    string correctWord = questionRandomizer.correctAnswer;
+                    PlayerPrefs.SetString("LastUnlockedWord", correctWord);
+                    PlayerPrefs.Save();
+                    Debug.Log($"📘 Saved unlocked word: {correctWord}");
+
+                    // ✅ Optional: notify DailyTaskManager if needed
                     if (DailyTaskManager.Instance != null)
                     {
-                        DailyTaskManager.Instance.CheckAndCompleteTask(questionRandomizer.correctAnswer);
+                        DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
                     }
                 }
+
                 else
                 {
                     Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
@@ -372,7 +379,8 @@ public class PlayerFunctions : MonoBehaviour
     {
         isDead = true;
         Debug.Log("💀 Player died! Showing revive panel...");
-
+        PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
+        PlayerPrefs.Save();
         SaveTotalCoins();
 
         if (playerControls != null)
