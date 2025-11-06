@@ -304,6 +304,7 @@ public class PlayerFunctions : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+
         }
         else
         {
@@ -375,32 +376,35 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
-    void Die()
+  void Die()
+{
+    isDead = true;
+    Debug.Log("💀 Player died!");
+
+    // Pause the game as soon as death happens
+    Time.timeScale = 0f;
+
+    PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
+    PlayerPrefs.Save();
+    SaveTotalCoins();
+
+    if (playerControls != null)
+        playerControls.StopMovement();
+
+    // Show revive panel if available
+    if (revivePanel != null)
     {
-        isDead = true;
-        Debug.Log("💀 Player died! Showing revive panel...");
-        PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
-        PlayerPrefs.Save();
-        SaveTotalCoins();
-
-        if (playerControls != null)
-            playerControls.StopMovement();
-
-        // Show revive panel instead of game over panel
-        if (revivePanel != null)
-        {
-            revivePanel.SetActive(true);
-            Debug.Log("🔄 Revive panel activated");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ Revive panel reference is missing! Showing game over panel instead.");
-            if (gameOverPanel != null)
-                gameOverPanel.SetActive(true);
-        }
-
-        // Time will be paused by the Revive script's OnEnable() method
+        revivePanel.SetActive(true);
+        Debug.Log("🔄 Revive panel activated");
     }
+    else
+    {
+        // If no revive panel, show game over panel
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
+    }
+}
+
 
     // NEW METHOD: Revive the player from death
     public void ReviveFromDeath()
