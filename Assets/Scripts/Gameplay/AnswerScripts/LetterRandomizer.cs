@@ -20,29 +20,36 @@ public class LetterRandomizer : MonoBehaviour
     }
 
     char GetSpawnedLetter()
-    {
-        correctLetterChance = Mathf.Clamp01(correctLetterChance);
+{
+    correctLetterChance = Mathf.Clamp01(correctLetterChance);
 
-        if (targetWordText != null && Random.value <= correctLetterChance)
+    // Make sure UI references exist and format is correct
+    if (targetWordText != null && collectedText != null && targetWordText.text.Contains(":"))
+    {
+        // Extract real target word
+        string fullTarget = targetWordText.text.Split(':')[1].Trim().ToLower();
+        string collected = collectedText.text.Trim().ToLower();
+
+        // Determine next letter needed
+        if (collected.Length < fullTarget.Length)
         {
-            // Extract the word from "Spell: WORD" format
-            string displayedText = targetWordText.text;
-            if (displayedText.Contains(":"))
+            char nextNeededLetter = fullTarget[collected.Length];
+
+            // Increase chance for next needed letter
+            float boostedChance = correctLetterChance + 0.4f; // +40% stronger bias
+            boostedChance = Mathf.Clamp01(boostedChance);
+
+            if (Random.value <= boostedChance)
             {
-                string word = displayedText.Split(':')[1].Trim().ToLower();
-                
-                if (!string.IsNullOrEmpty(word))
-                {
-                    // Pick random letter from the current target word
-                    int index = Random.Range(0, word.Length);
-                    return char.ToUpper(word[index]);
-                }
+                return char.ToUpper(nextNeededLetter);
             }
         }
-
-        // Return completely random letter
-        return (char)Random.Range('A', 'Z' + 1);
     }
+
+    // Otherwise, random letter
+    return (char)Random.Range('A', 'Z' + 1);
+}
+
 
     private void OnTriggerEnter(Collider other)
     {
