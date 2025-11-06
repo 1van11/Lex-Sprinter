@@ -235,14 +235,15 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1423138980}
-  m_RootOrder: 0
+  m_Children:
+  - {fileID: 1423138980}
+  m_Father: {fileID: 561317870}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 0, y: -21}
+  m_AnchoredPosition: {x: 0, y: 194.12885}
+  m_SizeDelta: {x: -89.28998, y: -1845.2577}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &412919115
 MonoBehaviour:
@@ -374,9 +375,11 @@ MonoBehaviour:
   loadingScreenParent: {fileID: 412919113}
   loadingSlider: {fileID: 1423138981}
   progressText: {fileID: 875874940}
-  setupSceneName: NameAndCharacter
+  setupSceneName: Name&Character
   homeSceneName: HomeScreen
   fakeLoadSpeed: 0.5
+  smoothSpeed: 3
+  minLoadingTime: 3
 --- !u!1 &552908373
 GameObject:
   m_ObjectHideFlags: 0
@@ -549,7 +552,7 @@ RectTransform:
   - {fileID: 529690299}
   - {fileID: 1658399046}
   - {fileID: 1360011891}
-  - {fileID: 1423138980}
+  - {fileID: 412919114}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -589,7 +592,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1423138980}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -618,7 +621,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 30
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 0
@@ -736,7 +739,7 @@ RectTransform:
   m_Children:
   - {fileID: 552908374}
   m_Father: {fileID: 1423138980}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -942,16 +945,15 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 412919114}
   - {fileID: 992021359}
   - {fileID: 875874939}
-  m_Father: {fileID: 561317870}
-  m_RootOrder: 3
+  m_Father: {fileID: 412919114}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 232}
-  m_SizeDelta: {x: -89.29, y: 95.7423}
+  m_AnchoredPosition: {x: 0, y: 37.871155}
+  m_SizeDelta: {x: -0.000022888184, y: 95.7423}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1423138981
 MonoBehaviour:

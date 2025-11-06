@@ -195,14 +195,20 @@ public class PlayerFunctions : MonoBehaviour
                 {
                     Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
                     score += 5;
-                    totalCoins += 5; // Also add to total coins
+                    totalCoins += 5;
                     UpdateScoreUI();
-                    UpdateTotalCoinsUI(); // Update total coins display
+                    UpdateTotalCoinsUI();
 
                     if (audioSource != null && correctAnswerSound != null)
                         audioSource.PlayOneShot(correctAnswerSound);
 
                     ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
+
+                    // ✅ NEW: Check if this answer completes a daily task
+                    if (DailyTaskManager.Instance != null)
+                    {
+                        DailyTaskManager.Instance.CheckAndCompleteTask(questionRandomizer.correctAnswer);
+                    }
                 }
                 else
                 {
