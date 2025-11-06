@@ -80,7 +80,7 @@ public class PlayerControls : MonoBehaviour
         HandleTiltAndLook();
         ApplyExtraGravity();
         DetectSwipe();
-        UpdateJumpAnimation(); // NEW: Update animation based on grounded state
+        UpdateJumpAnimation();
 
         if (IsGrounded())
             lastGroundedTime = Time.time;
@@ -151,7 +151,7 @@ public class PlayerControls : MonoBehaviour
 
     void HandleJump()
     {
-        // Regular jump input
+        // Jump input
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
             lastJumpPressedTime = Time.time;
@@ -195,14 +195,10 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
-    // NEW: Update jump animation based on mid-air state
     void UpdateJumpAnimation()
     {
         if (anim == null) return;
-
-        // Only set isJumping to true when character is in the air
-        bool shouldPlayJumpAnim = !IsGrounded();
-        anim.SetBool("isJumping", shouldPlayJumpAnim);
+        anim.SetBool("isJumping", !IsGrounded());
     }
 
     void ApplyExtraGravity()
@@ -237,6 +233,7 @@ public class PlayerControls : MonoBehaviour
 
                     if (Mathf.Abs(x) > Mathf.Abs(y))
                     {
+                        // Horizontal swipe = lane change
                         if (x > 0 && currentLane < 2)
                         {
                             currentLane++;
@@ -254,10 +251,22 @@ public class PlayerControls : MonoBehaviour
                     }
                     else
                     {
+                        // Vertical swipe
                         if (y > 0)
                         {
+                            // Swipe up = jump
                             lastJumpPressedTime = Time.time;
                             jumpHeld = true;
+                        }
+                        else if (y < 0)
+                        {
+                            // Swipe down = jump smash
+                            if (!IsGrounded() && !isSmashing)
+                            {
+                                isSmashing = true;
+                                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                                rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+                            }
                         }
                     }
 
