@@ -106,62 +106,69 @@ public class LetterHurdleManager : MonoBehaviour
             feedbackText.text = "";
     }
 
-    void CheckSpellingFast(string collected)
+   void CheckSpellingFast(string collected)
+{
+    if (string.IsNullOrEmpty(collected))
+        return;
+
+    string target = currentTargetWord.ToLower();
+
+    // Full word correct
+    if (collected == target)
     {
-        if (string.IsNullOrEmpty(collected))
-            return;
+        if (feedbackText != null)
+        {
+            feedbackText.text = "Correct!";
+            feedbackText.color = Color.green;
+        }
 
-        string target = currentTargetWord.ToLower();
+        if (playerFunctions != null)
+        {
+            string scene = SceneManager.GetActiveScene().name;
+            if (scene == "MediumMode")
+                playerFunctions.AddCoins(100); // 100 points for MediumMode
+            else
+                playerFunctions.AddCoins(25);  // 25 points for EasyMode
+        }
 
-        // Full word correct
-        if (collected == target)
+        if (bossManager != null)
+            bossManager.FinishBoss();
+
+        currentWordIndex++;
+        SetNewTargetWord(); // immediately next word
+        return;
+    }
+
+    // Check for wrong letters
+    int minLength = Mathf.Min(collected.Length, target.Length);
+    for (int i = 0; i < minLength; i++)
+    {
+        if (collected[i] != target[i])
         {
             if (feedbackText != null)
             {
-                feedbackText.text = "Correct!";
-                feedbackText.color = Color.green;
+                feedbackText.text = "Wrong Letter!";
+                feedbackText.color = Color.red;
             }
 
             if (playerFunctions != null)
-                playerFunctions.AddCoins(25);
+                playerFunctions.TakeDamageFromWrongLetter();
 
-            if (bossManager != null)
-                bossManager.FinishBoss();
+            collectedText.text = collected.Substring(0, i); // remove wrong letter
+            previousCollectedText = collectedText.text;
 
-            currentWordIndex++;
-            SetNewTargetWord(); // immediately next word
+            if (feedbackText != null)
+                Invoke("ClearFeedback", 1f);
+
             return;
         }
-
-        // Check for wrong letters
-        int minLength = Mathf.Min(collected.Length, target.Length);
-        for (int i = 0; i < minLength; i++)
-        {
-            if (collected[i] != target[i])
-            {
-                if (feedbackText != null)
-                {
-                    feedbackText.text = "Wrong Letter!";
-                    feedbackText.color = Color.red;
-                }
-
-                if (playerFunctions != null)
-                    playerFunctions.TakeDamageFromWrongLetter();
-
-                collectedText.text = collected.Substring(0, i); // remove wrong letter
-                previousCollectedText = collectedText.text;
-
-                if (feedbackText != null)
-                    Invoke("ClearFeedback", 1f);
-
-                return;
-            }
-        }
-
-        // Clear feedback if all letters so far are correct
-        if (feedbackText != null)
-            feedbackText.text = "";
     }
+
+    // Clear feedback if all letters so far are correct
+    if (feedbackText != null)
+        feedbackText.text = "";
+}
+
 
     void ClearFeedback()
     {
