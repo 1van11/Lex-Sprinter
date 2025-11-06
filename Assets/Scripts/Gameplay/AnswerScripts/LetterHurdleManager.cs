@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
@@ -14,11 +13,16 @@ public class LetterHurdleManager : MonoBehaviour
 
     [Header("Boss Reference")]
     public EventTimingManager bossManager;
-    
+
     [Header("Player Reference")]
     public PlayerFunctions playerFunctions;
 
-    // EASY WORDS
+    [Header("Letter Prefab & Spawn")]
+    public GameObject letterPrefab; // assign a prefab with a TMP_Text for the letter
+    public Transform spawnParent;   // parent to hold letters
+    public float letterSpacing = 1f;
+
+    [Header("Word Lists")]
     private string[] easyWordList = {
         "dog","hat","pink","sun","leg","meat","cup","pair","tree","black",
         "fast","swim","you","bed","hand","bird","milk","jump","bread","cake",
@@ -30,7 +34,6 @@ public class LetterHurdleManager : MonoBehaviour
         "egg","pear","duck","mouse","wind"
     };
 
-    // MEDIUM WORDS
     private string[] mediumWordList = {
         "Rabbit","Monkey","Tiger","Zebra","Eagle","Panther","Giraffe","Alligator","Octopus","Penguin",
         "Forest","Desert","Basket","Ladder","Bottle","Pillow","Blanket","Lantern","Magnet","Cactus",
@@ -40,26 +43,20 @@ public class LetterHurdleManager : MonoBehaviour
         "Spaghetti","Lighthouse","Windmill"
     };
 
-    private string[] wordList; // ACTIVE WORD LIST (changes by difficulty)
+    private string[] wordList;
     private string currentTargetWord;
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
     private string previousCollectedText = "";
 
+    private List<GameObject> spawnedLetters = new List<GameObject>();
+
     void Start()
     {
-        // STRICT SCENE DETECTION
         string scene = SceneManager.GetActiveScene().name;
-
-        if (scene == "MediumMode")
-            wordList = mediumWordList;
-        else if (scene == "EasyMode")
-            wordList = easyWordList;
-        else
-            wordList = easyWordList; // default fallback
-
-        // Shuffle active list
+        wordList = (scene == "MediumMode") ? mediumWordList : easyWordList;
         shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+
         SetNewTargetWord();
 
         if (feedbackText != null)
@@ -86,6 +83,11 @@ public class LetterHurdleManager : MonoBehaviour
 
     void SetNewTargetWord()
     {
+        // Clear previously spawned letters
+        foreach (var letter in spawnedLetters)
+            Destroy(letter);
+        spawnedLetters.Clear();
+
         if (currentWordIndex >= shuffledWords.Count)
         {
             shuffledWords = wordList.OrderBy(x => Random.value).ToList();
@@ -97,6 +99,8 @@ public class LetterHurdleManager : MonoBehaviour
         if (targetWordText != null)
             targetWordText.text = "Spell: " + currentTargetWord.ToLower();
 
+        SpawnLetters(currentTargetWord);
+
         if (collectedText != null)
             collectedText.text = "";
 
@@ -106,69 +110,77 @@ public class LetterHurdleManager : MonoBehaviour
             feedbackText.text = "";
     }
 
-   void CheckSpellingFast(string collected)
-{
-    if (string.IsNullOrEmpty(collected))
-        return;
-
-    string target = currentTargetWord.ToLower();
-
-    // Full word correct
-    if (collected == target)
+    void SpawnLetters(string word)
     {
-        if (feedbackText != null)
+        if (letterPrefab == null || spawnParent == null) return;
+
+        for (int i = 0; i < word.Length; i++)
         {
-            feedbackText.text = "Correct!";
-            feedbackText.color = Color.green;
+            GameObject letterObj = Instantiate(letterPrefab, spawnParent);
+            letterObj.transform.localPosition = new Vector3(i * letterSpacing, 0, 0);
+            TMP_Text letterText = letterObj.GetComponent<TMP_Text>();
+            if (letterText != null)
+                letterText.text = word[i].ToString();
+
+            spawnedLetters.Add(letterObj);
         }
-
-        if (playerFunctions != null)
-        {
-            string scene = SceneManager.GetActiveScene().name;
-            if (scene == "MediumMode")
-                playerFunctions.AddCoins(100); // 100 points for MediumMode
-            else
-                playerFunctions.AddCoins(25);  // 25 points for EasyMode
-        }
-
-        if (bossManager != null)
-            bossManager.FinishBoss();
-
-        currentWordIndex++;
-        SetNewTargetWord(); // immediately next word
-        return;
     }
 
-    // Check for wrong letters
-    int minLength = Mathf.Min(collected.Length, target.Length);
-    for (int i = 0; i < minLength; i++)
+    void CheckSpellingFast(string collected)
     {
-        if (collected[i] != target[i])
+        if (string.IsNullOrEmpty(collected)) return;
+
+        string target = currentTargetWord.ToLower();
+
+        if (collected == target)
         {
             if (feedbackText != null)
             {
-                feedbackText.text = "Wrong Letter!";
-                feedbackText.color = Color.red;
+                feedbackText.text = "Correct!";
+                feedbackText.color = Color.green;
             }
 
             if (playerFunctions != null)
-                playerFunctions.TakeDamageFromWrongLetter();
+            {
+                string scene = SceneManager.GetActiveScene().name;
+                playerFunctions.AddCoins((scene == "MediumMode") ? 100 : 25);
+            }
 
-            collectedText.text = collected.Substring(0, i); // remove wrong letter
-            previousCollectedText = collectedText.text;
+            if (bossManager != null)
+                bossManager.FinishBoss();
 
-            if (feedbackText != null)
-                Invoke("ClearFeedback", 1f);
-
+            currentWordIndex++;
+            SetNewTargetWord();
             return;
         }
+
+        int minLength = Mathf.Min(collected.Length, target.Length);
+        for (int i = 0; i < minLength; i++)
+        {
+            if (collected[i] != target[i])
+            {
+                if (feedbackText != null)
+                {
+                    feedbackText.text = "Wrong Letter!";
+                    feedbackText.color = Color.red;
+                }
+
+                if (playerFunctions != null)
+                    playerFunctions.TakeDamageFromWrongLetter();
+
+                collectedText.text = collected.Substring(0, i);
+                previousCollectedText = collectedText.text;
+
+                if (feedbackText != null)
+                    Invoke("ClearFeedback", 1f);
+
+                return;
+            }
+        }
+
+        if (feedbackText != null)
+            feedbackText.text = "";
     }
-
-    // Clear feedback if all letters so far are correct
-    if (feedbackText != null)
-        feedbackText.text = "";
-}
-
 
     void ClearFeedback()
     {

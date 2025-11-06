@@ -75,11 +75,6 @@ public class ObstacleSpawner : MonoBehaviour
         new PowerUpSpawnChance { type = PowerUpType.SlowTime, chance = 34 }
     };
 
-    [Header("Object Pooling")]
-    public int poolSize = 20;
-    public int coinPoolSize = 30;
-    public int powerUpPoolSize = 5;
-
     [Header("Despawn Settings")]
     public float despawnDistance = 10f;
     public float maxObstacleLifetime = 15f;
@@ -96,21 +91,16 @@ public class ObstacleSpawner : MonoBehaviour
     public float gizmoHeight = 1f;
 
     private List<GameObject> activeObstacles = new List<GameObject>();
-    private List<Queue<GameObject>> obstaclePools = new List<Queue<GameObject>>();
     private List<GameObject> activeCoins = new List<GameObject>();
-    private Queue<GameObject> coinPool = new Queue<GameObject>();
     private List<GameObject> activePowerUps = new List<GameObject>();
     private List<GameObject> activeQuestions = new List<GameObject>();
-    private Queue<GameObject> shieldPool = new Queue<GameObject>();
-    private Queue<GameObject> magnetPool = new Queue<GameObject>();
-    private Queue<GameObject> slowTimePool = new Queue<GameObject>();
 
     private float nextPowerUpDistance;
     private bool hasSpawnedFirstPowerUp = false;
     private int patternIndex = 0;
     private int spellingCounter = 0;
     private System.Random rng;
-    private bool powerUpSpawnedThisFrame = false; // FIX: Add flag to prevent multiple spawns
+    private bool powerUpSpawnedThisFrame = false;
 
     public enum PowerUpType { Shield, Magnet, SlowTime }
 
@@ -125,182 +115,13 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Start()
     {
-        InitializePool();
         nextPowerUpDistance = firstPowerUpDistance;
         rng = new System.Random();
     }
 
-    void InitializePool()
-    {
-        if (obstaclePrefabs != null && obstaclePrefabs.Length > 0)
-        {
-            for (int prefabIndex = 0; prefabIndex < obstaclePrefabs.Length; prefabIndex++)
-            {
-                Queue<GameObject> pool = new Queue<GameObject>();
-                
-                if (obstaclePrefabs[prefabIndex] != null)
-                {
-                    for (int i = 0; i < poolSize; i++)
-                    {
-                        GameObject obj = Instantiate(obstaclePrefabs[prefabIndex]);
-                        obj.transform.SetParent(ObstacleParentTransform);
-                        obj.SetActive(false);
-                        pool.Enqueue(obj);
-                    }
-                }
-                
-                obstaclePools.Add(pool);
-            }
-        }
-
-        if (coinPrefab != null)
-        {
-            for (int i = 0; i < coinPoolSize; i++)
-            {
-                GameObject coin = Instantiate(coinPrefab);
-                coin.transform.SetParent(ObstacleParentTransform);
-                coin.SetActive(false);
-                coinPool.Enqueue(coin);
-            }
-        }
-
-        if (shieldPowerUpPrefab != null)
-        {
-            for (int i = 0; i < powerUpPoolSize; i++)
-            {
-                GameObject shield = Instantiate(shieldPowerUpPrefab);
-                shield.transform.SetParent(ObstacleParentTransform);
-                shield.SetActive(false);
-                shieldPool.Enqueue(shield);
-            }
-        }
-
-        if (magnetPowerUpPrefab != null)
-        {
-            for (int i = 0; i < powerUpPoolSize; i++)
-            {
-                GameObject magnet = Instantiate(magnetPowerUpPrefab);
-                magnet.transform.SetParent(ObstacleParentTransform);
-                magnet.SetActive(false);
-                magnetPool.Enqueue(magnet);
-            }
-        }
-
-        if (slowTimePowerUpPrefab != null)
-        {
-            for (int i = 0; i < powerUpPoolSize; i++)
-            {
-                GameObject slowTime = Instantiate(slowTimePowerUpPrefab);
-                slowTime.transform.SetParent(ObstacleParentTransform);
-                slowTime.SetActive(false);
-                slowTimePool.Enqueue(slowTime);
-            }
-        }
-    }
-
-    GameObject GetPooledObstacle(int prefabIndex)
-    {
-        if (obstaclePrefabs == null || obstaclePrefabs.Length == 0 || prefabIndex >= obstaclePools.Count)
-            return null;
-
-        GameObject obj;
-        Queue<GameObject> pool = obstaclePools[prefabIndex];
-        
-        if (pool.Count > 0)
-        {
-            obj = pool.Dequeue();
-        }
-        else
-        {
-            obj = Instantiate(obstaclePrefabs[prefabIndex]);
-            obj.transform.SetParent(ObstacleParentTransform);
-        }
-        obj.SetActive(true);
-        return obj;
-    }
-
-    GameObject GetPooledCoin()
-    {
-        GameObject coin;
-        if (coinPool.Count > 0)
-        {
-            coin = coinPool.Dequeue();
-        }
-        else
-        {
-            coin = Instantiate(coinPrefab);
-            coin.transform.SetParent(ObstacleParentTransform);
-        }
-        coin.SetActive(true);
-        return coin;
-    }
-
-    GameObject GetPooledPowerUp(PowerUpType type)
-    {
-        Queue<GameObject> pool = null;
-        GameObject prefab = null;
-
-        switch (type)
-        {
-            case PowerUpType.Shield: pool = shieldPool; prefab = shieldPowerUpPrefab; break;
-            case PowerUpType.Magnet: pool = magnetPool; prefab = magnetPowerUpPrefab; break;
-            case PowerUpType.SlowTime: pool = slowTimePool; prefab = slowTimePowerUpPrefab; break;
-        }
-
-        GameObject powerUp;
-        if (pool != null && pool.Count > 0)
-        {
-            powerUp = pool.Dequeue();
-        }
-        else if (prefab != null)
-        {
-            powerUp = Instantiate(prefab);
-            powerUp.transform.SetParent(ObstacleParentTransform);
-        }
-        else
-        {
-            return null;
-        }
-
-        powerUp.SetActive(true);
-        return powerUp;
-    }
-
-    void ReturnToPool(GameObject obj)
-    {
-        obj.SetActive(false);
-        
-        for (int i = 0; i < obstaclePrefabs.Length; i++)
-        {
-            if (obstaclePrefabs[i] != null && obj.name.Contains(obstaclePrefabs[i].name))
-            {
-                obstaclePools[i].Enqueue(obj);
-                return;
-            }
-        }
-    }
-
-    void ReturnCoinToPool(GameObject coin)
-    {
-        coin.SetActive(false);
-        coinPool.Enqueue(coin);
-    }
-
-    void ReturnPowerUpToPool(GameObject powerUp)
-    {
-        powerUp.SetActive(false);
-
-        if (shieldPowerUpPrefab != null && powerUp.name.Contains(shieldPowerUpPrefab.name))
-            shieldPool.Enqueue(powerUp);
-        else if (magnetPowerUpPrefab != null && powerUp.name.Contains(magnetPowerUpPrefab.name))
-            magnetPool.Enqueue(powerUp);
-        else if (slowTimePowerUpPrefab != null && powerUp.name.Contains(slowTimePowerUpPrefab.name))
-            slowTimePool.Enqueue(powerUp);
-    }
-
     void Update()
     {
-        powerUpSpawnedThisFrame = false; // FIX: Reset flag at start of frame
+        powerUpSpawnedThisFrame = false;
         
         DespawnOldObstacles();
         DespawnOldCoins();
@@ -309,20 +130,17 @@ public class ObstacleSpawner : MonoBehaviour
         CheckPowerUpSpawn();
     }
 
-    // FIX: Modified method to prevent multiple spawns in one frame
     void CheckPowerUpSpawn()
     {
         if (PlayerFunctions == null || powerUpSpawnedThisFrame) return;
         
         float playerDistance = PlayerFunctions.transform.position.z;
 
-        // FIX: Only spawn if we've crossed the threshold and increment immediately
         if (playerDistance >= nextPowerUpDistance)
         {
             SpawnPowerUp();
-            powerUpSpawnedThisFrame = true; // FIX: Mark that we spawned this frame
+            powerUpSpawnedThisFrame = true;
             
-            // FIX: Update nextPowerUpDistance BEFORE spawning to prevent multiple triggers
             if (!hasSpawnedFirstPowerUp)
             {
                 hasSpawnedFirstPowerUp = true;
@@ -393,21 +211,15 @@ public class ObstacleSpawner : MonoBehaviour
             spawnZ + powerUpPositionOffset.z
         );
 
-        GameObject powerUp = GetPooledPowerUp(powerUpType);
-        if (powerUp != null)
-        {
-            powerUp.transform.position = spawnPos;
-            powerUp.transform.rotation = prefab.transform.rotation;
-            powerUp.transform.localScale = prefab.transform.localScale;
+        GameObject powerUp = Instantiate(prefab, spawnPos, prefab.transform.rotation, ObstacleParentTransform);
+        powerUp.transform.localScale = prefab.transform.localScale;
 
-            activePowerUps.Add(powerUp);
-            StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
+        activePowerUps.Add(powerUp);
+        StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
 
-            Debug.Log($"Spawned {powerUpType} power-up at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
-        }
+        Debug.Log($"Spawned {powerUpType} power-up at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
     }
 
-    // FIX: Add public method to reset power-up spawning (call this when retriggering/resetting game)
     public void ResetPowerUpSpawning()
     {
         hasSpawnedFirstPowerUp = false;
@@ -423,14 +235,14 @@ public class ObstacleSpawner : MonoBehaviour
 
         foreach (GameObject obstacle in activeObstacles)
         {
-            if (obstacle == null || !obstacle.activeSelf) continue;
+            if (obstacle == null) continue;
             if (Mathf.Abs(obstacle.transform.position.z - checkZ) < checkRange)
                 emptyLanes.Remove(GetLaneFromPosition(obstacle.transform.position.x));
         }
 
         foreach (GameObject coin in activeCoins)
         {
-            if (coin == null || !coin.activeSelf) continue;
+            if (coin == null) continue;
             if (Mathf.Abs(coin.transform.position.z - checkZ) < checkRange)
                 emptyLanes.Remove(GetLaneFromPosition(coin.transform.position.x));
         }
@@ -527,9 +339,7 @@ public class ObstacleSpawner : MonoBehaviour
                         baseZPosition + coinPositionOffset.z
                     );
 
-                    GameObject coin = GetPooledCoin();
-                    coin.transform.position = coinPos;
-                    coin.transform.rotation = coinPrefab.transform.rotation;
+                    GameObject coin = Instantiate(coinPrefab, coinPos, coinPrefab.transform.rotation, ObstacleParentTransform);
                     coin.transform.localScale = coinPrefab.transform.localScale;
 
                     activeCoins.Add(coin);
@@ -596,30 +406,30 @@ public class ObstacleSpawner : MonoBehaviour
     IEnumerator AutoDespawnObstacle(GameObject obstacle, float lifetime)
     {
         yield return new WaitForSeconds(lifetime);
-        if (obstacle != null && obstacle.activeSelf)
+        if (obstacle != null)
         {
             activeObstacles.Remove(obstacle);
-            ReturnToPool(obstacle);
+            Destroy(obstacle);
         }
     }
 
     IEnumerator AutoDespawnCoin(GameObject coin, float lifetime)
     {
         yield return new WaitForSeconds(lifetime);
-        if (coin != null && coin.activeSelf)
+        if (coin != null)
         {
             activeCoins.Remove(coin);
-            ReturnCoinToPool(coin);
+            Destroy(coin);
         }
     }
 
     IEnumerator AutoDespawnPowerUp(GameObject powerUp, float lifetime)
     {
         yield return new WaitForSeconds(lifetime);
-        if (powerUp != null && powerUp.activeSelf)
+        if (powerUp != null)
         {
             activePowerUps.Remove(powerUp);
-            ReturnPowerUpToPool(powerUp);
+            Destroy(powerUp);
         }
     }
 
@@ -637,13 +447,15 @@ public class ObstacleSpawner : MonoBehaviour
     {
         for (int i = activeObstacles.Count - 1; i >= 0; i--)
         {
-            if (activeObstacles[i] == null || !activeObstacles[i].activeSelf)
+            if (activeObstacles[i] == null)
+            {
                 activeObstacles.RemoveAt(i);
+            }
             else if (activeObstacles[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
             {
                 GameObject obstacle = activeObstacles[i];
                 activeObstacles.RemoveAt(i);
-                ReturnToPool(obstacle);
+                Destroy(obstacle);
             }
         }
     }
@@ -652,13 +464,15 @@ public class ObstacleSpawner : MonoBehaviour
     {
         for (int i = activeCoins.Count - 1; i >= 0; i--)
         {
-            if (activeCoins[i] == null || !activeCoins[i].activeSelf)
+            if (activeCoins[i] == null)
+            {
                 activeCoins.RemoveAt(i);
+            }
             else if (activeCoins[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
             {
                 GameObject coin = activeCoins[i];
                 activeCoins.RemoveAt(i);
-                ReturnCoinToPool(coin);
+                Destroy(coin);
             }
         }
     }
@@ -667,13 +481,15 @@ public class ObstacleSpawner : MonoBehaviour
     {
         for (int i = activePowerUps.Count - 1; i >= 0; i--)
         {
-            if (activePowerUps[i] == null || !activePowerUps[i].activeSelf)
+            if (activePowerUps[i] == null)
+            {
                 activePowerUps.RemoveAt(i);
+            }
             else if (activePowerUps[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
             {
                 GameObject powerUp = activePowerUps[i];
                 activePowerUps.RemoveAt(i);
-                ReturnPowerUpToPool(powerUp);
+                Destroy(powerUp);
             }
         }
     }
