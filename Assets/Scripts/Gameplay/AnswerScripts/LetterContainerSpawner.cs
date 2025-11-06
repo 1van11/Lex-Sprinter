@@ -8,6 +8,7 @@ public class LetterContainerSpawner : MonoBehaviour
     public Transform player;
     public Transform spawnParent;
     public GameObject letterContainerPrefab;
+    public GameObject spawnerIndicatorPrefab; // New: Prefab for the 3D spawner indicator
 
     [Header("Lane Settings")]
     public float laneDistance = 3f;
@@ -28,6 +29,12 @@ public class LetterContainerSpawner : MonoBehaviour
     public float eventFrequency = 60f;
     public float eventInitialDelay = 10f;
     public float eventSpawnDistanceAhead = 25f;
+
+    [Header("Indicator Settings")] // New: Settings for the spawner indicator
+    public float indicatorSpawnDistanceAhead = 30f; // Spawn distance for the indicator ahead of the player
+    public float indicatorAnimationTime = 2f; // Time for the indicator to animate down and up
+    public float indicatorStayTime = 5f; // Time the indicator stays down before animating up
+    public float indicatorStartHeightOffset = 10f; // How high above spawnHeight the indicator starts
 
     [Header("Prefab Transform")]
     public bool usePrefabTransform = true;
@@ -134,6 +141,69 @@ public class LetterContainerSpawner : MonoBehaviour
         activeObjects.Add(new SpawnedInfo() { obj = go, timer = 0f });
     }
 
+    // New: Method to spawn event hurdles at a specific Z
+    void SpawnEventHurdlesAtZ(float z)
+    {
+        int count = Random.Range(1, 3);
+        List<int> lanes = new List<int>() { -1, 0, 1 };
+
+        for (int i = 0; i < count; i++)
+        {
+            int idx = Random.Range(0, lanes.Count);
+            int lane = lanes[idx];
+            lanes.RemoveAt(idx);
+
+            float x = lane * laneDistance;
+            SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset + spawnerOffset);
+        }
+    }
+
+    // New: Method to spawn the indicator at a specific Z
+    void SpawnIndicatorAtZ(float z)
+    {
+        float x = 0f; // Center lane for indicator
+        float startY = spawnHeight + indicatorStartHeightOffset;
+        Vector3 pos = new Vector3(x, startY, z) + spawnPositionOffset + spawnerOffset;
+        GameObject indicator = Instantiate(spawnerIndicatorPrefab, pos, Quaternion.identity, spawnParent);
+        StartCoroutine(AnimateIndicator(indicator, z));
+    }
+
+    // New: Coroutine to animate the indicator: down to spawn, stay, then up
+    IEnumerator AnimateIndicator(GameObject indicator, float z)
+    {
+        Vector3 startPos = indicator.transform.position;
+        Vector3 downPos = new Vector3(startPos.x, spawnHeight, startPos.z);
+
+        // Animate down
+        float time = 0f;
+        while (time < indicatorAnimationTime)
+        {
+            indicator.transform.position = Vector3.Lerp(startPos, downPos, time / indicatorAnimationTime);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        indicator.transform.position = downPos;
+
+        // Spawn the hurdles while indicator is down
+        SpawnEventHurdlesAtZ(z);
+
+        // Stay down for a period (simulating "when defeated or finish" - you can adjust logic here)
+        yield return new WaitForSeconds(indicatorStayTime);
+
+        // Animate up
+        Vector3 upPos = startPos;
+        time = 0f;
+        while (time < indicatorAnimationTime)
+        {
+            indicator.transform.position = Vector3.Lerp(downPos, upPos, time / indicatorAnimationTime);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        // Destroy the indicator after animation
+        Destroy(indicator);
+    }
+
     IEnumerator EventSpawner()
     {
         yield return new WaitForSeconds(eventInitialDelay);
@@ -142,20 +212,9 @@ public class LetterContainerSpawner : MonoBehaviour
         {
             yield return new WaitForSeconds(eventFrequency);
 
-            float z = player.position.z + eventSpawnDistanceAhead;
-            int count = Random.Range(1, 3);
-
-            List<int> lanes = new List<int>() { -1, 0, 1 };
-
-            for (int i = 0; i < count; i++)
-            {
-                int idx = Random.Range(0, lanes.Count);
-                int lane = lanes[idx];
-                lanes.RemoveAt(idx);
-
-                float x = lane * laneDistance;
-                SpawnFromPool(new Vector3(x, spawnHeight, z) + spawnPositionOffset + spawnerOffset);
-            }
+            // Use the indicator's spawn distance
+            float z = player.position.z + indicatorSpawnDistanceAhead;
+            SpawnIndicatorAtZ(z);
         }
     }
 }

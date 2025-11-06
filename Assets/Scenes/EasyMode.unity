@@ -2429,7 +2429,7 @@ MonoBehaviour:
   displayText: {fileID: 265444576}
   collectedText: {fileID: 161897638}
   targetWordText: {fileID: 1767967936}
-  correctLetterChance: 0.8
+  correctLetterChance: 0.4
 --- !u!1 &458323856 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
@@ -2780,6 +2780,11 @@ MonoBehaviour:
   laneWidth: 2.5
   laneLength: 5
   gizmoHeight: 1
+--- !u!1 &562469606 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ab513d8abd52f74488e2018837696fc4, type: 3}
+  m_PrefabInstance: {fileID: 1631551781}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &601754666 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
@@ -3850,9 +3855,12 @@ MonoBehaviour:
   bossB: {fileID: 2069723962}
   gameADuration: 60
   bossDuration: 40
+  preBossDelay: 1
+  postBossDelay: 1
   bossGuideUI: {fileID: 1062179859}
-  guideDelay: 15
-  postBossDelay: 5
+  guideDelay: 10
+  hurdleFailDamage: 2
+  player: {fileID: 264086236}
 --- !u!1001 &801281625
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3973,7 +3981,7 @@ MonoBehaviour:
 '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
-  m_sharedMaterial: {fileID: -7900280877169600128, guid: 079196b146d70e842a1e10515651a851, type: 2}
+  m_sharedMaterial: {fileID: 2477560879271356728, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4036,7 +4044,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: -43.68101}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &821492038
@@ -4559,7 +4567,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &973499209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5203,6 +5211,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ab513d8abd52f74488e2018837696fc4, type: 3}
   m_PrefabInstance: {fileID: 1631551781}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1286842662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562469606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d335b8144ff7c34c905d00f026b6f1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleHeight: 6
+  descendHeight: 1.5
+  descendSpeed: 4
+  ascendSpeed: 3
+  stayTime: 2
 --- !u!1 &1289235988
 GameObject:
   m_ObjectHideFlags: 0
@@ -5948,6 +5973,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
       propertyPath: m_Name
       value: ClueText
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 326cdfa4c1ff01848847de603dca0bc7, type: 3}
       propertyPath: m_TagString
@@ -7621,7 +7650,7 @@ MonoBehaviour:
   m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2477560879271356728, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7684,7 +7713,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: -36.337494, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1912830030
@@ -8047,12 +8076,12 @@ GameObject:
   - component: {fileID: 2069723963}
   - component: {fileID: 2069723964}
   m_Layer: 0
-  m_Name: BossEvent
+  m_Name: Lexivore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2069723963
 Transform:
   m_ObjectHideFlags: 0
@@ -8083,18 +8112,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 264086230}
-  spawnParent: {fileID: 1553148002}
+  spawnParent: {fileID: 2069723963}
   letterContainerPrefab: {fileID: 423503212}
+  spawnerIndicatorPrefab: {fileID: 0}
   laneDistance: 3
-  spawnDistanceAhead: 40
+  spawnDistanceAhead: 50
   spawnInterval: 10
   spawnHeight: 4
   spawnPositionOffset: {x: 0, y: 0, z: 0}
   spawnerOffset: {x: 0, y: 0, z: 0}
-  initialSpawnDelaySeconds: 15
-  eventFrequency: 999999
+  initialSpawnDelaySeconds: 1
+  eventFrequency: 60
   eventInitialDelay: 10
   eventSpawnDistanceAhead: 25
+  indicatorSpawnDistanceAhead: 30
+  indicatorAnimationTime: 2
+  indicatorStayTime: 5
+  indicatorStartHeightOffset: 10
   usePrefabTransform: 1
   spawnRotationEuler: {x: 0, y: 0, z: 0}
   spawnScale: {x: 1, y: 1, z: 1}
