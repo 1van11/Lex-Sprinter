@@ -36,6 +36,9 @@ public class Revive : MonoBehaviour
         {
             revivePanel.SetActive(true);
 
+            // Pause the game
+            Time.timeScale = 0;
+
             // Disable other UI
             foreach (GameObject ui in uiToDisable)
                 if (ui != null)
@@ -69,6 +72,9 @@ public class Revive : MonoBehaviour
             if (ui != null)
                 ui.SetActive(true);
 
+        // Resume the game
+        Time.timeScale = 1;
+
         // Actually revive player
         player.ReviveFromDeath();
 
@@ -77,6 +83,22 @@ public class Revive : MonoBehaviour
         UpdateRevivePriceUI();
 
         Debug.Log("🔄 Revived! New price: " + revivePrice);
+    }
+
+    public void CancelRevive()
+    {
+        // Called if player closes the revive panel without reviving
+        if (revivePanel != null)
+            revivePanel.SetActive(false);
+
+        foreach (GameObject ui in uiToDisable)
+            if (ui != null)
+                ui.SetActive(true);
+
+        // Resume the game
+        Time.timeScale = 1;
+
+        Debug.Log("❌ Revive canceled, game resumed.");
     }
 
     private void UpdateRevivePriceUI()
