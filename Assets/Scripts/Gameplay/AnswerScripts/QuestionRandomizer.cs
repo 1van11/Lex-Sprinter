@@ -37,19 +37,19 @@ public class QuestionRandomizer : MonoBehaviour
     private string[,] easySpellingPairs = new string[,]
     {
         { "a common pet that barks", "dog", "dag" },
-        { "something you wear on your head", "hat", "hot" },
+        { "something you wear on your head", "hat", "hoat" },
         { "a color between red and white", "pink", "ponk" },
         { "the star in the sky during daytime", "sun", "san" },
         { "body part used for walking", "leg", "log" },
         { "food from animals, often eaten cooked", "meat", "met" },
-        { "a small container for drinking", "cup", "cap" },
+        { "a small container for drinking", "cup", "cawp" },
         { "you listen with this", "pair", "pear" },
         { "a plant with leaves and branches", "tree", "tri" },
-        { "opposite of white", "black", "block" },
+        { "opposite of white", "black", "bolck" },
         { "moving quickly", "fast", "fest" },
         { "activity in water", "swim", "swom" },
         { "refers to the person being addressed", "you", "yoo" },
-        { "where you sleep at night", "bed", "bad" },
+        { "where you sleep at night", "bed", "ved" },
         { "part of your body used to hold things", "hand", "henk" },
         { "a flying animal with feathers", "bird", "burd" },
         { "white drink from cows", "milk", "milx" },
@@ -61,7 +61,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "part of your face used to smell", "nose", "nosh" },
         { "color of the sky on a clear day", "blue", "blu" },
         { "vehicle with wheels", "car", "cor" },
-        { "corn", "corn", "cok" },
+        { "corn", "corn", "curn" },
         { "mother's sister", "aunt", "ant" },
         { "farm animal that gives milk", "cow", "coe" },
         { "feeling of joy", "happy", "hoppy" },
@@ -239,7 +239,37 @@ public class QuestionRandomizer : MonoBehaviour
             Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE.");
         }
     }
+    // ADD THIS METHOD TO YOUR EXISTING QuestionRandomizer.cs
 
+    /// <summary>
+    /// Checks if player is doing a daily task and loads that specific question
+    /// Call this in Start() or when spawning questions
+    /// </summary>
+    public bool TryLoadDailyTaskQuestion()
+    {
+        // Check if there's a daily task active
+        if (!PlayerPrefs.HasKey("CurrentTaskID"))
+            return false;
+
+        int taskID = PlayerPrefs.GetInt("CurrentTaskID", -1);
+        int questionIndex = PlayerPrefs.GetInt("CurrentTaskQuestionIndex", -1);
+        bool isSpelling = PlayerPrefs.GetInt("CurrentTaskIsSpelling", 1) == 1;
+
+        if (taskID == -1 || questionIndex == -1)
+            return false;
+
+        Debug.Log($"📋 Loading Daily Task: Question #{questionIndex} ({(isSpelling ? "Spelling" : "Sentence")})");
+
+        // Load the specific question
+        if (isSpelling)
+            SetSpellingQuestion(questionIndex);
+        else
+            SetSentenceQuestion(questionIndex);
+
+        return true;
+    }
+
+   
     void Start()
     {
         Collider collider = GetComponent<Collider>();
@@ -247,6 +277,13 @@ public class QuestionRandomizer : MonoBehaviour
         else Debug.LogWarning("QuestionRandomizer: No collider found on question object. Add a Collider component.");
 
         if (clueTextObject != null) clueTextObject.SetActive(false);
+
+        // ✅ ADD THIS LINE - Check if it's a daily task first
+        if (!TryLoadDailyTaskQuestion())
+        {
+            // If not a daily task, set random question as usual
+            SetRandomQuestion();
+        }
     }
 
     public void SetSpellingQuestion(int index)
