@@ -61,6 +61,8 @@ public class ObstacleSpawner : MonoBehaviour
     public float coinSpacing = 2f;
 
     [Header("Power-Up Settings")]
+    [Tooltip("Maximum number of power-ups to spawn (0 = unlimited)")]
+    public int maxPowerUpCount = 1;
     public float firstPowerUpDistance = 500f;
     public float powerUpInterval = 200f;
     public Vector3 powerUpPositionOffset = Vector3.zero;
@@ -99,8 +101,8 @@ public class ObstacleSpawner : MonoBehaviour
     private bool hasSpawnedFirstPowerUp = false;
     private int patternIndex = 0;
     private int spellingCounter = 0;
+    private int totalPowerUpsSpawned = 0; // Track total spawned
     private System.Random rng;
-    private bool powerUpSpawnedThisFrame = false;
 
     public enum PowerUpType { Shield, Magnet, SlowTime }
 
@@ -117,12 +119,11 @@ public class ObstacleSpawner : MonoBehaviour
     {
         nextPowerUpDistance = firstPowerUpDistance;
         rng = new System.Random();
+        totalPowerUpsSpawned = 0;
     }
 
     void Update()
     {
-        powerUpSpawnedThisFrame = false;
-        
         DespawnOldObstacles();
         DespawnOldCoins();
         DespawnOldPowerUps();
@@ -132,14 +133,19 @@ public class ObstacleSpawner : MonoBehaviour
 
     void CheckPowerUpSpawn()
     {
-        if (PlayerFunctions == null || powerUpSpawnedThisFrame) return;
+        if (PlayerFunctions == null) return;
+        
+        // Check if we've reached the limit (0 means unlimited)
+        if (maxPowerUpCount > 0 && totalPowerUpsSpawned >= maxPowerUpCount)
+        {
+            return; // Don't spawn any more power-ups
+        }
         
         float playerDistance = PlayerFunctions.transform.position.z;
 
         if (playerDistance >= nextPowerUpDistance)
         {
             SpawnPowerUp();
-            powerUpSpawnedThisFrame = true;
             
             if (!hasSpawnedFirstPowerUp)
             {
@@ -151,7 +157,7 @@ public class ObstacleSpawner : MonoBehaviour
                 nextPowerUpDistance += powerUpInterval;
             }
             
-            Debug.Log($"Next power-up will spawn at distance: {nextPowerUpDistance}m");
+            Debug.Log($"Power-ups spawned: {totalPowerUpsSpawned}/{maxPowerUpCount} | Next at: {nextPowerUpDistance}m");
         }
     }
 
@@ -215,16 +221,17 @@ public class ObstacleSpawner : MonoBehaviour
         powerUp.transform.localScale = prefab.transform.localScale;
 
         activePowerUps.Add(powerUp);
+        totalPowerUpsSpawned++; // Increment counter
         StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
 
-        Debug.Log($"Spawned {powerUpType} power-up at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
+        Debug.Log($"Spawned {powerUpType} power-up #{totalPowerUpsSpawned} at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
     }
 
     public void ResetPowerUpSpawning()
     {
         hasSpawnedFirstPowerUp = false;
         nextPowerUpDistance = firstPowerUpDistance;
-        powerUpSpawnedThisFrame = false;
+        totalPowerUpsSpawned = 0; // Reset counter
         Debug.Log("Power-up spawning reset");
     }
 
