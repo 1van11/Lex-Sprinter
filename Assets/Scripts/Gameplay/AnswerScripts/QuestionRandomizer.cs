@@ -20,8 +20,8 @@ public class QuestionRandomizer : MonoBehaviour
     public bool playAudioOnTrigger = true;
 
     [Header("Clue Display Settings")]
-    public float clueDisplayTime = 6f; // Time in seconds to show the clue
-        private Coroutine clueCoroutine;
+    public float clueDisplayTime = 6f;
+    private Coroutine clueCoroutine;
 
     // Current answer and state
     public string correctAnswer;
@@ -33,8 +33,8 @@ public class QuestionRandomizer : MonoBehaviour
     private string[,] activeSpellingPairs;
     private string[,] activeSentencePairs;
 
-    // -------------------- EASY MODE (Your existing arrays) --------------------
-    private string[,] easySpellingPairs = new string[,]
+    // ✅ MAKE THESE PUBLIC STATIC so WordUnlockManager can access them
+    public static string[,] easySpellingPairs = new string[,]
     {
         { "a common pet that barks", "dog", "dag" },
         { "something you wear on your head", "hat", "hoat" },
@@ -75,7 +75,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "a male parent", "dad", "did" },
         { "a young child", "kid", "kod" },
         { "female bird", "hen", "han" },
-        { "staple food, often eaten with dishes", "rice", "rais" }, 
+        { "staple food, often eaten with dishes", "rice", "rais" },
         { "slow", "slow", "slew" },
         { "reading material", "book", "buck" },
         { "farm animal that oinks", "pig", "peg" },
@@ -90,7 +90,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "color opposite of black", "white", "whyte" },
         { "cat", "cat", "gat" },
         { "farm animal with horns", "goat", "got" },
-        { "desk", "desk", "deks" },  
+        { "desk", "desk", "deks" },
         { "a celestial object at night", "moon", "mun" },
         { "falling water from clouds", "rain", "rein" },
         { "frozen precipitation", "snow", "snou" },
@@ -113,7 +113,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "air in motion", "wind", "windz" },
     };
 
-    private string[,] easySentencePairs = new string[,]
+    public static string[,] easySentencePairs = new string[,]
     {
         { "The chef ____ a delicious meal.", "cooked", "taught" },
         { "The teacher ____ the students about history.", "taught", "slept" },
@@ -137,8 +137,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
 
-    // -------------------- MEDIUM MODE (More challenging words) --------------------
-    private string[,] mediumSpellingPairs = new string[,]
+    public static string[,] mediumSpellingPairs = new string[,]
     {
         { "a small hopping animal with long ears", "rabbit", "rabblit" },
         { "a primate that can climb trees", "monkey", "monkoo" },
@@ -192,7 +191,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "a machine that uses wind to turn blades", "windmill", "windmallo" }
     };
 
-    private string[,] mediumSentencePairs = new string[,]
+    public static string[,] mediumSentencePairs = new string[,]
     {
         { "The students will ____ for their final exams tomorrow.", "study", "relax" },
         { "The construction workers ____ the new building quickly.", "built", "repaired" },
@@ -216,7 +215,7 @@ public class QuestionRandomizer : MonoBehaviour
         { "The professor ____ the topic in great detail.", "explained", "mentioned" }
     };
 
- void Awake()
+    void Awake()
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
@@ -239,15 +238,9 @@ public class QuestionRandomizer : MonoBehaviour
             Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE.");
         }
     }
-    // ADD THIS METHOD TO YOUR EXISTING QuestionRandomizer.cs
 
-    /// <summary>
-    /// Checks if player is doing a daily task and loads that specific question
-    /// Call this in Start() or when spawning questions
-    /// </summary>
     public bool TryLoadDailyTaskQuestion()
     {
-        // Check if there's a daily task active
         if (!PlayerPrefs.HasKey("CurrentTaskID"))
             return false;
 
@@ -260,7 +253,6 @@ public class QuestionRandomizer : MonoBehaviour
 
         Debug.Log($"📋 Loading Daily Task: Question #{questionIndex} ({(isSpelling ? "Spelling" : "Sentence")})");
 
-        // Load the specific question
         if (isSpelling)
             SetSpellingQuestion(questionIndex);
         else
@@ -269,7 +261,6 @@ public class QuestionRandomizer : MonoBehaviour
         return true;
     }
 
-   
     void Start()
     {
         Collider collider = GetComponent<Collider>();
@@ -278,17 +269,19 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (clueTextObject != null) clueTextObject.SetActive(false);
 
-        // ✅ ADD THIS LINE - Check if it's a daily task first
         if (!TryLoadDailyTaskQuestion())
         {
-            // If not a daily task, set random question as usual
             SetRandomQuestion();
         }
     }
 
     public void SetSpellingQuestion(int index)
     {
-        if (index < 0 || index >= activeSpellingPairs.GetLength(0)) { Debug.LogError($"Invalid spelling question index: {index}"); return; }
+        if (index < 0 || index >= activeSpellingPairs.GetLength(0))
+        {
+            Debug.LogError($"Invalid spelling question index: {index}");
+            return;
+        }
 
         string clue = activeSpellingPairs[index, 0];
         string correct = activeSpellingPairs[index, 1];
@@ -301,15 +294,27 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (clueTextObject != null) clueTextObject.SetActive(false);
 
-        if (Random.value > 0.5f) { jumpText.text = correct; slideText.text = wrong; }
-        else { jumpText.text = wrong; slideText.text = correct; }
+        if (Random.value > 0.5f)
+        {
+            jumpText.text = correct;
+            slideText.text = wrong;
+        }
+        else
+        {
+            jumpText.text = wrong;
+            slideText.text = correct;
+        }
 
         Debug.Log($"Spelling Question: {clue} | Correct: {correct} | Wrong: {wrong}");
     }
 
     public void SetSentenceQuestion(int index)
     {
-        if (index < 0 || index >= activeSentencePairs.GetLength(0)) { Debug.LogError($"Invalid sentence question index: {index}"); return; }
+        if (index < 0 || index >= activeSentencePairs.GetLength(0))
+        {
+            Debug.LogError($"Invalid sentence question index: {index}");
+            return;
+        }
 
         string sentence = activeSentencePairs[index, 0];
         string correct = activeSentencePairs[index, 1];
@@ -323,8 +328,16 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (clueTextObject != null) clueTextObject.SetActive(false);
 
-        if (Random.value > 0.5f) { jumpText.text = correct; slideText.text = wrong; }
-        else { jumpText.text = wrong; slideText.text = correct; }
+        if (Random.value > 0.5f)
+        {
+            jumpText.text = correct;
+            slideText.text = wrong;
+        }
+        else
+        {
+            jumpText.text = wrong;
+            slideText.text = correct;
+        }
 
         Debug.Log($"Sentence Question: {sentence} | Correct: {correct} | Wrong: {wrong}");
     }
@@ -408,7 +421,6 @@ public class QuestionRandomizer : MonoBehaviour
         Debug.Log("✅ Clue text HIDDEN after delay");
     }
 
-    // Call this when the player answers the question
     public void HideClueOnAnswer()
     {
         if (clueCoroutine != null) StopCoroutine(clueCoroutine);

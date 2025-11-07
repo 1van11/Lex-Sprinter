@@ -6,57 +6,78 @@ using System.Collections.Generic;
 public class WordUnlockManager : MonoBehaviour
 {
     [Header("UI References")]
-    public TMP_InputField searchInput;        // Your search bar
-    public Transform wordButtonContainer;     // Parent for all word buttons (Content of ScrollView)
-    public GameObject wordButtonPrefab;       // Prefab with Button + TMP_Text + Image
+    public TMP_InputField searchInput;
+    public Transform wordButtonContainer;
+    public GameObject wordButtonPrefab;
 
     [Header("Sprites")]
-    public Sprite lockedSprite;               // Locked state sprite (not clickable)
-    public Sprite unlockedSprite;             // Unlocked state sprite (clickable)
-    public Sprite clickedSprite;              // Clicked/viewed state sprite
+    public Sprite lockedSprite;
+    public Sprite unlockedSprite;
+    public Sprite clickedSprite;
 
     [Header("Word Data - ALL WORDS IN GAME")]
-    // You can manually add all words here, or keep them from DailyTaskManager for reference
     public List<string> allWords = new List<string>();
 
     private HashSet<string> unlockedWords = new HashSet<string>();
     private HashSet<string> clickedWords = new HashSet<string>();
     private Dictionary<string, Button> wordButtonDict = new Dictionary<string, Button>();
 
-    // ✅ Define all words from both spelling and sentence questions
-    private string[] spellingWords = new string[]
-    {
-        "dog", "hat", "pink", "sun", "leg", "meat", "cup", "pair", "tree", "black",
-        "fast", "swim", "you", "bed", "hand", "bird", "milk", "jump", "bread", "cake",
-        "foot", "girl", "nose", "blue", "car", "corn", "aunt", "cow", "happy", "red",
-        "arm", "friend", "box", "bag", "chair", "hop", "dad", "kid", "hen", "rice",
-        "slow", "book", "pig", "baby", "him", "bell", "toy", "mom", "sad", "leaf",
-        "write", "white", "cat", "goat", "desk", "moon", "rain", "snow", "lip", "jam",
-        "boy", "uncle", "good", "bad", "walk", "stand", "sing", "bus", "door", "map",
-        "egg", "pear", "duck", "mouse", "wind"
-    };
-
-    private string[] sentenceWords = new string[]
-    {
-        "cooked", "taught", "slept", "played", "ran", "cries", "took", "repaired",
-        "studied", "painted", "wagged", "sang", "watered", "wrote", "examined",
-        "drove", "built", "experimented", "served", "swam"
-    };
-
     void Awake()
     {
         Debug.Log("🔍 WordUnlockManager Awake() called");
 
-        // Combine all words from both arrays
-        allWords.Clear();
-        allWords.AddRange(spellingWords);
-        allWords.AddRange(sentenceWords);
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
-        // Remove duplicates and sort
+        allWords.Clear();
+
+        // Pull words directly from QuestionRandomizer
+        if (sceneName == "HomeScreen" || sceneName == "MainMenu")
+        {
+            // If we're in HomeScreen, load from both Easy and Medium
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
+            Debug.Log("📚 Loaded ALL words (Easy + Medium) for Dictionary");
+        }
+        else if (sceneName == "EasyMode")
+        {
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
+            Debug.Log("📚 Loaded EASY MODE words from QuestionRandomizer");
+        }
+        else if (sceneName == "MediumMode")
+        {
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
+            Debug.Log("📚 Loaded MEDIUM MODE words from QuestionRandomizer");
+        }
+        else
+        {
+            // Default to Easy
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
+            Debug.LogWarning("Unknown scene. Defaulting to EASY MODE words.");
+        }
+
+        // Remove duplicates and sort alphabetically
         allWords = new List<string>(new HashSet<string>(allWords));
         allWords.Sort();
 
         Debug.Log($"📚 Total words in dictionary: {allWords.Count}");
+    }
+
+    /// <summary>
+    /// Helper method to extract correct answers from question pairs
+    /// </summary>
+    private List<string> GetWordsFromPairs(string[,] pairs)
+    {
+        List<string> words = new List<string>();
+        for (int i = 0; i < pairs.GetLength(0); i++)
+        {
+            words.Add(pairs[i, 1].ToLower()); // Index 1 is the correct answer
+        }
+        return words;
     }
 
     void Start()
@@ -103,23 +124,41 @@ public class WordUnlockManager : MonoBehaviour
 
     /// <summary>
     /// Checks PlayerPrefs for newly unlocked words from gameplay
+    /// Now supports MULTIPLE words separated by commas
     /// </summary>
     void CheckForNewUnlockedWord()
     {
-        // Check the key that PlayerFunctions saves when player answers correctly
-        string lastUnlockedWord = PlayerPrefs.GetString("LastUnlockedWord", "");
+        // Check for multiple newly unlocked words
+        string newlyUnlockedWords = PlayerPrefs.GetString("NewlyUnlockedWords", "");
 
-        if (!string.IsNullOrEmpty(lastUnlockedWord))
+        if (!string.IsNullOrEmpty(newlyUnlockedWords))
         {
-            UnlockWord(lastUnlockedWord);
-            PlayerPrefs.DeleteKey("LastUnlockedWord");
+            // Split by comma to get all words
+            string[] words = newlyUnlockedWords.Split(',');
+
+            int unlockedCount = 0;
+            foreach (string word in words)
+            {
+                string trimmedWord = word.Trim();
+                if (!string.IsNullOrEmpty(trimmedWord))
+                {
+                    UnlockWord(trimmedWord);
+                    unlockedCount++;
+                    Debug.Log($"🆕 Unlocked word from gameplay: {trimmedWord}");
+                }
+            }
+
+            // Clear the list after processing
+            PlayerPrefs.DeleteKey("NewlyUnlockedWords");
             PlayerPrefs.Save();
-            Debug.Log($"🆕 New word unlocked from gameplay: {lastUnlockedWord}");
+
+            Debug.Log($"✅ Total words unlocked this session: {unlockedCount}");
         }
     }
 
     /// <summary>
     /// Generates buttons for ALL words (locked and unlocked)
+    /// UNLOCKED/CLICKED words appear FIRST (top), then LOCKED words (bottom)
     /// </summary>
     void GenerateWordButtons()
     {
@@ -147,9 +186,33 @@ public class WordUnlockManager : MonoBehaviour
 
         Debug.Log($"🧹 Cleared {childCount} existing buttons");
 
-        // Create a button for EVERY word
-        int successCount = 0;
+        // ✅ SORT: Unlocked/Clicked words FIRST, then Locked words
+        List<string> sortedWords = new List<string>();
+
+        // Add clicked words first (top priority)
         foreach (string word in allWords)
+        {
+            if (clickedWords.Contains(word))
+                sortedWords.Add(word);
+        }
+
+        // Add unlocked but not clicked words
+        foreach (string word in allWords)
+        {
+            if (unlockedWords.Contains(word) && !clickedWords.Contains(word))
+                sortedWords.Add(word);
+        }
+
+        // Add locked words at the end
+        foreach (string word in allWords)
+        {
+            if (!unlockedWords.Contains(word))
+                sortedWords.Add(word);
+        }
+
+        // Create buttons in sorted order
+        int successCount = 0;
+        foreach (string word in sortedWords)
         {
             GameObject buttonObj = Instantiate(wordButtonPrefab, wordButtonContainer);
             Button btn = buttonObj.GetComponent<Button>();
@@ -163,10 +226,10 @@ public class WordUnlockManager : MonoBehaviour
                 continue;
             }
 
-            // Always show the word text
+            // Always show the word text (lowercase)
             if (btnText != null)
             {
-                btnText.text = word.ToUpper();
+                btnText.text = word.ToLower();
             }
 
             // Set sprite and interactability based on unlock status
@@ -175,18 +238,24 @@ public class WordUnlockManager : MonoBehaviour
 
             if (isClicked)
             {
-                btnImage.sprite = clickedSprite;
-                btn.interactable = true; // Clickable
+                if (clickedSprite != null)
+                    btnImage.sprite = clickedSprite;
+                btn.interactable = true;
+                Debug.Log($"📖 Button created: {word} (CLICKED)");
             }
             else if (isUnlocked)
             {
-                btnImage.sprite = unlockedSprite;
-                btn.interactable = true; // Clickable
+                if (unlockedSprite != null)
+                    btnImage.sprite = unlockedSprite;
+                btn.interactable = true;
+                Debug.Log($"🔓 Button created: {word} (UNLOCKED)");
             }
             else
             {
-                btnImage.sprite = lockedSprite;
-                btn.interactable = false; // NOT clickable when locked
+                if (lockedSprite != null)
+                    btnImage.sprite = lockedSprite;
+                btn.interactable = false;
+                Debug.Log($"🔒 Button created: {word} (LOCKED)");
             }
 
             // Add click listener (only works if unlocked)
@@ -222,9 +291,14 @@ public class WordUnlockManager : MonoBehaviour
             unlockedWords.Add(word);
             SaveUnlockedWords();
             Debug.Log($"🔓 Unlocked word: {word}");
-        }
 
-        UpdateButtonVisual(word);
+            // ✅ Regenerate buttons to re-sort (unlocked words move to top)
+            GenerateWordButtons();
+        }
+        else
+        {
+            UpdateButtonVisual(word);
+        }
     }
 
     /// <summary>
@@ -276,7 +350,7 @@ public class WordUnlockManager : MonoBehaviour
         else
         {
             btnImage.sprite = lockedSprite;
-            btn.interactable = false; // Locked = not clickable
+            btn.interactable = false;
         }
     }
 
@@ -326,14 +400,28 @@ public class WordUnlockManager : MonoBehaviour
 
         string searchTerm = filtered.ToLower();
 
-        // Filter buttons
+        // Filter buttons - ONLY show unlocked/clicked words in search
         int visibleCount = 0;
         foreach (var kvp in wordButtonDict)
         {
             string word = kvp.Key;
             GameObject buttonObj = kvp.Value.gameObject;
 
-            bool show = string.IsNullOrEmpty(searchTerm) || word.ToLower().Contains(searchTerm);
+            bool isUnlocked = unlockedWords.Contains(word);
+            bool isClicked = clickedWords.Contains(word);
+
+            // ✅ Only show if: (unlocked OR clicked) AND matches search
+            bool matchesSearch = string.IsNullOrEmpty(searchTerm) || word.ToLower().Contains(searchTerm);
+            bool isAccessible = isUnlocked || isClicked;
+
+            bool show = matchesSearch && (isAccessible || string.IsNullOrEmpty(searchTerm));
+
+            // If searching, hide locked words completely
+            if (!string.IsNullOrEmpty(searchTerm) && !isAccessible)
+            {
+                show = false;
+            }
+
             buttonObj.SetActive(show);
 
             if (show) visibleCount++;
