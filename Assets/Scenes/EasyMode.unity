@@ -773,7 +773,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 741612504}
   - {fileID: 1457024181}
   - {fileID: 1912830031}
   - {fileID: 1167089701}
@@ -3331,13 +3330,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741612502}
-  m_LocalRotation: {x: 0.40821782, y: -0.23456967, z: 0.109381646, w: 0.8754262}
-  m_LocalPosition: {x: -356.20874, y: -951.98334, z: 0.000013563369}
-  m_LocalScale: {x: 2.6722343, y: 2.6722326, z: 2.672236}
+  m_LocalRotation: {x: 0.33853865, y: -0.22813562, z: 0.12748566, w: 0.90393215}
+  m_LocalPosition: {x: 144.47502, y: 15.422134, z: 983.76953}
+  m_LocalScale: {x: 4.0491285, y: 4.491607, z: 5.446601}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 161069997}
-  m_RootOrder: 0
+  m_Father: {fileID: 1693082407}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &760115165
 GameObject:
@@ -3762,7 +3761,7 @@ MonoBehaviour:
   preBossDelay: 1
   postBossDelay: 1
   bossGuideUI: {fileID: 1062179859}
-  guideDelay: 10
+  guideDelay: 5
   hurdleFailDamage: 2
   player: {fileID: 264086236}
 --- !u!1 &821492036
@@ -4337,7 +4336,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 8
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -4622,7 +4621,7 @@ RectTransform:
   - {fileID: 301971633}
   - {fileID: 764854924}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -4921,7 +4920,7 @@ RectTransform:
   - {fileID: 1168608305}
   - {fileID: 882064047}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5132,7 +5131,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 161069997}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -5879,7 +5878,7 @@ RectTransform:
   - {fileID: 760115166}
   - {fileID: 1062179860}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7083,6 +7082,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 334565212}
+  - {fileID: 741612504}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 8.899, y: 0.32, z: 0.138}
@@ -7617,7 +7617,7 @@ RectTransform:
   - {fileID: 166395811}
   - {fileID: 1670527767}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7932,7 +7932,7 @@ RectTransform:
   m_Children:
   - {fileID: 1747884475}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -8301,7 +8301,7 @@ MonoBehaviour:
   spawnerIndicatorPrefab: {fileID: 0}
   laneDistance: 3
   spawnDistanceAhead: 50
-  spawnInterval: 10
+  spawnInterval: 15
   spawnHeight: 3
   spawnPositionOffset: {x: 0, y: 0, z: 0}
   spawnerOffset: {x: 0, y: 0, z: 0}
