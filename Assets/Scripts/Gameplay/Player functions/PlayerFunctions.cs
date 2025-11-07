@@ -8,27 +8,27 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Debug / Cheat Options")]
     public bool alwaysInvincible = false; // toggle in Inspector or via code
 
-    [Header("Audio Sounds")]    
+    [Header("Audio Sounds")]
     public AudioSource audioSource;
     public AudioClip coinSound;
     public AudioClip hurtSound;
     public AudioClip correctAnswerSound;
     public AudioClip wrongAnswerSound;
-    
+
     [Header("Score")]
     public int score = 0;
     public TMP_Text scoreText;
-    
+
     [Header("Total Coins (Persistent)")]
     public int totalCoins = 0;
     public string coinSaveKey = "PlayerTotalCoins";
     public TMP_Text totalCoinsText; // Added TextMeshPro for total coins display
-    
+
     [Header("Distance")]
     public float distanceTraveled = 0f;
     private Vector3 lastPosition;
     public TMP_Text distanceText;
-    
+
     [Header("Health System")]
     public int maxHealth = 5;
     public int currentHealth = 5;
@@ -36,7 +36,7 @@ public class PlayerFunctions : MonoBehaviour
     public UnityEngine.UI.Image[] healthImages;
     public Sprite fullHealthSprite;
     public Sprite emptyHealthSprite;
-    
+
     [Header("IFrames")]
     public float iFrameDuration = 1f;
     public float flashInterval = 0.1f;
@@ -46,7 +46,7 @@ public class PlayerFunctions : MonoBehaviour
     public bool hasShield = false;
     public bool hasMagnet = false;
     public bool isSlowTime = false;
-    
+
     [Header("Buff Durations")]
     public float shieldDuration = 8f;
     public float magnetDuration = 6f;
@@ -72,7 +72,7 @@ public class PlayerFunctions : MonoBehaviour
     public GameObject wrongAnswerPrefab;
     public float feedbackDisplayTime = 1.5f;
 
-  
+
     private Renderer[] renderers;
     [HideInInspector] public bool isDead = false;
 
@@ -179,7 +179,7 @@ public class PlayerFunctions : MonoBehaviour
             other.gameObject.SetActive(false);
         }
 
-        // Answer options - REMOVED the isInvincible check so shield doesn't block answers
+        // ANSWER OPTIONS
         if (other.CompareTag("AnswerOptions"))
         {
             QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
@@ -204,11 +204,10 @@ public class PlayerFunctions : MonoBehaviour
 
                     ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
 
-                    // ✅ Save the last unlocked word for dictionary HomeScreen
-                    string correctWord = questionRandomizer.correctAnswer;
-                    PlayerPrefs.SetString("LastUnlockedWord", correctWord);
-                    PlayerPrefs.Save();
-                    Debug.Log($"📘 Saved unlocked word: {correctWord}");
+                    // ✅ NEW: Add word to unlocked list (supports multiple words)
+                    string correctWord = questionRandomizer.correctAnswer.ToLower();
+                    AddUnlockedWord(correctWord);
+                    Debug.Log($"📘 Added unlocked word: {correctWord}");
 
                     // ✅ Optional: notify DailyTaskManager if needed
                     if (DailyTaskManager.Instance != null)
@@ -216,7 +215,6 @@ public class PlayerFunctions : MonoBehaviour
                         DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
                     }
                 }
-
                 else
                 {
                     Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
@@ -291,6 +289,51 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Adds a word to the unlocked words list in PlayerPrefs
+    /// </summary>
+    private void AddUnlockedWord(string word)
+    {
+        // Get existing unlocked words
+        string existingWords = PlayerPrefs.GetString("NewlyUnlockedWords", "");
+
+        // Check if word is already in the list
+        if (!string.IsNullOrEmpty(existingWords))
+        {
+            string[] words = existingWords.Split(',');
+            foreach (string w in words)
+            {
+                if (w.Trim().ToLower() == word.ToLower())
+                {
+                    Debug.Log($"⚠️ Word '{word}' already unlocked, skipping.");
+                    return; // Word already exists, don't add again
+                }
+            }
+            // Add to existing list
+            existingWords += "," + word;
+        }
+        else
+        {
+            // First word
+            existingWords = word;
+        }
+
+        PlayerPrefs.SetString("NewlyUnlockedWords", existingWords);
+        PlayerPrefs.Save();
+        Debug.Log($"💾 Saved to NewlyUnlockedWords: {existingWords}");
+    }
+
+    /// <summary>
+    /// Call this when transitioning to HomeScreen to process all unlocked words
+    /// </summary>
+    public void SaveAllUnlockedWordsForDictionary()
+    {
+        // This is called when going back to HomeScreen
+        // The WordUnlockManager will read "NewlyUnlockedWords" and unlock them all
+        PlayerPrefs.Save();
+        Debug.Log("📚 All unlocked words saved for Dictionary");
+    }
+
     void TakeDamage(int damage)
     {
         if (isDead || hasShield || alwaysInvincible) return; // respect shield & cheat
@@ -304,7 +347,6 @@ public class PlayerFunctions : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
-
         }
         else
         {
@@ -376,35 +418,34 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
-  void Die()
-{
-    isDead = true;
-    Debug.Log("💀 Player died!");
-
-    // Pause the game as soon as death happens
-    Time.timeScale = 0f;
-
-    PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
-    PlayerPrefs.Save();
-    SaveTotalCoins();
-
-    if (playerControls != null)
-        playerControls.StopMovement();
-
-    // Show revive panel if available
-    if (revivePanel != null)
+    void Die()
     {
-        revivePanel.SetActive(true);
-        Debug.Log("🔄 Revive panel activated");
-    }
-    else
-    {
-        // If no revive panel, show game over panel
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-    }
-}
+        isDead = true;
+        Debug.Log("💀 Player died!");
 
+        // Pause the game as soon as death happens
+        Time.timeScale = 0f;
+
+        PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
+        PlayerPrefs.Save();
+        SaveTotalCoins();
+
+        if (playerControls != null)
+            playerControls.StopMovement();
+
+        // Show revive panel if available
+        if (revivePanel != null)
+        {
+            revivePanel.SetActive(true);
+            Debug.Log("🔄 Revive panel activated");
+        }
+        else
+        {
+            // If no revive panel, show game over panel
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(true);
+        }
+    }
 
     // NEW METHOD: Revive the player from death
     public void ReviveFromDeath()
@@ -454,7 +495,7 @@ public class PlayerFunctions : MonoBehaviour
     public string FormatNumber(int number)
     {
         if (number < 1000) return number.ToString();
-        else if (number < 1000000) 
+        else if (number < 1000000)
         {
             float thousands = number / 1000f;
             return (number % 1000 == 0) ? $"{thousands:F0}k" : $"{thousands:F1}k".Replace(".0", "");
@@ -568,7 +609,7 @@ public class PlayerFunctions : MonoBehaviour
 
         if (shieldVisual != null)
             shieldVisual.SetActive(false);
-        
+
         hasShield = false;
         Debug.Log("🛡️ Shield expired");
     }
@@ -589,7 +630,7 @@ public class PlayerFunctions : MonoBehaviour
             foreach (GameObject coinObj in allCoins)
             {
                 if (coinObj == null || !coinObj.activeInHierarchy) continue;
-                
+
                 float distance = Vector3.Distance(transform.position, coinObj.transform.position);
                 if (distance <= magnetRadius)
                     coinObj.transform.position = Vector3.MoveTowards(coinObj.transform.position, transform.position, magnetPullSpeed * Time.deltaTime);
@@ -612,7 +653,7 @@ public class PlayerFunctions : MonoBehaviour
         Time.timeScale = 0.5f;
 
         Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
-        
+
         yield return new WaitForSecondsRealtime(slowTimeDuration);
 
         Time.timeScale = 1f;
