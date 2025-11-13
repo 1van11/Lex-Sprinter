@@ -21,9 +21,14 @@ public class TileTrigger : MonoBehaviour
             runner.OnPlayerTrigger();
 
         // Ask ObstacleSpawner to spawn traps for the new tile
-        if (obstacleSpawner != null)
+        // BUT only if letter event is NOT active
+        if (obstacleSpawner != null && !obstacleSpawner.IsLetterEventActive)
         {
             obstacleSpawner.TriggerSpawnNow();
+        }
+        else if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+        {
+            Debug.Log("⏸️ TileTrigger: Skipping obstacle spawn - Letter event active");
         }
     }
 }

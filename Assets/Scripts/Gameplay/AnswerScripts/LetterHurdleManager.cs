@@ -17,9 +17,12 @@ public class LetterHurdleManager : MonoBehaviour
     [Header("Player Reference")]
     public PlayerFunctions playerFunctions;
 
+    [Header("Obstacle Spawner Reference")]
+    public ObstacleSpawner obstacleSpawner;
+
     [Header("Letter Prefab & Spawn")]
-    public GameObject letterPrefab; // assign a prefab with a TMP_Text for the letter
-    public Transform spawnParent;   // parent to hold letters
+    public GameObject letterPrefab;
+    public Transform spawnParent;
     public float letterSpacing = 1f;
 
     [Header("Word Lists")]
@@ -66,6 +69,10 @@ public class LetterHurdleManager : MonoBehaviour
 
         if (playerFunctions == null)
             playerFunctions = FindObjectOfType<PlayerFunctions>();
+
+        // Auto-find ObstacleSpawner if not assigned
+        if (obstacleSpawner == null)
+            obstacleSpawner = FindObjectOfType<ObstacleSpawner>();
     }
 
     void Update()
@@ -83,7 +90,6 @@ public class LetterHurdleManager : MonoBehaviour
 
     void SetNewTargetWord()
     {
-        // Clear previously spawned letters
         foreach (var letter in spawnedLetters)
             Destroy(letter);
         spawnedLetters.Clear();
@@ -146,6 +152,14 @@ public class LetterHurdleManager : MonoBehaviour
                 playerFunctions.AddCoins((scene == "MediumMode") ? 100 : 25);
             }
 
+            // NEW: Notify ObstacleSpawner that word was completed
+            if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+            {
+                obstacleSpawner.OnLetterHurdleSuccess();
+                Debug.Log("✅ Word completed! Notified ObstacleSpawner.");
+            }
+
+            // Call boss manager if it exists
             if (bossManager != null)
                 bossManager.FinishBoss();
 
@@ -163,6 +177,12 @@ public class LetterHurdleManager : MonoBehaviour
                 {
                     feedbackText.text = "Wrong Letter!";
                     feedbackText.color = Color.red;
+                }
+
+                // NEW: Notify ObstacleSpawner of failure
+                if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+                {
+                    obstacleSpawner.OnLetterHurdleFailed();
                 }
 
                 if (playerFunctions != null)
@@ -216,16 +236,26 @@ public class LetterHurdleManager : MonoBehaviour
         return currentTargetWord;
     }
 
+    // NEW: Modified CheckBossSpell to notify ObstacleSpawner
     public void CheckBossSpell()
     {
-        if (collectedText == null || bossManager == null) return;
+        if (collectedText == null) return;
 
         string typed = collectedText.text.ToLower().Trim();
         string target = currentTargetWord.ToLower().Trim();
 
         if (typed == target)
         {
-            bossManager.FinishBoss();
+            // Notify ObstacleSpawner first
+            if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+            {
+                obstacleSpawner.OnLetterHurdleSuccess();
+                Debug.Log("✅ CheckBossSpell: Word completed! Ending letter event.");
+            }
+
+            // Then call boss manager if it exists
+           // if (bossManager != null)
+            //    bossManager.FinishBoss();
         }
     }
 }

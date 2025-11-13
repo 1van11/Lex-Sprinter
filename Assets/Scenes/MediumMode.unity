@@ -1096,7 +1096,7 @@ MonoBehaviour:
   displayText: {fileID: 907673992}
   collectedText: {fileID: 161897638}
   targetWordText: {fileID: 1767967936}
-  correctLetterChance: 0.6
+  correctLetterChance: 0.1
 --- !u!4 &168779161 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1a4681b14f43eda46b87cbd654536729, type: 3}
@@ -1866,7 +1866,7 @@ MonoBehaviour:
   laneDistance: 3
   laneChangeSpeed: 10
   jumpForce: 9
-  extraFallForce: 10
+  extraFallForce: 11
   jumpCooldown: 0.25
   coyoteTime: 0.2
   jumpBufferTime: 0.2
@@ -2644,7 +2644,7 @@ MonoBehaviour:
   shieldPowerUpPrefab: {fileID: 1627909937}
   magnetPowerUpPrefab: {fileID: 1690249507}
   slowTimePowerUpPrefab: {fileID: 1702838190}
-  spawnDistance: 40
+  spawnDistance: 45
   rowsPerSpawn: 3
   rowSpacing: 30
   maxObstaclesPerRow: 2
@@ -2672,6 +2672,35 @@ MonoBehaviour:
     chance: 33
   - type: 2
     chance: 34
+  letterContainerPrefab: {fileID: 168779156}
+  spawnerIndicatorPrefab: {fileID: 0}
+  letterSpawnParent: {fileID: 774635559}
+  letterSpawnDistanceAhead: 40
+  letterSpawnInterval: 15
+  letterSpawnHeight: 1
+  letterSpawnPositionOffset: {x: 0, y: 0, z: 0}
+  letterSpawnerOffset: {x: 0, y: 0, z: 0}
+  letterInitialSpawnDelaySeconds: 0
+  letterEventFrequency: 60
+  letterEventDuration: 30
+  letterEventInitialDelay: 0
+  letterEventSpawnDistanceAhead: 100
+  letterEventIndicatorDelay: 5
+  letterHurdleSpawnDelay: 2
+  letterIndicatorSpawnDistanceAhead: 80
+  letterIndicatorMinimumSpawnAhead: 150
+  letterIndicatorAnimationTime: 2
+  letterIndicatorStayTime: 5
+  letterIndicatorStartHeightOffset: 10
+  letterUsePrefabTransform: 1
+  letterSpawnRotationEuler: {x: 0, y: 0, z: 0}
+  letterSpawnScale: {x: 1, y: 1, z: 1}
+  letterPoolSize: 50
+  letterDespawnTime: 20
+  letterHurdleDamage: 2
+  letterEventClueUI: {fileID: 1062179859}
+  clueTextDelay: 5
+  wordsToSolvePerEvent: 1
   despawnDistance: 50
   maxObstacleLifetime: 15
   maxQuestionLifetime: 50
@@ -3749,7 +3778,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 774635556}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9daaee688a2c7704ab6d5bf692c6612d, type: 3}
   m_Name: 
@@ -4715,6 +4744,7 @@ MonoBehaviour:
   scoreText: {fileID: 0}
   bossManager: {fileID: 774635561}
   playerFunctions: {fileID: 264086236}
+  obstacleSpawner: {fileID: 0}
   letterPrefab: {fileID: 0}
   spawnParent: {fileID: 0}
   letterSpacing: 1
@@ -7668,7 +7698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0022583008, y: 316.65}
+  m_AnchoredPosition: {x: -0.0021972656, y: 316.6499}
   m_SizeDelta: {x: -479.46, y: -1115.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1832670308
@@ -8290,7 +8320,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2069723962}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0adc035669211c408a80b35f5e09fd6, type: 3}
   m_Name: 
