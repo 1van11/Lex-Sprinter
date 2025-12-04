@@ -14280,6 +14280,7 @@ GameObject:
   - component: {fileID: 1497110216}
   - component: {fileID: 1497110221}
   - component: {fileID: 1497110222}
+  - component: {fileID: 1497110223}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -14413,6 +14414,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxAudioSource: {fileID: 37892000}
   sfxSlider: {fileID: 1207448703}
+--- !u!114 &1497110223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497110215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 537aecd5325d66344a48ee8c330727de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resetKey: 114
+  requireModifier: 1
+  clearPlayerPrefs: 1
+  reloadScene: 1
+  showDebugMessage: 1
 --- !u!1 &1501580114
 GameObject:
   m_ObjectHideFlags: 0
