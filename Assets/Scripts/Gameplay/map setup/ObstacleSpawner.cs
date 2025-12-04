@@ -509,7 +509,247 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 
-    #region Original Obstacle/Power-Up/Question System
+   #region Question Spawning System
+
+    void SpawnSingleQuestion(float zOffset)
+    {
+        bool spawnSentence = false;
+
+        // Check if we should spawn a sentence question based on the counter
+        if (spellingCounter >= spellingBeforeSentence)
+        {
+            spawnSentence = true;
+            spellingCounter = 0; // Reset counter after spawning sentence
+        }
+
+        float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
+
+        Vector3 spawnPos = new Vector3(
+            0f,
+            questionHeight,
+            PlayerFunctions.transform.position.z + zOffset
+        );
+
+        GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
+        Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
+
+        GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
+
+        QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
+        if (randomizer != null)
+        {
+            if (spawnSentence)
+            {
+                int randomIndex = rng.Next(0, 20);
+                randomizer.SetSentenceQuestion(randomIndex);
+                Debug.Log($"Spawned SENTENCE question at Z: {spawnPos.z}, index: {randomIndex}, counter reset");
+            }
+            else
+            {
+                int randomIndex = rng.Next(0, 55);
+                randomizer.SetSpellingQuestion(randomIndex);
+                spellingCounter++; // Increment AFTER spawning spelling question
+                Debug.Log($"Spawned SPELLING question #{spellingCounter}/{spellingBeforeSentence} at Z: {spawnPos.z}, index: {randomIndex}");
+            }
+        }
+
+        activeQuestions.Add(question);
+        StartCoroutine(AutoDespawnQuestion(question, maxQuestionLifetime));
+    }
+
+    IEnumerator AutoDespawnQuestion(GameObject question, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (question != null)
+        {
+            activeQuestions.Remove(question);
+            Destroy(question);
+        }
+    }
+
+    void DespawnOldQuestions()
+    {
+        for (int i = activeQuestions.Count - 1; i >= 0; i--)
+        {
+            GameObject q = activeQuestions[i];
+            if (q == null)
+            {
+                activeQuestions.RemoveAt(i);
+                continue;
+            }
+
+            float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
+            if (distanceFromPlayer > despawnDistance)
+            {
+                Destroy(q);
+                activeQuestions.RemoveAt(i);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Obstacle Spawning System
+
+    void SpawnPatternSequence()
+    {
+        if (spawnPattern.Length == 0)
+        {
+            SpawnObstacleRows();
+            return;
+        }
+
+        for (int i = 0; i < spawnPattern.Length; i++)
+        {
+            float zOffset = spawnDistance + (i * patternSpacing);
+            
+            if (spawnPattern[i] == 1)
+            {
+                SpawnSingleQuestion(zOffset);
+            }
+            else
+            {
+                SpawnSingleObstacleRow(zOffset);
+            }
+        }
+
+        Debug.Log($"Spawned complete pattern sequence with {spawnPattern.Length} elements");
+    }
+
+    void SpawnSingleObstacleRow(float zOffset)
+    {
+        if (obstaclePrefabs == null || obstaclePrefabs.Length == 0)
+        {
+            Debug.LogWarning("No obstacle prefabs assigned!");
+            return;
+        }
+
+        List<int> availableLanes = new List<int> { 0, 1, 2 };
+        int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
+        obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
+
+        for (int i = 0; i < obstaclesToSpawn; i++)
+        {
+            int index = Random.Range(0, availableLanes.Count);
+            int lane = availableLanes[index];
+            availableLanes.RemoveAt(index);
+
+            int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
+            GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
+
+            float laneX = (lane - 1.3f) * laneDistance;
+            Vector3 spawnPos = new Vector3(laneX, selectedPrefab.transform.position.y, PlayerFunctions.transform.position.z + zOffset);
+
+            GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
+
+            activeObstacles.Add(obstacle);
+            StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
+        }
+
+        // Spawn coins in empty lanes
+        if (coinPrefab != null)
+        {
+            foreach (int emptyLane in availableLanes)
+            {
+                float baseLaneX = (emptyLane - 1.3f) * laneDistance;
+                for (int c = 0; c < coinsPerLane; c++)
+                {
+                    float baseZPosition = PlayerFunctions.transform.position.z + zOffset;
+
+                    if (coinsPerLane > 1)
+                    {
+                        float totalSpacing = (coinsPerLane - 1) * coinSpacing;
+                        float startOffset = -totalSpacing / 2f;
+                        baseZPosition += startOffset + (c * coinSpacing);
+                    }
+
+                    Vector3 coinPos = new Vector3(
+                        baseLaneX + coinPositionOffset.x,
+                        spawnHeight + coinPositionOffset.y,
+                        baseZPosition + coinPositionOffset.z
+                    );
+
+                    GameObject coin = Instantiate(coinPrefab, coinPos, coinPrefab.transform.rotation, ObstacleParentTransform);
+                    coin.transform.localScale = coinPrefab.transform.localScale;
+
+                    activeCoins.Add(coin);
+                    StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
+                }
+            }
+        }
+    }
+
+    public void SpawnObstacleRows()
+    {
+        for (int row = 0; row < rowsPerSpawn; row++)
+        {
+            float zOffset = spawnDistance + (row * rowSpacing);
+            SpawnSingleObstacleRow(zOffset);
+        }
+    }
+
+    public void TriggerSpawnNow()
+    {
+        SpawnPatternSequence();
+    }
+
+    IEnumerator AutoDespawnObstacle(GameObject obstacle, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (obstacle != null)
+        {
+            activeObstacles.Remove(obstacle);
+            Destroy(obstacle);
+        }
+    }
+
+    IEnumerator AutoDespawnCoin(GameObject coin, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (coin != null)
+        {
+            activeCoins.Remove(coin);
+            Destroy(coin);
+        }
+    }
+
+    void DespawnOldObstacles()
+    {
+        for (int i = activeObstacles.Count - 1; i >= 0; i--)
+        {
+            if (activeObstacles[i] == null)
+            {
+                activeObstacles.RemoveAt(i);
+            }
+            else if (activeObstacles[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
+            {
+                GameObject obstacle = activeObstacles[i];
+                activeObstacles.RemoveAt(i);
+                Destroy(obstacle);
+            }
+        }
+    }
+
+    void DespawnOldCoins()
+    {
+        for (int i = activeCoins.Count - 1; i >= 0; i--)
+        {
+            if (activeCoins[i] == null)
+            {
+                activeCoins.RemoveAt(i);
+            }
+            else if (activeCoins[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
+            {
+                GameObject coin = activeCoins[i];
+                activeCoins.RemoveAt(i);
+                Destroy(coin);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Power-Up System
 
     void CheckPowerUpSpawn()
     {
@@ -614,6 +854,37 @@ public class ObstacleSpawner : MonoBehaviour
         Debug.Log("Power-up spawning reset");
     }
 
+    IEnumerator AutoDespawnPowerUp(GameObject powerUp, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (powerUp != null)
+        {
+            activePowerUps.Remove(powerUp);
+            Destroy(powerUp);
+        }
+    }
+
+    void DespawnOldPowerUps()
+    {
+        for (int i = activePowerUps.Count - 1; i >= 0; i--)
+        {
+            if (activePowerUps[i] == null)
+            {
+                activePowerUps.RemoveAt(i);
+            }
+            else if (activePowerUps[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
+            {
+                GameObject powerUp = activePowerUps[i];
+                activePowerUps.RemoveAt(i);
+                Destroy(powerUp);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Helper Methods
+
     List<int> GetEmptyLanesAtDistance(float distance, float checkRange)
     {
         List<int> emptyLanes = new List<int> { 0, 1, 2 };
@@ -643,264 +914,9 @@ public class ObstacleSpawner : MonoBehaviour
         return Mathf.Clamp(lane, 0, 2);
     }
 
-    public void TriggerSpawnNow()
-    {
-        SpawnPatternSequence();
-    }
-
-    void SpawnPatternSequence()
-    {
-        if (spawnPattern.Length == 0)
-        {
-            SpawnObstacleRows();
-            return;
-        }
-
-        for (int i = 0; i < spawnPattern.Length; i++)
-        {
-            float zOffset = spawnDistance + (i * patternSpacing);
-            
-            if (spawnPattern[i] == 1)
-            {
-                SpawnSingleQuestion(zOffset);
-            }
-            else
-            {
-                SpawnSingleObstacleRow(zOffset);
-            }
-        }
-
-        Debug.Log($"Spawned complete pattern sequence with {spawnPattern.Length} elements");
-    }
-
-    void SpawnSingleObstacleRow(float zOffset)
-    {
-        if (obstaclePrefabs == null || obstaclePrefabs.Length == 0)
-        {
-            Debug.LogWarning("No obstacle prefabs assigned!");
-            return;
-        }
-
-        List<int> availableLanes = new List<int> { 0, 1, 2 };
-        int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
-        obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
-
-        for (int i = 0; i < obstaclesToSpawn; i++)
-        {
-            int index = Random.Range(0, availableLanes.Count);
-            int lane = availableLanes[index];
-            availableLanes.RemoveAt(index);
-
-            int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
-            GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
-
-            float laneX = (lane - 1.3f) * laneDistance;
-            Vector3 spawnPos = new Vector3(laneX, selectedPrefab.transform.position.y, PlayerFunctions.transform.position.z + zOffset);
-
-            GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
-
-            activeObstacles.Add(obstacle);
-            StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
-        }
-
-        if (coinPrefab != null)
-        {
-            foreach (int emptyLane in availableLanes)
-            {
-                float baseLaneX = (emptyLane - 1.3f) * laneDistance;
-                for (int c = 0; c < coinsPerLane; c++)
-                {
-                    float baseZPosition = PlayerFunctions.transform.position.z + zOffset;
-
-                    if (coinsPerLane > 1)
-                    {
-                        float totalSpacing = (coinsPerLane - 1) * coinSpacing;
-                        float startOffset = -totalSpacing / 2f;
-                        baseZPosition += startOffset + (c * coinSpacing);
-                    }
-
-                    Vector3 coinPos = new Vector3(
-                        baseLaneX + coinPositionOffset.x,
-                        spawnHeight + coinPositionOffset.y,
-                        baseZPosition + coinPositionOffset.z
-                    );
-
-                    GameObject coin = Instantiate(coinPrefab, coinPos, coinPrefab.transform.rotation, ObstacleParentTransform);
-                    coin.transform.localScale = coinPrefab.transform.localScale;
-
-                    activeCoins.Add(coin);
-                    StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
-                }
-            }
-        }
-    }
-
-    void SpawnSingleQuestion(float zOffset)
-    {
-        bool spawnSentence = false;
-
-        if (spellingCounter >= spellingBeforeSentence)
-        {
-            spawnSentence = true;
-            spellingCounter = 0;
-        }
-
-        float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
-
-        Vector3 spawnPos = new Vector3(
-            0f,
-            questionHeight,
-            PlayerFunctions.transform.position.z + zOffset
-        );
-
-        GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
-        Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
-
-        GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
-
-        QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
-        if (randomizer != null)
-        {
-            if (spawnSentence)
-            {
-                int randomIndex = rng.Next(0, 20);
-                randomizer.SetSentenceQuestion(randomIndex);
-                Debug.Log($"Spawned sentence question at Z: {spawnPos.z}, index: {randomIndex}");
-            }
-            else
-            {
-                int randomIndex = rng.Next(0, 55);
-                randomizer.SetSpellingQuestion(randomIndex);
-                spellingCounter++;
-                Debug.Log($"Spawned spelling question at Z: {spawnPos.z}, index: {randomIndex}");
-            }
-        }
-
-        activeQuestions.Add(question);
-        StartCoroutine(AutoDespawnQuestion(question, maxQuestionLifetime));
-    }
-
-    public void SpawnObstacleRows()
-    {
-        for (int row = 0; row < rowsPerSpawn; row++)
-        {
-            float zOffset = spawnDistance + (row * rowSpacing);
-            SpawnSingleObstacleRow(zOffset);
-        }
-    }
-
-    IEnumerator AutoDespawnObstacle(GameObject obstacle, float lifetime)
-    {
-        yield return new WaitForSeconds(lifetime);
-        if (obstacle != null)
-        {
-            activeObstacles.Remove(obstacle);
-            Destroy(obstacle);
-        }
-    }
-
-    IEnumerator AutoDespawnCoin(GameObject coin, float lifetime)
-    {
-        yield return new WaitForSeconds(lifetime);
-        if (coin != null)
-        {
-            activeCoins.Remove(coin);
-            Destroy(coin);
-        }
-    }
-
-    IEnumerator AutoDespawnPowerUp(GameObject powerUp, float lifetime)
-    {
-        yield return new WaitForSeconds(lifetime);
-        if (powerUp != null)
-        {
-            activePowerUps.Remove(powerUp);
-            Destroy(powerUp);
-        }
-    }
-
-    IEnumerator AutoDespawnQuestion(GameObject question, float lifetime)
-    {
-        yield return new WaitForSeconds(lifetime);
-        if (question != null)
-        {
-            activeQuestions.Remove(question);
-            Destroy(question);
-        }
-    }
-
-    void DespawnOldObstacles()
-    {
-        for (int i = activeObstacles.Count - 1; i >= 0; i--)
-        {
-            if (activeObstacles[i] == null)
-            {
-                activeObstacles.RemoveAt(i);
-            }
-            else if (activeObstacles[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
-            {
-                GameObject obstacle = activeObstacles[i];
-                activeObstacles.RemoveAt(i);
-                Destroy(obstacle);
-            }
-        }
-    }
-
-    void DespawnOldCoins()
-    {
-        for (int i = activeCoins.Count - 1; i >= 0; i--)
-        {
-            if (activeCoins[i] == null)
-            {
-                activeCoins.RemoveAt(i);
-            }
-            else if (activeCoins[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
-            {
-                GameObject coin = activeCoins[i];
-                activeCoins.RemoveAt(i);
-                Destroy(coin);
-            }
-        }
-    }
-
-    void DespawnOldPowerUps()
-    {
-        for (int i = activePowerUps.Count - 1; i >= 0; i--)
-        {
-            if (activePowerUps[i] == null)
-            {
-                activePowerUps.RemoveAt(i);
-            }
-            else if (activePowerUps[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
-            {
-                GameObject powerUp = activePowerUps[i];
-                activePowerUps.RemoveAt(i);
-                Destroy(powerUp);
-            }
-        }
-    }
-
-    void DespawnOldQuestions()
-    {
-        for (int i = activeQuestions.Count - 1; i >= 0; i--)
-        {
-            GameObject q = activeQuestions[i];
-            if (q == null)
-            {
-                activeQuestions.RemoveAt(i);
-                continue;
-            }
-
-            float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
-            if (distanceFromPlayer > despawnDistance)
-            {
-                Destroy(q);
-                activeQuestions.RemoveAt(i);
-            }
-        }
-    }
-
     #endregion
+
+    #region Gizmos
 
     void OnDrawGizmos()
     {
@@ -947,4 +963,6 @@ public class ObstacleSpawner : MonoBehaviour
             Gizmos.DrawWireSphere(lanePos, gizmoSphereSize);
         }
     }
+
+    #endregion
 }

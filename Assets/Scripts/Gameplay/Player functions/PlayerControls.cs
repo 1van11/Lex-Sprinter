@@ -6,10 +6,11 @@ public class PlayerControls : MonoBehaviour
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
-    [Header("Lane System")]
-    public float laneDistance = 3f;
-    public float laneChangeSpeed = 10f;
-    
+    [Header("Horizontal Movement")]
+    public float laneDistance = 3f; // limit range (-laneDistance to +laneDistance)
+    public float horizontalMoveSpeed = 10f;
+    private float horizontalInput = 0f;
+
     [Header("Jump")]
     public float jumpForce = 9f;
     public float extraFallForce = 10f;
@@ -35,9 +36,6 @@ public class PlayerControls : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider col;
 
-    private int currentLane = 1;
-    private Vector3 targetPosition;
-    private bool isChangingLanes = false;
     private bool isJumping = false;
     private bool jumpHeld = false;
 
@@ -61,21 +59,19 @@ public class PlayerControls : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
 
-        rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-
-        targetPosition = new Vector3(0, transform.position.y, transform.position.z);
-        transform.position = targetPosition;
+        rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
     }
 
     void Update()
     {
         if (!canMove) return;
 
+        // Forward movement
         Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
         transform.position += forwardMove;
 
         HandleLaneInput();
-        MoveBetweenLanes();
+        MoveHorizontal();
         HandleJump();
         HandleTiltAndLook();
         ApplyExtraGravity();
@@ -89,69 +85,67 @@ public class PlayerControls : MonoBehaviour
             lastJumpPressedTime = Time.time;
     }
 
+    // -----------------------
+    // Horizontal Free Movement
+    // -----------------------
     void HandleLaneInput()
     {
         if (Time.time - lastInputTime < inputCooldown) return;
 
-        if ((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) && currentLane > 0)
+        horizontalInput = 0f;
+
+        // Keyboard
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            currentLane--;
-            SetTargetPosition();
-            lastInputTime = Time.time;
+            horizontalInput = -1f;
             targetTilt = tiltAngle;
             targetYaw = -lookAngle;
         }
-        else if ((Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) && currentLane < 2)
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            currentLane++;
-            SetTargetPosition();
-            lastInputTime = Time.time;
+            horizontalInput = 1f;
             targetTilt = -tiltAngle;
             targetYaw = lookAngle;
         }
     }
 
-    void SetTargetPosition()
+    void MoveHorizontal()
     {
-        float targetX = (currentLane - 1) * laneDistance;
-        targetPosition = new Vector3(targetX, transform.position.y, transform.position.z);
-        isChangingLanes = true;
-    }
+        Vector3 pos = transform.position;
 
-    void MoveBetweenLanes()
-    {
-        if (isChangingLanes)
+        // Move left/right
+        pos.x += horizontalInput * horizontalMoveSpeed * Time.deltaTime;
+
+        // Clamp to old 3-lane range
+        pos.x = Mathf.Clamp(pos.x, -laneDistance, laneDistance);
+
+        transform.position = pos;
+
+                
+        bool atLeftEdge = pos.x <= -laneDistance + 0.01f;
+        bool atRightEdge = pos.x >= laneDistance - 0.01f;
+
+        // If at edge AND input pushes further → cancel tilt
+        if ((atLeftEdge && horizontalInput < 0) || (atRightEdge && horizontalInput > 0))
         {
-            Vector3 currentPos = transform.position;
-            float newX = Mathf.MoveTowards(currentPos.x, targetPosition.x, laneChangeSpeed * Time.deltaTime);
-            transform.position = new Vector3(newX, currentPos.y, currentPos.z);
+            horizontalInput = 0;
+            targetTilt = 0f;
+            targetYaw = 0f;
+        }
 
-            if (Mathf.Abs(transform.position.x - targetPosition.x) < 0.1f)
-            {
-                transform.position = new Vector3(targetPosition.x, transform.position.y, transform.position.z);
-                isChangingLanes = false;
-                targetTilt = 0f;
-                targetYaw = 0f;
-            }
+        // Reset rotation when no input
+        if (horizontalInput == 0)
+        {
+            targetTilt = 0f;
+            targetYaw = 0f;
         }
     }
 
-    void HandleTiltAndLook()
-    {
-        Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
-
-        float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
-        if (angleDifference < 1f)
-            transform.rotation = targetRotation;
-
-        if (!isChangingLanes && Mathf.Abs(targetTilt) < 0.01f && Mathf.Abs(targetYaw) < 0.01f)
-            transform.rotation = Quaternion.identity;
-    }
-
+    // -----------------------
+    // Jump System
+    // -----------------------
     void HandleJump()
     {
-        // Jump input
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
             lastJumpPressedTime = Time.time;
@@ -161,25 +155,24 @@ public class PlayerControls : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
             jumpHeld = false;
 
-        // Jump execution
-        bool canJump = Time.time - lastGroundedTime <= coyoteTime &&
-                       Time.time - lastJumpPressedTime <= jumpBufferTime &&
-                       Time.time - lastJumpTime >= jumpCooldown &&
-                       !isJumping &&
-                       jumpHeld;
+        bool canJump =
+            Time.time - lastGroundedTime <= coyoteTime &&
+            Time.time - lastJumpPressedTime <= jumpBufferTime &&
+            Time.time - lastJumpTime >= jumpCooldown &&
+            !isJumping &&
+            jumpHeld;
 
         if (canJump)
         {
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
-
             isJumping = true;
             jumpHeld = false;
             lastJumpPressedTime = -999f;
         }
 
-        // Jump smash input
+        // Smash
         if (!IsGrounded() && !isSmashing && (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)))
         {
             isSmashing = true;
@@ -187,7 +180,7 @@ public class PlayerControls : MonoBehaviour
             rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
         }
 
-        // Reset jump states when grounded
+        // Reset when grounded
         if (IsGrounded() && rb.velocity.y <= 0.1f)
         {
             isJumping = false;
@@ -210,11 +203,27 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
+    // -----------------------
+    // Tilt & Rotation
+    // -----------------------
+    void HandleTiltAndLook()
+    {
+        Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
+
+        if (horizontalInput == 0)
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, Time.deltaTime * tiltSpeed);
+    }
+
+    // -----------------------
+    // Swipe
+    // -----------------------
     void DetectSwipe()
     {
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
+
             switch (touch.phase)
             {
                 case TouchPhase.Began:
@@ -224,8 +233,10 @@ public class PlayerControls : MonoBehaviour
 
                 case TouchPhase.Ended:
                     if (!swipeDetected) return;
+
                     endTouchPos = touch.position;
                     Vector2 swipeDelta = endTouchPos - startTouchPos;
+
                     if (swipeDelta.magnitude < swipeThreshold) return;
 
                     float x = swipeDelta.x;
@@ -233,34 +244,28 @@ public class PlayerControls : MonoBehaviour
 
                     if (Mathf.Abs(x) > Mathf.Abs(y))
                     {
-                        // Horizontal swipe = lane change
-                        if (x > 0 && currentLane < 2)
+                        if (x > 0)
                         {
-                            currentLane++;
-                            SetTargetPosition();
+                            horizontalInput = 1;
                             targetTilt = -tiltAngle;
                             targetYaw = lookAngle;
                         }
-                        else if (x < 0 && currentLane > 0)
+                        else
                         {
-                            currentLane--;
-                            SetTargetPosition();
+                            horizontalInput = -1;
                             targetTilt = tiltAngle;
                             targetYaw = -lookAngle;
                         }
                     }
                     else
                     {
-                        // Vertical swipe
                         if (y > 0)
                         {
-                            // Swipe up = jump
                             lastJumpPressedTime = Time.time;
                             jumpHeld = true;
                         }
-                        else if (y < 0)
+                        else
                         {
-                            // Swipe down = jump smash
                             if (!IsGrounded() && !isSmashing)
                             {
                                 isSmashing = true;
@@ -276,6 +281,9 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
+    // -----------------------
+    // Helpers
+    // -----------------------
     public bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, col.bounds.extents.y + 0.1f);
@@ -301,15 +309,16 @@ public class PlayerControls : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        for (int i = 0; i < 3; i++)
-        {
-            float x = (i - 1) * laneDistance;
-            Vector3 start = new Vector3(x, 1, transform.position.z - 10);
-            Vector3 end = new Vector3(x, 1, transform.position.z + 10);
-            Gizmos.DrawLine(start, end);
-        }
+        float left = -laneDistance;
+        float right = laneDistance;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(targetPosition, 0.5f);
+        Vector3 startL = new Vector3(left, 1, transform.position.z - 10);
+        Vector3 endL = new Vector3(left, 1, transform.position.z + 10);
+
+        Vector3 startR = new Vector3(right, 1, transform.position.z - 10);
+        Vector3 endR = new Vector3(right, 1, transform.position.z + 10);
+
+        Gizmos.DrawLine(startL, endL);
+        Gizmos.DrawLine(startR, endR);
     }
 }
