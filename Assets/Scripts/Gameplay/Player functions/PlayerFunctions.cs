@@ -73,6 +73,9 @@ public class PlayerFunctions : MonoBehaviour
     public float feedbackDisplayTime = 1.5f;
 
 
+    private Queue<GameObject> correctPool = new Queue<GameObject>();
+private Queue<GameObject> wrongPool = new Queue<GameObject>();
+
     private Renderer[] renderers;
     [HideInInspector] public bool isDead = false;
 
@@ -248,9 +251,9 @@ public class PlayerFunctions : MonoBehaviour
                         }
                     }
 
-                    if (otherOption != null)
-                        ReplaceWithFeedbackModel(otherOption, correctAnswerPrefab);
-                }
+            //      if (otherOption != null)
+           //           ReplaceWithFeedbackModel(otherOption, correctAnswerPrefab);
+              }
 
                 // Remove colliders and destroy question after delay
                 if (other.transform.parent != null)
@@ -660,19 +663,46 @@ public class PlayerFunctions : MonoBehaviour
         isSlowTime = false;
         Debug.Log("⏰ Slow Time expired");
     }
-
-    void ReplaceWithFeedbackModel(GameObject answerOption, GameObject feedbackPrefab)
+private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
+{
+    if (pool.Count > 0)
     {
-        if (feedbackPrefab == null) return;
-
-        GameObject feedback = Instantiate(feedbackPrefab, answerOption.transform.position, feedbackPrefab.transform.rotation);
+        GameObject obj = pool.Dequeue();
+        obj.SetActive(true);
+        return obj;
     }
 
+    return Instantiate(prefab);
+}
+
+private void ReturnToPool(GameObject obj, Queue<GameObject> pool)
+{
+    obj.SetActive(false);
+    pool.Enqueue(obj);
+}
+void ReplaceWithFeedbackModel(GameObject answerOption, GameObject feedbackPrefab)
+{
+    if (feedbackPrefab == null) return;
+
+    Queue<GameObject> pool =
+        feedbackPrefab == correctAnswerPrefab ? correctPool : wrongPool;
+
+    GameObject feedback = GetFromPool(pool, feedbackPrefab);
+    feedback.transform.position = answerOption.transform.position;
+    feedback.transform.rotation = feedbackPrefab.transform.rotation;
+
+    StartCoroutine(ReturnFeedbackToPool(feedback, pool, feedbackDisplayTime));
+}
     IEnumerator DestroyAfterDelay(GameObject obj, float delay)
     {
         yield return new WaitForSeconds(delay);
         Destroy(obj);
     }
+    IEnumerator ReturnFeedbackToPool(GameObject obj, Queue<GameObject> pool, float delay)
+{
+    yield return new WaitForSeconds(delay);
+    ReturnToPool(obj, pool);
+}
 
     void OnApplicationQuit()
     {

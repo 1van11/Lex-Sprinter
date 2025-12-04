@@ -19,10 +19,6 @@ public class QuestionRandomizer : MonoBehaviour
     [Header("Trigger Settings")]
     public bool playAudioOnTrigger = true;
 
-    [Header("Clue Display Settings")]
-    public float clueDisplayTime = 6f;
-    private Coroutine clueCoroutine;
-
     // Current answer and state
     public string correctAnswer;
     private int currentQuestionIndex = -1;
@@ -378,56 +374,37 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+   void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("Player"))
     {
-        if (other.CompareTag("Player"))
+        Debug.Log($"Player entered collider. isSentenceQuestion: {isSentenceQuestion}");
+
+        if (isSentenceQuestion && clueTextObject != null)
+            clueTextObject.SetActive(true);
+
+        if (playAudioOnTrigger)
+            PlayQuestionAudio();
+    }
+}
+
+void OnTriggerExit(Collider other)
+{
+    Debug.Log("EXIT detected from: " + other.name);
+
+    if (other.CompareTag("Player"))
+    {
+        Debug.Log("Player triggered EXIT, hiding clue...");
+
+        if (isSentenceQuestion && clueTextObject != null)
         {
-            Debug.Log($"Player entered collider. isSentenceQuestion: {isSentenceQuestion}");
-
-            if (isSentenceQuestion && clueTextObject != null)
-            {
-                if (clueCoroutine != null) StopCoroutine(clueCoroutine);
-                clueCoroutine = StartCoroutine(ShowClueTemporarily());
-            }
-
-            if (playAudioOnTrigger) PlayQuestionAudio();
+            Debug.Log("Clue object found: " + clueTextObject.name);
+            clueTextObject.SetActive(false);
         }
     }
+}
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Player exited collider");
 
-            if (isSentenceQuestion && clueTextObject != null)
-            {
-                if (clueCoroutine != null) StopCoroutine(clueCoroutine);
-                clueTextObject.SetActive(false);
-                Debug.Log("✅ Clue text HIDDEN on exit");
-            }
-        }
-    }
-
-    private IEnumerator ShowClueTemporarily()
-    {
-        clueTextObject.SetActive(true);
-        Debug.Log("✅ Clue text SHOWN temporarily");
-
-        yield return new WaitForSeconds(clueDisplayTime);
-
-        clueTextObject.SetActive(false);
-        clueCoroutine = null;
-        Debug.Log("✅ Clue text HIDDEN after delay");
-    }
-
-    public void HideClueOnAnswer()
-    {
-        if (clueCoroutine != null) StopCoroutine(clueCoroutine);
-        if (clueTextObject != null) clueTextObject.SetActive(false);
-        clueCoroutine = null;
-        Debug.Log("✅ Clue text HIDDEN after answering");
-    }
 
     public void TriggerQuestionAudio() => PlayQuestionAudio();
 
