@@ -41,14 +41,14 @@ public class CoinCollector : MonoBehaviour
     {
         isCollected = true;
         
-        // Add coins to player
-        if (CoinManager.Instance != null)
+        // Add coins to player using CoinsDisplay
+        if (CoinsDisplay.Instance != null)
         {
-            CoinManager.Instance.AddCoins(coinValue);
+            CoinsDisplay.Instance.AddCoins(coinValue);
         }
         else
         {
-            Debug.LogWarning("⚠️ CoinManager not found! Coin not added.");
+            Debug.LogWarning("⚠️ CoinsDisplay not found! Coin not added.");
         }
         
         // Play collect effect
