@@ -35,7 +35,11 @@ public class OutfitManager : MonoBehaviour
     public OutfitBundle currentOutfit;
     
     [Header("Character Reference")]
-    public Transform characterModel; // Your character's body
+    public Transform characterModel; // Your character's body in current scene
+    
+    [Header("Auto-Find Character")]
+    public string characterTag = "Player"; // Tag to find character automatically
+    public bool autoFindCharacter = true;
     
     private const string SAVE_KEY = "CurrentOutfit";
     
@@ -49,12 +53,42 @@ public class OutfitManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
     
     void Start()
     {
         LoadOutfit();
+        ApplyOutfitToCharacter();
+    }
+    
+    void Update()
+    {
+        // Auto-find character if not set or if we changed scenes
+        if (autoFindCharacter && characterModel == null)
+        {
+            FindCharacter();
+        }
+    }
+    
+    /// <summary>
+    /// Automatically find the character in the current scene
+    /// </summary>
+    void FindCharacter()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag(characterTag);
+        if (player != null)
+        {
+            characterModel = player.transform;
+            Debug.Log("✅ Character found: " + player.name);
+            
+            // Apply outfit immediately after finding character
+            if (currentOutfit != null)
+            {
+                ApplyOutfitToCharacter();
+            }
+        }
     }
     
     // Equip a complete outfit bundle
@@ -72,14 +106,82 @@ public class OutfitManager : MonoBehaviour
             DisableOutfit(currentOutfit);
         }
         
-        // Enable new outfit
+        // Set new outfit
         currentOutfit = outfit;
         EnableOutfit(outfit);
         
         // Auto-save after equipping
         SaveOutfit();
         
-        Debug.Log("Equipped outfit: " + outfit.outfitName);
+        // Apply to current character in scene
+        ApplyOutfitToCharacter();
+        
+        Debug.Log("✅ Equipped outfit: " + outfit.outfitName);
+    }
+    
+    /// <summary>
+    /// Apply the current outfit to the character in the scene
+    /// </summary>
+    public void ApplyOutfitToCharacter()
+    {
+        if (currentOutfit == null)
+        {
+            Debug.LogWarning("No outfit to apply!");
+            return;
+        }
+        
+        if (characterModel == null)
+        {
+            Debug.LogWarning("Character not found! Looking for character...");
+            FindCharacter();
+            return;
+        }
+        
+        // Find all clothing items on the character
+        // This searches for clothing GameObjects by their names
+        ApplyClothingPiece(currentOutfit.topClothing, "Top", "Shirt", "Upperbody");
+        ApplyClothingPiece(currentOutfit.bottomClothing, "Bottom", "Pants", "Skirt", "Lowerbody");
+        ApplyClothingPiece(currentOutfit.shoesClothing, "Shoes", "Footwear");
+        ApplyClothingPiece(currentOutfit.accessory, "Accessory", "Hat", "Hair");
+        
+        Debug.Log("👕 Outfit applied to character: " + currentOutfit.outfitName);
+    }
+    
+    /// <summary>
+    /// Apply a single clothing piece by finding matching GameObject on character
+    /// </summary>
+    void ApplyClothingPiece(GameObject clothingPrefab, params string[] searchNames)
+    {
+        if (clothingPrefab == null) return;
+        
+        // First, disable all clothing items that match the search names
+        foreach (string searchName in searchNames)
+        {
+            Transform[] allChildren = characterModel.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                if (child.name.Contains(searchName))
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+        
+        // Now enable the specific clothing piece
+        string clothingName = clothingPrefab.name;
+        Transform[] children = characterModel.GetComponentsInChildren<Transform>(true);
+        
+        foreach (Transform child in children)
+        {
+            if (child.name.Contains(clothingName) || child.name == clothingName)
+            {
+                child.gameObject.SetActive(true);
+                Debug.Log("👕 Enabled: " + child.name);
+                return;
+            }
+        }
+        
+        Debug.LogWarning("⚠️ Could not find clothing: " + clothingName + " on character");
     }
     
     // Enable all pieces of an outfit
@@ -130,7 +232,7 @@ public class OutfitManager : MonoBehaviour
         PlayerPrefs.SetString(SAVE_KEY, json);
         PlayerPrefs.Save();
         
-        Debug.Log("Outfit saved: " + currentOutfit.outfitName);
+        Debug.Log("💾 Outfit saved: " + currentOutfit.outfitName);
     }
     
     // Load saved outfit
@@ -146,8 +248,8 @@ public class OutfitManager : MonoBehaviour
             
             if (outfit != null)
             {
-                EquipOutfit(outfit);
-                Debug.Log("Outfit loaded: " + outfit.outfitName);
+                currentOutfit = outfit;
+                Debug.Log("📂 Outfit loaded: " + outfit.outfitName);
             }
             else
             {
@@ -167,7 +269,8 @@ public class OutfitManager : MonoBehaviour
     {
         if (allOutfits.Count > 0)
         {
-            EquipOutfit(allOutfits[0]);
+            currentOutfit = allOutfits[0];
+            SaveOutfit();
         }
     }
     
@@ -191,7 +294,7 @@ public class OutfitManager : MonoBehaviour
         if (outfit != null)
         {
             outfit.isUnlocked = true;
-            Debug.Log("Unlocked outfit: " + outfit.outfitName);
+            Debug.Log("🔓 Unlocked outfit: " + outfit.outfitName);
         }
     }
     
@@ -201,6 +304,32 @@ public class OutfitManager : MonoBehaviour
         PlayerPrefs.DeleteKey(SAVE_KEY);
         PlayerPrefs.Save();
         LoadDefaultOutfit();
-        Debug.Log("Outfit reset to default");
+        ApplyOutfitToCharacter();
+        Debug.Log("🔄 Outfit reset to default");
+    }
+    
+    /// <summary>
+    /// Called when this object is enabled
+    /// </summary>
+    void OnEnable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    
+    /// <summary>
+    /// Called when this object is disabled
+    /// </summary>
+    void OnDisable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    
+    /// <summary>
+    /// Called when scene changes - reapply outfit to new character
+    /// </summary>
+    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        characterModel = null; // Reset character reference
+        FindCharacter(); // Find character in new scene
     }
 }
