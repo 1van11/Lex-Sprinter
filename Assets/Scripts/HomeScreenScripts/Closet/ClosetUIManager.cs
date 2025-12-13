@@ -25,6 +25,12 @@ public class ClosetUIManager : MonoBehaviour
     // Create outfit slots from available outfits
     void SetupOutfitSlots()
     {
+        if (OutfitManager.Instance == null)
+        {
+            Debug.LogWarning("⚠️ OutfitManager not found!");
+            return;
+        }
+        
         // Clear existing slots
         foreach (Transform child in outfitSlotsContainer)
         {
@@ -123,10 +129,18 @@ public class ClosetUIManager : MonoBehaviour
     // When player clicks a locked outfit
     void OnLockedOutfitClicked(OutfitBundle outfit)
     {
-        Debug.Log("Outfit locked: " + outfit.outfitName + " - Price: " + outfit.price + " coins");
+        Debug.Log("🔒 Outfit locked: " + outfit.outfitName + " - Price: " + outfit.price + " coins");
         
-        // TODO: Show purchase dialog
-        // You can implement shop logic here
+        // Try to purchase automatically if player has enough coins
+        if (CoinsDisplay.Instance != null && CoinsDisplay.Instance.HasEnoughCoins(outfit.price))
+        {
+            PurchaseOutfit(outfit.outfitID);
+        }
+        else
+        {
+            Debug.Log("❌ Not enough coins!");
+            // TODO: Show "not enough coins" message to player
+        }
     }
     
     // Refresh all outfit slots (update equipped indicator)
@@ -144,6 +158,13 @@ public class ClosetUIManager : MonoBehaviour
                 if (equippedIndicator != null)
                 {
                     equippedIndicator.SetActive(OutfitManager.Instance.currentOutfit == outfit);
+                }
+                
+                // Update lock icon
+                GameObject lockIcon = slot.transform.Find("Lock")?.gameObject;
+                if (lockIcon != null)
+                {
+                    lockIcon.SetActive(!outfit.isUnlocked);
                 }
             }
         }
@@ -163,29 +184,41 @@ public class ClosetUIManager : MonoBehaviour
         // Save happens automatically when outfit is equipped
     }
     
-    // Buy/Unlock outfit (call this from shop)
-    public void PurchaseOutfit(string outfitID, int playerCoins)
+    // Buy/Unlock outfit with CoinsDisplay
+    public void PurchaseOutfit(string outfitID)
     {
         OutfitBundle outfit = OutfitManager.Instance.GetOutfitByID(outfitID);
         
         if (outfit != null && !outfit.isUnlocked)
         {
-            if (playerCoins >= outfit.price)
+            // Check if CoinsDisplay exists and has enough coins
+            if (CoinsDisplay.Instance != null)
             {
-                // Unlock outfit
-                OutfitManager.Instance.UnlockOutfit(outfitID);
-                
-                // Deduct coins (you need to implement CoinManager)
-                // CoinManager.Instance.SpendCoins(outfit.price);
-                
-                // Refresh UI
-                RefreshOutfitSlots();
-                
-                Debug.Log("Purchased outfit: " + outfit.outfitName);
+                if (CoinsDisplay.Instance.HasEnoughCoins(outfit.price))
+                {
+                    // Spend the coins
+                    if (CoinsDisplay.Instance.SpendCoins(outfit.price))
+                    {
+                        // Unlock the outfit
+                        OutfitManager.Instance.UnlockOutfit(outfitID);
+                        
+                        // Equip it immediately
+                        OutfitManager.Instance.EquipOutfit(outfit);
+                        
+                        // Refresh UI
+                        RefreshOutfitSlots();
+                        
+                        Debug.Log("✅ Purchased outfit: " + outfit.outfitName);
+                    }
+                }
+                else
+                {
+                    Debug.Log("❌ Not enough coins! Need: " + outfit.price);
+                }
             }
             else
             {
-                Debug.Log("Not enough coins!");
+                Debug.LogWarning("⚠️ CoinsDisplay not found!");
             }
         }
     }
