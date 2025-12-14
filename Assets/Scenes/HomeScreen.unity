@@ -6672,6 +6672,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
 --- !u!1 &588655865
@@ -11256,6 +11260,11 @@ MonoBehaviour:
   enableManualRotation: 1
   manualRotationSpeed: 1
   rotationArea: {fileID: 0}
+--- !u!4 &1190641287 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  m_PrefabInstance: {fileID: 579386285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1190873269
 GameObject:
   m_ObjectHideFlags: 0
@@ -15384,6 +15393,7 @@ GameObject:
   - component: {fileID: 1587577035}
   - component: {fileID: 1587577037}
   - component: {fileID: 1587577036}
+  - component: {fileID: 1587577038}
   m_Layer: 5
   m_Name: CLOSET PANEL
   m_TagString: Untagged
@@ -15455,6 +15465,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1587577034}
   m_CullTransparentMesh: 1
+--- !u!114 &1587577038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1587577034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58099d15a0c481744a2069a90098a365, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  closetPanel: {fileID: 915085689}
+  outfitSlotsContainer: {fileID: 0}
+  outfitSlotPrefab: {fileID: 981844727}
+  characterPreview: {fileID: 1190641280}
 --- !u!1 &1593156064
 GameObject:
   m_ObjectHideFlags: 0
@@ -18148,6 +18174,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865210816}
   m_CullTransparentMesh: 1
+--- !u!1 &1871282671 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6709288533808664266, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  m_PrefabInstance: {fileID: 579386285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1872465536
 GameObject:
   m_ObjectHideFlags: 0
@@ -20806,6 +20837,11 @@ MonoBehaviour:
   leaderboardItemPrefab: {fileID: 1559526414}
   currentPlayerName: Player
   currentDistance: 0
+--- !u!1 &2114191582 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5441696384508353169, guid: eaabfd516bbfc8e4a91951aa3b7d782b, type: 3}
+  m_PrefabInstance: {fileID: 579386285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2115803693
 GameObject:
   m_ObjectHideFlags: 0
@@ -21016,7 +21052,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2120811398}
-  - component: {fileID: 2120811397}
+  - component: {fileID: 2120811399}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -21024,22 +21060,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2120811397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2120811396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58099d15a0c481744a2069a90098a365, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  closetPanel: {fileID: 1587577034}
-  outfitSlotsContainer: {fileID: 915085690}
-  outfitSlotPrefab: {fileID: 122083684}
-  characterPreview: {fileID: 1190641280}
 --- !u!4 &2120811398
 Transform:
   m_ObjectHideFlags: 0
@@ -21055,6 +21075,68 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2120811399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2120811396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2dbc0ae964b0004abbd166baf4413e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allOutfits:
+  - outfitID: outfit_school_green
+    outfitName: School Uniform
+    topClothing: {fileID: 1871282671}
+    bottomClothing: {fileID: 2114191582}
+    shoesClothing: {fileID: 0}
+    accessory: {fileID: 0}
+    outfitIcon: {fileID: 0}
+    isUnlocked: 1
+    price: 0
+  - outfitID: outfit_checkered
+    outfitName: Checkered
+    topClothing: {fileID: 0}
+    bottomClothing: {fileID: 0}
+    shoesClothing: {fileID: 0}
+    accessory: {fileID: 0}
+    outfitIcon: {fileID: 0}
+    isUnlocked: 0
+    price: 2500
+  - outfitID: 
+    outfitName: 
+    topClothing: {fileID: 0}
+    bottomClothing: {fileID: 0}
+    shoesClothing: {fileID: 0}
+    accessory: {fileID: 0}
+    outfitIcon: {fileID: 0}
+    isUnlocked: 0
+    price: 0
+  - outfitID: 
+    outfitName: 
+    topClothing: {fileID: 0}
+    bottomClothing: {fileID: 0}
+    shoesClothing: {fileID: 0}
+    accessory: {fileID: 0}
+    outfitIcon: {fileID: 0}
+    isUnlocked: 0
+    price: 0
+  currentOutfit:
+    outfitID: 
+    outfitName: 
+    topClothing: {fileID: 0}
+    bottomClothing: {fileID: 0}
+    shoesClothing: {fileID: 0}
+    accessory: {fileID: 0}
+    outfitIcon: {fileID: 0}
+    isUnlocked: 1
+    price: 0
+  characterModel: {fileID: 1190641287}
+  characterTag: Player
+  autoFindCharacter: 1
 --- !u!1001 &584432402048216045
 PrefabInstance:
   m_ObjectHideFlags: 0
