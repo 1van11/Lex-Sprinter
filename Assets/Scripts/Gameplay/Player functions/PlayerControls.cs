@@ -3,11 +3,14 @@ using UnityEngine;
 
 public class PlayerControls : MonoBehaviour
 {
+    [Header("Player Model Reference")]
+    public Transform playerModel; // Reference to actual 3D model (for animator/visuals)
+
     [Header("Forward Movement")]
     public float forwardSpeed = 10f;
 
     [Header("Horizontal Movement")]
-    public float laneDistance = 3f; // limit range (-laneDistance to +laneDistance)
+    public float laneDistance = 3f;
     public float horizontalMoveSpeed = 10f;
     private float horizontalInput = 0f;
 
@@ -31,6 +34,12 @@ public class PlayerControls : MonoBehaviour
     public float tiltAngle = 20f;
     public float tiltSpeed = 10f;
     public float lookAngle = 25f;
+    public bool rotateModelOnly = true; // NEW: Rotate only the model, not the entire parent
+
+    [Header("Ground Detection")]
+    public float groundCheckDistance = 0.1f;
+    public LayerMask groundLayer;
+    public Vector3 groundCheckOffset = Vector3.zero; // NEW: Adjust ground check position
 
     private Animator anim;
     private Rigidbody rb;
@@ -55,20 +64,63 @@ public class PlayerControls : MonoBehaviour
 
     void Start()
     {
-        anim = GetComponent<Animator>();
+        // Try to find player model if not assigned
+        if (playerModel == null)
+        {
+            // Look for a child named "Model" or similar
+            foreach (Transform child in transform)
+            {
+                if (child.name.Contains("Model") || child.GetComponent<Renderer>() != null)
+                {
+                    playerModel = child;
+                    Debug.Log($"PlayerControls: Found player model: {playerModel.name}");
+                    break;
+                }
+            }
+        }
+
+        // Get animator from model or this object
+        if (playerModel != null)
+        {
+            anim = playerModel.GetComponent<Animator>();
+        }
+        else
+        {
+            anim = GetComponent<Animator>();
+        }
+
+        // Rigidbody and collider should be on this GameObject (the parent)
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
 
+        if (rb == null)
+        {
+            Debug.LogError("PlayerControls: Rigidbody component missing on this GameObject!");
+        }
+        
+        if (col == null)
+        {
+            Debug.LogError("PlayerControls: CapsuleCollider component missing on this GameObject!");
+        }
+
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+
+        Debug.Log($"PlayerControls initialized on {gameObject.name}");
+        Debug.Log($"Model: {playerModel?.name}, Animator: {anim != null}, Rigidbody: {rb != null}");
     }
 
     void Update()
     {
         if (!canMove) return;
 
-        // Forward movement
+        // Forward movement - move the parent
         Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
         transform.position += forwardMove;
+
+        // Update grounded time FIRST
+        bool grounded = IsGrounded();
+        if (grounded)
+            lastGroundedTime = Time.time;
 
         HandleLaneInput();
         MoveHorizontal();
@@ -76,10 +128,9 @@ public class PlayerControls : MonoBehaviour
         HandleTiltAndLook();
         ApplyExtraGravity();
         DetectSwipe();
-        UpdateJumpAnimation();
 
-        if (IsGrounded())
-            lastGroundedTime = Time.time;
+        // Update animation based on current state
+        UpdateJumpAnimation();
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             lastJumpPressedTime = Time.time;
@@ -121,7 +172,6 @@ public class PlayerControls : MonoBehaviour
 
         transform.position = pos;
 
-                
         bool atLeftEdge = pos.x <= -laneDistance + 0.01f;
         bool atRightEdge = pos.x >= laneDistance - 0.01f;
 
@@ -142,7 +192,7 @@ public class PlayerControls : MonoBehaviour
     }
 
     // -----------------------
-    // Jump System
+    // Jump System (FIXED)
     // -----------------------
     void HandleJump()
     {
@@ -170,6 +220,10 @@ public class PlayerControls : MonoBehaviour
             isJumping = true;
             jumpHeld = false;
             lastJumpPressedTime = -999f;
+            
+            // Update animation immediately when jumping
+            if (anim != null)
+                anim.SetBool("isJumping", true);
         }
 
         // Smash
@@ -180,18 +234,28 @@ public class PlayerControls : MonoBehaviour
             rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
         }
 
-        // Reset when grounded
+        // Reset when grounded AND velocity is low
         if (IsGrounded() && rb.velocity.y <= 0.1f)
         {
-            isJumping = false;
-            isSmashing = false;
+            if (isJumping || isSmashing)
+            {
+                isJumping = false;
+                isSmashing = false;
+                
+                // Update animation immediately when landing
+                if (anim != null)
+                    anim.SetBool("isJumping", false);
+            }
         }
     }
 
     void UpdateJumpAnimation()
     {
         if (anim == null) return;
-        anim.SetBool("isJumping", !IsGrounded());
+        
+        // Set based on actual grounded state, not just the flag
+        bool shouldBeJumping = !IsGrounded() || rb.velocity.y > 0.1f;
+        anim.SetBool("isJumping", shouldBeJumping);
     }
 
     void ApplyExtraGravity()
@@ -208,11 +272,44 @@ public class PlayerControls : MonoBehaviour
     // -----------------------
     void HandleTiltAndLook()
     {
-        Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
+        if (rotateModelOnly && playerModel != null)
+        {
+            // Rotate only the model, not the entire parent
+            Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
+            playerModel.localRotation = Quaternion.Slerp(
+                playerModel.localRotation, 
+                targetRotation, 
+                Time.deltaTime * tiltSpeed
+            );
 
-        if (horizontalInput == 0)
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, Time.deltaTime * tiltSpeed);
+            if (horizontalInput == 0)
+            {
+                playerModel.localRotation = Quaternion.Slerp(
+                    playerModel.localRotation, 
+                    Quaternion.identity, 
+                    Time.deltaTime * tiltSpeed
+                );
+            }
+        }
+        else
+        {
+            // Original behavior: rotate the entire parent
+            Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, 
+                targetRotation, 
+                Time.deltaTime * tiltSpeed
+            );
+
+            if (horizontalInput == 0)
+            {
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation, 
+                    Quaternion.identity, 
+                    Time.deltaTime * tiltSpeed
+                );
+            }
+        }
     }
 
     // -----------------------
@@ -282,11 +379,23 @@ public class PlayerControls : MonoBehaviour
     }
 
     // -----------------------
-    // Helpers
+    // Helpers (IMPROVED)
     // -----------------------
     public bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, col.bounds.extents.y + 0.1f);
+        if (col == null) return false;
+        
+        // Calculate ground check position with offset
+        Vector3 checkPosition = transform.position + groundCheckOffset;
+        
+        // Use a slightly longer raycast for better detection
+        float checkDistance = col.bounds.extents.y + groundCheckDistance;
+        
+        // Optional: Use layer mask if you set one
+        if (groundLayer.value != 0)
+            return Physics.Raycast(checkPosition, Vector3.down, checkDistance, groundLayer);
+        
+        return Physics.Raycast(checkPosition, Vector3.down, checkDistance);
     }
 
     public float GetForwardSpeed() => forwardSpeed;
@@ -308,6 +417,7 @@ public class PlayerControls : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        // Lane visualization
         Gizmos.color = Color.yellow;
         float left = -laneDistance;
         float right = laneDistance;
@@ -320,5 +430,19 @@ public class PlayerControls : MonoBehaviour
 
         Gizmos.DrawLine(startL, endL);
         Gizmos.DrawLine(startR, endR);
+
+        // Visualize ground check
+        if (col != null)
+        {
+            Vector3 checkPosition = transform.position + groundCheckOffset;
+            Gizmos.color = IsGrounded() ? Color.green : Color.red;
+            Vector3 rayStart = checkPosition;
+            Vector3 rayEnd = rayStart + Vector3.down * (col.bounds.extents.y + groundCheckDistance);
+            Gizmos.DrawLine(rayStart, rayEnd);
+            
+            // Draw ground check offset point
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(checkPosition, 0.1f);
+        }
     }
 }
