@@ -8,6 +8,9 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Debug / Cheat Options")]
     public bool alwaysInvincible = false; // toggle in Inspector or via code
 
+    [Header("Player Model Reference")]
+    public Transform playerModel; // Reference to the actual 3D model (drag in Inspector)
+    
     [Header("Audio Sounds")]
     public AudioSource audioSource;
     public AudioClip coinSound;
@@ -72,11 +75,11 @@ public class PlayerFunctions : MonoBehaviour
     public GameObject wrongAnswerPrefab;
     public float feedbackDisplayTime = 1.5f;
 
-
     private Queue<GameObject> correctPool = new Queue<GameObject>();
-private Queue<GameObject> wrongPool = new Queue<GameObject>();
+    private Queue<GameObject> wrongPool = new Queue<GameObject>();
 
     private Renderer[] renderers;
+    private Renderer[] modelRenderers; // Renderers from the actual 3D model
     [HideInInspector] public bool isDead = false;
 
     // Reference to PlayerControls
@@ -84,10 +87,59 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
 
     void Start()
     {
+        // Try to find player model if not assigned
+        if (playerModel == null)
+        {
+            // Look for a child named "Model" or similar
+            foreach (Transform child in transform)
+            {
+                if (child.name.Contains("Model") || child.GetComponent<Renderer>() != null)
+                {
+                    playerModel = child;
+                    Debug.Log($"Found player model: {playerModel.name}");
+                    break;
+                }
+            }
+            
+            // If still not found, use the first child with a renderer
+            if (playerModel == null)
+            {
+                Renderer[] childRenderers = GetComponentsInChildren<Renderer>();
+                if (childRenderers.Length > 0 && childRenderers[0].transform != transform)
+                {
+                    playerModel = childRenderers[0].transform;
+                    Debug.Log($"Using first renderer child as model: {playerModel.name}");
+                }
+            }
+        }
+
+        // Get renderers from the actual 3D model
+        if (playerModel != null)
+        {
+            modelRenderers = playerModel.GetComponentsInChildren<Renderer>();
+            Debug.Log($"Found {modelRenderers.Length} renderers on player model");
+        }
+        else
+        {
+            // Fallback to getting all renderers in children
+            modelRenderers = GetComponentsInChildren<Renderer>();
+            Debug.LogWarning("Player model not assigned, using all child renderers");
+        }
+
+        // Get renderers on this GameObject (for shield/magnet visuals if they're children)
         renderers = GetComponentsInChildren<Renderer>();
+
         playerControls = GetComponent<PlayerControls>();
 
-        lastPosition = transform.position;
+        // Initialize lastPosition based on player model
+        if (playerModel != null)
+        {
+            lastPosition = playerModel.position;
+        }
+        else
+        {
+            lastPosition = transform.position;
+        }
 
         // Initialize health
         currentHealth = maxHealth;
@@ -103,16 +155,26 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
         if (shieldVisual != null) shieldVisual.SetActive(false);
         if (magnetVisual != null) magnetVisual.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (revivePanel != null) revivePanel.SetActive(false); // NEW: Hide revive panel at start
+        if (revivePanel != null) revivePanel.SetActive(false);
     }
 
     void Update()
     {
         if (isDead) return;
 
-        // Track distance
-        distanceTraveled += Vector3.Distance(transform.position, lastPosition);
-        lastPosition = transform.position;
+        // Track distance using player model position
+        Vector3 currentPosition;
+        if (playerModel != null)
+        {
+            currentPosition = playerModel.position;
+        }
+        else
+        {
+            currentPosition = transform.position;
+        }
+        
+        distanceTraveled += Vector3.Distance(currentPosition, lastPosition);
+        lastPosition = currentPosition;
 
         if (distanceText != null)
             distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
@@ -128,6 +190,24 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
                     break;
             }
             playerControls.SetForwardSpeed(10f * bonus);
+        }
+
+        // Magnet effect during magnet buff
+        if (hasMagnet && Time.timeScale > 0)
+        {
+            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
+            foreach (GameObject coinObj in allCoins)
+            {
+                if (coinObj == null || !coinObj.activeInHierarchy) continue;
+
+                float distance = Vector3.Distance(transform.position, coinObj.transform.position);
+                if (distance <= magnetRadius)
+                    coinObj.transform.position = Vector3.MoveTowards(
+                        coinObj.transform.position, 
+                        transform.position, 
+                        magnetPullSpeed * Time.deltaTime
+                    );
+            }
         }
     }
 
@@ -232,28 +312,6 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
                     else
                         Debug.Log("🛡️ Shield or invincibility prevented damage from wrong answer!");
                 }
-
-                // Show correct answer if player chose wrong
-                if (!isCorrect)
-                {
-                    GameObject otherOption = null;
-                    Transform parent = other.transform.parent;
-
-                    if (parent != null)
-                    {
-                        foreach (Transform child in parent)
-                        {
-                            if (child.CompareTag("AnswerOptions") && child.gameObject != other.gameObject)
-                            {
-                                otherOption = child.gameObject;
-                                break;
-                            }
-                        }
-                    }
-
-            //      if (otherOption != null)
-           //           ReplaceWithFeedbackModel(otherOption, correctAnswerPrefab);
-              }
 
                 // Remove colliders and destroy question after delay
                 if (other.transform.parent != null)
@@ -587,15 +645,40 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
 
         while (timer < duration)
         {
+            // Flash only the actual 3D model's renderers
+            if (modelRenderers != null)
+            {
+                foreach (Renderer r in modelRenderers)
+                {
+                    if (r != null)
+                        r.enabled = !r.enabled;
+                }
+            }
+            // Also flash any renderers on this GameObject
             foreach (Renderer r in renderers)
-                r.enabled = !r.enabled;
+            {
+                if (r != null && r.transform != playerModel)
+                    r.enabled = !r.enabled;
+            }
 
             timer += flashInterval;
             yield return new WaitForSeconds(flashInterval);
         }
 
+        // Ensure all renderers are visible after IFrames
+        if (modelRenderers != null)
+        {
+            foreach (Renderer r in modelRenderers)
+            {
+                if (r != null)
+                    r.enabled = true;
+            }
+        }
         foreach (Renderer r in renderers)
-            r.enabled = true;
+        {
+            if (r != null)
+                r.enabled = true;
+        }
 
         isInvincible = false;
     }
@@ -629,16 +712,6 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
         float timer = magnetDuration;
         while (timer > 0)
         {
-            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
-            foreach (GameObject coinObj in allCoins)
-            {
-                if (coinObj == null || !coinObj.activeInHierarchy) continue;
-
-                float distance = Vector3.Distance(transform.position, coinObj.transform.position);
-                if (distance <= magnetRadius)
-                    coinObj.transform.position = Vector3.MoveTowards(coinObj.transform.position, transform.position, magnetPullSpeed * Time.deltaTime);
-            }
-
             timer -= Time.deltaTime;
             yield return null;
         }
@@ -663,46 +736,50 @@ private Queue<GameObject> wrongPool = new Queue<GameObject>();
         isSlowTime = false;
         Debug.Log("⏰ Slow Time expired");
     }
-private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
-{
-    if (pool.Count > 0)
+
+    private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
     {
-        GameObject obj = pool.Dequeue();
-        obj.SetActive(true);
-        return obj;
+        if (pool.Count > 0)
+        {
+            GameObject obj = pool.Dequeue();
+            obj.SetActive(true);
+            return obj;
+        }
+
+        return Instantiate(prefab);
     }
 
-    return Instantiate(prefab);
-}
+    private void ReturnToPool(GameObject obj, Queue<GameObject> pool)
+    {
+        obj.SetActive(false);
+        pool.Enqueue(obj);
+    }
 
-private void ReturnToPool(GameObject obj, Queue<GameObject> pool)
-{
-    obj.SetActive(false);
-    pool.Enqueue(obj);
-}
-void ReplaceWithFeedbackModel(GameObject answerOption, GameObject feedbackPrefab)
-{
-    if (feedbackPrefab == null) return;
+    void ReplaceWithFeedbackModel(GameObject answerOption, GameObject feedbackPrefab)
+    {
+        if (feedbackPrefab == null) return;
 
-    Queue<GameObject> pool =
-        feedbackPrefab == correctAnswerPrefab ? correctPool : wrongPool;
+        Queue<GameObject> pool =
+            feedbackPrefab == correctAnswerPrefab ? correctPool : wrongPool;
 
-    GameObject feedback = GetFromPool(pool, feedbackPrefab);
-    feedback.transform.position = answerOption.transform.position;
-    feedback.transform.rotation = feedbackPrefab.transform.rotation;
+        GameObject feedback = GetFromPool(pool, feedbackPrefab);
+        feedback.transform.position = answerOption.transform.position;
+        feedback.transform.rotation = feedbackPrefab.transform.rotation;
 
-    StartCoroutine(ReturnFeedbackToPool(feedback, pool, feedbackDisplayTime));
-}
+        StartCoroutine(ReturnFeedbackToPool(feedback, pool, feedbackDisplayTime));
+    }
+
     IEnumerator DestroyAfterDelay(GameObject obj, float delay)
     {
         yield return new WaitForSeconds(delay);
         Destroy(obj);
     }
+
     IEnumerator ReturnFeedbackToPool(GameObject obj, Queue<GameObject> pool, float delay)
-{
-    yield return new WaitForSeconds(delay);
-    ReturnToPool(obj, pool);
-}
+    {
+        yield return new WaitForSeconds(delay);
+        ReturnToPool(obj, pool);
+    }
 
     void OnApplicationQuit()
     {
