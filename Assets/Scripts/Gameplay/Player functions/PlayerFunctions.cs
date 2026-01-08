@@ -9,6 +9,7 @@ public class PlayerFunctions : MonoBehaviour
     public bool alwaysInvincible = false; // toggle in Inspector or via code
 
     [Header("Player Model Reference")]
+    [Tooltip("Auto-detects GameObject with 'Player' tag. Can be manually assigned if needed.")]
     public Transform playerModel; // Reference to the actual 3D model (drag in Inspector)
     
     [Header("Audio Sounds")]
@@ -87,43 +88,20 @@ public class PlayerFunctions : MonoBehaviour
 
     void Start()
     {
-        // Try to find player model if not assigned
-        if (playerModel == null)
-        {
-            // Look for a child named "Model" or similar
-            foreach (Transform child in transform)
-            {
-                if (child.name.Contains("Model") || child.GetComponent<Renderer>() != null)
-                {
-                    playerModel = child;
-                    Debug.Log($"Found player model: {playerModel.name}");
-                    break;
-                }
-            }
-            
-            // If still not found, use the first child with a renderer
-            if (playerModel == null)
-            {
-                Renderer[] childRenderers = GetComponentsInChildren<Renderer>();
-                if (childRenderers.Length > 0 && childRenderers[0].transform != transform)
-                {
-                    playerModel = childRenderers[0].transform;
-                    Debug.Log($"Using first renderer child as model: {playerModel.name}");
-                }
-            }
-        }
+        // AUTO-DETECT PLAYER MODEL USING TAG
+        AutoDetectPlayerModel();
 
         // Get renderers from the actual 3D model
         if (playerModel != null)
         {
             modelRenderers = playerModel.GetComponentsInChildren<Renderer>();
-            Debug.Log($"Found {modelRenderers.Length} renderers on player model");
+            Debug.Log($"✅ Found {modelRenderers.Length} renderers on player model: {playerModel.name}");
         }
         else
         {
             // Fallback to getting all renderers in children
             modelRenderers = GetComponentsInChildren<Renderer>();
-            Debug.LogWarning("Player model not assigned, using all child renderers");
+            Debug.LogWarning("⚠️ Player model not found. Using all child renderers.");
         }
 
         // Get renderers on this GameObject (for shield/magnet visuals if they're children)
@@ -156,6 +134,74 @@ public class PlayerFunctions : MonoBehaviour
         if (magnetVisual != null) magnetVisual.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (revivePanel != null) revivePanel.SetActive(false);
+    }
+
+    /// <summary>
+    /// Auto-detects the player model by looking for GameObject with "Player" tag
+    /// </summary>
+    private void AutoDetectPlayerModel()
+    {
+        // If already assigned, use that
+        if (playerModel != null)
+        {
+            Debug.Log($"✅ Player model already assigned: {playerModel.name}");
+            return;
+        }
+
+        // Method 1: Look for GameObject with "Player" tag in the scene
+        GameObject taggedPlayer = GameObject.FindGameObjectWithTag("Player");
+        if (taggedPlayer != null)
+        {
+            // Check if this is the same GameObject (to avoid infinite loops)
+            if (taggedPlayer != this.gameObject)
+            {
+                playerModel = taggedPlayer.transform;
+                Debug.Log($"✅ Found player model via tag 'Player': {playerModel.name}");
+                return;
+            }
+        }
+
+        // Method 2: Look among children for a GameObject tagged as "Player"
+        foreach (Transform child in transform)
+        {
+            if (child.CompareTag("Player"))
+            {
+                playerModel = child;
+                Debug.Log($"✅ Found player model (child with 'Player' tag): {child.name}");
+                return;
+            }
+        }
+
+        // Method 3: Look for any child with renderer
+        Renderer[] childRenderers = GetComponentsInChildren<Renderer>(true);
+        foreach (Renderer rend in childRenderers)
+        {
+            if (rend.transform != transform)
+            {
+                playerModel = rend.transform;
+                Debug.Log($"✅ Found player model (first child with renderer): {playerModel.name}");
+                return;
+            }
+        }
+
+        // Method 4: If this GameObject has a renderer, use it
+        Renderer myRenderer = GetComponent<Renderer>();
+        if (myRenderer != null)
+        {
+            playerModel = transform;
+            Debug.Log($"✅ Using self as player model (has renderer)");
+            return;
+        }
+
+        // Last resort: Check if this is the player controller
+        if (gameObject.CompareTag("Player") || GetComponent<PlayerControls>() != null)
+        {
+            playerModel = transform;
+            Debug.Log($"✅ Using self as player model (Player controller)");
+            return;
+        }
+
+        Debug.LogWarning("❌ Could not auto-detect player model! Please assign manually in Inspector.");
     }
 
     void Update()
@@ -807,6 +853,17 @@ public class PlayerFunctions : MonoBehaviour
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, magnetRadius);
+        }
+    }
+
+    // Public method to manually set player model (optional)
+    public void SetPlayerModel(Transform newModel)
+    {
+        playerModel = newModel;
+        if (playerModel != null)
+        {
+            modelRenderers = playerModel.GetComponentsInChildren<Renderer>();
+            Debug.Log($"✅ Player model manually set to: {playerModel.name}");
         }
     }
 

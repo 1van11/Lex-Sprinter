@@ -2,47 +2,83 @@ using UnityEngine;
 
 public class CostumeManager : MonoBehaviour
 {
+    [System.Serializable]
+    public class ModelOption
+    {
+        public GameObject modelPrefab;
+        public bool useTrigger; // checkbox per element
+    }
+
     [Header("Settings")]
     public bool replaceOnStart = true;
-    public GameObject newModelPrefab;   // The prefab of the new character model
-    public Transform modelParent;       // The parent where the model should go
+    public bool useSavedIndex = true; // New option to use saved index from menu
+
+    [Header("Model Options")]
+    public ModelOption[] models;
+
+    [Header("Model Parent")]
+    public Transform modelParent;
 
     private GameObject currentModel;
 
     void Start()
     {
-        if (replaceOnStart && newModelPrefab != null)
+        if (replaceOnStart && models.Length > 0)
         {
-            ReplaceModel(newModelPrefab);
+            int startIndex = 0;
+            
+            if (useSavedIndex)
+            {
+                // Get the saved index from PlayerPrefs
+                startIndex = PlayerPrefs.GetInt("SelectedCostume", 0);
+            }
+            else
+            {
+                // Use a fixed start index (for testing)
+                startIndex = 0;
+            }
+            
+            startIndex = Mathf.Clamp(startIndex, 0, models.Length - 1);
+            ReplaceModel(models[startIndex].modelPrefab);
         }
     }
 
     public void ReplaceModel(GameObject prefab)
     {
-        if (prefab == null || modelParent == null)
-        {
-            Debug.LogWarning("Prefab or modelParent not assigned!");
-            return;
-        }
+        if (prefab == null || modelParent == null) return;
 
-        // Destroy all existing children of the modelParent
         foreach (Transform child in modelParent)
         {
             Destroy(child.gameObject);
         }
 
-        // Instantiate the new model as a child of modelParent
         currentModel = Instantiate(prefab, modelParent);
         currentModel.transform.localPosition = Vector3.zero;
         currentModel.transform.localRotation = Quaternion.identity;
 
-        // Assign Animator (if your scripts use it)
         Animator newAnimator = currentModel.GetComponent<Animator>();
         Animator parentAnimator = modelParent.GetComponent<Animator>();
-        if (newAnimator != null && parentAnimator != null)
+
+        if (newAnimator && parentAnimator)
         {
             parentAnimator.runtimeAnimatorController = newAnimator.runtimeAnimatorController;
             parentAnimator.applyRootMotion = newAnimator.applyRootMotion;
         }
+    }
+
+    // Called by triggers
+    public void TriggerModel(int index)
+    {
+        if (index < 0 || index >= models.Length) return;
+        if (!models[index].useTrigger) return;
+
+        ReplaceModel(models[index].modelPrefab);
+    }
+    
+    // Optional: Method to change costume directly from other scripts
+    public void SetCostumeByIndex(int index)
+    {
+        if (index < 0 || index >= models.Length) return;
+        ReplaceModel(models[index].modelPrefab);
     }
 }
