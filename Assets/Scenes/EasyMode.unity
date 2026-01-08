@@ -338,7 +338,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replaceOnStart: 1
-  newModelPrefab: {fileID: 806141782}
+  useSavedIndex: 1
+  models:
+  - modelPrefab: {fileID: 0}
+    useTrigger: 0
+  - modelPrefab: {fileID: 919132149073575539}
+    useTrigger: 0
   modelParent: {fileID: 264086230}
 --- !u!1 &56027839
 GameObject:
@@ -3672,46 +3677,6 @@ MonoBehaviour:
   poolSize: 12
   tilesPerMap: 6
   spawnPoint: {fileID: 774635559}
---- !u!1 &806141782 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-  m_PrefabInstance: {fileID: 992396066}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &806141784
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806141782}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4ad1a5c2a370e31409e5b447aa8cbd61, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 2
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!136 &806141785
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806141782}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  m_Radius: 1
-  m_Height: 4.5
-  m_Direction: 1
-  m_Center: {x: 0, y: 2, z: 0}
 --- !u!1 &821492036
 GameObject:
   m_ObjectHideFlags: 0
@@ -4602,67 +4567,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 973499207}
   OtherThingsCanvas: {fileID: 1457024180}
---- !u!1001 &992396066
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -123.8
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_Name
-      value: lexigirl_Christmas Costume v2.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: cd9d15f0ae377ae47b8f62fc2fd11125, type: 3}
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -8863,3 +8767,65 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d655c1940079cc4ab4872c13b9653c7, type: 3}
+--- !u!1 &919132149073575539 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4345426724865550994, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+  m_PrefabInstance: {fileID: 3499128979698373857}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3499128979698373857
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -123.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3964819386982330408, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345426724865550994, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
+      propertyPath: m_Name
+      value: lexigirl_Christmas Costume v2.1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
