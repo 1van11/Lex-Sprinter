@@ -208,8 +208,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 47127453}
-  - component: {fileID: 47127454}
-  - component: {fileID: 47127455}
   - component: {fileID: 47127456}
   m_Layer: 0
   m_Name: GameObject (1)
@@ -234,97 +232,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &47127454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 47127452}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 884a8ff4fc63b784a865cec9c882edbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  alwaysInvincible: 0
-  playerModel: {fileID: 0}
-  audioSource: {fileID: 334565211}
-  coinSound: {fileID: 8300000, guid: 39871d362b3b42b4ab0bb9db8179b01f, type: 3}
-  hurtSound: {fileID: 8300000, guid: bd60b0e54e86ee441858f501adaa3485, type: 3}
-  correctAnswerSound: {fileID: 8300000, guid: f64c452990b3267438cb11191493a438, type: 3}
-  wrongAnswerSound: {fileID: 8300000, guid: 5fbc36555fe18b1428f1ec57c198118f, type: 3}
-  score: 0
-  scoreText: {fileID: 263466928}
-  totalCoins: 0
-  coinSaveKey: PlayerTotalCoins
-  totalCoinsText: {fileID: 1873909192}
-  distanceTraveled: 0
-  distanceText: {fileID: 1289235989}
-  maxHealth: 5
-  currentHealth: 5
-  healthText: {fileID: 0}
-  healthImages:
-  - {fileID: 920437208}
-  - {fileID: 2030645620}
-  - {fileID: 871209267}
-  - {fileID: 761494871}
-  - {fileID: 1919337839}
-  fullHealthSprite: {fileID: 21300000, guid: 335f44771072d1448bb4aacc5c987229, type: 3}
-  emptyHealthSprite: {fileID: 0}
-  iFrameDuration: 1
-  flashInterval: 0.1
-  isInvincible: 0
-  hasShield: 0
-  hasMagnet: 0
-  isSlowTime: 0
-  shieldDuration: 8
-  magnetDuration: 15
-  slowTimeDuration: 4
-  magnetRadius: 7
-  magnetPullSpeed: 10
-  coinLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  shieldVisual: {fileID: 1177350797}
-  magnetVisual: {fileID: 1830821176}
-  gameOverPanel: {fileID: 973499207}
-  revivePanel: {fileID: 0}
-  correctAnswerPrefab: {fileID: 959248298}
-  wrongAnswerPrefab: {fileID: 1735868751}
-  feedbackDisplayTime: 1.5
-  isDead: 0
---- !u!114 &47127455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 47127452}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerModel: {fileID: 0}
-  forwardSpeed: 10
-  laneDistance: 3
-  horizontalMoveSpeed: 10
-  jumpForce: 9
-  extraFallForce: 11
-  jumpCooldown: 0.25
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  smashDownForce: 20
-  tiltAngle: 20
-  tiltSpeed: 10
-  lookAngle: 25
-  rotateModelOnly: 1
-  groundCheckDistance: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  groundCheckOffset: {x: 0, y: 0, z: 0}
-  canMove: 1
 --- !u!114 &47127456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -928,7 +835,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aef89fb4f187514a864af8dee75e7c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target3D: {fileID: 47127453}
+  target3D: {fileID: 264086230}
   uiElements:
   - {fileID: 760115166}
   - {fileID: 1177350798}
@@ -1882,11 +1789,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264086228}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 884a8ff4fc63b784a865cec9c882edbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  forwardSpeed: 10
+  speedIncreaseMultiplier: 1.125
+  maxSpeedMultiplier: 1.8
+  speedIncreaseDistance: 300
   alwaysInvincible: 0
   playerModel: {fileID: 0}
   audioSource: {fileID: 334565211}
@@ -1941,13 +1852,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 264086228}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerModel: {fileID: 0}
-  forwardSpeed: 10
   laneDistance: 3
   horizontalMoveSpeed: 10
   jumpForce: 9
@@ -1959,12 +1868,10 @@ MonoBehaviour:
   tiltAngle: 20
   tiltSpeed: 10
   lookAngle: 25
-  rotateModelOnly: 1
   groundCheckDistance: 0.1
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
-  groundCheckOffset: {x: 0, y: 0, z: 0}
   canMove: 1
 --- !u!1 &301971632
 GameObject:
@@ -4533,7 +4440,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56}
+  m_AnchoredPosition: {x: 0, y: -55.999695}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &973499212
@@ -4802,7 +4709,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56}
+  m_AnchoredPosition: {x: 0, y: -55.999695}
   m_SizeDelta: {x: -188.65306, y: -536.4949}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -8772,6 +8679,34 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4345426724865550994, guid: 01587c910f34ab646b2f129b4a1cfe92, type: 3}
   m_PrefabInstance: {fileID: 3499128979698373857}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &919132149073575543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149073575539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laneDistance: 3
+  horizontalMoveSpeed: 10
+  jumpForce: 9
+  extraFallForce: 11
+  jumpCooldown: 0.25
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
+  smashDownForce: 20
+  tiltAngle: 20
+  tiltSpeed: 10
+  lookAngle: 25
+  groundCheckDistance: 0.1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  canMove: 1
 --- !u!1001 &3499128979698373857
 PrefabInstance:
   m_ObjectHideFlags: 0
