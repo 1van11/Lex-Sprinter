@@ -5,6 +5,12 @@ using TMPro;
 
 public class PlayerFunctions : MonoBehaviour
 {
+    [Header("Forward Movement")]
+    public float forwardSpeed = 10f;
+    public float speedIncreaseMultiplier = 1.125f;
+    public float maxSpeedMultiplier = 1.8f;
+    public float speedIncreaseDistance = 300f; // Distance interval for speed increase
+    
     [Header("Debug / Cheat Options")]
     public bool alwaysInvincible = false; // toggle in Inspector or via code
 
@@ -134,6 +140,10 @@ public class PlayerFunctions : MonoBehaviour
         if (magnetVisual != null) magnetVisual.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (revivePanel != null) revivePanel.SetActive(false);
+        
+        // Initialize forward speed in PlayerControls
+        if (playerControls != null)
+            playerControls.SetForwardSpeed(forwardSpeed);
     }
 
     /// <summary>
@@ -208,6 +218,10 @@ public class PlayerFunctions : MonoBehaviour
     {
         if (isDead) return;
 
+        // Forward movement - moved to PlayerFunctions
+        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+        transform.position += forwardMove;
+
         // Track distance using player model position
         Vector3 currentPosition;
         if (playerModel != null)
@@ -226,17 +240,7 @@ public class PlayerFunctions : MonoBehaviour
             distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
 
         // Speed increase logic
-        if (playerControls != null)
-        {
-            float bonus = 1f;
-            for (int i = 300; i <= distanceTraveled; i += 300)
-            {
-                bonus *= 1.125f;
-                if (bonus >= 1.8f)
-                    break;
-            }
-            playerControls.SetForwardSpeed(10f * bonus);
-        }
+        UpdateSpeedBasedOnDistance();
 
         // Magnet effect during magnet buff
         if (hasMagnet && Time.timeScale > 0)
@@ -255,6 +259,31 @@ public class PlayerFunctions : MonoBehaviour
                     );
             }
         }
+    }
+
+    /// <summary>
+    /// Updates speed based on distance traveled
+    /// </summary>
+    private void UpdateSpeedBasedOnDistance()
+    {
+        float bonus = 1f;
+        int intervals = Mathf.FloorToInt(distanceTraveled / speedIncreaseDistance);
+        
+        for (int i = 1; i <= intervals; i++)
+        {
+            bonus *= speedIncreaseMultiplier;
+            if (bonus >= maxSpeedMultiplier)
+            {
+                bonus = maxSpeedMultiplier;
+                break;
+            }
+        }
+        
+        forwardSpeed = 10f * bonus;
+        
+        // Update PlayerControls with the new speed
+        if (playerControls != null)
+            playerControls.SetForwardSpeed(forwardSpeed);
     }
 
     void OnTriggerEnter(Collider other)
@@ -865,6 +894,31 @@ public class PlayerFunctions : MonoBehaviour
             modelRenderers = playerModel.GetComponentsInChildren<Renderer>();
             Debug.Log($"✅ Player model manually set to: {playerModel.name}");
         }
+    }
+    
+    // Public methods for forward speed control
+    public float GetForwardSpeed() => forwardSpeed;
+    
+    public void SetForwardSpeed(float speed)
+    {
+        forwardSpeed = speed;
+        Debug.Log($"⚡ Speed set to: {forwardSpeed}");
+    }
+    
+    public void StopMovement()
+    {
+        forwardSpeed = 0f;
+        if (playerControls != null)
+            playerControls.SetForwardSpeed(0f);
+        Debug.Log("🛑 Movement stopped");
+    }
+    
+    public void ResumeMovement(float baseSpeed = 10f)
+    {
+        forwardSpeed = baseSpeed;
+        if (playerControls != null)
+            playerControls.SetForwardSpeed(forwardSpeed);
+        Debug.Log($"▶️ Movement resumed at speed: {forwardSpeed}");
     }
 
 #if UNITY_EDITOR

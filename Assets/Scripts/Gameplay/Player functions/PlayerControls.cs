@@ -1,14 +1,9 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControls : MonoBehaviour
 {
-    [Header("Player Model Reference")]
-    public Transform playerModel; // Reference to actual 3D model (for animator/visuals)
-
-    [Header("Forward Movement")]
-    public float forwardSpeed = 10f;
-
     [Header("Horizontal Movement")]
     public float laneDistance = 3f;
     public float horizontalMoveSpeed = 10f;
@@ -34,12 +29,13 @@ public class PlayerControls : MonoBehaviour
     public float tiltAngle = 20f;
     public float tiltSpeed = 10f;
     public float lookAngle = 25f;
-    public bool rotateModelOnly = true; // NEW: Rotate only the model, not the entire parent
 
     [Header("Ground Detection")]
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
-    public Vector3 groundCheckOffset = Vector3.zero; // NEW: Adjust ground check position
+
+    [Header("Scene Animation Settings")]
+    public string homeSceneName = "HomeScreen";
 
     private Animator anim;
     private Rigidbody rb;
@@ -62,60 +58,106 @@ public class PlayerControls : MonoBehaviour
 
     [HideInInspector] public bool canMove = true;
 
+    // Static reference to ensure only one PlayerControls is active
+    private static PlayerControls activeInstance;
+    private bool isActiveInstance = false;
+
+    // Reference to PlayerFunctions for forward speed
+    private PlayerFunctions playerFunctions;
+
+    // Track current scene
+    private string currentSceneName;
+
     void Start()
     {
-        // Try to find player model if not assigned
-        if (playerModel == null)
+        // Check if there's already an active instance
+        if (activeInstance == null)
         {
-            // Look for a child named "Model" or similar
-            foreach (Transform child in transform)
-            {
-                if (child.name.Contains("Model") || child.GetComponent<Renderer>() != null)
-                {
-                    playerModel = child;
-                    Debug.Log($"PlayerControls: Found player model: {playerModel.name}");
-                    break;
-                }
-            }
-        }
-
-        // Get animator from model or this object
-        if (playerModel != null)
-        {
-            anim = playerModel.GetComponent<Animator>();
+            // This is the first/active instance
+            activeInstance = this;
+            isActiveInstance = true;
+            InitializeComponents();
         }
         else
         {
-            anim = GetComponent<Animator>();
+            // There's already an active instance, disable this one
+            isActiveInstance = false;
+            Debug.Log($"⚠️ Disabling duplicate PlayerControls on {gameObject.name}");
+            
+            // Disable this script but keep the GameObject active
+            this.enabled = false;
+            return;
         }
 
-        // Rigidbody and collider should be on this GameObject (the parent)
+        // Subscribe to scene loading events
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // Set initial scene and animation state
+        currentSceneName = SceneManager.GetActiveScene().name;
+        UpdateAnimationBasedOnScene();
+    }
+
+    void InitializeComponents()
+    {
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
-
-        if (rb == null)
-        {
-            Debug.LogError("PlayerControls: Rigidbody component missing on this GameObject!");
-        }
         
-        if (col == null)
+        // Try to get PlayerFunctions from this GameObject or parent
+        playerFunctions = GetComponent<PlayerFunctions>();
+        if (playerFunctions == null)
         {
-            Debug.LogError("PlayerControls: CapsuleCollider component missing on this GameObject!");
+            playerFunctions = GetComponentInParent<PlayerFunctions>();
+        }
+        if (playerFunctions == null)
+        {
+            playerFunctions = FindObjectOfType<PlayerFunctions>();
         }
 
-        rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+        }
+        else
+        {
+            Debug.LogWarning("❌ Rigidbody not found on PlayerControls GameObject");
+        }
 
-        Debug.Log($"PlayerControls initialized on {gameObject.name}");
-        Debug.Log($"Model: {playerModel?.name}, Animator: {anim != null}, Rigidbody: {rb != null}");
+        Debug.Log($"✅ Active PlayerControls initialized on {gameObject.name}");
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        currentSceneName = scene.name;
+        UpdateAnimationBasedOnScene();
+    }
+
+    void UpdateAnimationBasedOnScene()
+    {
+        if (anim == null) return;
+
+        bool isHomeScreen = currentSceneName == homeSceneName;
+
+        if (isHomeScreen)
+        {
+            // In HomeScreen: trigger isIdle, disable isRunning
+            anim.SetBool("isIdle", true);
+            anim.SetBool("isRunning", false);
+            Debug.Log("🏠 HomeScreen detected - Setting isIdle to true");
+        }
+        else
+        {
+            // Not in HomeScreen: trigger isRunning, disable isIdle
+            anim.SetBool("isIdle", false);
+            anim.SetBool("isRunning", true);
+            Debug.Log($"🏃 Scene '{currentSceneName}' detected - Setting isRunning to true");
+        }
     }
 
     void Update()
     {
-        if (!canMove) return;
-
-        // Forward movement - move the parent
-        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
-        transform.position += forwardMove;
+        // Only the active instance should process input
+        if (!isActiveInstance || !canMove) return;
 
         // Update grounded time FIRST
         bool grounded = IsGrounded();
@@ -134,6 +176,18 @@ public class PlayerControls : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
             lastJumpPressedTime = Time.time;
+    }
+
+    void OnDestroy()
+    {
+        // Unsubscribe from scene events
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        // If this was the active instance, clear the reference
+        if (isActiveInstance)
+        {
+            activeInstance = null;
+        }
     }
 
     // -----------------------
@@ -162,6 +216,8 @@ public class PlayerControls : MonoBehaviour
 
     void MoveHorizontal()
     {
+        if (transform == null) return;
+
         Vector3 pos = transform.position;
 
         // Move left/right
@@ -214,8 +270,11 @@ public class PlayerControls : MonoBehaviour
 
         if (canJump)
         {
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            if (rb != null)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }
             lastJumpTime = Time.time;
             isJumping = true;
             jumpHeld = false;
@@ -230,12 +289,15 @@ public class PlayerControls : MonoBehaviour
         if (!IsGrounded() && !isSmashing && (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)))
         {
             isSmashing = true;
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-            rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+            if (rb != null)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+            }
         }
 
         // Reset when grounded AND velocity is low
-        if (IsGrounded() && rb.velocity.y <= 0.1f)
+        if (IsGrounded() && (rb == null || rb.velocity.y <= 0.1f))
         {
             if (isJumping || isSmashing)
             {
@@ -254,13 +316,13 @@ public class PlayerControls : MonoBehaviour
         if (anim == null) return;
         
         // Set based on actual grounded state, not just the flag
-        bool shouldBeJumping = !IsGrounded() || rb.velocity.y > 0.1f;
+        bool shouldBeJumping = !IsGrounded() || (rb != null && rb.velocity.y > 0.1f);
         anim.SetBool("isJumping", shouldBeJumping);
     }
 
     void ApplyExtraGravity()
     {
-        if (!IsGrounded() && rb.velocity.y < 0)
+        if (!IsGrounded() && rb != null && rb.velocity.y < 0)
         {
             float gravityMultiplier = isSmashing ? 2f : 1f;
             rb.AddForce(Vector3.down * extraFallForce * gravityMultiplier, ForceMode.Acceleration);
@@ -272,44 +334,11 @@ public class PlayerControls : MonoBehaviour
     // -----------------------
     void HandleTiltAndLook()
     {
-        if (rotateModelOnly && playerModel != null)
-        {
-            // Rotate only the model, not the entire parent
-            Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
-            playerModel.localRotation = Quaternion.Slerp(
-                playerModel.localRotation, 
-                targetRotation, 
-                Time.deltaTime * tiltSpeed
-            );
+        Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
 
-            if (horizontalInput == 0)
-            {
-                playerModel.localRotation = Quaternion.Slerp(
-                    playerModel.localRotation, 
-                    Quaternion.identity, 
-                    Time.deltaTime * tiltSpeed
-                );
-            }
-        }
-        else
-        {
-            // Original behavior: rotate the entire parent
-            Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation, 
-                targetRotation, 
-                Time.deltaTime * tiltSpeed
-            );
-
-            if (horizontalInput == 0)
-            {
-                transform.rotation = Quaternion.Slerp(
-                    transform.rotation, 
-                    Quaternion.identity, 
-                    Time.deltaTime * tiltSpeed
-                );
-            }
-        }
+        if (horizontalInput == 0)
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, Time.deltaTime * tiltSpeed);
     }
 
     // -----------------------
@@ -366,8 +395,11 @@ public class PlayerControls : MonoBehaviour
                             if (!IsGrounded() && !isSmashing)
                             {
                                 isSmashing = true;
-                                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                                rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+                                if (rb != null)
+                                {
+                                    rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                                    rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
+                                }
                             }
                         }
                     }
@@ -383,41 +415,56 @@ public class PlayerControls : MonoBehaviour
     // -----------------------
     public bool IsGrounded()
     {
-        if (col == null) return false;
-        
-        // Calculate ground check position with offset
-        Vector3 checkPosition = transform.position + groundCheckOffset;
-        
+        if (col == null)
+        {
+            // Try to get the collider if it's null
+            col = GetComponent<CapsuleCollider>();
+            if (col == null) return false;
+        }
+
         // Use a slightly longer raycast for better detection
         float checkDistance = col.bounds.extents.y + groundCheckDistance;
         
         // Optional: Use layer mask if you set one
         if (groundLayer.value != 0)
-            return Physics.Raycast(checkPosition, Vector3.down, checkDistance, groundLayer);
+            return Physics.Raycast(transform.position, Vector3.down, checkDistance, groundLayer);
         
-        return Physics.Raycast(checkPosition, Vector3.down, checkDistance);
+        return Physics.Raycast(transform.position, Vector3.down, checkDistance);
     }
 
-    public float GetForwardSpeed() => forwardSpeed;
-
-    public void SetForwardSpeed(float speed) => forwardSpeed = speed;
+    // Public methods for PlayerFunctions to control movement
+    public void SetForwardSpeed(float speed)
+    {
+        // This is now just a passthrough for PlayerFunctions to use
+        // The actual forward movement is handled in PlayerFunctions
+        // Can be used for any speed-related notifications if needed
+    }
 
     public void StopMovement()
     {
         canMove = false;
-        rb.velocity = Vector3.zero;
-        forwardSpeed = 0f;
+        if (rb != null)
+            rb.velocity = Vector3.zero;
     }
 
     public void ResumeMovement()
     {
         canMove = true;
-        forwardSpeed = 10f;
+    }
+
+    // Public property to check if this is the active instance
+    public bool IsActiveInstance => isActiveInstance;
+
+    // Static method to get the active instance
+    public static PlayerControls GetActiveInstance()
+    {
+        return activeInstance;
     }
 
     void OnDrawGizmos()
     {
-        // Lane visualization
+        if (!isActiveInstance) return;
+
         Gizmos.color = Color.yellow;
         float left = -laneDistance;
         float right = laneDistance;
@@ -434,15 +481,10 @@ public class PlayerControls : MonoBehaviour
         // Visualize ground check
         if (col != null)
         {
-            Vector3 checkPosition = transform.position + groundCheckOffset;
             Gizmos.color = IsGrounded() ? Color.green : Color.red;
-            Vector3 rayStart = checkPosition;
+            Vector3 rayStart = transform.position;
             Vector3 rayEnd = rayStart + Vector3.down * (col.bounds.extents.y + groundCheckDistance);
             Gizmos.DrawLine(rayStart, rayEnd);
-            
-            // Draw ground check offset point
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(checkPosition, 0.1f);
         }
     }
 }
