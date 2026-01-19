@@ -8,6 +8,6 @@ public class SliderController : MonoBehaviour
     public Text valueText;
 
     public void OnSliderChanged(float value)    {
-        valueText.text = value.ToString();
+        valueText.text = value.ToString() + "%";
     }
 }
