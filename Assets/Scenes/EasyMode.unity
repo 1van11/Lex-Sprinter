@@ -247,9 +247,11 @@ MonoBehaviour:
   replaceOnStart: 1
   useSavedIndex: 1
   models:
-  - modelPrefab: {fileID: 919132149073575539}
+  - modelPrefab: {fileID: 237372638}
     useTrigger: 0
   - modelPrefab: {fileID: 0}
+    useTrigger: 0
+  - modelPrefab: {fileID: 919132149073575539}
     useTrigger: 0
   modelParent: {fileID: 264086230}
 --- !u!1 &56027839
@@ -715,6 +717,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 135835206}
   m_CullTransparentMesh: 1
+--- !u!1001 &137078186
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_RootOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -98.2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+      propertyPath: m_Name
+      value: lexigirl_Christmas Costume v2.1 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
 --- !u!1 &161069993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1586,6 +1645,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 231198027}
   m_CullTransparentMesh: 1
+--- !u!1 &237372638 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6af88bf6971e91a44980a47a854b4cf7, type: 3}
+  m_PrefabInstance: {fileID: 137078186}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &237372639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237372638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laneDistance: 3
+  horizontalMoveSpeed: 10
+  jumpForce: 9
+  gravity: 20
+  groundCheckDistance: 0.1
+  fastDescentForce: 15
+  fastDescentGravityMultiplier: 2.5
+  minSwipeDistance: 50
+  swipeCooldown: 0.3
+  tiltAngle: 20
+  tiltSpeed: 10
+  mobileSensitivity: 0.5
+  useTouchControls: 1
+--- !u!136 &237372640
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237372638}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1
+  m_Height: 4.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 2, z: 0}
+--- !u!95 &237372641
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237372638}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4ad1a5c2a370e31409e5b447aa8cbd61, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 2
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &263466927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,6 +1955,8 @@ MonoBehaviour:
   isSlowTime: 0
   shieldDuration: 8
   magnetDuration: 15
+  shieldMaxHits: 2
+  shieldHitsRemaining: 0
   slowTimeDuration: 4
   magnetRadius: 7
   magnetPullSpeed: 10
@@ -1860,20 +1986,16 @@ MonoBehaviour:
   laneDistance: 3
   horizontalMoveSpeed: 10
   jumpForce: 9
-  extraFallForce: 10
-  jumpCooldown: 0.25
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  smashDownForce: 20
+  gravity: 20
+  groundCheckDistance: 0.1
+  fastDescentForce: 15
+  fastDescentGravityMultiplier: 2.5
+  minSwipeDistance: 50
+  swipeCooldown: 0.3
   tiltAngle: 20
   tiltSpeed: 10
-  lookAngle: 25
-  groundCheckDistance: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  homeSceneName: HomeScreen
-  canMove: 1
+  mobileSensitivity: 0.5
+  useTouchControls: 1
 --- !u!1 &301971632
 GameObject:
   m_ObjectHideFlags: 0
@@ -2530,23 +2652,21 @@ MonoBehaviour:
   coinScale: {x: 1, y: 1, z: 1}
   coinsPerLane: 6
   coinSpacing: 2
-  maxPowerUpCount: 0
-  firstPowerUpDistance: 1e+10
-  powerUpInterval: 100
-  powerUpPositionOffset: {x: 1, y: 3, z: 0}
+  powerUpSpawnChance: 50
+  firstPowerUpDistance: 0
+  powerUpPositionOffset: {x: 1, y: 1, z: 0}
   powerUpScale: {x: 10, y: 10, z: 10}
-  powerUpSpawnAhead: 100
   spawnChances:
   - type: 0
-    chance: 33
+    chance: 50
   - type: 1
-    chance: 33
+    chance: 50
   - type: 2
-    chance: 34
+    chance: 0
   letterContainerPrefab: {fileID: 168779156}
   spawnerIndicatorPrefab: {fileID: 0}
   letterSpawnParent: {fileID: 774635559}
-  letterSpawnDistanceAhead: 40
+  letterSpawnDistanceAhead: 30
   letterSpawnInterval: 15
   letterSpawnHeight: 1
   letterSpawnPositionOffset: {x: 0, y: 0, z: 0}
@@ -4497,7 +4617,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56}
+  m_AnchoredPosition: {x: 0, y: -56.000244}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &973499212
@@ -4766,7 +4886,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56}
+  m_AnchoredPosition: {x: 0, y: -56.000244}
   m_SizeDelta: {x: -188.65306, y: -536.4949}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -8278,20 +8398,16 @@ MonoBehaviour:
   laneDistance: 3
   horizontalMoveSpeed: 10
   jumpForce: 9
-  extraFallForce: 10
-  jumpCooldown: 0.25
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  smashDownForce: 20
+  gravity: 20
+  groundCheckDistance: 0.1
+  fastDescentForce: 15
+  fastDescentGravityMultiplier: 2.5
+  minSwipeDistance: 50
+  swipeCooldown: 0.3
   tiltAngle: 20
   tiltSpeed: 10
-  lookAngle: 25
-  groundCheckDistance: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  homeSceneName: HomeScreen
-  canMove: 1
+  mobileSensitivity: 0.5
+  useTouchControls: 1
 --- !u!136 &1948122059
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8812,7 +8928,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132149073575539}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
@@ -8820,20 +8936,34 @@ MonoBehaviour:
   laneDistance: 3
   horizontalMoveSpeed: 10
   jumpForce: 9
-  extraFallForce: 10
-  jumpCooldown: 0.25
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  smashDownForce: 20
+  gravity: 20
+  groundCheckDistance: 0.1
+  fastDescentForce: 15
+  fastDescentGravityMultiplier: 2.5
+  minSwipeDistance: 50
+  swipeCooldown: 0.3
   tiltAngle: 20
   tiltSpeed: 10
-  lookAngle: 25
-  groundCheckDistance: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  homeSceneName: HomeScreen
-  canMove: 1
+  mobileSensitivity: 0.5
+  useTouchControls: 1
+--- !u!114 &919132149073575547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149073575539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bbcac4e1997f8c4e8ae49c490d94c10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runParam: isRunning
+  jumpParam: isJumping
+  idleParam: isIdle
+  fastDescendParam: isFastDescending
+  swipeThreshold: 70
+  mainControls: {fileID: 0}
 --- !u!1001 &3499128979698373857
 PrefabInstance:
   m_ObjectHideFlags: 0

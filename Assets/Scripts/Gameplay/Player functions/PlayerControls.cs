@@ -1,490 +1,356 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class PlayerControls : MonoBehaviour
+public class PlayerControls : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [Header("Horizontal Movement")]
+    [Header("Movement")]
     public float laneDistance = 3f;
     public float horizontalMoveSpeed = 10f;
-    private float horizontalInput = 0f;
 
     [Header("Jump")]
     public float jumpForce = 9f;
-    public float extraFallForce = 10f;
-    public float jumpCooldown = 0.25f;
-    private float lastJumpTime;
+    public float gravity = 20f;
+    public float groundCheckDistance = 0.1f;
 
-    [Header("Jump Assist")]
-    public float coyoteTime = 0.2f;
-    public float jumpBufferTime = 0.2f;
-    private float lastGroundedTime;
-    private float lastJumpPressedTime;
-
-    [Header("Jump Smash")]
-    public float smashDownForce = 20f;
-    private bool isSmashing = false;
-
+    [Header("Fast Descent")]
+    public float fastDescentForce = 15f;
+    public float fastDescentGravityMultiplier = 2.5f;
+    public float minSwipeDistance = 50f;
+    public float swipeCooldown = 0.3f;
+    
     [Header("Rotation")]
     public float tiltAngle = 20f;
     public float tiltSpeed = 10f;
-    public float lookAngle = 25f;
 
-    [Header("Ground Detection")]
-    public float groundCheckDistance = 0.1f;
-    public LayerMask groundLayer;
-
-    [Header("Scene Animation Settings")]
-    public string homeSceneName = "HomeScreen";
-
+    [Header("Mobile Input")]
+    public float mobileSensitivity = 0.5f;
+    public bool useTouchControls = true;
+    
     private Animator anim;
     private Rigidbody rb;
     private CapsuleCollider col;
-
-    private bool isJumping = false;
-    private bool jumpHeld = false;
-
-    private float inputCooldown = 0.2f;
-    private float lastInputTime;
-
+    
+    private float horizontalInput = 0f;
     private float targetTilt = 0f;
-    private float targetYaw = 0f;
-
-    // Swipe Controls
-    private Vector2 startTouchPos;
-    private Vector2 endTouchPos;
-    private bool swipeDetected = false;
-    private float swipeThreshold = 50f;
-
-    [HideInInspector] public bool canMove = true;
-
-    // Static reference to ensure only one PlayerControls is active
-    private static PlayerControls activeInstance;
-    private bool isActiveInstance = false;
-
-    // Reference to PlayerFunctions for forward speed
-    private PlayerFunctions playerFunctions;
-
-    // Track current scene
-    private string currentSceneName;
+    private bool isGrounded;
+    private bool isFastDescending = false;
+    private float lastSwipeTime = 0f;
+    
+    // Mobile input variables
+    private Vector2 touchStartPos;
+    private Vector2 touchCurrentPos;
+    private bool isTouching = false;
+    private float touchTime = 0f;
 
     void Start()
-    {
-        // Check if there's already an active instance
-        if (activeInstance == null)
-        {
-            // This is the first/active instance
-            activeInstance = this;
-            isActiveInstance = true;
-            InitializeComponents();
-        }
-        else
-        {
-            // There's already an active instance, disable this one
-            isActiveInstance = false;
-            Debug.Log($"⚠️ Disabling duplicate PlayerControls on {gameObject.name}");
-            
-            // Disable this script but keep the GameObject active
-            this.enabled = false;
-            return;
-        }
-
-        // Subscribe to scene loading events
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        
-        // Set initial scene and animation state
-        currentSceneName = SceneManager.GetActiveScene().name;
-        UpdateAnimationBasedOnScene();
-    }
-
-    void InitializeComponents()
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
         
-        // Try to get PlayerFunctions from this GameObject or parent
-        playerFunctions = GetComponent<PlayerFunctions>();
-        if (playerFunctions == null)
-        {
-            playerFunctions = GetComponentInParent<PlayerFunctions>();
-        }
-        if (playerFunctions == null)
-        {
-            playerFunctions = FindObjectOfType<PlayerFunctions>();
-        }
-
         if (rb != null)
         {
             rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
-        }
-        else
-        {
-            Debug.LogWarning("❌ Rigidbody not found on PlayerControls GameObject");
-        }
-
-        Debug.Log($"✅ Active PlayerControls initialized on {gameObject.name}");
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        currentSceneName = scene.name;
-        UpdateAnimationBasedOnScene();
-    }
-
-    void UpdateAnimationBasedOnScene()
-    {
-        if (anim == null) return;
-
-        bool isHomeScreen = currentSceneName == homeSceneName;
-
-        if (isHomeScreen)
-        {
-            // In HomeScreen: trigger isIdle, disable isRunning
-            anim.SetBool("isIdle", true);
-            anim.SetBool("isRunning", false);
-            Debug.Log("🏠 HomeScreen detected - Setting isIdle to true");
-        }
-        else
-        {
-            // Not in HomeScreen: trigger isRunning, disable isIdle
-            anim.SetBool("isIdle", false);
-            anim.SetBool("isRunning", true);
-            Debug.Log($"🏃 Scene '{currentSceneName}' detected - Setting isRunning to true");
         }
     }
 
     void Update()
     {
-        // Only the active instance should process input
-        if (!isActiveInstance || !canMove) return;
-
-        // Update grounded time FIRST
-        bool grounded = IsGrounded();
-        if (grounded)
-            lastGroundedTime = Time.time;
-
-        HandleLaneInput();
+        CheckGrounded();
+        HandleInput();
         MoveHorizontal();
-        HandleJump();
-        HandleTiltAndLook();
-        ApplyExtraGravity();
-        DetectSwipe();
-
-        // Update animation based on current state
-        UpdateJumpAnimation();
-
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
-            lastJumpPressedTime = Time.time;
+        UpdateAnimations();
+        ApplyTilt();
+        HandleFastDescent();
     }
 
-    void OnDestroy()
+    void CheckGrounded()
     {
-        // Unsubscribe from scene events
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        // If this was the active instance, clear the reference
-        if (isActiveInstance)
+        if (col == null) return;
+        
+        float checkDist = col.bounds.extents.y + groundCheckDistance;
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, checkDist);
+        
+        // Reset fast descent when grounded
+        if (isGrounded && isFastDescending)
         {
-            activeInstance = null;
+            isFastDescending = false;
         }
     }
 
-    // -----------------------
-    // Horizontal Free Movement
-    // -----------------------
-    void HandleLaneInput()
+    void HandleInput()
     {
-        if (Time.time - lastInputTime < inputCooldown) return;
-
+        // Reset input
         horizontalInput = 0f;
+        targetTilt = 0f;
+        
+        // Handle desktop input
+        HandleDesktopInput();
+        
+        // Handle mobile touch input
+        if (useTouchControls)
+        {
+            HandleTouchInput();
+        }
+        
+        // Handle jump for both desktop and mobile
+        HandleJumpInput();
+    }
 
-        // Keyboard
+    void HandleDesktopInput()
+    {
+        // Left/Right
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
             horizontalInput = -1f;
             targetTilt = tiltAngle;
-            targetYaw = -lookAngle;
         }
         else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
             horizontalInput = 1f;
             targetTilt = -tiltAngle;
-            targetYaw = lookAngle;
+        }
+        
+        // Fast descent (Swipe Down on Desktop: S or Down Arrow)
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isGrounded)
+        {
+            TriggerFastDescent();
+        }
+    }
+
+    void HandleTouchInput()
+    {
+        // Mobile horizontal movement via touch position
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            
+            // Convert touch position to screen percentage
+            float screenPercent = touch.position.x / Screen.width;
+            
+            // Determine horizontal input based on screen position
+            if (screenPercent < 0.4f) // Left 40% of screen
+            {
+                horizontalInput = -1f;
+                targetTilt = tiltAngle;
+            }
+            else if (screenPercent > 0.6f) // Right 40% of screen
+            {
+                horizontalInput = 1f;
+                targetTilt = -tiltAngle;
+            }
+            // Middle 20% is neutral
+            
+            // Handle tap for jump
+            if (touch.phase == TouchPhase.Began && isGrounded)
+            {
+                touchStartPos = touch.position;
+                touchTime = Time.time;
+            }
+            
+            // Handle swipe detection
+            if (touch.phase == TouchPhase.Ended)
+            {
+                Vector2 swipeDelta = touch.position - touchStartPos;
+                float swipeTime = Time.time - touchTime;
+                
+                // Check for fast swipe down
+                if (swipeDelta.y < -minSwipeDistance && Mathf.Abs(swipeDelta.x) < Mathf.Abs(swipeDelta.y) && 
+                    swipeTime < 0.5f && !isGrounded)
+                {
+                    TriggerFastDescent();
+                }
+            }
+        }
+    }
+
+    void HandleJumpInput()
+    {
+        // Desktop jump
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && isGrounded && rb != null)
+        {
+            PerformJump();
+        }
+        
+        // Mobile jump (tap in middle of screen)
+        if (useTouchControls && Input.touchCount > 0 && isGrounded && rb != null)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                float screenPercent = touch.position.x / Screen.width;
+                if (screenPercent >= 0.4f && screenPercent <= 0.6f) // Middle 20% for jump
+                {
+                    PerformJump();
+                }
+            }
+        }
+    }
+
+    void PerformJump()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+        if (anim != null)
+        {
+            anim.SetTrigger("Jump");
+        }
+    }
+
+    void TriggerFastDescent()
+    {
+        if (Time.time - lastSwipeTime < swipeCooldown) return;
+        
+        isFastDescending = true;
+        lastSwipeTime = Time.time;
+        
+        if (rb != null && !isGrounded)
+        {
+            // Apply downward force
+            rb.AddForce(Vector3.down * fastDescentForce, ForceMode.VelocityChange);
+            
+            // Trigger fast descent animation
+            if (anim != null)
+            {
+                anim.SetTrigger("FastDescent");
+            }
+            
+            Debug.Log("Fast Descent Activated!");
+        }
+    }
+
+    void HandleFastDescent()
+    {
+        if (isFastDescending && !isGrounded && rb != null)
+        {
+            // Apply extra gravity during fast descent
+            rb.AddForce(Vector3.down * (gravity * fastDescentGravityMultiplier), ForceMode.Acceleration);
         }
     }
 
     void MoveHorizontal()
     {
-        if (transform == null) return;
-
         Vector3 pos = transform.position;
-
-        // Move left/right
         pos.x += horizontalInput * horizontalMoveSpeed * Time.deltaTime;
-
-        // Clamp to old 3-lane range
         pos.x = Mathf.Clamp(pos.x, -laneDistance, laneDistance);
-
         transform.position = pos;
-
-        bool atLeftEdge = pos.x <= -laneDistance + 0.01f;
-        bool atRightEdge = pos.x >= laneDistance - 0.01f;
-
-        // If at edge AND input pushes further → cancel tilt
-        if ((atLeftEdge && horizontalInput < 0) || (atRightEdge && horizontalInput > 0))
-        {
-            horizontalInput = 0;
-            targetTilt = 0f;
-            targetYaw = 0f;
-        }
-
-        // Reset rotation when no input
-        if (horizontalInput == 0)
-        {
-            targetTilt = 0f;
-            targetYaw = 0f;
-        }
     }
 
-    // -----------------------
-    // Jump System (FIXED)
-    // -----------------------
-    void HandleJump()
-    {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
-        {
-            lastJumpPressedTime = Time.time;
-            jumpHeld = true;
-        }
-
-        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
-            jumpHeld = false;
-
-        bool canJump =
-            Time.time - lastGroundedTime <= coyoteTime &&
-            Time.time - lastJumpPressedTime <= jumpBufferTime &&
-            Time.time - lastJumpTime >= jumpCooldown &&
-            !isJumping &&
-            jumpHeld;
-
-        if (canJump)
-        {
-            if (rb != null)
-            {
-                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            }
-            lastJumpTime = Time.time;
-            isJumping = true;
-            jumpHeld = false;
-            lastJumpPressedTime = -999f;
-            
-            // Update animation immediately when jumping
-            if (anim != null)
-                anim.SetBool("isJumping", true);
-        }
-
-        // Smash
-        if (!IsGrounded() && !isSmashing && (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)))
-        {
-            isSmashing = true;
-            if (rb != null)
-            {
-                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
-            }
-        }
-
-        // Reset when grounded AND velocity is low
-        if (IsGrounded() && (rb == null || rb.velocity.y <= 0.1f))
-        {
-            if (isJumping || isSmashing)
-            {
-                isJumping = false;
-                isSmashing = false;
-                
-                // Update animation immediately when landing
-                if (anim != null)
-                    anim.SetBool("isJumping", false);
-            }
-        }
-    }
-
-    void UpdateJumpAnimation()
+    void UpdateAnimations()
     {
         if (anim == null) return;
         
-        // Set based on actual grounded state, not just the flag
-        bool shouldBeJumping = !IsGrounded() || (rb != null && rb.velocity.y > 0.1f);
-        anim.SetBool("isJumping", shouldBeJumping);
+        // Running when moving horizontally
+        anim.SetBool("isRunning", Mathf.Abs(horizontalInput) > 0.01f);
+        
+        // Jumping when not grounded
+        anim.SetBool("isJumping", !isGrounded);
+        
+        // Idle when grounded and not moving
+        anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.01f);
+        
+        // Fast descent animation state
+        anim.SetBool("isFastDescending", isFastDescending && !isGrounded);
     }
 
-    void ApplyExtraGravity()
+    void ApplyTilt()
     {
-        if (!IsGrounded() && rb != null && rb.velocity.y < 0)
-        {
-            float gravityMultiplier = isSmashing ? 2f : 1f;
-            rb.AddForce(Vector3.down * extraFallForce * gravityMultiplier, ForceMode.Acceleration);
-        }
-    }
-
-    // -----------------------
-    // Tilt & Rotation
-    // -----------------------
-    void HandleTiltAndLook()
-    {
-        Quaternion targetRotation = Quaternion.Euler(0, targetYaw, targetTilt);
+        Quaternion targetRotation = Quaternion.Euler(0, 0, targetTilt);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
-
-        if (horizontalInput == 0)
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, Time.deltaTime * tiltSpeed);
     }
 
-    // -----------------------
-    // Swipe
-    // -----------------------
-    void DetectSwipe()
+    void FixedUpdate()
     {
-        if (Input.touchCount > 0)
+        // Apply normal gravity when not fast descending
+        if (!isGrounded && rb != null && rb.velocity.y < 0 && !isFastDescending)
         {
-            Touch touch = Input.GetTouch(0);
-
-            switch (touch.phase)
-            {
-                case TouchPhase.Began:
-                    startTouchPos = touch.position;
-                    swipeDetected = true;
-                    break;
-
-                case TouchPhase.Ended:
-                    if (!swipeDetected) return;
-
-                    endTouchPos = touch.position;
-                    Vector2 swipeDelta = endTouchPos - startTouchPos;
-
-                    if (swipeDelta.magnitude < swipeThreshold) return;
-
-                    float x = swipeDelta.x;
-                    float y = swipeDelta.y;
-
-                    if (Mathf.Abs(x) > Mathf.Abs(y))
-                    {
-                        if (x > 0)
-                        {
-                            horizontalInput = 1;
-                            targetTilt = -tiltAngle;
-                            targetYaw = lookAngle;
-                        }
-                        else
-                        {
-                            horizontalInput = -1;
-                            targetTilt = tiltAngle;
-                            targetYaw = -lookAngle;
-                        }
-                    }
-                    else
-                    {
-                        if (y > 0)
-                        {
-                            lastJumpPressedTime = Time.time;
-                            jumpHeld = true;
-                        }
-                        else
-                        {
-                            if (!IsGrounded() && !isSmashing)
-                            {
-                                isSmashing = true;
-                                if (rb != null)
-                                {
-                                    rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                                    rb.AddForce(Vector3.down * smashDownForce, ForceMode.Impulse);
-                                }
-                            }
-                        }
-                    }
-
-                    swipeDetected = false;
-                    break;
-            }
+            rb.AddForce(Vector3.down * gravity, ForceMode.Acceleration);
         }
     }
 
-    // -----------------------
-    // Helpers (IMPROVED)
-    // -----------------------
-    public bool IsGrounded()
+    // UI Drag handlers for mobile (optional alternative control scheme)
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        if (col == null)
+        touchStartPos = eventData.position;
+        isTouching = true;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isTouching) return;
+        
+        touchCurrentPos = eventData.position;
+        Vector2 dragDelta = touchCurrentPos - touchStartPos;
+        
+        // Horizontal movement based on drag
+        if (Mathf.Abs(dragDelta.x) > 10f)
         {
-            // Try to get the collider if it's null
-            col = GetComponent<CapsuleCollider>();
-            if (col == null) return false;
+            horizontalInput = Mathf.Clamp(dragDelta.x * mobileSensitivity / Screen.width, -1f, 1f);
+            targetTilt = horizontalInput > 0 ? -tiltAngle : tiltAngle;
         }
-
-        // Use a slightly longer raycast for better detection
-        float checkDistance = col.bounds.extents.y + groundCheckDistance;
-        
-        // Optional: Use layer mask if you set one
-        if (groundLayer.value != 0)
-            return Physics.Raycast(transform.position, Vector3.down, checkDistance, groundLayer);
-        
-        return Physics.Raycast(transform.position, Vector3.down, checkDistance);
     }
 
-    // Public methods for PlayerFunctions to control movement
-    public void SetForwardSpeed(float speed)
+    public void OnEndDrag(PointerEventData eventData)
     {
-        // This is now just a passthrough for PlayerFunctions to use
-        // The actual forward movement is handled in PlayerFunctions
-        // Can be used for any speed-related notifications if needed
+        if (!isTouching) return;
+        
+        Vector2 swipeDelta = eventData.position - touchStartPos;
+        
+        // Check for swipe down
+        if (swipeDelta.y < -minSwipeDistance && Mathf.Abs(swipeDelta.x) < Mathf.Abs(swipeDelta.y) && !isGrounded)
+        {
+            TriggerFastDescent();
+        }
+        
+        isTouching = false;
+        horizontalInput = 0f;
     }
+
+    public bool IsGrounded() => isGrounded;
 
     public void StopMovement()
     {
-        canMove = false;
         if (rb != null)
             rb.velocity = Vector3.zero;
     }
 
     public void ResumeMovement()
     {
-        canMove = true;
+        // Movement resumes automatically
     }
 
-    // Public property to check if this is the active instance
-    public bool IsActiveInstance => isActiveInstance;
-
-    // Static method to get the active instance
-    public static PlayerControls GetActiveInstance()
+    // Dummy method for PlayerFunctions compatibility
+    public void SetForwardSpeed(float speed)
     {
-        return activeInstance;
+        // PlayerFunctions handles forward speed, this is just for compatibility
     }
 
     void OnDrawGizmos()
     {
-        if (!isActiveInstance) return;
-
+        // Lane boundaries
         Gizmos.color = Color.yellow;
-        float left = -laneDistance;
-        float right = laneDistance;
-
-        Vector3 startL = new Vector3(left, 1, transform.position.z - 10);
-        Vector3 endL = new Vector3(left, 1, transform.position.z + 10);
-
-        Vector3 startR = new Vector3(right, 1, transform.position.z - 10);
-        Vector3 endR = new Vector3(right, 1, transform.position.z + 10);
-
+        Vector3 startL = new Vector3(-laneDistance, 1, transform.position.z - 10);
+        Vector3 endL = new Vector3(-laneDistance, 1, transform.position.z + 10);
+        Vector3 startR = new Vector3(laneDistance, 1, transform.position.z - 10);
+        Vector3 endR = new Vector3(laneDistance, 1, transform.position.z + 10);
+        
         Gizmos.DrawLine(startL, endL);
         Gizmos.DrawLine(startR, endR);
-
-        // Visualize ground check
+        
+        // Ground check
         if (col != null)
         {
-            Gizmos.color = IsGrounded() ? Color.green : Color.red;
+            Gizmos.color = isGrounded ? Color.green : Color.red;
             Vector3 rayStart = transform.position;
             Vector3 rayEnd = rayStart + Vector3.down * (col.bounds.extents.y + groundCheckDistance);
             Gizmos.DrawLine(rayStart, rayEnd);
         }
+        
+        // Fast descent indicator when active
+        if (isFastDescending && !isGrounded)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position + Vector3.down * 2f, 0.5f);
+        }
     }
 }
+//working
