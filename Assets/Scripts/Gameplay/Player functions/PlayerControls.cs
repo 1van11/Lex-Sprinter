@@ -352,5 +352,22 @@ public class PlayerControls : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
             Gizmos.DrawWireSphere(transform.position + Vector3.down * 2f, 0.5f);
         }
     }
+
+    void OnCollisionEnter(Collision other)
+{
+    if (other.gameObject.CompareTag("Obstacle"))
+    {
+        FeedbackManager.Instance.Vibrate();
+    }
+}
+
+void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("WrongItem"))
+    {
+        FeedbackManager.Instance.Vibrate();
+    }
+}
+
 }
 //working
