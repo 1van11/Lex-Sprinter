@@ -52,14 +52,18 @@ public class PlayerFunctions : MonoBehaviour
     public float flashInterval = 0.1f;
     [HideInInspector] public bool isInvincible = false;
 
+    #region Buffs variables
     [Header("Buffs")]
     public bool hasShield = false;
     public bool hasMagnet = false;
     public bool isSlowTime = false;
+    #endregion
 
     [Header("Buff Durations")]
     public float shieldDuration = 8f;
     public float magnetDuration = 6f;
+    public int shieldMaxHits = 3; // 👈 EDIT THIS - how many hits the shield can absorb
+    [HideInInspector] public int shieldHitsRemaining;
     public float slowTimeDuration = 4f;
 
     [Header("Magnet Settings")]
@@ -87,6 +91,7 @@ public class PlayerFunctions : MonoBehaviour
 
     private Renderer[] renderers;
     private Renderer[] modelRenderers; // Renderers from the actual 3D model
+
     [HideInInspector] public bool isDead = false;
 
     // Reference to PlayerControls
@@ -249,12 +254,11 @@ public class PlayerFunctions : MonoBehaviour
             foreach (GameObject coinObj in allCoins)
             {
                 if (coinObj == null || !coinObj.activeInHierarchy) continue;
-
                 float distance = Vector3.Distance(transform.position, coinObj.transform.position);
                 if (distance <= magnetRadius)
                     coinObj.transform.position = Vector3.MoveTowards(
-                        coinObj.transform.position, 
-                        transform.position, 
+                        coinObj.transform.position,
+                        transform.position,
                         magnetPullSpeed * Time.deltaTime
                     );
             }
@@ -286,6 +290,7 @@ public class PlayerFunctions : MonoBehaviour
             playerControls.SetForwardSpeed(forwardSpeed);
     }
 
+    #region OntriggerEnter
     void OnTriggerEnter(Collider other)
     {
         if (isDead) return;
@@ -297,10 +302,8 @@ public class PlayerFunctions : MonoBehaviour
             totalCoins += 1; // Also add to total coins
             UpdateScoreUI();
             UpdateTotalCoinsUI(); // Update total coins display
-
             if (audioSource != null && coinSound != null)
                 audioSource.PlayOneShot(coinSound);
-
             other.gameObject.SetActive(false);
             Debug.Log("💰 Coin collected!");
             Debug.Log($"💰 Total Coins: {totalCoins}");
@@ -308,10 +311,9 @@ public class PlayerFunctions : MonoBehaviour
         }
 
         // Trap collision
-        if (other.CompareTag("Trap") && !isInvincible && !hasShield && !alwaysInvincible)
+        if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
         {
             TakeDamage(1);
-
             if (audioSource != null && hurtSound != null)
                 audioSource.PlayOneShot(hurtSound);
         }
@@ -320,11 +322,9 @@ public class PlayerFunctions : MonoBehaviour
         if (other.CompareTag("LetterHurdle"))
         {
             Debug.Log("🔤 Hit a Letter Hurdle!");
-
             // If invincible cheat or shield, skip damage
-            if (alwaysInvincible || hasShield || isInvincible)
+            if (alwaysInvincible || isInvincible)
             {
-                if (hasShield) Debug.Log("🛡️ Shield protected you from the hurdle!");
                 if (alwaysInvincible) Debug.Log("🛡️ Player is invincible, no damage taken!");
             }
             else
@@ -333,7 +333,6 @@ public class PlayerFunctions : MonoBehaviour
                 if (audioSource != null && hurtSound != null)
                     audioSource.PlayOneShot(hurtSound);
             }
-
             other.gameObject.SetActive(false);
         }
 
@@ -341,12 +340,10 @@ public class PlayerFunctions : MonoBehaviour
         if (other.CompareTag("AnswerOptions"))
         {
             QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
-
             if (questionRandomizer != null)
             {
                 bool isJumpOption = other.gameObject.name.Contains("Jump");
                 string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
-
                 bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
 
                 if (isCorrect)
@@ -356,10 +353,8 @@ public class PlayerFunctions : MonoBehaviour
                     totalCoins += 5;
                     UpdateScoreUI();
                     UpdateTotalCoinsUI();
-
                     if (audioSource != null && correctAnswerSound != null)
                         audioSource.PlayOneShot(correctAnswerSound);
-
                     ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
 
                     // ✅ NEW: Add word to unlocked list (supports multiple words)
@@ -376,16 +371,14 @@ public class PlayerFunctions : MonoBehaviour
                 else
                 {
                     Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
-
                     if (audioSource != null && wrongAnswerSound != null)
                         audioSource.PlayOneShot(wrongAnswerSound);
-
                     ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
 
-                    if (!hasShield && !alwaysInvincible)
+                    if (!alwaysInvincible)
                         TakeDamage(1);
                     else
-                        Debug.Log("🛡️ Shield or invincibility prevented damage from wrong answer!");
+                        Debug.Log("🛡️ Invincibility prevented damage from wrong answer!");
                 }
 
                 // Remove colliders and destroy question after delay
@@ -394,7 +387,6 @@ public class PlayerFunctions : MonoBehaviour
                     Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
                     foreach (Collider col in colliders)
                         Destroy(col);
-
                     StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
                 }
             }
@@ -424,6 +416,7 @@ public class PlayerFunctions : MonoBehaviour
             Debug.Log("⏰ Slow Time activated!");
         }
     }
+    #endregion
 
     /// <summary>
     /// Adds a word to the unlocked words list in PlayerPrefs
@@ -432,7 +425,6 @@ public class PlayerFunctions : MonoBehaviour
     {
         // Get existing unlocked words
         string existingWords = PlayerPrefs.GetString("NewlyUnlockedWords", "");
-
         // Check if word is already in the list
         if (!string.IsNullOrEmpty(existingWords))
         {
@@ -453,15 +445,12 @@ public class PlayerFunctions : MonoBehaviour
             // First word
             existingWords = word;
         }
-
         PlayerPrefs.SetString("NewlyUnlockedWords", existingWords);
         PlayerPrefs.Save();
         Debug.Log($"💾 Saved to NewlyUnlockedWords: {existingWords}");
     }
 
-    /// <summary>
-    /// Call this when transitioning to HomeScreen to process all unlocked words
-    /// </summary>
+    #region Save Words Unlocked
     public void SaveAllUnlockedWordsForDictionary()
     {
         // This is called when going back to HomeScreen
@@ -469,14 +458,29 @@ public class PlayerFunctions : MonoBehaviour
         PlayerPrefs.Save();
         Debug.Log("📚 All unlocked words saved for Dictionary");
     }
+    #endregion
 
     void TakeDamage(int damage)
     {
-        if (isDead || hasShield || alwaysInvincible) return; // respect shield & cheat
+        if (isDead || alwaysInvincible) return;
 
+        if (hasShield && shieldHitsRemaining > 0)
+        {
+            shieldHitsRemaining -= damage;
+            Debug.Log($"🛡️ Shield absorbed damage! Remaining hits: {shieldHitsRemaining}/{shieldMaxHits}");
+
+            if (shieldHitsRemaining <= 0)
+            {
+                hasShield = false;
+                if (shieldVisual != null) shieldVisual.SetActive(false);
+                Debug.Log("🛡️ Shield fully depleted and deactivated");
+            }
+            return; // Shield took the hit → no health loss
+        }
+
+        // No shield or shield depleted → take real damage
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
-
         Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
         UpdateHealthUI();
 
@@ -490,23 +494,31 @@ public class PlayerFunctions : MonoBehaviour
         }
     }
 
+    #region Letter Hurdle
     public void TakeDamageFromWrongLetter()
     {
         if (isDead || alwaysInvincible) return;
 
-        if (hasShield)
+        if (hasShield && shieldHitsRemaining > 0)
         {
-            Debug.Log("🛡️ Shield protected you from wrong letter!");
+            shieldHitsRemaining--;
+            Debug.Log($"🛡️ Shield blocked wrong letter! Remaining: {shieldHitsRemaining}/{shieldMaxHits}");
+
+            if (shieldHitsRemaining <= 0)
+            {
+                hasShield = false;
+                if (shieldVisual != null) shieldVisual.SetActive(false);
+                Debug.Log("🛡️ Shield depleted from wrong letter");
+            }
             return;
         }
 
         TakeDamage(1);
-
         if (audioSource != null && hurtSound != null)
             audioSource.PlayOneShot(hurtSound);
-
         Debug.Log("❌ Wrong letter! Took damage.");
     }
+    #endregion
 
     // Toggleable invincibility helpers
     public void EnableInvincibility()
@@ -596,6 +608,7 @@ public class PlayerFunctions : MonoBehaviour
         // Reset all buff states
         isInvincible = false;
         hasShield = false;
+        shieldHitsRemaining = 0;
         hasMagnet = false;
         isSlowTime = false;
 
@@ -717,7 +730,6 @@ public class PlayerFunctions : MonoBehaviour
     {
         isInvincible = true;
         float timer = 0f;
-
         while (timer < duration)
         {
             // Flash only the actual 3D model's renderers
@@ -735,7 +747,6 @@ public class PlayerFunctions : MonoBehaviour
                 if (r != null && r.transform != playerModel)
                     r.enabled = !r.enabled;
             }
-
             timer += flashInterval;
             yield return new WaitForSeconds(flashInterval);
         }
@@ -761,27 +772,33 @@ public class PlayerFunctions : MonoBehaviour
     IEnumerator ShieldBuff()
     {
         hasShield = true;
-
+        shieldHitsRemaining = shieldMaxHits; // Reset hits when picking up shield
         if (shieldVisual != null)
             shieldVisual.SetActive(true);
 
-        Debug.Log($"🛡️ Shield active for {shieldDuration} seconds");
-        yield return new WaitForSeconds(shieldDuration);
+        Debug.Log($"🛡️ Shield activated! Absorbs {shieldMaxHits} hits for up to {shieldDuration} seconds");
 
-        if (shieldVisual != null)
-            shieldVisual.SetActive(false);
+        float timer = shieldDuration;
+        while (timer > 0 && hasShield)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
 
-        hasShield = false;
-        Debug.Log("🛡️ Shield expired");
+        // Time ran out → deactivate shield
+        if (hasShield)
+        {
+            hasShield = false;
+            if (shieldVisual != null) shieldVisual.SetActive(false);
+            Debug.Log("🛡️ Shield expired (time out)");
+        }
     }
 
     IEnumerator MagnetBuff()
     {
         hasMagnet = true;
-
         if (magnetVisual != null)
             magnetVisual.SetActive(true);
-
         Debug.Log($"🧲 Magnet active for {magnetDuration} seconds");
 
         float timer = magnetDuration;
@@ -793,7 +810,6 @@ public class PlayerFunctions : MonoBehaviour
 
         if (magnetVisual != null)
             magnetVisual.SetActive(false);
-
         hasMagnet = false;
         Debug.Log("🧲 Magnet expired");
     }
@@ -802,7 +818,6 @@ public class PlayerFunctions : MonoBehaviour
     {
         isSlowTime = true;
         Time.timeScale = 0.5f;
-
         Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
 
         yield return new WaitForSecondsRealtime(slowTimeDuration);
@@ -820,7 +835,6 @@ public class PlayerFunctions : MonoBehaviour
             obj.SetActive(true);
             return obj;
         }
-
         return Instantiate(prefab);
     }
 
@@ -937,3 +951,4 @@ public class PlayerFunctions : MonoBehaviour
     }
 #endif
 }
+//testing

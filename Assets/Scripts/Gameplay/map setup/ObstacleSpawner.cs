@@ -61,15 +61,14 @@ public class ObstacleSpawner : MonoBehaviour
     public float coinSpacing = 2f;
 
     [Header("Power-Up Settings")]
-    [Tooltip("Maximum number of power-ups to spawn (0 = unlimited)")]
-    public int maxPowerUpCount = 1;
-    public float firstPowerUpDistance = 500f;
-    public float powerUpInterval = 200f;
+    [Tooltip("Chance to spawn a power-up instead of an obstacle (0-100)")]
+    [Range(0, 100)] public int powerUpSpawnChance = 10;
+    [Tooltip("Distance before first power-up can spawn")]
+    public float firstPowerUpDistance = 100f;
     public Vector3 powerUpPositionOffset = Vector3.zero;
     public Vector3 powerUpScale = Vector3.one;
-    public float powerUpSpawnAhead = 20f;
 
-    [Tooltip("Set spawn chances (must total 100)")]
+    [Tooltip("Set spawn chances for different power-up types (must total 100)")]
     public PowerUpSpawnChance[] spawnChances = new PowerUpSpawnChance[]
     {
         new PowerUpSpawnChance { type = PowerUpType.Shield, chance = 33 },
@@ -150,11 +149,9 @@ public class ObstacleSpawner : MonoBehaviour
     private List<GameObject> activePowerUps = new List<GameObject>();
     private List<GameObject> activeQuestions = new List<GameObject>();
 
-    private float nextPowerUpDistance;
-    private bool hasSpawnedFirstPowerUp = false;
+    private bool hasPassedFirstPowerUpDistance = false;
     private int patternIndex = 0;
     private int spellingCounter = 0;
-    private int totalPowerUpsSpawned = 0;
     private System.Random rng;
 
     private Queue<GameObject> letterPool = new Queue<GameObject>();
@@ -188,9 +185,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Start()
     {
-        nextPowerUpDistance = firstPowerUpDistance;
         rng = new System.Random();
-        totalPowerUpsSpawned = 0;
         
         CreateLetterPool();
         nextLetterSpawnZ = PlayerFunctions.transform.position.z + letterSpawnDistanceAhead + 0.01f;
@@ -211,7 +206,16 @@ public class ObstacleSpawner : MonoBehaviour
             DespawnOldCoins();
             DespawnOldPowerUps();
             DespawnOldQuestions();
-            CheckPowerUpSpawn();
+            
+            // Check if player has passed the first power-up distance
+            if (!hasPassedFirstPowerUpDistance && PlayerFunctions != null)
+            {
+                if (PlayerFunctions.transform.position.z >= firstPowerUpDistance)
+                {
+                    hasPassedFirstPowerUpDistance = true;
+                    Debug.Log($"✅ Player passed first power-up distance at {firstPowerUpDistance}m. Power-ups can now spawn.");
+                }
+            }
         }
         
         if (isLetterEventActive && allowRegularLetterSpawning && PlayerFunctions.transform.position.z + letterSpawnDistanceAhead >= nextLetterSpawnZ)
@@ -628,22 +632,39 @@ public class ObstacleSpawner : MonoBehaviour
         int obstaclesToSpawn = Mathf.Min(maxObstaclesPerRow, 3);
         obstaclesToSpawn = Mathf.Clamp(obstaclesToSpawn, 1, 2);
 
+        // Determine if we should spawn a power-up in this row
+        // Only allow power-up spawning if player has passed the first power-up distance
+        bool canSpawnPowerUp = hasPassedFirstPowerUpDistance;
+        bool shouldSpawnPowerUp = canSpawnPowerUp && Random.Range(0, 100) < powerUpSpawnChance;
+        bool powerUpSpawned = false;
+
         for (int i = 0; i < obstaclesToSpawn; i++)
         {
             int index = Random.Range(0, availableLanes.Count);
             int lane = availableLanes[index];
             availableLanes.RemoveAt(index);
 
-            int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
-            GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
-
             float laneX = (lane - 1.3f) * laneDistance;
-            Vector3 spawnPos = new Vector3(laneX, selectedPrefab.transform.position.y, PlayerFunctions.transform.position.z + zOffset);
+            Vector3 spawnPos = new Vector3(laneX, spawnHeight, PlayerFunctions.transform.position.z + zOffset);
 
-            GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
+            // If we should spawn a power-up and haven't spawned one yet, spawn it
+            if (shouldSpawnPowerUp && !powerUpSpawned)
+            {
+                SpawnPowerUpAtPosition(spawnPos);
+                powerUpSpawned = true;
+            }
+            else
+            {
+                // Spawn normal obstacle
+                int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
+                GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
 
-            activeObstacles.Add(obstacle);
-            StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
+                spawnPos.y = selectedPrefab.transform.position.y; // Use obstacle's own height
+                GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
+
+                activeObstacles.Add(obstacle);
+                StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
+            }
         }
 
         // Spawn coins in empty lanes
@@ -751,35 +772,6 @@ public class ObstacleSpawner : MonoBehaviour
 
     #region Power-Up System
 
-    void CheckPowerUpSpawn()
-    {
-        if (PlayerFunctions == null) return;
-        
-        if (maxPowerUpCount > 0 && totalPowerUpsSpawned >= maxPowerUpCount)
-        {
-            return;
-        }
-        
-        float playerDistance = PlayerFunctions.transform.position.z;
-
-        if (playerDistance >= nextPowerUpDistance)
-        {
-            SpawnPowerUp();
-            
-            if (!hasSpawnedFirstPowerUp)
-            {
-                hasSpawnedFirstPowerUp = true;
-                nextPowerUpDistance = firstPowerUpDistance + powerUpInterval;
-            }
-            else
-            {
-                nextPowerUpDistance += powerUpInterval;
-            }
-            
-            Debug.Log($"Power-ups spawned: {totalPowerUpsSpawned}/{maxPowerUpCount} | Next at: {nextPowerUpDistance}m");
-        }
-    }
-
     PowerUpType GetRandomPowerUpType()
     {
         if (spawnChances == null || spawnChances.Length == 0)
@@ -801,7 +793,7 @@ public class ObstacleSpawner : MonoBehaviour
         return PowerUpType.Shield;
     }
 
-    void SpawnPowerUp()
+    void SpawnPowerUpAtPosition(Vector3 position)
     {
         PowerUpType powerUpType = GetRandomPowerUpType();
         GameObject prefab = null;
@@ -819,39 +811,25 @@ public class ObstacleSpawner : MonoBehaviour
             return;
         }
 
-        List<int> emptyLanes = GetEmptyLanesAtDistance(powerUpSpawnAhead, 5f);
-        if (emptyLanes.Count == 0)
-        {
-            Debug.LogWarning("No empty lanes for power-up!");
-            return;
-        }
-
-        int randomLane = emptyLanes[Random.Range(0, emptyLanes.Count)];
-        float laneX = (randomLane - 1.3f) * laneDistance;
-        float spawnZ = PlayerFunctions.transform.position.z + powerUpSpawnAhead;
-
         Vector3 spawnPos = new Vector3(
-            laneX + powerUpPositionOffset.x,
+            position.x + powerUpPositionOffset.x,
             spawnHeight + powerUpPositionOffset.y,
-            spawnZ + powerUpPositionOffset.z
+            position.z + powerUpPositionOffset.z
         );
 
         GameObject powerUp = Instantiate(prefab, spawnPos, prefab.transform.rotation, ObstacleParentTransform);
         powerUp.transform.localScale = prefab.transform.localScale;
 
         activePowerUps.Add(powerUp);
-        totalPowerUpsSpawned++;
         StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
 
-        Debug.Log($"Spawned {powerUpType} power-up #{totalPowerUpsSpawned} at {PlayerFunctions.transform.position.z}m in lane {randomLane}");
+        Debug.Log($"Spawned {powerUpType} power-up at position: {spawnPos} (Player Z: {PlayerFunctions.transform.position.z})");
     }
 
     public void ResetPowerUpSpawning()
     {
-        hasSpawnedFirstPowerUp = false;
-        nextPowerUpDistance = firstPowerUpDistance;
-        totalPowerUpsSpawned = 0;
-        Debug.Log("Power-up spawning reset");
+        hasPassedFirstPowerUpDistance = false;
+        Debug.Log("Power-up spawning reset - waiting for player to reach first power-up distance");
     }
 
     IEnumerator AutoDespawnPowerUp(GameObject powerUp, float lifetime)
@@ -966,3 +944,4 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 }
+//working
