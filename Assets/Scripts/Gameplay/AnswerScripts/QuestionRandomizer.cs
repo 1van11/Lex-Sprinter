@@ -29,7 +29,7 @@ public class QuestionRandomizer : MonoBehaviour
     private string[,] activeSpellingPairs;
     private string[,] activeSentencePairs;
 
-    // ✅ MAKE THESE PUBLIC STATIC so WordUnlockManager can access them
+    // Difficulty word/sentence banks
     public static string[,] easySpellingPairs = new string[,]
     {
         { "a common pet that barks", "dog", "dag" },
@@ -211,6 +211,93 @@ public class QuestionRandomizer : MonoBehaviour
         { "The professor ____ the topic in great detail.", "explained", "mentioned" }
     };
 
+    public static string[,] hardSpellingPairs = new string[,]
+    {
+        // Animals & nature
+        { "large Australian animal that jumps", "kangaroo", "kangarooo" },
+        { "large reptile with powerful jaws", "alligator", "aligater" },
+        { "large black big cat", "panther", "panthar" },
+        { "sea creature with eight arms", "octopus", "octupus" },
+        { "flightless bird from cold regions", "penguin", "penguine" },
+        { "mountain that erupts with lava", "volcano", "volcanoe" },
+        { "powerful tropical cyclone", "hurricane", "hurricaine" },
+        { "huge slow-moving river of ice", "glacier", "glaceir" },
+        { "severe snow storm with strong winds", "blizzard", "blizzurd" },
+
+        // Environment & tools
+        { "wild natural area with little human presence", "wilderness", "wilderniss" },
+        { "tool that shows north, south, east, west", "compass", "compas" },
+        { "optical tool to see distant objects", "telescope", "telescop" },
+        { "tool to see very small things magnified", "microscope", "microscop" },
+
+        // Body & food
+        { "hair above the eye", "eyebrow", "eyebrou" },
+        { "flat bone in the upper back", "shoulderblade", "sholderblade" },
+        { "joint in the finger", "knuckle", "knuckel" },
+        { "backbone", "spine", "spain" },
+        { "muscle in the mouth used for tasting", "tongue", "toung" },
+        { "white vegetable that looks like a brain", "cauliflower", "coliflower" },
+        { "green fruit with a large pit inside", "avocado", "avacado" },
+        { "long green vegetable eaten in salads", "cucumber", "cuccumber" },
+        { "sweet brown food made from cocoa", "chocolate", "choclate" },
+        { "long Italian noodle dish", "spaghetti", "spagetti" },
+
+        // People & jobs
+        { "person who studies or does experiments", "scientist", "sciencist" },
+        { "person who travels to space", "astronaut", "astroanut" },
+        { "leader of a country", "president", "presedent" },
+        { "person who comes to see you", "visitor", "visiter" },
+        { "people who live near you", "neighbors", "neighbours" },
+
+        // Actions & traits
+        { "to find something new", "discover", "discovar" },
+        { "to go to new places to learn", "explore", "explor" },
+        { "to build something", "construct", "construck" },
+        { "to look at similarities and differences", "compare", "compair" },
+        { "to make a choice", "decide", "deside" },
+        { "willing to give and share", "generous", "genorous" },
+        { "wanting to know more", "curious", "curous" },
+        { "feeling worried or nervous", "anxious", "angshus" },
+        { "feeling thankful", "grateful", "greatful" },
+        { "believing in your own abilities", "confident", "confidant" },
+
+        // Advanced / abstract
+        { "advanced human society with cities and government", "civilization", "civilisation" },
+        { "something newly created or invented", "invention", "inventon" },
+        { "mathematical statement with = sign", "equation", "equasion" },
+        { "system of communication (English, Spanish…)", "language", "langwage" },
+        { "feeling ashamed or shy", "embarrassed", "embarassed" },
+        { "very shy or easily embarrassed", "bashful", "bashfull" },
+        { "aware of something", "conscious", "concious" },
+        { "very fancy and expensive", "extravagant", "extravagent" },
+        { "small orange-like fruit", "apricot", "apricott" },
+        { "to confuse or make someone very puzzled", "discombobulate", "discombobulated" },
+    };
+
+    public static string[,] hardSentencePairs = new string[,]
+    {
+        { "The explorers decided to ____ the unknown cave system.", "explore", "explain" },
+        { "The mathematician solved a very difficult ____.", "equation", "question" },
+        { "She felt extremely ____ after making a mistake in public.", "embarrassed", "impressed" },
+        { "The inventor received a patent for his latest ____.", "invention", "convention" },
+        { "The ancient ____ developed complex writing systems.", "civilization", "university" },
+        { "He remained ____ of his surroundings even while sleeping.", "conscious", "confident" },
+        { "The wealthy family lived in a very ____ mansion.", "extravagant", "elegant" },
+        { "The shy child felt quite ____ around strangers.", "bashful", "playful" },
+        { "The team worked together to ____ a new bridge.", "construct", "conduct" },
+        { "She always tries to ____ different points of view.", "compare", "prepare" },
+        { "The ____ student asked many thoughtful questions.", "curious", "furious" },
+        { "He felt very ____ about the upcoming exam results.", "anxious", "serious" },
+        { "The ____ donation helped build the new library.", "generous", "famous" },
+        { "Astronauts must be extremely ____ to survive in space.", "confident", "different" },
+        { "We are very ____ for all your help during the project.", "grateful", "careful" },
+        { "The chef carefully ____ the exotic ingredients.", "prepared", "compared" },
+        { "The ____ erupted violently after many years of silence.", "volcano", "tornado" },
+        { "The ____ moved slowly across the landscape over centuries.", "glacier", "river" },
+        { "The pilot navigated through the dangerous ____.", "hurricane", "mountain" },
+        { "She used a ____ to examine the tiny crystals.", "microscope", "telescope" },
+    };
+
     void Awake()
     {
         string sceneName = SceneManager.GetActiveScene().name;
@@ -226,6 +313,12 @@ public class QuestionRandomizer : MonoBehaviour
             activeSpellingPairs = mediumSpellingPairs;
             activeSentencePairs = mediumSentencePairs;
             Debug.Log("Difficulty: MEDIUM MODE activated");
+        }
+        else if (sceneName == "HardMode")
+        {
+            activeSpellingPairs = hardSpellingPairs;
+            activeSentencePairs = hardSentencePairs;
+            Debug.Log("Difficulty: HARD MODE activated");
         }
         else
         {
@@ -374,37 +467,35 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
-   void OnTriggerEnter(Collider other)
-{
-    if (other.CompareTag("Player"))
+    void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"Player entered collider. isSentenceQuestion: {isSentenceQuestion}");
-
-        if (isSentenceQuestion && clueTextObject != null)
-            clueTextObject.SetActive(true);
-
-        if (playAudioOnTrigger)
-            PlayQuestionAudio();
-    }
-}
-
-void OnTriggerExit(Collider other)
-{
-    Debug.Log("EXIT detected from: " + other.name);
-
-    if (other.CompareTag("Player"))
-    {
-        Debug.Log("Player triggered EXIT, hiding clue...");
-
-        if (isSentenceQuestion && clueTextObject != null)
+        if (other.CompareTag("Player"))
         {
-            Debug.Log("Clue object found: " + clueTextObject.name);
-            clueTextObject.SetActive(false);
+            Debug.Log($"Player entered collider. isSentenceQuestion: {isSentenceQuestion}");
+
+            if (isSentenceQuestion && clueTextObject != null)
+                clueTextObject.SetActive(true);
+
+            if (playAudioOnTrigger)
+                PlayQuestionAudio();
         }
     }
-}
 
+    void OnTriggerExit(Collider other)
+    {
+        Debug.Log("EXIT detected from: " + other.name);
 
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player triggered EXIT, hiding clue...");
+
+            if (isSentenceQuestion && clueTextObject != null)
+            {
+                Debug.Log("Clue object found: " + clueTextObject.name);
+                clueTextObject.SetActive(false);
+            }
+        }
+    }
 
     public void TriggerQuestionAudio() => PlayQuestionAudio();
 
@@ -424,3 +515,4 @@ void OnTriggerExit(Collider other)
 
     public int GetSentenceQuestionCount() => activeSentencePairs?.GetLength(0) ?? 0;
 }
+//testing

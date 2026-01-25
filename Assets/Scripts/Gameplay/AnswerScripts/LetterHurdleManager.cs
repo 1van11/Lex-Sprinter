@@ -46,6 +46,18 @@ public class LetterHurdleManager : MonoBehaviour
         "Spaghetti","Lighthouse","Windmill"
     };
 
+    private string[] hardWordList = {
+        "Kangaroo", "Alligator", "Panther", "Octopus", "Penguin", "Volcano", "Hurricane", "Glacier", "Blizzard",
+        "Wilderness", "Compass", "Telescope", "Microscope",
+        "Eyebrow", "Shoulderblade", "Knuckle", "Spine", "Tongue", "Cauliflower", "Avocado", "Cucumber",
+        "Chocolate", "Spaghetti",
+        "Scientist", "Astronaut", "President", "Visitor", "Neighbors",
+        "Discover", "Explore", "Construct", "Compare", "Decide", "Generous",
+        "Curious", "Anxious", "Grateful", "Confident",
+        "Civilization", "Invention", "Equation", "Language", "Embarrassed",
+        "Bashful", "Conscious", "Extravagant", "Apricot", "Discombobulate"
+    };
+
     private string[] wordList;
     private string currentTargetWord;
     private List<string> shuffledWords;
@@ -57,7 +69,23 @@ public class LetterHurdleManager : MonoBehaviour
     void Start()
     {
         string scene = SceneManager.GetActiveScene().name;
-        wordList = (scene == "MediumMode") ? mediumWordList : easyWordList;
+
+        if (scene == "HardMode")
+        {
+            wordList = hardWordList;
+            Debug.Log("LetterHurdleManager: Hard mode word list loaded");
+        }
+        else if (scene == "MediumMode")
+        {
+            wordList = mediumWordList;
+            Debug.Log("LetterHurdleManager: Medium mode word list loaded");
+        }
+        else
+        {
+            wordList = easyWordList;
+            Debug.Log("LetterHurdleManager: Easy mode (default) word list loaded");
+        }
+
         shuffledWords = wordList.OrderBy(x => Random.value).ToList();
 
         SetNewTargetWord();
@@ -126,7 +154,7 @@ public class LetterHurdleManager : MonoBehaviour
             letterObj.transform.localPosition = new Vector3(i * letterSpacing, 0, 0);
             TMP_Text letterText = letterObj.GetComponent<TMP_Text>();
             if (letterText != null)
-                letterText.text = word[i].ToString();
+                letterText.text = word[i].ToString().ToUpper();   // ← nicer to show uppercase letters
 
             spawnedLetters.Add(letterObj);
         }
@@ -149,10 +177,16 @@ public class LetterHurdleManager : MonoBehaviour
             if (playerFunctions != null)
             {
                 string scene = SceneManager.GetActiveScene().name;
-                playerFunctions.AddCoins((scene == "MediumMode") ? 100 : 25);
+                int coinReward = scene switch
+                {
+                    "HardMode"   => 200,
+                    "MediumMode" => 100,
+                    _            => 25
+                };
+                playerFunctions.AddCoins(coinReward);
             }
 
-            // NEW: Notify ObstacleSpawner that word was completed
+            // Notify ObstacleSpawner that word was completed
             if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
@@ -179,7 +213,7 @@ public class LetterHurdleManager : MonoBehaviour
                     feedbackText.color = Color.red;
                 }
 
-                // NEW: Notify ObstacleSpawner of failure
+                // Notify ObstacleSpawner of failure
                 if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
                 {
                     obstacleSpawner.OnLetterHurdleFailed();
@@ -236,7 +270,6 @@ public class LetterHurdleManager : MonoBehaviour
         return currentTargetWord;
     }
 
-    // NEW: Modified CheckBossSpell to notify ObstacleSpawner
     public void CheckBossSpell()
     {
         if (collectedText == null) return;
@@ -254,8 +287,9 @@ public class LetterHurdleManager : MonoBehaviour
             }
 
             // Then call boss manager if it exists
-           // if (bossManager != null)
-            //    bossManager.FinishBoss();
+            // if (bossManager != null)
+            //     bossManager.FinishBoss();
         }
     }
 }
+//testing
