@@ -249,9 +249,9 @@ MonoBehaviour:
   models:
   - modelPrefab: {fileID: 0}
     useTrigger: 0
-  - modelPrefab: {fileID: 237372638}
-    useTrigger: 0
   - modelPrefab: {fileID: 919132149073575539}
+    useTrigger: 0
+  - modelPrefab: {fileID: 237372638}
     useTrigger: 0
   modelParent: {fileID: 264086230}
 --- !u!1 &56027839
@@ -2647,13 +2647,13 @@ MonoBehaviour:
   sentenceQuestionHeight: 3
   spawnPattern: 000000000000000001000000
   patternSpacing: 30
-  spellingBeforeSentence: 2
+  spellingBeforeSentence: 1
   coinPositionOffset: {x: 1, y: 1, z: 0}
   coinScale: {x: 1, y: 1, z: 1}
   coinsPerLane: 6
   coinSpacing: 2
-  powerUpSpawnChance: 30
-  firstPowerUpDistance: 500
+  powerUpSpawnChance: 50
+  firstPowerUpDistance: 0
   powerUpPositionOffset: {x: 1, y: 1, z: 0}
   powerUpScale: {x: 10, y: 10, z: 10}
   spawnChances:

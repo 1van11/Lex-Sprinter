@@ -352,7 +352,7 @@ public class PlayerControls : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
             Gizmos.DrawWireSphere(transform.position + Vector3.down * 2f, 0.5f);
         }
     }
-
+#region vibrate
     void OnCollisionEnter(Collision other)
 {
     if (other.gameObject.CompareTag("Obstacle"))
@@ -368,6 +368,6 @@ void OnTriggerEnter(Collider other)
         FeedbackManager.Instance.Vibrate();
     }
 }
-
+#endregion
 }
 //working

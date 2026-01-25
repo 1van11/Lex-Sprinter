@@ -513,85 +513,89 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 
-   #region Question Spawning System
+#region Question Spawning System
 
-    void SpawnSingleQuestion(float zOffset)
+void SpawnSingleQuestion(float zOffset)
+{
+    bool spawnSentence = false;
+
+    // Check if we should spawn a sentence question based on the counter
+    if (spellingCounter >= spellingBeforeSentence)
     {
-        bool spawnSentence = false;
-
-        // Check if we should spawn a sentence question based on the counter
-        if (spellingCounter >= spellingBeforeSentence)
-        {
-            spawnSentence = true;
-            spellingCounter = 0; // Reset counter after spawning sentence
-        }
-
-        float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
-
-        Vector3 spawnPos = new Vector3(
-            0f,
-            questionHeight,
-            PlayerFunctions.transform.position.z + zOffset
-        );
-
-        GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
-        Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
-
-        GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
-
-        QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
-        if (randomizer != null)
-        {
-            if (spawnSentence)
-            {
-                int randomIndex = rng.Next(0, 20);
-                randomizer.SetSentenceQuestion(randomIndex);
-                Debug.Log($"Spawned SENTENCE question at Z: {spawnPos.z}, index: {randomIndex}, counter reset");
-            }
-            else
-            {
-                int randomIndex = rng.Next(0, 55);
-                randomizer.SetSpellingQuestion(randomIndex);
-                spellingCounter++; // Increment AFTER spawning spelling question
-                Debug.Log($"Spawned SPELLING question #{spellingCounter}/{spellingBeforeSentence} at Z: {spawnPos.z}, index: {randomIndex}");
-            }
-        }
-
-        activeQuestions.Add(question);
-        StartCoroutine(AutoDespawnQuestion(question, maxQuestionLifetime));
+        spawnSentence = true;
+        spellingCounter = 0; // Reset counter after spawning sentence
     }
 
-    IEnumerator AutoDespawnQuestion(GameObject question, float lifetime)
+    float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
+
+    Vector3 spawnPos = new Vector3(
+        0f,
+        questionHeight,
+        PlayerFunctions.transform.position.z + zOffset
+    );
+
+    GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
+    Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
+
+    GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
+
+    QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
+    if (randomizer != null)
     {
-        yield return new WaitForSeconds(lifetime);
-        if (question != null)
+        if (spawnSentence)
         {
-            activeQuestions.Remove(question);
-            Destroy(question);
+            int randomIndex = rng.Next(0, 20);
+            randomizer.SetSentenceQuestion(randomIndex);
+            Debug.Log($"✅ Spawned SENTENCE question at Z: {spawnPos.z}, index: {randomIndex}, using prefab: {prefabToSpawn.name}");
+        }
+        else
+        {
+            int randomIndex = rng.Next(0, 55);
+            randomizer.SetSpellingQuestion(randomIndex);
+            spellingCounter++; // Increment AFTER spawning spelling question
+            Debug.Log($"✅ Spawned SPELLING question #{spellingCounter}/{spellingBeforeSentence} at Z: {spawnPos.z}, index: {randomIndex}, using prefab: {prefabToSpawn.name}");
         }
     }
-
-    void DespawnOldQuestions()
+    else
     {
-        for (int i = activeQuestions.Count - 1; i >= 0; i--)
-        {
-            GameObject q = activeQuestions[i];
-            if (q == null)
-            {
-                activeQuestions.RemoveAt(i);
-                continue;
-            }
-
-            float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
-            if (distanceFromPlayer > despawnDistance)
-            {
-                Destroy(q);
-                activeQuestions.RemoveAt(i);
-            }
-        }
+        Debug.LogError($"❌ QuestionRandomizer component NOT FOUND on {question.name}! Check your {prefabToSpawn.name} prefab setup.");
     }
 
-    #endregion
+    activeQuestions.Add(question);
+    StartCoroutine(AutoDespawnQuestion(question, maxQuestionLifetime));
+}
+
+IEnumerator AutoDespawnQuestion(GameObject question, float lifetime)
+{
+    yield return new WaitForSeconds(lifetime);
+    if (question != null)
+    {
+        activeQuestions.Remove(question);
+        Destroy(question);
+    }
+}
+
+void DespawnOldQuestions()
+{
+    for (int i = activeQuestions.Count - 1; i >= 0; i--)
+    {
+        GameObject q = activeQuestions[i];
+        if (q == null)
+        {
+            activeQuestions.RemoveAt(i);
+            continue;
+        }
+
+        float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
+        if (distanceFromPlayer > despawnDistance)
+        {
+            Destroy(q);
+            activeQuestions.RemoveAt(i);
+        }
+    }
+}
+
+#endregion
 
     #region Obstacle Spawning System
 
@@ -945,3 +949,5 @@ public class ObstacleSpawner : MonoBehaviour
     #endregion
 }
 //working
+
+//testing questions
