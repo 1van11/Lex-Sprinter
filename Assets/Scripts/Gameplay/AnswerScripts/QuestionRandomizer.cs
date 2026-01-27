@@ -30,6 +30,9 @@ public class QuestionRandomizer : MonoBehaviour
     private string[,] activeSentencePairs;
 
     // Difficulty word/sentence banks
+
+
+    #region Easy
     public static string[,] easySpellingPairs = new string[,]
     {
         { "a common pet that barks", "dog", "dag" },
@@ -132,60 +135,61 @@ public class QuestionRandomizer : MonoBehaviour
         { "The waiter ____ food to the customers.", "served", "swam" },
         { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
-
+#endregion
+#region Medium
     public static string[,] mediumSpellingPairs = new string[,]
-    {
-        { "a small hopping animal with long ears", "rabbit", "rabblit" },
-        { "a primate that can climb trees", "monkey", "monkoo" },
-        { "a large striped wild cat", "tiger", "tygerru" },
-        { "a black and white striped animal", "zebra", "zeebara" },
-        { "a large bird with sharp eyesight", "eagle", "eeglun" },
-        { "a large wild cat that moves silently", "panther", "panthoro" },
-        { "a tall animal with a long neck", "giraffe", "jyrraffo" },
-        { "a large reptile with sharp teeth", "alligator", "alygattor" },
-        { "a sea creature with eight arms", "octopus", "oktaplis" },
-        { "a bird that cannot fly and likes cold places", "penguin", "pengwinu" },
-        { "a large area full of trees", "forest", "foryest" },
-        { "a hot, sandy area with few plants", "desert", "dezarto" },
-        { "a container for carrying items", "basket", "basklert" },
-        { "a tool used for climbing up or down", "ladder", "laddiru" },
-        { "a container for liquids", "bottle", "botelri" },
-        { "a soft object used for sleeping comfort", "pillow", "pilowu" },
-        { "a warm cover used on a bed", "blanket", "blanniko" },
-        { "a portable light source", "lantern", "lantroon" },
-        { "an object that attracts metal", "magnet", "magnetu" },
-        { "a plant found in dry places", "cactus", "caktizo" },
-        { "a long yellow fruit", "banana", "banoola" },
-        { "a sweet baked snack", "cookie", "kookria" },
-        { "a dairy product often eaten with bread", "cheese", "cheeso" },
-        { "a red fruit used in salads and sauces", "tomato", "tomaitoox" },
-        { "a juicy round fruit", "melon", "melanu" },
-        { "a place where people buy things", "market", "markato" },
-        { "a place where plants are grown", "garden", "gardonu" },
-        { "a place where students learn", "school", "skolehra" },
-        { "a place with roads and buildings", "street", "streelto" },
-        { "a large strong building for royalty", "castle", "castilo" },
-        { "a carved figure made of stone or metal", "statue", "stachuno" },
-        { "a symbol worn by a king or queen", "crown", "crowlix" },
-        { "a structure that crosses over water", "bridge", "brigdo" },
-        { "a heavy object used to keep a ship in place", "anchor", "ankuro" },
-        { "a mountain that can erupt", "volcano", "volkaino" },
-        { "a strong spinning storm", "hurricane", "hurikano" },
-        { "a large body of moving ice", "glacier", "glayshiru" },
-        { "a severe snowstorm", "blizzard", "blizardo" },
-        { "a tool that shows direction", "compass", "kompazzor" },
-        { "a tool used for cutting paper", "scissors", "sizzuro" },
-        { "a tool used to see far away", "telescope", "teleskopo" },
-        { "a tool used to see tiny objects", "microscope", "microskopo" },
-        { "a protective head covering", "helmet", "helmuto" },
-        { "decorative personal ornaments", "jewelry", "juwelriq" },
-        { "a tool used to make music", "instrument", "instruminko" },
-        { "protective metal covering worn in battle", "armor", "armuro" },
-        { "a sweet brown treat", "chocolate", "chokoliva" },
-        { "a long noodle dish often eaten with sauce", "spaghetti", "spagotto" },
-        { "a tall building that guides ships", "lighthouse", "lighthoovo" },
-        { "a machine that uses wind to turn blades", "windmill", "windmallo" }
-    };
+{
+    { "a burrowing African mammal with a long nose", "aardvark", "aardvarko" },
+    { "an open-air venue for performances", "amphitheater", "amfiteatro" },
+    { "a small armored mammal that rolls into a ball", "armadillo", "armadilo" },
+    { "an ancient astronomical instrument for measuring stars", "astrolabe", "astrolabbo" },
+    { "a rare aquatic salamander with external gills", "axolotl", "axoloto" },
+    { "an ancient missile weapon that launches projectiles", "ballista", "balista" },
+    { "a defensive wall on top of a castle", "battlement", "batlemanto" },
+    { "a rotating amusement ride with seats", "carousel", "karuselo" },
+    { "a medieval device for hurling heavy stones", "catapult", "katapulto" },
+    { "a mythical creature that is half human, half horse", "centaur", "sentaoro" },
+    { "a lizard that can change its color", "chameleon", "kamaleono" },
+    { "a hanging decorative light fixture", "chandelier", "shandeler" },
+    { "the pupal stage of a butterfly", "chrysalis", "chrysaliso" },
+    { "a colorful parrot with a crest", "cockatoo", "kokatu" },
+    { "a large ancient Roman theater", "colosseum", "coloseo" },
+    { "a bridge that can be raised or lowered", "drawbridge", "drawbriggo" },
+    { "a carved figure often on buildings", "gargoyle", "gargoyo" },
+    { "a professional fighter in ancient Rome", "gladiator", "gladiato" },
+    { "a device used for executions by decapitation", "guillotine", "guilotino" },
+    { "a spear-like weapon for fishing or combat", "harpoon", "harpono" },
+    { "ancient writing system of Egypt using symbols", "hieroglyph", "hyerogliffo" },
+    { "an optical toy showing colorful patterns", "kaleidoscope", "kaleidoskopo" },
+    { "a complex network of paths", "labyrinth", "labirinto" },
+    { "a large tent for events or shows", "marquee", "markweo" },
+    { "a collection of exotic animals", "menagerie", "menajero" },
+    { "a mythical creature with the body of a man and head of a bull", "minotaur", "minotauro" },
+    { "a single massive upright stone", "monolith", "monolito" },
+    { "a whale with a long tusk", "narwhal", "narwalo" },
+    { "a tall stone pillar or monument", "obelisk", "obelisko" },
+    { "a dark volcanic glass", "obsidian", "obsidiano" },
+    { "a dungeon with a secret trapdoor", "oubliette", "oblietto" },
+    { "a famous temple in Athens", "parthenon", "parthenono" },
+    { "a tube for viewing distant objects", "periscope", "periskopo" },
+    { "a ruler of ancient Egypt", "pharaoh", "faraono" },
+    { "a duck-billed egg-laying mammal", "platypus", "platipo" },
+    { "a heavy gate that slides vertically", "portcullis", "portkulo" },
+    { "a massive triangular structure", "pyramid", "piramido" },
+    { "a small marsupial from Australia", "quokka", "quokko" },
+    { "a Japanese warrior", "samurai", "samuraio" },
+    { "a stone coffin, usually for royalty", "sarcophagus", "sarkofago" },
+    { "an arachnid with a sting", "scorpion", "skorpiono" },
+    { "an ancient navigation instrument", "sextant", "sekstanto" },
+    { "a mythical creature with a lion's body and human head", "sphinx", "sfinkso" },
+    { "a handheld telescope", "spyglass", "spyglasso" },
+    { "a large spider with long legs", "tarantula", "tarantulo" },
+    { "a medieval siege engine that throws stones", "trebuchet", "trebuchato" },
+    { "a three-pronged spear", "trident", "tridanto" },
+    { "a Scandinavian warrior or raider", "viking", "vikingo" },
+    { "a musical instrument with keys", "xylophone", "zylophono" },
+    { "a stepped pyramid from ancient Mesopotamia", "ziggurat", "zigurato" }
+};
 
     public static string[,] mediumSentencePairs = new string[,]
     {
@@ -210,7 +214,8 @@ public class QuestionRandomizer : MonoBehaviour
         { "The reporter ____ the event for the evening news.", "covered", "announced" },
         { "The professor ____ the topic in great detail.", "explained", "mentioned" }
     };
-
+#endregion
+#region Hard
     public static string[,] hardSpellingPairs = new string[,]
     {
         // Animals & nature
@@ -229,6 +234,8 @@ public class QuestionRandomizer : MonoBehaviour
         { "tool that shows north, south, east, west", "compass", "compas" },
         { "optical tool to see distant objects", "telescope", "telescop" },
         { "tool to see very small things magnified", "microscope", "microscop" },
+        { "decorative items worn on the body", "jewelry", "jewelery" },
+        { "tool used to create music", "instrument", "insturment" },
 
         // Body & food
         { "hair above the eye", "eyebrow", "eyebrou" },
@@ -297,7 +304,8 @@ public class QuestionRandomizer : MonoBehaviour
         { "The pilot navigated through the dangerous ____.", "hurricane", "mountain" },
         { "She used a ____ to examine the tiny crystals.", "microscope", "telescope" },
     };
-
+#endregion
+#region Codes
     void Awake()
     {
         string sceneName = SceneManager.GetActiveScene().name;
