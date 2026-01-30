@@ -7,16 +7,17 @@ using System.Collections;
 public class UIImageGlow : MonoBehaviour
 {
     [Header("Glow Settings")]
-    public Color glowColor = Color.cyan;   // Glow color
-    public float glowThickness = 5f;       // How wide the glow appears
-    public float pulseSpeed = 2f;          // Speed of pulsing glow
-    public bool enableGlow = true;         // Toggle glow on/off
+    public Color glowColor = Color.cyan;
+    public float glowThickness = 5f;
+    public float pulseSpeed = 2f;
+    public bool enableGlow = true;
 
     [Header("Fade Settings")]
-    public float fadeSpeed = 0.3f;         // Fade in/out speed
+    public float fadeSpeed = 0.3f;
 
     private Outline outline;
     private Coroutine glowRoutine;
+    private Coroutine fadeRoutine;
 
     void Awake()
     {
@@ -35,25 +36,28 @@ public class UIImageGlow : MonoBehaviour
 
     void OnDisable()
     {
-        StopGlow();
+        StopAllRunningCoroutines();
+        ClearGlow();
     }
 
-    /// <summary>
-    /// Starts the pulsing corner glow.
-    /// </summary>
     public void StartGlow()
     {
-        if (glowRoutine != null) StopCoroutine(glowRoutine);
+        if (!gameObject.activeInHierarchy) return;
+        
+        StopAllRunningCoroutines();
         glowRoutine = StartCoroutine(PulseGlow());
     }
 
-    /// <summary>
-    /// Stops the glow effect and fades out smoothly.
-    /// </summary>
     public void StopGlow()
     {
-        if (glowRoutine != null) StopCoroutine(glowRoutine);
-        glowRoutine = StartCoroutine(FadeGlowOut());
+        if (!gameObject.activeInHierarchy)
+        {
+            ClearGlow();
+            return;
+        }
+        
+        StopAllRunningCoroutines();
+        fadeRoutine = StartCoroutine(FadeGlowOut());
     }
 
     private IEnumerator PulseGlow()
@@ -64,7 +68,6 @@ public class UIImageGlow : MonoBehaviour
             angle += Time.deltaTime * 100f;
             float pulse = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
 
-            // Make the outline "move" diagonally, giving a soft glow at corners
             float offset = Mathf.Lerp(0f, glowThickness, pulse);
             outline.effectColor = new Color(glowColor.r, glowColor.g, glowColor.b, 0.8f);
             outline.effectDistance = new Vector2(offset, offset);
@@ -89,5 +92,30 @@ public class UIImageGlow : MonoBehaviour
 
         outline.effectColor = Color.clear;
         outline.effectDistance = Vector2.zero;
+        fadeRoutine = null;  // ADD THIS LINE HERE
+    }
+
+    private void StopAllRunningCoroutines()
+    {
+        if (glowRoutine != null)
+        {
+            StopCoroutine(glowRoutine);
+            glowRoutine = null;
+        }
+        
+        if (fadeRoutine != null)
+        {
+            StopCoroutine(fadeRoutine);
+            fadeRoutine = null;
+        }
+    }
+
+    private void ClearGlow()
+    {
+        if (outline != null)
+        {
+            outline.effectColor = Color.clear;
+            outline.effectDistance = Vector2.zero;
+        }
     }
 }
