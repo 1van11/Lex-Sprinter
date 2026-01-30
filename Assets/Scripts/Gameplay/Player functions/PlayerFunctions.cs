@@ -28,7 +28,8 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Score")]
     public int score = 0;
     public TMP_Text scoreText;
-
+    public TMP_Text wordCountText; // Drag a TextMeshPro UI element here in Inspector
+    private int wordsCollected = 0;
     [Header("Total Coins (Persistent)")]
     public int totalCoins = 0;
     public string coinSaveKey = "PlayerTotalCoins";
@@ -99,9 +100,14 @@ public class PlayerFunctions : MonoBehaviour
 
     void Start()
     {
+
+    UpdateWordCountUI();
         // AUTO-DETECT PLAYER MODEL USING TAG
         AutoDetectPlayerModel();
 
+        // Initialize renderers arrays
+        renderers = GetComponentsInChildren<Renderer>();
+        
         // Get renderers from the actual 3D model
         if (playerModel != null)
         {
@@ -114,9 +120,6 @@ public class PlayerFunctions : MonoBehaviour
             modelRenderers = GetComponentsInChildren<Renderer>();
             Debug.LogWarning("⚠️ Player model not found. Using all child renderers.");
         }
-
-        // Get renderers on this GameObject (for shield/magnet visuals if they're children)
-        renderers = GetComponentsInChildren<Renderer>();
 
         playerControls = GetComponent<PlayerControls>();
 
@@ -150,6 +153,8 @@ public class PlayerFunctions : MonoBehaviour
         if (playerControls != null)
             playerControls.SetForwardSpeed(forwardSpeed);
     }
+
+    
 
     /// <summary>
     /// Auto-detects the player model by looking for GameObject with "Player" tag
@@ -290,133 +295,141 @@ public class PlayerFunctions : MonoBehaviour
             playerControls.SetForwardSpeed(forwardSpeed);
     }
 
-    #region OntriggerEnter
-    void OnTriggerEnter(Collider other)
+#region OntriggerEnter
+void OnTriggerEnter(Collider other)
+{
+    if (isDead) return;
+
+    // Coin collection
+    if (other.CompareTag("Coin"))
     {
-        if (isDead) return;
+        score += 1;
+        totalCoins += 1; // Also add to total coins
+        UpdateScoreUI();
+        UpdateTotalCoinsUI(); // Update total coins display
+        if (audioSource != null && coinSound != null)
+            audioSource.PlayOneShot(coinSound);
+        other.gameObject.SetActive(false);
+        Debug.Log("💰 Coin collected!");
+        Debug.Log($"💰 Total Coins: {totalCoins}");
+        return;
+    }
 
-        // Coin collection
-        if (other.CompareTag("Coin"))
+    // Trap collision
+    if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
+    {
+        TakeDamage(1);
+        if (audioSource != null && hurtSound != null)
+            audioSource.PlayOneShot(hurtSound);
+    }
+
+    // LETTER HURDLE
+    if (other.CompareTag("LetterHurdle"))
+    {
+        Debug.Log("🔤 Hit a Letter Hurdle!");
+        // If invincible cheat or shield, skip damage
+        if (alwaysInvincible || isInvincible)
         {
-            score += 1;
-            totalCoins += 1; // Also add to total coins
-            UpdateScoreUI();
-            UpdateTotalCoinsUI(); // Update total coins display
-            if (audioSource != null && coinSound != null)
-                audioSource.PlayOneShot(coinSound);
-            other.gameObject.SetActive(false);
-            Debug.Log("💰 Coin collected!");
-            Debug.Log($"💰 Total Coins: {totalCoins}");
-            return;
+            if (alwaysInvincible) Debug.Log("🛡️ Player is invincible, no damage taken!");
         }
-
-        // Trap collision
-        if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
+        else
         {
             TakeDamage(1);
             if (audioSource != null && hurtSound != null)
                 audioSource.PlayOneShot(hurtSound);
         }
+        other.gameObject.SetActive(false);
+    }
+// ANSWER OPTIONS
+    if (other.CompareTag("AnswerOptions"))
+{
+    QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+    if (questionRandomizer != null)
+    {
+        bool isJumpOption = other.gameObject.name.Contains("Jump");
+        string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
+        bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
 
-        // LETTER HURDLE
-        if (other.CompareTag("LetterHurdle"))
+        if (isCorrect)
         {
-            Debug.Log("🔤 Hit a Letter Hurdle!");
-            // If invincible cheat or shield, skip damage
-            if (alwaysInvincible || isInvincible)
+            Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
+            score += 5;
+            totalCoins += 5;
+            UpdateScoreUI();
+            UpdateTotalCoinsUI();
+            if (audioSource != null && correctAnswerSound != null)
+                audioSource.PlayOneShot(correctAnswerSound);
+            ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
+
+            // ✅ NEW: Add word to unlocked list (supports multiple words)
+            string correctWord = questionRandomizer.correctAnswer.ToLower();
+            AddUnlockedWord(correctWord);
+            Debug.Log($"📘 Added unlocked word: {correctWord}");
+            
+            // ✅ SIMPLE WORD COUNT: Add to counter and update UI
+            wordsCollected++;
+            UpdateWordCountUI();
+
+            // ✅ Optional: notify DailyTaskManager if needed
+            if (DailyTaskManager.Instance != null)
             {
-                if (alwaysInvincible) Debug.Log("🛡️ Player is invincible, no damage taken!");
+                DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
             }
+        }
             else
             {
-                TakeDamage(1);
-                if (audioSource != null && hurtSound != null)
-                    audioSource.PlayOneShot(hurtSound);
-            }
-            other.gameObject.SetActive(false);
-        }
+                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
+                if (audioSource != null && wrongAnswerSound != null)
+                    audioSource.PlayOneShot(wrongAnswerSound);
+                ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
 
-        // ANSWER OPTIONS
-        if (other.CompareTag("AnswerOptions"))
-        {
-            QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
-            if (questionRandomizer != null)
-            {
-                bool isJumpOption = other.gameObject.name.Contains("Jump");
-                string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
-                bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
-
-                if (isCorrect)
-                {
-                    Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
-                    score += 5;
-                    totalCoins += 5;
-                    UpdateScoreUI();
-                    UpdateTotalCoinsUI();
-                    if (audioSource != null && correctAnswerSound != null)
-                        audioSource.PlayOneShot(correctAnswerSound);
-                    ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
-
-                    // ✅ NEW: Add word to unlocked list (supports multiple words)
-                    string correctWord = questionRandomizer.correctAnswer.ToLower();
-                    AddUnlockedWord(correctWord);
-                    Debug.Log($"📘 Added unlocked word: {correctWord}");
-
-                    // ✅ Optional: notify DailyTaskManager if needed
-                    if (DailyTaskManager.Instance != null)
-                    {
-                        DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
-                    }
-                }
+                if (!alwaysInvincible)
+                    TakeDamage(1);
                 else
-                {
-                    Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
-                    if (audioSource != null && wrongAnswerSound != null)
-                        audioSource.PlayOneShot(wrongAnswerSound);
-                    ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
-
-                    if (!alwaysInvincible)
-                        TakeDamage(1);
-                    else
-                        Debug.Log("🛡️ Invincibility prevented damage from wrong answer!");
-                }
-
-                // Remove colliders and destroy question after delay
-                if (other.transform.parent != null)
-                {
-                    Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
-                    foreach (Collider col in colliders)
-                        Destroy(col);
-                    StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
-                }
+                    Debug.Log("🛡️ Invincibility prevented damage from wrong answer!");
             }
-        }
 
-        // SHIELD
-        if (other.CompareTag("Shield"))
-        {
-            StartCoroutine(ShieldBuff());
-            Destroy(other.gameObject);
-            Debug.Log("🛡️ Shield activated!");
-        }
-
-        // MAGNET
-        if (other.CompareTag("Magnet"))
-        {
-            StartCoroutine(MagnetBuff());
-            Destroy(other.gameObject);
-            Debug.Log("🧲 Magnet activated!");
-        }
-
-        // SLOW TIME
-        if (other.CompareTag("SlowTime"))
-        {
-            StartCoroutine(SlowTimeBuff());
-            Destroy(other.gameObject);
-            Debug.Log("⏰ Slow Time activated!");
+            // Remove colliders and destroy question after delay
+            if (other.transform.parent != null)
+            {
+                Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
+                foreach (Collider col in colliders)
+                    Destroy(col);
+                StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
+            }
         }
     }
-    #endregion
+
+    // SHIELD
+    if (other.CompareTag("Shield"))
+    {
+        StartCoroutine(ShieldBuff());
+        Destroy(other.gameObject);
+        Debug.Log("🛡️ Shield activated!");
+    }
+
+    // MAGNET
+    if (other.CompareTag("Magnet"))
+    {
+        StartCoroutine(MagnetBuff());
+        Destroy(other.gameObject);
+        Debug.Log("🧲 Magnet activated!");
+    }
+
+    // SLOW TIME
+    if (other.CompareTag("SlowTime"))
+    {
+        StartCoroutine(SlowTimeBuff());
+        Destroy(other.gameObject);
+        Debug.Log("⏰ Slow Time activated!");
+    }
+}
+#endregion
+void UpdateWordCountUI()
+{
+    if (wordCountText != null)
+        wordCountText.text = $"Words: {wordsCollected}";
+}
 
     /// <summary>
     /// Adds a word to the unlocked words list in PlayerPrefs
@@ -463,6 +476,9 @@ public class PlayerFunctions : MonoBehaviour
     void TakeDamage(int damage)
     {
         if (isDead || alwaysInvincible) return;
+
+        // Debug current state
+        DebugIFrameStatus();
 
         if (hasShield && shieldHitsRemaining > 0)
         {
@@ -726,49 +742,72 @@ public class PlayerFunctions : MonoBehaviour
         Debug.Log($"💰 Total coins set to: {totalCoins}");
     }
 
+    #region iFrames
     public IEnumerator TriggerIFrames(float duration, float flashInterval)
     {
         isInvincible = true;
         float timer = 0f;
-        while (timer < duration)
-        {
-            // Flash only the actual 3D model's renderers
-            if (modelRenderers != null)
-            {
-                foreach (Renderer r in modelRenderers)
-                {
-                    if (r != null)
-                        r.enabled = !r.enabled;
-                }
-            }
-            // Also flash any renderers on this GameObject
-            foreach (Renderer r in renderers)
-            {
-                if (r != null && r.transform != playerModel)
-                    r.enabled = !r.enabled;
-            }
-            timer += flashInterval;
-            yield return new WaitForSeconds(flashInterval);
-        }
-
-        // Ensure all renderers are visible after IFrames
+        bool flashState = true;
+        
+        // Store initial renderer states
+        Dictionary<Renderer, bool> initialStates = new Dictionary<Renderer, bool>();
+        
+        // Collect all renderers to flash
+        List<Renderer> allRenderers = new List<Renderer>();
+        
+        // Add model renderers
         if (modelRenderers != null)
         {
             foreach (Renderer r in modelRenderers)
             {
                 if (r != null)
-                    r.enabled = true;
+                {
+                    allRenderers.Add(r);
+                    initialStates[r] = r.enabled;
+                }
             }
         }
+        
+        // Add other renderers
         foreach (Renderer r in renderers)
         {
-            if (r != null)
-                r.enabled = true;
+            if (r != null && !allRenderers.Contains(r))
+            {
+                allRenderers.Add(r);
+                initialStates[r] = r.enabled;
+            }
         }
-
+        
+        while (timer < duration)
+        {
+            // Toggle visibility of all renderers
+            foreach (Renderer r in allRenderers)
+            {
+                if (r != null)
+                    r.enabled = flashState;
+            }
+            
+            // Wait for the flash interval
+            yield return new WaitForSeconds(flashInterval);
+            
+            // Toggle flash state
+            flashState = !flashState;
+            timer += flashInterval;
+        }
+        
+        // Restore all renderers to their original state
+        foreach (Renderer r in allRenderers)
+        {
+            if (r != null && initialStates.ContainsKey(r))
+                r.enabled = initialStates[r];
+        }
+        
         isInvincible = false;
+        Debug.Log("🛡️ iFrames ended");
     }
+    #endregion
 
+    #region power ups
     IEnumerator ShieldBuff()
     {
         hasShield = true;
@@ -826,6 +865,7 @@ public class PlayerFunctions : MonoBehaviour
         isSlowTime = false;
         Debug.Log("⏰ Slow Time expired");
     }
+    #endregion
 
     private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
     {
@@ -933,6 +973,26 @@ public class PlayerFunctions : MonoBehaviour
         if (playerControls != null)
             playerControls.SetForwardSpeed(forwardSpeed);
         Debug.Log($"▶️ Movement resumed at speed: {forwardSpeed}");
+    }
+
+    // Debug Helper for iFrames
+    public void DebugIFrameStatus()
+    {
+        Debug.Log($"iFrame Status:");
+        Debug.Log($"- isInvincible: {isInvincible}");
+        Debug.Log($"- alwaysInvincible: {alwaysInvincible}");
+        Debug.Log($"- hasShield: {hasShield}");
+        Debug.Log($"- shieldHitsRemaining: {shieldHitsRemaining}");
+        Debug.Log($"- modelRenderers count: {(modelRenderers != null ? modelRenderers.Length : 0)}");
+        
+        if (modelRenderers != null)
+        {
+            for (int i = 0; i < Mathf.Min(3, modelRenderers.Length); i++)
+            {
+                if (modelRenderers[i] != null)
+                    Debug.Log($"  Renderer {i}: {modelRenderers[i].name} enabled={modelRenderers[i].enabled}");
+            }
+        }
     }
 
 #if UNITY_EDITOR
