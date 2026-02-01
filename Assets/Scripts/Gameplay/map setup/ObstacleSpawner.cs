@@ -75,7 +75,7 @@ public class ObstacleSpawner : MonoBehaviour
         new PowerUpSpawnChance { type = PowerUpType.Magnet, chance = 33 },
         new PowerUpSpawnChance { type = PowerUpType.SlowTime, chance = 34 }
     };
-
+    [Header("LETTER HURDLE")]
     [Header("Letter Container Settings")]
     public GameObject letterContainerPrefab;
     public GameObject spawnerIndicatorPrefab;
@@ -95,19 +95,31 @@ public class ObstacleSpawner : MonoBehaviour
     public float letterEventFrequency = 60f;
     public float letterEventDuration = 40f;
     public float letterEventInitialDelay = 10f;
-    public float letterEventSpawnDistanceAhead = 150f;
+    [Tooltip("Distance ahead to spawn the indicator (reduced for less wait time)")]
+    public float letterEventSpawnDistanceAhead = 50f;
     [Tooltip("Delay before spawning indicator after event starts (gives player time to reach spawn point)")]
-    public float letterEventIndicatorDelay = 3f;
+    public float letterEventIndicatorDelay = 1f;
     [Tooltip("Delay after indicator spawns before letter hurdles appear")]
     public float letterHurdleSpawnDelay = 2f;
     
     [Header("Letter Indicator Settings")]
-    public float letterIndicatorSpawnDistanceAhead = 200f;
-    [Tooltip("Minimum guaranteed distance ahead (overrides calculation if needed)")]
-    public float letterIndicatorMinimumSpawnAhead = 150f;
+    [Tooltip("Distance ahead for indicator (reduced for less wait time)")]
+    public float letterIndicatorSpawnDistanceAhead = 60f;
+    [Tooltip("Minimum guaranteed distance ahead (reduced for less wait time)")]
+    public float letterIndicatorMinimumSpawnAhead = 50f;
     public float letterIndicatorAnimationTime = 2f;
     public float letterIndicatorStayTime = 5f;
     public float letterIndicatorStartHeightOffset = 10f;
+    
+    [Header("Letter Hurdle Animation Settings")]
+    [Tooltip("Starting height offset for letter hurdles when spawning")]
+    public float letterHurdleSpawnHeightOffset = 8f;
+    [Tooltip("Animation time for letter hurdle to drop down")]
+    public float letterHurdleDropAnimationTime = 1f;
+    [Tooltip("Animation time for letter hurdle to fall to ground after defeat")]
+    public float letterHurdleFallAnimationTime = 0.5f;
+    [Tooltip("Ground Y position for defeated letters")]
+    public float letterHurdleGroundY = -2f;
     
     [Header("Letter Prefab Transform")]
     public bool letterUsePrefabTransform = true;
@@ -124,6 +136,16 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Letter Event UI")]
     public GameObject letterEventClueUI;
     public float clueTextDelay = 2f;
+    
+    [Header("Letter Event Start/End UI")]
+    [Tooltip("UI to display when letter event is about to start")]
+    public GameObject letterEventStartWarningUI;
+    [Tooltip("How long before event starts to show warning (seconds)")]
+    public float warningDisplayTime = 5f;
+    [Tooltip("UI to display when letter event ends successfully")]
+    public GameObject letterEventCompleteUI;
+    [Tooltip("How long to display completion UI (seconds)")]
+    public float completionUIDisplayTime = 3f;
 
     [Header("Letter Event Word Limit")]
     [Tooltip("Number of words to solve before ending the event (set to 1 for single word)")]
@@ -132,7 +154,6 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Despawn Settings")]
     public float despawnDistance = 10f;
     public float maxObstacleLifetime = 15f;
-    public float maxQuestionLifetime = 50f;
 
     [Header("Gizmo Settings")]
     public bool showGizmos = true;
@@ -156,6 +177,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     private Queue<GameObject> letterPool = new Queue<GameObject>();
     private List<LetterSpawnedInfo> activeLetterObjects = new List<LetterSpawnedInfo>();
+    private Dictionary<GameObject, Coroutine> letterAnimations = new Dictionary<GameObject, Coroutine>();
     private bool allowRegularLetterSpawning = false;
     private float nextLetterSpawnZ;
     private bool isLetterEventActive = false;
@@ -194,6 +216,12 @@ public class ObstacleSpawner : MonoBehaviour
         
         if (letterEventClueUI != null)
             letterEventClueUI.SetActive(false);
+        
+        if (letterEventStartWarningUI != null)
+            letterEventStartWarningUI.SetActive(false);
+        
+        if (letterEventCompleteUI != null)
+            letterEventCompleteUI.SetActive(false);
         
         letterEventCoroutine = StartCoroutine(LetterEventSpawner());
     }
@@ -260,6 +288,14 @@ public class ObstacleSpawner : MonoBehaviour
 
     void ReturnLetterToPool(GameObject obj)
     {
+        // Stop any running animation
+        if (letterAnimations.ContainsKey(obj))
+        {
+            if (letterAnimations[obj] != null)
+                StopCoroutine(letterAnimations[obj]);
+            letterAnimations.Remove(obj);
+        }
+        
         obj.SetActive(false);
         letterPool.Enqueue(obj);
     }
@@ -284,10 +320,104 @@ public class ObstacleSpawner : MonoBehaviour
             letterContainerPrefab.transform.localScale :
             letterSpawnScale;
 
-        go.transform.SetPositionAndRotation(pos, rot);
+        // Start from above the target position
+        Vector3 startPos = new Vector3(pos.x, pos.y + letterHurdleSpawnHeightOffset, pos.z);
+        go.transform.SetPositionAndRotation(startPos, rot);
         go.transform.localScale = scale;
 
         activeLetterObjects.Add(new LetterSpawnedInfo() { obj = go, timer = 0f });
+        
+        // Animate the letter dropping down
+        Coroutine animCoroutine = StartCoroutine(AnimateLetterDrop(go, startPos, pos));
+        letterAnimations[go] = animCoroutine;
+    }
+
+    IEnumerator AnimateLetterDrop(GameObject letter, Vector3 startPos, Vector3 targetPos)
+    {
+        float time = 0f;
+        
+        while (time < letterHurdleDropAnimationTime)
+        {
+            if (letter == null || !letter.activeInHierarchy) yield break;
+            
+            float t = time / letterHurdleDropAnimationTime;
+            // Use ease-out for a more natural drop
+            float easedT = 1 - Mathf.Pow(1 - t, 3);
+            
+            letter.transform.position = Vector3.Lerp(startPos, targetPos, easedT);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        
+        if (letter != null && letter.activeInHierarchy)
+        {
+            letter.transform.position = targetPos;
+        }
+        
+        if (letterAnimations.ContainsKey(letter))
+            letterAnimations.Remove(letter);
+    }
+
+    public void AnimateLetterDefeat(GameObject letter)
+    {
+        if (letter == null) return;
+        
+        // Stop any existing animation
+        if (letterAnimations.ContainsKey(letter))
+        {
+            if (letterAnimations[letter] != null)
+                StopCoroutine(letterAnimations[letter]);
+            letterAnimations.Remove(letter);
+        }
+        
+        // Start fall to ground animation
+        Coroutine fallCoroutine = StartCoroutine(AnimateLetterFallToGround(letter));
+        letterAnimations[letter] = fallCoroutine;
+    }
+
+    IEnumerator AnimateLetterFallToGround(GameObject letter)
+    {
+        if (letter == null) yield break;
+        
+        Vector3 startPos = letter.transform.position;
+        Vector3 groundPos = new Vector3(startPos.x, letterHurdleGroundY, startPos.z);
+        
+        float time = 0f;
+        
+        while (time < letterHurdleFallAnimationTime)
+        {
+            if (letter == null || !letter.activeInHierarchy) yield break;
+            
+            float t = time / letterHurdleFallAnimationTime;
+            letter.transform.position = Vector3.Lerp(startPos, groundPos, t);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        
+        if (letter != null && letter.activeInHierarchy)
+        {
+            letter.transform.position = groundPos;
+        }
+        
+        if (letterAnimations.ContainsKey(letter))
+            letterAnimations.Remove(letter);
+        
+        // Optionally despawn after reaching ground
+        yield return new WaitForSeconds(0.5f);
+        
+        if (letter != null && letter.activeInHierarchy)
+        {
+            // Remove from active list and return to pool
+            for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
+            {
+                if (activeLetterObjects[i].obj == letter)
+                {
+                    activeLetterObjects.RemoveAt(i);
+                    break;
+                }
+            }
+            ReturnLetterToPool(letter);
+        }
     }
 
     void SpawnEventLetterHurdlesAtZ(float z)
@@ -381,8 +511,37 @@ public class ObstacleSpawner : MonoBehaviour
 
         while (true)
         {
-            yield return new WaitForSeconds(letterEventFrequency);
+            // Show warning UI before event starts
+            float timeUntilEvent = letterEventFrequency - warningDisplayTime;
+            if (timeUntilEvent > 0)
+            {
+                yield return new WaitForSeconds(timeUntilEvent);
+            }
+            
+            // Display warning UI
+            if (letterEventStartWarningUI != null)
+            {
+                letterEventStartWarningUI.SetActive(true);
+                Debug.Log($"⚠️ Letter Event Warning displayed! Event starts in {warningDisplayTime} seconds");
+            }
+            
+            // Wait for warning duration
+            if (timeUntilEvent > 0)
+            {
+                yield return new WaitForSeconds(warningDisplayTime);
+            }
+            else
+            {
+                yield return new WaitForSeconds(letterEventFrequency);
+            }
+            
+            // Hide warning UI
+            if (letterEventStartWarningUI != null)
+            {
+                letterEventStartWarningUI.SetActive(false);
+            }
 
+            // Start the event
             isLetterEventActive = true;
             wordsCompletedInCurrentEvent = 0;
             allowRegularLetterSpawning = false;
@@ -416,7 +575,7 @@ public class ObstacleSpawner : MonoBehaviour
 
             if (isLetterEventActive)
             {
-                EndLetterEvent();
+                EndLetterEvent(false); // false = timed out, not completed
             }
         }
     }
@@ -428,6 +587,7 @@ public class ObstacleSpawner : MonoBehaviour
 
         float currentPlayerZ = PlayerFunctions.transform.position.z;
         
+        // Use the configured distances (now much closer)
         float calculatedDistance = Mathf.Max(
             letterEventSpawnDistanceAhead, 
             letterIndicatorSpawnDistanceAhead, 
@@ -441,13 +601,25 @@ public class ObstacleSpawner : MonoBehaviour
         return finalSpawnZ;
     }
 
-    public void EndLetterEvent()
+    public void EndLetterEvent(bool wasCompleted = false)
     {
         isLetterEventActive = false;
         allowRegularLetterSpawning = false;
         wordsCompletedInCurrentEvent = 0;
         
-        Debug.Log("✅ Letter Event Ended - Normal spawning resumes");
+        if (wasCompleted)
+        {
+            Debug.Log("✅ Letter Event Completed Successfully!");
+            // Show completion UI
+            if (letterEventCompleteUI != null)
+            {
+                StartCoroutine(ShowCompletionUI());
+            }
+        }
+        else
+        {
+            Debug.Log("⏱️ Letter Event Ended (Time Expired) - Normal spawning resumes");
+        }
         
         if (letterEventClueUI != null)
             letterEventClueUI.SetActive(false);
@@ -455,6 +627,19 @@ public class ObstacleSpawner : MonoBehaviour
         if (letterEventCoroutine != null)
             StopCoroutine(letterEventCoroutine);
         letterEventCoroutine = StartCoroutine(LetterEventSpawner());
+    }
+
+    IEnumerator ShowCompletionUI()
+    {
+        if (letterEventCompleteUI != null)
+        {
+            letterEventCompleteUI.SetActive(true);
+            Debug.Log($"🎉 Letter Event Complete UI displayed for {completionUIDisplayTime} seconds");
+            
+            yield return new WaitForSeconds(completionUIDisplayTime);
+            
+            letterEventCompleteUI.SetActive(false);
+        }
     }
 
     public void OnLetterHurdleFailed()
@@ -474,7 +659,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (wordsCompletedInCurrentEvent >= wordsToSolvePerEvent)
         {
             Debug.Log($"🎯 Target reached! Ending letter event after {wordsCompletedInCurrentEvent} word(s)");
-            EndLetterEvent();
+            EndLetterEvent(true); // true = completed successfully
             
             if (currentEventIndicator != null)
             {
@@ -513,89 +698,83 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 
-#region Question Spawning System
+    #region Question Spawning System
 
-void SpawnSingleQuestion(float zOffset)
-{
-    bool spawnSentence = false;
-
-    // Check if we should spawn a sentence question based on the counter
-    if (spellingCounter >= spellingBeforeSentence)
+    void SpawnSingleQuestion(float zOffset)
     {
-        spawnSentence = true;
-        spellingCounter = 0; // Reset counter after spawning sentence
-    }
+        // Determine if we should spawn a sentence question based on the counter
+        // Counter starts at 0, so after 3 spelling questions (counter = 0, 1, 2), it becomes 3 and spawns sentence
+        bool spawnSentence = (spellingCounter >= spellingBeforeSentence);
 
-    float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
+        float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
 
-    Vector3 spawnPos = new Vector3(
-        0f,
-        questionHeight,
-        PlayerFunctions.transform.position.z + zOffset
-    );
+        Vector3 spawnPos = new Vector3(
+            0f,
+            questionHeight,
+            PlayerFunctions.transform.position.z + zOffset
+        );
 
-    GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
-    Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
+        GameObject prefabToSpawn = spawnSentence ? sentencePrefab : questionPrefab;
+        Transform parentToUse = spawnSentence ? sentenceParent : questionParent;
 
-    GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
+        // Instantiate the question
+        GameObject question = Instantiate(prefabToSpawn, spawnPos, prefabToSpawn.transform.rotation, parentToUse);
 
-    QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
-    if (randomizer != null)
-    {
-        if (spawnSentence)
+        // Set up the question with QuestionRandomizer
+        QuestionRandomizer randomizer = question.GetComponent<QuestionRandomizer>();
+        if (randomizer != null)
         {
-            int randomIndex = rng.Next(0, 20);
-            randomizer.SetSentenceQuestion(randomIndex);
-            Debug.Log($"✅ Spawned SENTENCE question at Z: {spawnPos.z}, index: {randomIndex}, using prefab: {prefabToSpawn.name}");
+            if (spawnSentence)
+            {
+                // Spawn sentence question
+                int randomIndex = rng.Next(0, 20);
+                randomizer.SetSentenceQuestion(randomIndex);
+                spellingCounter = 0; // Reset counter after spawning sentence
+                Debug.Log($"✅ Spawned SENTENCE question at Z: {spawnPos.z}, index: {randomIndex}, Counter RESET to 0");
+            }
+            else
+            {
+                // Spawn spelling question
+                int randomIndex = rng.Next(0, 55);
+                randomizer.SetSpellingQuestion(randomIndex);
+                Debug.Log($"✅ Spawned SPELLING question at Z: {spawnPos.z}, index: {randomIndex}, Counter: {spellingCounter}/{spellingBeforeSentence}");
+                spellingCounter++; // Increment AFTER spawning spelling question
+                Debug.Log($"📊 Counter incremented to {spellingCounter}/{spellingBeforeSentence}");
+            }
         }
         else
         {
-            int randomIndex = rng.Next(0, 55);
-            randomizer.SetSpellingQuestion(randomIndex);
-            spellingCounter++; // Increment AFTER spawning spelling question
-            Debug.Log($"✅ Spawned SPELLING question #{spellingCounter}/{spellingBeforeSentence} at Z: {spawnPos.z}, index: {randomIndex}, using prefab: {prefabToSpawn.name}");
+            Debug.LogError($"❌ QuestionRandomizer component NOT FOUND on {question.name}! Check your {prefabToSpawn.name} prefab setup.");
         }
-    }
-    else
-    {
-        Debug.LogError($"❌ QuestionRandomizer component NOT FOUND on {question.name}! Check your {prefabToSpawn.name} prefab setup.");
+
+        // Add to active list for tracking
+        activeQuestions.Add(question);
     }
 
-    activeQuestions.Add(question);
-    StartCoroutine(AutoDespawnQuestion(question, maxQuestionLifetime));
-}
-
-IEnumerator AutoDespawnQuestion(GameObject question, float lifetime)
-{
-    yield return new WaitForSeconds(lifetime);
-    if (question != null)
+    void DespawnOldQuestions()
     {
-        activeQuestions.Remove(question);
-        Destroy(question);
-    }
-}
-
-void DespawnOldQuestions()
-{
-    for (int i = activeQuestions.Count - 1; i >= 0; i--)
-    {
-        GameObject q = activeQuestions[i];
-        if (q == null)
+        for (int i = activeQuestions.Count - 1; i >= 0; i--)
         {
-            activeQuestions.RemoveAt(i);
-            continue;
-        }
+            GameObject q = activeQuestions[i];
+            if (q == null)
+            {
+                activeQuestions.RemoveAt(i);
+                continue;
+            }
 
-        float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
-        if (distanceFromPlayer > despawnDistance)
-        {
-            Destroy(q);
-            activeQuestions.RemoveAt(i);
+            float distanceFromPlayer = PlayerFunctions.transform.position.z - q.transform.position.z;
+            
+            // Despawn questions that are behind the player by the despawn distance
+            if (distanceFromPlayer > despawnDistance)
+            {
+                Debug.Log($"🗑️ Despawning question at Z: {q.transform.position.z} (Player Z: {PlayerFunctions.transform.position.z})");
+                Destroy(q);
+                activeQuestions.RemoveAt(i);
+            }
         }
     }
-}
 
-#endregion
+    #endregion
 
     #region Obstacle Spawning System
 
@@ -948,6 +1127,3 @@ void DespawnOldQuestions()
 
     #endregion
 }
-//working
-
-//testing questions
