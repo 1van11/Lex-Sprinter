@@ -300,22 +300,27 @@ void OnTriggerEnter(Collider other)
 {
     if (isDead) return;
 
-    // Coin collection
+    // =========================
+    // COIN COLLECTION
+    // =========================
     if (other.CompareTag("Coin"))
     {
         score += 1;
-        totalCoins += 1; // Also add to total coins
+        totalCoins += 1;
         UpdateScoreUI();
-        UpdateTotalCoinsUI(); // Update total coins display
+        UpdateTotalCoinsUI();
+
         if (audioSource != null && coinSound != null)
             audioSource.PlayOneShot(coinSound);
+
         other.gameObject.SetActive(false);
         Debug.Log("💰 Coin collected!");
-        Debug.Log($"💰 Total Coins: {totalCoins}");
         return;
     }
 
-    // Trap collision
+    // =========================
+    // TRAP COLLISION
+    // =========================
     if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
     {
         TakeDamage(1);
@@ -323,14 +328,16 @@ void OnTriggerEnter(Collider other)
             audioSource.PlayOneShot(hurtSound);
     }
 
+    // =========================
     // LETTER HURDLE
+    // =========================
     if (other.CompareTag("LetterHurdle"))
     {
         Debug.Log("🔤 Hit a Letter Hurdle!");
-        // If invincible cheat or shield, skip damage
+
         if (alwaysInvincible || isInvincible)
         {
-            if (alwaysInvincible) Debug.Log("🛡️ Player is invincible, no damage taken!");
+            Debug.Log("🛡️ No damage taken");
         }
         else
         {
@@ -338,69 +345,101 @@ void OnTriggerEnter(Collider other)
             if (audioSource != null && hurtSound != null)
                 audioSource.PlayOneShot(hurtSound);
         }
+
         other.gameObject.SetActive(false);
     }
-// ANSWER OPTIONS
+
+    // =========================
+    // ANSWER OPTIONS
+    // =========================
     if (other.CompareTag("AnswerOptions"))
-{
-    QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
-    if (questionRandomizer != null)
     {
-        bool isJumpOption = other.gameObject.name.Contains("Jump");
-        string selectedAnswer = isJumpOption ? questionRandomizer.jumpText.text : questionRandomizer.slideText.text;
-        bool isCorrect = (selectedAnswer == questionRandomizer.correctAnswer);
-
-        if (isCorrect)
+        QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+        if (questionRandomizer != null)
         {
-            Debug.Log($"✅ Correct Answer! (+5 points) [{selectedAnswer}]");
-            score += 5;
-            totalCoins += 5;
-            UpdateScoreUI();
-            UpdateTotalCoinsUI();
-            if (audioSource != null && correctAnswerSound != null)
-                audioSource.PlayOneShot(correctAnswerSound);
-            ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
+            bool isJumpOption = other.gameObject.name.Contains("Jump");
+            string selectedAnswer = isJumpOption
+                ? questionRandomizer.jumpText.text
+                : questionRandomizer.slideText.text;
 
-            // ✅ NEW: Add word to unlocked list (supports multiple words)
-            string correctWord = questionRandomizer.correctAnswer.ToLower();
-            AddUnlockedWord(correctWord);
-            Debug.Log($"📘 Added unlocked word: {correctWord}");
-            
-            // ✅ SIMPLE WORD COUNT: Add to counter and update UI
-            wordsCollected++;
-            UpdateWordCountUI();
+            bool isCorrect = selectedAnswer == questionRandomizer.correctAnswer;
 
-            // ✅ Optional: notify DailyTaskManager if needed
-            if (DailyTaskManager.Instance != null)
+            if (isCorrect)
             {
-                DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
+                // ✅ CORRECT ANSWER
+                Debug.Log($"✅ Correct Answer! [{selectedAnswer}]");
+
+                score += 5;
+                totalCoins += 5;
+                UpdateScoreUI();
+                UpdateTotalCoinsUI();
+
+                if (audioSource != null && correctAnswerSound != null)
+                    audioSource.PlayOneShot(correctAnswerSound);
+
+                ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
+
+                string correctWord = questionRandomizer.correctAnswer.ToLower();
+                AddUnlockedWord(correctWord);
+
+                wordsCollected++;
+                UpdateWordCountUI();
+
+                if (DailyTaskManager.Instance != null)
+                    DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
             }
-        }
             else
             {
-                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] - Correct was: {questionRandomizer.correctAnswer}");
+                // ❌ WRONG ANSWER
+                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] | Correct: {questionRandomizer.correctAnswer}");
+
                 if (audioSource != null && wrongAnswerSound != null)
                     audioSource.PlayOneShot(wrongAnswerSound);
+
+                // ❌ Show wrong feedback on chosen option
                 ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
+
+                // ✅ ALSO show correct feedback on the correct option
+                Transform parent = other.transform.parent;
+                if (parent != null)
+                {
+                    foreach (Transform child in parent)
+                    {
+                        if (child == other.transform) continue;
+
+                        TMP_Text txt = child.GetComponentInChildren<TMP_Text>();
+                        if (txt != null && txt.text == questionRandomizer.correctAnswer)
+                        {
+                            ReplaceWithFeedbackModel(child.gameObject, correctAnswerPrefab);
+                            break;
+                        }
+                    }
+                }
 
                 if (!alwaysInvincible)
                     TakeDamage(1);
-                else
-                    Debug.Log("🛡️ Invincibility prevented damage from wrong answer!");
             }
 
-            // Remove colliders and destroy question after delay
+            // Remove colliders + destroy question after delay
             if (other.transform.parent != null)
             {
                 Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
                 foreach (Collider col in colliders)
                     Destroy(col);
-                StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
+
+                StartCoroutine(
+                    DestroyAfterDelay(
+                        other.transform.parent.gameObject,
+                        feedbackDisplayTime
+                    )
+                );
             }
         }
     }
 
-    // SHIELD
+    // =========================
+    // SHIELD PICKUP
+    // =========================
     if (other.CompareTag("Shield"))
     {
         StartCoroutine(ShieldBuff());
@@ -408,7 +447,9 @@ void OnTriggerEnter(Collider other)
         Debug.Log("🛡️ Shield activated!");
     }
 
-    // MAGNET
+    // =========================
+    // MAGNET PICKUP
+    // =========================
     if (other.CompareTag("Magnet"))
     {
         StartCoroutine(MagnetBuff());
@@ -416,7 +457,9 @@ void OnTriggerEnter(Collider other)
         Debug.Log("🧲 Magnet activated!");
     }
 
-    // SLOW TIME
+    // =========================
+    // SLOW TIME PICKUP
+    // =========================
     if (other.CompareTag("SlowTime"))
     {
         StartCoroutine(SlowTimeBuff());
@@ -425,6 +468,7 @@ void OnTriggerEnter(Collider other)
     }
 }
 #endregion
+
 void UpdateWordCountUI()
 {
     if (wordCountText != null)

@@ -262,7 +262,6 @@ public class PlayerControls : MonoBehaviour,
     public void SetForwardSpeed(float speed)
     {
         forwardSpeed = speed;
-        Debug.Log($"⚡ PlayerControls speed set to: {forwardSpeed}");
     }
 
     public float GetForwardSpeed()
