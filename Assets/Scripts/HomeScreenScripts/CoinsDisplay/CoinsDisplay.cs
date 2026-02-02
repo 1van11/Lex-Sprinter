@@ -51,7 +51,7 @@ public class CoinsDisplay : MonoBehaviour
     void LoadCoins()
     {
         totalCoins = PlayerPrefs.GetInt(coinSaveKey, 0);
-        Debug.Log($"💰 Main Menu Loaded Coins: {totalCoins}");
+        
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class CoinsDisplay : MonoBehaviour
     {
         PlayerPrefs.SetInt(coinSaveKey, totalCoins);
         PlayerPrefs.Save(); // Force immediate save to disk
-        Debug.Log($"💾 Coins Saved: {totalCoins}");
+        
     }
     
     /// <summary>
@@ -70,7 +70,7 @@ public class CoinsDisplay : MonoBehaviour
     void OnApplicationQuit()
     {
         SaveCoins();
-        Debug.Log("🛑 Application Quit - Coins Saved!");
+        
     }
     
     void OnApplicationPause(bool pauseStatus)
@@ -78,7 +78,7 @@ public class CoinsDisplay : MonoBehaviour
         if (pauseStatus)
         {
             SaveCoins();
-            Debug.Log("⏸️ Application Paused - Coins Saved!");
+            
         }
     }
     
@@ -88,7 +88,7 @@ public class CoinsDisplay : MonoBehaviour
     void OnDisable()
     {
         SaveCoins();
-        Debug.Log("🔌 Script Disabled - Coins Saved!");
+        
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class CoinsDisplay : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(AnimateCoinCount(oldCoins, totalCoins));
         
-        Debug.Log($"✅ Added {amount} coins. Total: {totalCoins}");
+        
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public class CoinsDisplay : MonoBehaviour
     public void ResetCoins()
     {
         SetCoins(0);
-        Debug.Log("🔄 Coins reset to 0");
+    
     }
 
     /// <summary>
