@@ -57,11 +57,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: Robot Crush SDF 1
+  m_Name: (modified, gameplay)Robot Crush SDF 2
   m_EditorClassIdentifier: 
-  hashCode: 1592182651
+  hashCode: 205511486
   material: {fileID: 2477560879271356728}
-  materialHashCode: -1278503429
+  materialHashCode: 533475678
   m_Version: 1.1.0
   m_SourceFontFileGUID: a7e1c6b9afed2c64f92af9086a7ffa14
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: a7e1c6b9afed2c64f92af9086a7ffa14, type: 3}
