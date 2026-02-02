@@ -136,7 +136,7 @@ public class CoinManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             AddCoins(1000);
-            Debug.Log("🎮 TEST: Added 10 coins");
+            Debug.Log("🎮 TEST: Added 1000 coins");
         }
         
         // Press R to reset coins (for testing)
