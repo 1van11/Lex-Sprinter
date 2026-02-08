@@ -6,12 +6,12 @@ public class CostumeManager : MonoBehaviour
     public class ModelOption
     {
         public GameObject modelPrefab;
-        public bool useTrigger; // checkbox per element
+        public bool useTrigger;
     }
 
     [Header("Settings")]
     public bool replaceOnStart = true;
-    public bool useSavedIndex = true; // New option to use saved index from menu
+    public bool useSavedIndex = true;
 
     [Header("Model Options")]
     public ModelOption[] models;
@@ -20,26 +20,28 @@ public class CostumeManager : MonoBehaviour
     public Transform modelParent;
 
     private GameObject currentModel;
+    private int currentIndex = 0;
+    private int lastIndex = -1; // tracks the previous index
 
     void Start()
     {
         if (replaceOnStart && models.Length > 0)
         {
-            int startIndex = 0;
-            
-            if (useSavedIndex)
-            {
-                // Get the saved index from PlayerPrefs
-                startIndex = PlayerPrefs.GetInt("SelectedCostume", 0);
-            }
-            else
-            {
-                // Use a fixed start index (for testing)
-                startIndex = 0;
-            }
-            
-            startIndex = Mathf.Clamp(startIndex, 0, models.Length - 1);
-            ReplaceModel(models[startIndex].modelPrefab);
+            currentIndex = useSavedIndex ? PlayerPrefs.GetInt("SelectedCostume", 0) : 0;
+            currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
+            ReplaceModel(models[currentIndex].modelPrefab);
+            lastIndex = currentIndex; // initialize lastIndex
+        }
+    }
+
+    void Update()
+    {
+        // If currentIndex has changed, update the costume
+        if (currentIndex != lastIndex)
+        {
+            currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
+            ReplaceModel(models[currentIndex].modelPrefab);
+            lastIndex = currentIndex;
         }
     }
 
@@ -48,9 +50,7 @@ public class CostumeManager : MonoBehaviour
         if (prefab == null || modelParent == null) return;
 
         foreach (Transform child in modelParent)
-        {
             Destroy(child.gameObject);
-        }
 
         currentModel = Instantiate(prefab, modelParent);
         currentModel.transform.localPosition = Vector3.zero;
@@ -66,19 +66,17 @@ public class CostumeManager : MonoBehaviour
         }
     }
 
-    // Called by triggers
+    public void SetCostumeByIndex(int index)
+    {
+        currentIndex = index; // simply set the index; Update() will handle replacement
+    }
+
     public void TriggerModel(int index)
     {
         if (index < 0 || index >= models.Length) return;
         if (!models[index].useTrigger) return;
 
-        ReplaceModel(models[index].modelPrefab);
-    }
-    
-    // Optional: Method to change costume directly from other scripts
-    public void SetCostumeByIndex(int index)
-    {
-        if (index < 0 || index >= models.Length) return;
-        ReplaceModel(models[index].modelPrefab);
+        SetCostumeByIndex(index); // just set index, Update handles swapping
     }
 }
+//testing

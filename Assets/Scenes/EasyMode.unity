@@ -899,7 +899,8 @@ MonoBehaviour:
   pauseMenu: {fileID: 1167089700}
   OtherThingsCanvas: {fileID: 1457024180}
   countdownText: {fileID: 1705583298}
-  resumeDelay: 3
+  slowMotionTimescale: 0.1
+  slowMotionDuration: 3
 --- !u!1 &161897637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2441,6 +2442,7 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   clueTextObject: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
@@ -2723,8 +2725,6 @@ MonoBehaviour:
     chance: 50
   - type: 1
     chance: 50
-  - type: 2
-    chance: 0
   letterContainerPrefab: {fileID: 168779156}
   spawnerIndicatorPrefab: {fileID: 0}
   letterSpawnParent: {fileID: 774635559}
@@ -4913,7 +4913,8 @@ MonoBehaviour:
   pauseMenu: {fileID: 973499207}
   OtherThingsCanvas: {fileID: 0}
   countdownText: {fileID: 0}
-  resumeDelay: 3
+  slowMotionTimescale: 0.1
+  slowMotionDuration: 3
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -5197,15 +5198,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167089700}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0140352744420eb49a7507c2641d8f97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 1167089700}
   OtherThingsCanvas: {fileID: 1457024180}
-  countdownText: {fileID: 0}
-  resumeDelay: 3
+  countdownText: {fileID: 1705583298}
+  slowMotionTimescale: 0.1
+  slowMotionDuration: 3
 --- !u!1 &1168608304
 GameObject:
   m_ObjectHideFlags: 0
@@ -5843,6 +5845,7 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   clueTextObject: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: f9b875d10483f8d4db52e13510d089f1, type: 3}
@@ -7178,6 +7181,7 @@ MonoBehaviour:
   jumpText: {fileID: 110658086}
   slideText: {fileID: 228163191}
   clueTextObject: {fileID: 760115165}
+  clueImages: []
   audioSource: {fileID: 0}
   pronunciationSounds: []
   sentencePronunciations: []
@@ -7305,6 +7309,7 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   clueTextObject: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: 3735381a045919f44bd521be316261ac, type: 3}
@@ -7591,6 +7596,7 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   clueTextObject: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: f9b875d10483f8d4db52e13510d089f1, type: 3}
