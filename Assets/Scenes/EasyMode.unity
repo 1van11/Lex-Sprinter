@@ -857,8 +857,8 @@ RectTransform:
   - {fileID: 1685782661}
   - {fileID: 1167089701}
   - {fileID: 973499211}
-  - {fileID: 1177350798}
   - {fileID: 1830821177}
+  - {fileID: 1177350798}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5122,10 +5122,11 @@ GameObject:
   - component: {fileID: 1167089703}
   - component: {fileID: 1167089702}
   - component: {fileID: 1167089704}
+  - component: {fileID: 1167089705}
   m_Layer: 5
   m_Name: Pause
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2800000, guid: 3227479e82fb8394898c6c68a14bbc25, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
@@ -5208,6 +5209,23 @@ MonoBehaviour:
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+--- !u!114 &1167089705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167089700}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6ff968f5f53aab4a99f7d65e7b4505f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countdownText: {fileID: 0}
+  OtherThingsCanvas: {fileID: 0}
+  countdownDuration: 3
+  scaleUpAmount: 1.5
+  scaleSpeed: 5
 --- !u!1 &1168608304
 GameObject:
   m_ObjectHideFlags: 0
@@ -5360,7 +5378,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 161069997}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7538,10 +7556,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countdownText: {fileID: 1705583298}
-  startCount: 3
-  delayBetweenNumbers: 1
-  goTextDuration: 0.5
-  slowMotionSpeed: 0.01
+  OtherThingsCanvas: {fileID: 0}
+  countdownDuration: 3
+  scaleUpAmount: 1.5
+  scaleSpeed: 5
 --- !u!1 &1688170019
 GameObject:
   m_ObjectHideFlags: 0
@@ -7725,6 +7743,7 @@ GameObject:
   - component: {fileID: 1693082406}
   - component: {fileID: 1693082405}
   - component: {fileID: 1693082408}
+  - component: {fileID: 1693082409}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7813,6 +7832,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 264086230}
+--- !u!114 &1693082409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693082404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6ff968f5f53aab4a99f7d65e7b4505f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countdownText: {fileID: 1705583298}
+  OtherThingsCanvas: {fileID: 1457024180}
+  countdownDuration: 3
+  scaleUpAmount: 1
+  scaleSpeed: 5
 --- !u!1001 &1693592861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8728,7 +8764,7 @@ RectTransform:
   - {fileID: 166395811}
   - {fileID: 1670527767}
   m_Father: {fileID: 161069997}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

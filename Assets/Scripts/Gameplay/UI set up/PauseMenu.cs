@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 using TMPro;
-using UnityEngine.Animations;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -25,17 +24,15 @@ public class PauseMenu : MonoBehaviour
     {
         playerFunctions = FindObjectOfType<PlayerFunctions>();
         originalFixedDeltaTime = Time.fixedDeltaTime;
-        
-        // Cache all animators, particle systems, and audio sources in the scene
+
         CacheAllAnimationComponents();
-        
+
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(false);
-            countdownText.raycastTarget = false; // Ensure numbers are not tappable
+            countdownText.raycastTarget = false;
         }
 
-        // Ensure pause menu starts fully visible and interactable
         CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
         if (pauseCanvasGroup == null)
             pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
@@ -47,47 +44,42 @@ public class PauseMenu : MonoBehaviour
 
     void CacheAllAnimationComponents()
     {
-        // Find all animators in the scene
-        allAnimators = FindObjectsOfType<Animator>(true); // Include inactive
+        allAnimators = FindObjectsOfType<Animator>(true);
         allParticleSystems = FindObjectsOfType<ParticleSystem>(true);
         allAudioSources = FindObjectsOfType<AudioSource>(true);
-        
+
         Debug.Log($"📊 Cached {allAnimators.Length} animators, {allParticleSystems.Length} particle systems, {allAudioSources.Length} audio sources");
     }
 
     void Update()
     {
-        // Optional: Escape key to pause
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Time.timeScale > slowMotionTimescale) // Not already in slow motion
+            if (Time.timeScale > slowMotionTimescale)
                 Pause();
         }
     }
 
     public void Pause()
     {
-        // Stop any ongoing resume coroutine
         if (resumeCoroutine != null)
         {
             StopCoroutine(resumeCoroutine);
             resumeCoroutine = null;
             isResuming = false;
-            Time.timeScale = 0; // Force back to paused state
+            Time.timeScale = 0;
             Time.fixedDeltaTime = originalFixedDeltaTime;
-            RestoreAllAnimationsToNormal(); // Make sure animations are paused
+            RestoreAllAnimationsToNormal();
         }
 
         pauseMenu.SetActive(true);
         OtherThingsCanvas.SetActive(false);
         Time.timeScale = 0;
 
-        // Pause all animations manually
         PauseAllAnimations();
         PauseAllParticleSystems();
         PauseAllAudio();
 
-        // Ensure pause menu is fully visible and tappable when paused
         CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
         if (pauseCanvasGroup != null)
         {
@@ -96,7 +88,6 @@ public class PauseMenu : MonoBehaviour
             pauseCanvasGroup.blocksRaycasts = true;
         }
 
-        // Hide countdown text when pausing
         if (countdownText != null)
             countdownText.gameObject.SetActive(false);
     }
@@ -109,288 +100,229 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    private IEnumerator ResumeWithSlowMotion()
+private IEnumerator ResumeWithSlowMotion()
+{
+    isResuming = true;
+
+    CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
+    if (pauseCanvasGroup == null)
+        pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
+
+    pauseCanvasGroup.alpha = 0;
+    pauseCanvasGroup.interactable = false;
+    pauseCanvasGroup.blocksRaycasts = false;
+
+    if (countdownText != null)
     {
-        isResuming = true;
-
-        // 1️⃣ Hide pause menu buttons but keep the menu visible for countdown
-        CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
-        if (pauseCanvasGroup == null)
-            pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
-
-        // Make pause menu semi-transparent & untappable
-        pauseCanvasGroup.alpha = 0;
-        pauseCanvasGroup.interactable = false; 
-        pauseCanvasGroup.blocksRaycasts = false;
-
-        // 2️⃣ Show countdown text on the pause menu
-        if (countdownText != null)
-        {
-            countdownText.gameObject.SetActive(true);
-            countdownText.text = Mathf.CeilToInt(slowMotionDuration).ToString();
-            countdownText.color = new Color(countdownText.color.r, countdownText.color.g, countdownText.color.b, 1f);
-        }
-
-        // 3️⃣ Start ultra slow motion
-        Time.timeScale = slowMotionTimescale;
-        Time.fixedDeltaTime = originalFixedDeltaTime * slowMotionTimescale;
-        
-        Debug.Log($"🚀 Starting ultra slow motion: Time.timeScale = {Time.timeScale}");
-
-        // MANUALLY control all animations for slow motion
-        SetAllAnimationsSpeed(slowMotionTimescale);
-        SetAllParticleSystemSpeed(slowMotionTimescale);
-        SetAllAudioPitch(slowMotionTimescale);
-        
-        // Resume all animations and particles
-        ResumeAllAnimations();
-        ResumeAllParticleSystems();
-        ResumeAllAudio();
-
-        // 4️⃣ Countdown in REAL TIME (unaffected by Time.timeScale)
-        float timer = slowMotionDuration;
-
-        while (timer > 0)
-        {
-            // Update countdown text
-            if (countdownText != null)
-                countdownText.text = Mathf.CeilToInt(timer).ToString();
-
-            // Wait in REAL TIME (using unscaled time - NOT affected by Time.timeScale)
-            yield return new WaitForSecondsRealtime(1f);
-            
-            timer -= 1f;
-        }
-
-        // 5️⃣ Hide countdown text
-        if (countdownText != null)
-            countdownText.gameObject.SetActive(false);
-
-        // 6️⃣ Restore normal time scale
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = originalFixedDeltaTime;
-        Debug.Log($"✅ Restored normal time: Time.timeScale = {Time.timeScale}");
-
-        // Restore all animations to normal speed
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
-
-        // 7️⃣ Hide pause menu completely and re-enable game UI
-        pauseMenu.SetActive(false);
-        OtherThingsCanvas.SetActive(true);
-
-        // 8️⃣ Reset menu state for next time
-        if (pauseCanvasGroup != null)
-        {
-            pauseCanvasGroup.alpha = 1f;
-            pauseCanvasGroup.interactable = true;
-            pauseCanvasGroup.blocksRaycasts = true;
-        }
-
-        isResuming = false;
-        resumeCoroutine = null;
+        countdownText.gameObject.SetActive(true);
+        countdownText.color = new Color(countdownText.color.r, countdownText.color.g, countdownText.color.b, 1f);
     }
 
-    #region Animation Control Methods
+    Time.timeScale = slowMotionTimescale;
+    Time.fixedDeltaTime = originalFixedDeltaTime * slowMotionTimescale;
 
+    SetAllAnimationsSpeed(slowMotionTimescale);
+    SetAllParticleSystemSpeed(slowMotionTimescale);
+    SetAllAudioPitch(slowMotionTimescale);
+
+    ResumeAllAnimations();
+    ResumeAllParticleSystems();
+    ResumeAllAudio();
+
+    float timer = slowMotionDuration;
+
+    // 3, 2, 1 countdown
+    while (timer > 0)
+    {
+        if (countdownText != null)
+        {
+            countdownText.text = Mathf.CeilToInt(timer).ToString(); // will show 3,2,1
+            StartCoroutine(ScaleCountdownNumber(countdownText.transform));
+        }
+
+        yield return new WaitForSecondsRealtime(1f); // unscaled time
+        timer -= 1f;
+    }
+
+    // Show "go" after 1
+    if (countdownText != null)
+    {
+        countdownText.text = "go"; // small letters
+        StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f)); // slightly bigger
+    }
+
+    yield return new WaitForSecondsRealtime(1f); // show "go" for 1 second
+
+    // Hide countdown text
+    if (countdownText != null)
+        countdownText.gameObject.SetActive(false);
+
+    Time.timeScale = 1f;
+    Time.fixedDeltaTime = originalFixedDeltaTime;
+
+    RestoreAllAnimationsToNormal();
+    RestoreAllParticleSystemsToNormal();
+    RestoreAllAudioToNormal();
+
+    pauseMenu.SetActive(false);
+    OtherThingsCanvas.SetActive(true);
+
+    if (pauseCanvasGroup != null)
+    {
+        pauseCanvasGroup.alpha = 1f;
+        pauseCanvasGroup.interactable = true;
+        pauseCanvasGroup.blocksRaycasts = true;
+    }
+
+    isResuming = false;
+    resumeCoroutine = null;
+}
+
+    #region Scale Animation
+    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = -1f)
+    {
+        if (targetScale < 0f) targetScale = 1.5f;
+
+        Vector3 originalScale = target.localScale;
+        Vector3 goalScale = originalScale * targetScale;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
+            yield return null;
+        }
+    }
+    #endregion
+
+    #region Animation Control Methods
     void PauseAllAnimations()
     {
         foreach (var animator in allAnimators)
-        {
-            if (animator != null && animator.isActiveAndEnabled)
-            {
-                animator.speed = 0f; // Pause animation
-            }
-        }
+            if (animator != null && animator.isActiveAndEnabled) animator.speed = 0f;
     }
 
     void ResumeAllAnimations()
     {
         foreach (var animator in allAnimators)
-        {
-            if (animator != null && animator.isActiveAndEnabled)
-            {
-                animator.speed = 1f; // Resume at normal speed initially
-            }
-        }
+            if (animator != null && animator.isActiveAndEnabled) animator.speed = 1f;
     }
 
     void SetAllAnimationsSpeed(float speed)
     {
         foreach (var animator in allAnimators)
-        {
-            if (animator != null && animator.isActiveAndEnabled)
-            {
-                animator.speed = speed; // Set custom speed
-            }
-        }
+            if (animator != null && animator.isActiveAndEnabled) animator.speed = speed;
     }
 
     void RestoreAllAnimationsToNormal()
     {
         foreach (var animator in allAnimators)
-        {
-            if (animator != null && animator.isActiveAndEnabled)
-            {
-                animator.speed = 1f; // Restore to normal speed
-            }
-        }
+            if (animator != null && animator.isActiveAndEnabled) animator.speed = 1f;
     }
 
     void PauseAllParticleSystems()
     {
         foreach (var ps in allParticleSystems)
-        {
-            if (ps != null && ps.isPlaying)
-            {
-                ps.Pause();
-            }
-        }
+            if (ps != null && ps.isPlaying) ps.Pause();
     }
 
     void ResumeAllParticleSystems()
     {
         foreach (var ps in allParticleSystems)
-        {
-            if (ps != null)
-            {
-                ps.Play();
-            }
-        }
+            if (ps != null) ps.Play();
     }
 
     void SetAllParticleSystemSpeed(float speed)
     {
         foreach (var ps in allParticleSystems)
-        {
-            if (ps != null)
-            {
-                var main = ps.main;
-                main.simulationSpeed = speed;
-            }
-        }
+            if (ps != null) { var main = ps.main; main.simulationSpeed = speed; }
     }
 
     void RestoreAllParticleSystemsToNormal()
     {
         foreach (var ps in allParticleSystems)
-        {
-            if (ps != null)
-            {
-                var main = ps.main;
-                main.simulationSpeed = 1f;
-            }
-        }
+            if (ps != null) { var main = ps.main; main.simulationSpeed = 1f; }
     }
 
     void PauseAllAudio()
     {
         foreach (var audioSource in allAudioSources)
-        {
-            if (audioSource != null && audioSource.isPlaying)
-            {
-                audioSource.Pause();
-            }
-        }
+            if (audioSource != null && audioSource.isPlaying) audioSource.Pause();
     }
 
     void ResumeAllAudio()
     {
         foreach (var audioSource in allAudioSources)
-        {
-            if (audioSource != null && !audioSource.isPlaying)
-            {
-                audioSource.UnPause();
-            }
-        }
+            if (audioSource != null && !audioSource.isPlaying) audioSource.UnPause();
     }
 
     void SetAllAudioPitch(float pitch)
     {
         foreach (var audioSource in allAudioSources)
-        {
-            if (audioSource != null)
-            {
-                audioSource.pitch = pitch;
-            }
-        }
+            if (audioSource != null) audioSource.pitch = pitch;
     }
 
     void RestoreAllAudioToNormal()
     {
         foreach (var audioSource in allAudioSources)
-        {
-            if (audioSource != null)
-            {
-                audioSource.pitch = 1f;
-            }
-        }
+            if (audioSource != null) audioSource.pitch = 1f;
     }
-
     #endregion
 
-    // Method to check if we're currently in slow motion
-    public bool IsInSlowMotion()
-    {
-        return isResuming && Time.timeScale == slowMotionTimescale;
-    }
+    public bool IsInSlowMotion() => isResuming && Time.timeScale == slowMotionTimescale;
 
-    // Method to manually cancel slow motion (for emergencies)
     public void CancelSlowMotion()
     {
-        if (resumeCoroutine != null)
-        {
-            StopCoroutine(resumeCoroutine);
-            resumeCoroutine = null;
-        }
-        
+        if (resumeCoroutine != null) StopCoroutine(resumeCoroutine);
+        resumeCoroutine = null;
+
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
         isResuming = false;
-        
-        // Restore all animations to normal
+
         RestoreAllAnimationsToNormal();
         RestoreAllParticleSystemsToNormal();
         RestoreAllAudioToNormal();
-        
-        if (countdownText != null)
-            countdownText.gameObject.SetActive(false);
-            
+
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
         pauseMenu.SetActive(false);
         OtherThingsCanvas.SetActive(true);
     }
 
     public void Home()
     {
-        // Stop slow motion if resuming
         CancelSlowMotion();
         SaveCoins();
-        Time.timeScale = 1;
+        Time.timeScale = 1f;
         SceneManager.LoadScene("HomeScreen");
     }
 
     public void Restart()
     {
-        // Stop slow motion if resuming
         CancelSlowMotion();
         SaveCoins();
         DeductEnergyFromHome();
-        Time.timeScale = 1;
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    // Clean up when destroyed
     void OnDestroy()
     {
-        // Always restore time scale when this object is destroyed
         if (Time.timeScale != 1f)
         {
             Time.timeScale = 1f;
             Time.fixedDeltaTime = originalFixedDeltaTime;
         }
-        
-        // Restore animations just in case
+
         RestoreAllAnimationsToNormal();
         RestoreAllParticleSystemsToNormal();
         RestoreAllAudioToNormal();
@@ -409,7 +341,6 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    #region DeductEnergy
     private void DeductEnergyFromHome()
     {
         int maxPower = 5;
@@ -432,6 +363,5 @@ public class PauseMenu : MonoBehaviour
             Debug.Log("⚠️ No energy left!");
         }
     }
-    #endregion
 }
-//super slow on resume
+//working
