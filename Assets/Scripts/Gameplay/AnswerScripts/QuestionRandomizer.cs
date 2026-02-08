@@ -11,6 +11,9 @@ public class QuestionRandomizer : MonoBehaviour
     public TMP_Text slideText;
     public GameObject clueTextObject;
 
+    [Header("Clue Images")]
+    public Sprite[] clueImages; // Array for clue images in word/spelling hurdles
+
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip[] pronunciationSounds;
@@ -30,7 +33,6 @@ public class QuestionRandomizer : MonoBehaviour
     private string[,] activeSentencePairs;
 
     // Difficulty word/sentence banks
-
 
     #region Easy
     public static string[,] easySpellingPairs = new string[,]
@@ -135,61 +137,62 @@ public class QuestionRandomizer : MonoBehaviour
         { "The waiter ____ food to the customers.", "served", "swam" },
         { "The swimmer ____ laps in the pool.", "swam", "cooked" }
     };
-#endregion
-#region Medium
+    #endregion
+
+    #region Medium
     public static string[,] mediumSpellingPairs = new string[,]
-{
-    { "a burrowing African mammal with a long nose", "aardvark", "aardvarko" },
-    { "an open-air venue for performances", "amphitheater", "amfiteatro" },
-    { "a small armored mammal that rolls into a ball", "armadillo", "armadilo" },
-    { "an ancient astronomical instrument for measuring stars", "astrolabe", "astrolabbo" },
-    { "a rare aquatic salamander with external gills", "axolotl", "axoloto" },
-    { "an ancient missile weapon that launches projectiles", "ballista", "balista" },
-    { "a defensive wall on top of a castle", "battlement", "batlemanto" },
-    { "a rotating amusement ride with seats", "carousel", "karuselo" },
-    { "a medieval device for hurling heavy stones", "catapult", "katapulto" },
-    { "a mythical creature that is half human, half horse", "centaur", "sentaoro" },
-    { "a lizard that can change its color", "chameleon", "kamaleono" },
-    { "a hanging decorative light fixture", "chandelier", "shandeler" },
-    { "the pupal stage of a butterfly", "chrysalis", "chrysaliso" },
-    { "a colorful parrot with a crest", "cockatoo", "kokatu" },
-    { "a large ancient Roman theater", "colosseum", "coloseo" },
-    { "a bridge that can be raised or lowered", "drawbridge", "drawbriggo" },
-    { "a carved figure often on buildings", "gargoyle", "gargoyo" },
-    { "a professional fighter in ancient Rome", "gladiator", "gladiato" },
-    { "a device used for executions by decapitation", "guillotine", "guilotino" },
-    { "a spear-like weapon for fishing or combat", "harpoon", "harpono" },
-    { "ancient writing system of Egypt using symbols", "hieroglyph", "hyerogliffo" },
-    { "an optical toy showing colorful patterns", "kaleidoscope", "kaleidoskopo" },
-    { "a complex network of paths", "labyrinth", "labirinto" },
-    { "a large tent for events or shows", "marquee", "markweo" },
-    { "a collection of exotic animals", "menagerie", "menajero" },
-    { "a mythical creature with the body of a man and head of a bull", "minotaur", "minotauro" },
-    { "a single massive upright stone", "monolith", "monolito" },
-    { "a whale with a long tusk", "narwhal", "narwalo" },
-    { "a tall stone pillar or monument", "obelisk", "obelisko" },
-    { "a dark volcanic glass", "obsidian", "obsidiano" },
-    { "a dungeon with a secret trapdoor", "oubliette", "oblietto" },
-    { "a famous temple in Athens", "parthenon", "parthenono" },
-    { "a tube for viewing distant objects", "periscope", "periskopo" },
-    { "a ruler of ancient Egypt", "pharaoh", "faraono" },
-    { "a duck-billed egg-laying mammal", "platypus", "platipo" },
-    { "a heavy gate that slides vertically", "portcullis", "portkulo" },
-    { "a massive triangular structure", "pyramid", "piramido" },
-    { "a small marsupial from Australia", "quokka", "quokko" },
-    { "a Japanese warrior", "samurai", "samuraio" },
-    { "a stone coffin, usually for royalty", "sarcophagus", "sarkofago" },
-    { "an arachnid with a sting", "scorpion", "skorpiono" },
-    { "an ancient navigation instrument", "sextant", "sekstanto" },
-    { "a mythical creature with a lion's body and human head", "sphinx", "sfinkso" },
-    { "a handheld telescope", "spyglass", "spyglasso" },
-    { "a large spider with long legs", "tarantula", "tarantulo" },
-    { "a medieval siege engine that throws stones", "trebuchet", "trebuchato" },
-    { "a three-pronged spear", "trident", "tridanto" },
-    { "a Scandinavian warrior or raider", "viking", "vikingo" },
-    { "a musical instrument with keys", "xylophone", "zylophono" },
-    { "a stepped pyramid from ancient Mesopotamia", "ziggurat", "zigurato" }
-};
+    {
+        { "a burrowing African mammal with a long nose", "aardvark", "aardvarko" },
+        { "an open-air venue for performances", "amphitheater", "amfiteatro" },
+        { "a small armored mammal that rolls into a ball", "armadillo", "armadilo" },
+        { "an ancient astronomical instrument for measuring stars", "astrolabe", "astrolabbo" },
+        { "a rare aquatic salamander with external gills", "axolotl", "axoloto" },
+        { "an ancient missile weapon that launches projectiles", "ballista", "balista" },
+        { "a defensive wall on top of a castle", "battlement", "batlemanto" },
+        { "a rotating amusement ride with seats", "carousel", "karuselo" },
+        { "a medieval device for hurling heavy stones", "catapult", "katapulto" },
+        { "a mythical creature that is half human, half horse", "centaur", "sentaoro" },
+        { "a lizard that can change its color", "chameleon", "kamaleono" },
+        { "a hanging decorative light fixture", "chandelier", "shandeler" },
+        { "the pupal stage of a butterfly", "chrysalis", "chrysaliso" },
+        { "a colorful parrot with a crest", "cockatoo", "kokatu" },
+        { "a large ancient Roman theater", "colosseum", "coloseo" },
+        { "a bridge that can be raised or lowered", "drawbridge", "drawbriggo" },
+        { "a carved figure often on buildings", "gargoyle", "gargoyo" },
+        { "a professional fighter in ancient Rome", "gladiator", "gladiato" },
+        { "a device used for executions by decapitation", "guillotine", "guilotino" },
+        { "a spear-like weapon for fishing or combat", "harpoon", "harpono" },
+        { "ancient writing system of Egypt using symbols", "hieroglyph", "hyerogliffo" },
+        { "an optical toy showing colorful patterns", "kaleidoscope", "kaleidoskopo" },
+        { "a complex network of paths", "labyrinth", "labirinto" },
+        { "a large tent for events or shows", "marquee", "markweo" },
+        { "a collection of exotic animals", "menagerie", "menajero" },
+        { "a mythical creature with the body of a man and head of a bull", "minotaur", "minotauro" },
+        { "a single massive upright stone", "monolith", "monolito" },
+        { "a whale with a long tusk", "narwhal", "narwalo" },
+        { "a tall stone pillar or monument", "obelisk", "obelisko" },
+        { "a dark volcanic glass", "obsidian", "obsidiano" },
+        { "a dungeon with a secret trapdoor", "oubliette", "oblietto" },
+        { "a famous temple in Athens", "parthenon", "parthenono" },
+        { "a tube for viewing distant objects", "periscope", "periskopo" },
+        { "a ruler of ancient Egypt", "pharaoh", "faraono" },
+        { "a duck-billed egg-laying mammal", "platypus", "platipo" },
+        { "a heavy gate that slides vertically", "portcullis", "portkulo" },
+        { "a massive triangular structure", "pyramid", "piramido" },
+        { "a small marsupial from Australia", "quokka", "quokko" },
+        { "a Japanese warrior", "samurai", "samuraio" },
+        { "a stone coffin, usually for royalty", "sarcophagus", "sarkofago" },
+        { "an arachnid with a sting", "scorpion", "skorpiono" },
+        { "an ancient navigation instrument", "sextant", "sekstanto" },
+        { "a mythical creature with a lion's body and human head", "sphinx", "sfinkso" },
+        { "a handheld telescope", "spyglass", "spyglasso" },
+        { "a large spider with long legs", "tarantula", "tarantulo" },
+        { "a medieval siege engine that throws stones", "trebuchet", "trebuchato" },
+        { "a three-pronged spear", "trident", "tridanto" },
+        { "a Scandinavian warrior or raider", "viking", "vikingo" },
+        { "a musical instrument with keys", "xylophone", "zylophono" },
+        { "a stepped pyramid from ancient Mesopotamia", "ziggurat", "zigurato" }
+    };
 
     public static string[,] mediumSentencePairs = new string[,]
     {
@@ -214,8 +217,9 @@ public class QuestionRandomizer : MonoBehaviour
         { "The reporter ____ the event for the evening news.", "covered", "announced" },
         { "The professor ____ the topic in great detail.", "explained", "mentioned" }
     };
-#endregion
-#region Hard
+    #endregion
+
+    #region Hard
     public static string[,] hardSpellingPairs = new string[,]
     {
         // Animals & nature
@@ -304,8 +308,9 @@ public class QuestionRandomizer : MonoBehaviour
         { "The pilot navigated through the dangerous ____.", "hurricane", "mountain" },
         { "She used a ____ to examine the tiny crystals.", "microscope", "telescope" },
     };
-#endregion
-#region Codes
+    #endregion
+
+    #region Codes
     void Awake()
     {
         string sceneName = SceneManager.GetActiveScene().name;
@@ -522,6 +527,21 @@ public class QuestionRandomizer : MonoBehaviour
     public int GetSpellingQuestionCount() => activeSpellingPairs?.GetLength(0) ?? 0;
 
     public int GetSentenceQuestionCount() => activeSentencePairs?.GetLength(0) ?? 0;
-}
+
+    // New method to get clue image for current question
+    public Sprite GetCurrentClueImage()
+    {
+        if (clueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length)
+        {
+            return clueImages[currentQuestionIndex];
+        }
+        return null; // Return null if no image available
+    }
+
+    // New method to check if clue image is available for current question
+    public bool HasClueImage()
+    {
+        return clueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length && clueImages[currentQuestionIndex] != null;
+    }
     #endregion
-    //testing
+}
