@@ -131,13 +131,38 @@ public class ClosetManager : MonoBehaviour
     }
 
     void ClearPreview()
+{
+    if (previewImage != null)
     {
-        if (previewImage != null) previewImage.enabled = false;
-        if (outfitNameText != null) outfitNameText.text = "Select an outfit";
-        if (statusText != null) statusText.text = "";
-        if (equipButton != null) equipButton.interactable = false;
-        if (equipButtonText != null) equipButtonText.text = "EQUIP";
+        previewImage.enabled = false;
     }
+    
+    if (outfitNameText != null)
+    {
+        outfitNameText.text = "Select an outfit";
+    }
+    
+    if (statusText != null)
+    {
+        statusText.text = "";
+    }
+    
+    if (equipButton != null)
+    {
+        equipButton.interactable = false;
+        
+        // Make button gray when disabled
+        ColorBlock colors = equipButton.colors;
+        colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 1f); // Gray
+        equipButton.colors = colors;
+    }
+    
+    if (equipButtonText != null)
+    {
+        equipButtonText.text = "LOCKED";
+        equipButtonText.color = new Color(0.7f, 0.7f, 0.7f, 1f); // Gray text
+    }
+}
 
     public void OpenCloset()
     {
