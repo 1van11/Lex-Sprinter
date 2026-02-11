@@ -295,7 +295,7 @@ public class PlayerFunctions : MonoBehaviour
             playerControls.SetForwardSpeed(forwardSpeed);
     }
 
-#region OntriggerEnter
+#region OnTriggerEnter
 void OnTriggerEnter(Collider other)
 {
     if (isDead) return;
@@ -354,10 +354,13 @@ void OnTriggerEnter(Collider other)
     // =========================
     if (other.CompareTag("AnswerOptions"))
     {
-        QuestionRandomizer questionRandomizer = other.GetComponentInParent<QuestionRandomizer>();
+        QuestionRandomizer questionRandomizer =
+            other.GetComponentInParent<QuestionRandomizer>();
+
         if (questionRandomizer != null)
         {
             bool isJumpOption = other.gameObject.name.Contains("Jump");
+
             string selectedAnswer = isJumpOption
                 ? questionRandomizer.jumpText.text
                 : questionRandomizer.slideText.text;
@@ -379,27 +382,35 @@ void OnTriggerEnter(Collider other)
 
                 ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
 
-                string correctWord = questionRandomizer.correctAnswer.ToLower();
+                string correctWord =
+                    questionRandomizer.correctAnswer.ToLower();
+
                 AddUnlockedWord(correctWord);
 
                 wordsCollected++;
                 UpdateWordCountUI();
 
                 if (DailyTaskManager.Instance != null)
-                    DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
+                    DailyTaskManager.Instance
+                        .CheckAndCompleteTask(correctWord);
             }
             else
             {
                 // ❌ WRONG ANSWER
-                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] | Correct: {questionRandomizer.correctAnswer}");
+                Debug.Log(
+                    $"❌ Wrong Answer! [{selectedAnswer}] | Correct: {questionRandomizer.correctAnswer}"
+                );
 
                 if (audioSource != null && wrongAnswerSound != null)
                     audioSource.PlayOneShot(wrongAnswerSound);
 
-                // ❌ Show wrong feedback on chosen option
-                ReplaceWithFeedbackModel(other.gameObject, wrongAnswerPrefab);
+                // ❌ feedback on chosen option
+                ReplaceWithFeedbackModel(
+                    other.gameObject,
+                    wrongAnswerPrefab
+                );
 
-                // ✅ ALSO show correct feedback on the correct option
+                // ✅ show correct feedback on correct option
                 Transform parent = other.transform.parent;
                 if (parent != null)
                 {
@@ -407,10 +418,16 @@ void OnTriggerEnter(Collider other)
                     {
                         if (child == other.transform) continue;
 
-                        TMP_Text txt = child.GetComponentInChildren<TMP_Text>();
-                        if (txt != null && txt.text == questionRandomizer.correctAnswer)
+                        TMP_Text txt =
+                            child.GetComponentInChildren<TMP_Text>();
+
+                        if (txt != null &&
+                            txt.text == questionRandomizer.correctAnswer)
                         {
-                            ReplaceWithFeedbackModel(child.gameObject, correctAnswerPrefab);
+                            ReplaceWithFeedbackModel(
+                                child.gameObject,
+                                correctAnswerPrefab
+                            );
                             break;
                         }
                     }
@@ -420,10 +437,24 @@ void OnTriggerEnter(Collider other)
                     TakeDamage(1);
             }
 
-            // Remove colliders + destroy question after delay
+            // =========================
+            // HIDE CLUE UI AFTER ANSWER
+            // =========================
+            if (questionRandomizer.clueTextObject != null)
+                questionRandomizer.clueTextObject.SetActive(false);
+
+            if (questionRandomizer.clueImageObject != null)
+                questionRandomizer.clueImageObject.SetActive(false);
+
+            // =========================
+            // CLEANUP QUESTION OBJECT
+            // =========================
             if (other.transform.parent != null)
             {
-                Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
+                Collider[] colliders =
+                    other.transform.parent
+                        .GetComponentsInChildren<Collider>();
+
                 foreach (Collider col in colliders)
                     Destroy(col);
 

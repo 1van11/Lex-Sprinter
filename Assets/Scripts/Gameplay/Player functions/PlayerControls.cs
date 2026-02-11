@@ -13,6 +13,7 @@ public class PlayerControls : MonoBehaviour,
     public float jumpForce = 9f;
     public float gravity = 20f;
     public float groundCheckDistance = 0.1f;
+    public bool enableJump = true; // NEW: Toggle jump on/off in Inspector
 
     [Header("Fast Descent")]
     public float fastDescentForce = 15f;
@@ -97,7 +98,7 @@ public class PlayerControls : MonoBehaviour,
         horizontalInput = h;
         targetTilt = tilt;
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (enableJump && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
             Jump();
 
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
@@ -131,7 +132,7 @@ public class PlayerControls : MonoBehaviour,
             touchStart = t.position;
             touchTime = Time.time;
 
-            if (screenX >= 0.4f && screenX <= 0.6f)
+            if (enableJump && screenX >= 0.4f && screenX <= 0.6f)
                 Jump();
         }
 
@@ -208,7 +209,7 @@ public class PlayerControls : MonoBehaviour,
 
     void Jump()
     {
-        if (!isGrounded) return;
+        if (!isGrounded || !enableJump) return;
 
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
     }
@@ -284,6 +285,18 @@ public class PlayerControls : MonoBehaviour,
     {
         isMovementStopped = false;
         Debug.Log("▶️ PlayerControls movement resumed");
+    }
+
+    // NEW: Methods to enable/disable jump at runtime
+    public void EnableJump(bool enable)
+    {
+        enableJump = enable;
+        Debug.Log(enable ? "✅ Jump enabled" : "❌ Jump disabled");
+    }
+
+    public bool IsJumpEnabled()
+    {
+        return enableJump;
     }
 
     #endregion
