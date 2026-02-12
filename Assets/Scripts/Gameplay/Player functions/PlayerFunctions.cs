@@ -469,13 +469,19 @@ void OnTriggerEnter(Collider other)
     }
 
     // =========================
-    // SHIELD PICKUP
+    // SHIELD PICKUP - NOW ADDS HEALTH INSTEAD
     // =========================
     if (other.CompareTag("Shield"))
     {
-        StartCoroutine(ShieldBuff());
+        // Add health instead of temporary shield
+        currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
+        UpdateHealthUI();
+        
+        if (audioSource != null && coinSound != null) // Using coin sound for feedback, you can change to a health pickup sound if you have one
+            audioSource.PlayOneShot(coinSound);
+            
         Destroy(other.gameObject);
-        Debug.Log("🛡️ Shield activated!");
+        Debug.Log($"❤️ Health pickup! Current health: {currentHealth}/{maxHealth}");
     }
 
     // =========================
