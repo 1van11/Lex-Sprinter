@@ -359,11 +359,31 @@ void OnTriggerEnter(Collider other)
 
         if (questionRandomizer != null)
         {
-            bool isJumpOption = other.gameObject.name.Contains("Jump");
-
-            string selectedAnswer = isJumpOption
-                ? questionRandomizer.jumpText.text
-                : questionRandomizer.slideText.text;
+            // FIX: Get the text component directly from the answer option
+            TMP_Text answerText = other.GetComponentInChildren<TMP_Text>();
+            
+            string selectedAnswer = "";
+            
+            if (answerText != null)
+            {
+                selectedAnswer = answerText.text;
+                Debug.Log($"📝 Selected answer: '{selectedAnswer}' from object: {other.gameObject.name}");
+            }
+            else
+            {
+                // Fallback to old method if text component not found
+                if (other.gameObject.name.Contains("Jump"))
+                    selectedAnswer = questionRandomizer.jumpText.text;
+                else if (other.gameObject.name.Contains("Slide"))
+                    selectedAnswer = questionRandomizer.slideText.text;
+                else if (other.gameObject.name.Contains("Option3"))
+                    selectedAnswer = questionRandomizer.option3Text.text;
+                else
+                {
+                    Debug.LogError($"❌ Could not find TMP_Text on answer option: {other.gameObject.name}");
+                    return;
+                }
+            }
 
             bool isCorrect = selectedAnswer == questionRandomizer.correctAnswer;
 
@@ -484,7 +504,7 @@ void OnTriggerEnter(Collider other)
         currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
         UpdateHealthUI();
         
-        if (audioSource != null && coinSound != null) // Using coin sound for feedback, you can change to a health pickup sound if you have one
+        if (audioSource != null && coinSound != null)
             audioSource.PlayOneShot(coinSound);
             
         Destroy(other.gameObject);
@@ -492,13 +512,13 @@ void OnTriggerEnter(Collider other)
     }
 
     // =========================
-    // MAGNET PICKUP
+    // MAGNET PICKUP - SUMMONS PET THAT ATTRACTS COINS
     // =========================
     if (other.CompareTag("Magnet"))
     {
         StartCoroutine(MagnetBuff());
         Destroy(other.gameObject);
-        Debug.Log("🧲 Magnet activated!");
+        Debug.Log("🧲 Magnet activated! Pet summoned to attract coins!");
     }
 
     // =========================
@@ -512,6 +532,7 @@ void OnTriggerEnter(Collider other)
     }
 }
 #endregion
+
 
 void UpdateWordCountUI()
 {
@@ -895,66 +916,142 @@ void UpdateWordCountUI()
     }
     #endregion
 
-    #region power ups
-    IEnumerator ShieldBuff()
+#region power ups
+IEnumerator ShieldBuff()
+{
+    hasShield = true;
+    shieldHitsRemaining = shieldMaxHits;
+    if (shieldVisual != null)
+        shieldVisual.SetActive(true);
+
+    Debug.Log($"🛡️ Shield activated! Absorbs {shieldMaxHits} hits for up to {shieldDuration} seconds");
+
+    float timer = shieldDuration;
+    while (timer > 0 && hasShield)
     {
-        hasShield = true;
-        shieldHitsRemaining = shieldMaxHits; // Reset hits when picking up shield
-        if (shieldVisual != null)
-            shieldVisual.SetActive(true);
-
-        Debug.Log($"🛡️ Shield activated! Absorbs {shieldMaxHits} hits for up to {shieldDuration} seconds");
-
-        float timer = shieldDuration;
-        while (timer > 0 && hasShield)
-        {
-            timer -= Time.deltaTime;
-            yield return null;
-        }
-
-        // Time ran out → deactivate shield
-        if (hasShield)
-        {
-            hasShield = false;
-            if (shieldVisual != null) shieldVisual.SetActive(false);
-            Debug.Log("🛡️ Shield expired (time out)");
-        }
+        timer -= Time.deltaTime;
+        yield return null;
     }
 
-    IEnumerator MagnetBuff()
+    if (hasShield)
     {
-        hasMagnet = true;
-        if (magnetVisual != null)
-            magnetVisual.SetActive(true);
-        Debug.Log($"🧲 Magnet active for {magnetDuration} seconds");
+        hasShield = false;
+        if (shieldVisual != null) shieldVisual.SetActive(false);
+        Debug.Log("🛡️ Shield expired (time out)");
+    }
+}
 
-        float timer = magnetDuration;
-        while (timer > 0)
+// Magnet Pet System - NOW ATTRACTS COINS TO PET
+[Header("Magnet Pet Settings")]
+public GameObject magnetPetPrefab; // Assign a pet prefab in Inspector
+public float petFollowSpeed = 5f;
+public Vector3 petOffset = new Vector3(0, 0, -2f); // Position relative to player
+public Vector3 petScale = Vector3.one; // Editable size (1,1,1 = normal)
+public Vector3 petRotation = Vector3.zero; // Editable rotation in degrees
+public float petCoinAttractRadius = 7f; // Radius for pet to attract coins
+public float petCoinPullSpeed = 10f; // Speed coins are pulled to pet
+private GameObject activePet;
+
+IEnumerator MagnetBuff()
+{
+    hasMagnet = true;
+    
+    // Spawn pet if prefab is assigned
+    if (magnetPetPrefab != null && activePet == null)
+    {
+        Vector3 spawnPosition = transform.position + petOffset;
+        activePet = Instantiate(magnetPetPrefab, spawnPosition, Quaternion.identity);
+        
+        // Apply custom scale
+        activePet.transform.localScale = petScale;
+        
+        // Apply custom rotation
+        activePet.transform.rotation = Quaternion.Euler(petRotation);
+        
+        Debug.Log($"🐕 Pet summoned: {activePet.name} | Scale: {petScale} | Rotation: {petRotation}");
+    }
+    
+    if (magnetVisual != null)
+        magnetVisual.SetActive(true);
+        
+    Debug.Log($"🧲 Magnet Pet active for {magnetDuration} seconds - Attracting coins to pet!");
+
+    float timer = magnetDuration;
+    while (timer > 0 && hasMagnet)
+    {
+        // Move pet towards player
+        if (activePet != null)
         {
-            timer -= Time.deltaTime;
-            yield return null;
+            // Calculate target position relative to player
+            Vector3 targetPosition = transform.position + petOffset;
+            
+            // Smoothly move pet towards target
+            activePet.transform.position = Vector3.Lerp(
+                activePet.transform.position,
+                targetPosition,
+                petFollowSpeed * Time.deltaTime
+            );
+            
+            // Keep rotation consistent (don't override custom rotation)
+            // activePet.transform.rotation = Quaternion.Euler(petRotation);
         }
-
-        if (magnetVisual != null)
-            magnetVisual.SetActive(false);
-        hasMagnet = false;
-        Debug.Log("🧲 Magnet expired");
+        
+        // ATTRACT COINS TO PET (not player)
+        if (activePet != null)
+        {
+            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
+            foreach (GameObject coinObj in allCoins)
+            {
+                if (coinObj == null || !coinObj.activeInHierarchy) continue;
+                
+                float distance = Vector3.Distance(activePet.transform.position, coinObj.transform.position);
+                if (distance <= petCoinAttractRadius)
+                {
+                    // Pull coin towards the PET
+                    coinObj.transform.position = Vector3.MoveTowards(
+                        coinObj.transform.position,
+                        activePet.transform.position,
+                        petCoinPullSpeed * Time.deltaTime
+                    );
+                }
+            }
+        }
+        
+        timer -= Time.deltaTime;
+        yield return null;
     }
 
-    IEnumerator SlowTimeBuff()
+    // Cleanup pet when buff ends
+    if (activePet != null)
     {
-        isSlowTime = true;
-        Time.timeScale = 0.5f;
-        Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
-
-        yield return new WaitForSecondsRealtime(slowTimeDuration);
-
-        Time.timeScale = 1f;
-        isSlowTime = false;
-        Debug.Log("⏰ Slow Time expired");
+        Destroy(activePet);
+        activePet = null;
+        Debug.Log("🐕 Pet despawned");
     }
-    #endregion
 
+    if (magnetVisual != null)
+        magnetVisual.SetActive(false);
+        
+    hasMagnet = false;
+    Debug.Log("🧲 Magnet expired");
+}
+
+IEnumerator SlowTimeBuff()
+{
+    isSlowTime = true;
+    Time.timeScale = 0.5f;
+    Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
+
+    yield return new WaitForSecondsRealtime(slowTimeDuration);
+
+    Time.timeScale = 1f;
+    isSlowTime = false;
+    Debug.Log("⏰ Slow Time expired");
+}
+#endregion
+   
+   
+   
     private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
     {
         if (pool.Count > 0)

@@ -228,6 +228,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1420756013}
   - {fileID: 264086230}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -2077,7 +2078,7 @@ MonoBehaviour:
   iFrameDuration: 1
   flashInterval: 0.1
   isInvincible: 0
-  hasShield: 0
+  hasShield: 1
   hasMagnet: 0
   isSlowTime: 0
   shieldDuration: 8
@@ -2098,6 +2099,13 @@ MonoBehaviour:
   wrongAnswerPrefab: {fileID: 1735868751}
   feedbackDisplayTime: 1.5
   isDead: 0
+  magnetPetPrefab: {fileID: 1420756012}
+  petFollowSpeed: 5
+  petOffset: {x: 0, y: 0, z: -2}
+  petScale: {x: 0.5, y: 0.5, z: 0.5}
+  petRotation: {x: 0, y: 90, z: 0}
+  petCoinAttractRadius: 7
+  petCoinPullSpeed: 20
 --- !u!114 &264086238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2704,7 +2712,6 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   option3Text: {fileID: 0}
-  option4Text: {fileID: 0}
   clueTextObject: {fileID: 0}
   clueText: {fileID: 0}
   clueImageObject: {fileID: 0}
@@ -2992,9 +2999,9 @@ MonoBehaviour:
   powerUpScale: {x: 10, y: 10, z: 10}
   spawnChances:
   - type: 0
-    chance: 50
+    chance: 0
   - type: 1
-    chance: 50
+    chance: 100
   letterContainerPrefab: {fileID: 168779156}
   spawnerIndicatorPrefab: {fileID: 0}
   letterSpawnParent: {fileID: 774635559}
@@ -5478,6 +5485,79 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087152232}
   m_CullTransparentMesh: 1
+--- !u!1001 &1115949309
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 47127453}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5162001
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5162
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5162001
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.8783875
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.19
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -59.622887
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 2.428737e-16
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 2.428737e-16
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_Name
+      value: active Crocodile Goblin
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
 --- !u!1 &1167089700
 GameObject:
   m_ObjectHideFlags: 0
@@ -6533,7 +6613,6 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   option3Text: {fileID: 0}
-  option4Text: {fileID: 0}
   clueTextObject: {fileID: 0}
   clueText: {fileID: 0}
   clueImageObject: {fileID: 0}
@@ -6831,6 +6910,97 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1417369322}
   m_CullTransparentMesh: 1
+--- !u!1 &1420756012 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+  m_PrefabInstance: {fileID: 1115949309}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1420756013 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9ab287fd943b196449ac7dc5702c7bb1, type: 3}
+  m_PrefabInstance: {fileID: 1115949309}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &1420756014
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420756012}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.2644794, y: 2.906942, z: 1.95347}
+  m_Center: {x: 0.20261353, y: -1.65922e-23, z: -0.04767394}
+--- !u!114 &1420756015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420756012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 884a8ff4fc63b784a865cec9c882edbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forwardSpeed: 10
+  speedIncreaseMultiplier: 1.125
+  maxSpeedMultiplier: 1.8
+  speedIncreaseDistance: 300
+  alwaysInvincible: 1
+  playerModel: {fileID: 0}
+  audioSource: {fileID: 0}
+  coinSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  correctAnswerSound: {fileID: 0}
+  wrongAnswerSound: {fileID: 0}
+  score: 0
+  scoreText: {fileID: 0}
+  wordCountText: {fileID: 0}
+  totalCoins: 0
+  coinSaveKey: PlayerTotalCoins
+  totalCoinsText: {fileID: 0}
+  distanceTraveled: 0
+  distanceText: {fileID: 0}
+  maxHealth: 5
+  currentHealth: 5
+  healthText: {fileID: 0}
+  healthImages: []
+  fullHealthSprite: {fileID: 0}
+  emptyHealthSprite: {fileID: 0}
+  iFrameDuration: 1
+  flashInterval: 0.1
+  isInvincible: 0
+  hasShield: 0
+  hasMagnet: 0
+  isSlowTime: 0
+  shieldDuration: 8
+  magnetDuration: 6
+  shieldMaxHits: 3
+  shieldHitsRemaining: 0
+  slowTimeDuration: 4
+  magnetRadius: 7
+  magnetPullSpeed: 10
+  coinLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  shieldVisual: {fileID: 0}
+  magnetVisual: {fileID: 0}
+  gameOverPanel: {fileID: 0}
+  revivePanel: {fileID: 0}
+  correctAnswerPrefab: {fileID: 0}
+  wrongAnswerPrefab: {fileID: 0}
+  feedbackDisplayTime: 1.5
+  isDead: 0
+  magnetPetPrefab: {fileID: 0}
+  petFollowSpeed: 5
+  petOffset: {x: 0, y: 0, z: -2}
+  petScale: {x: 1, y: 1, z: 1}
+  petRotation: {x: 0, y: 0, z: 0}
+  petCoinAttractRadius: 7
+  petCoinPullSpeed: 10
 --- !u!1 &1430736205
 GameObject:
   m_ObjectHideFlags: 0
@@ -7922,7 +8092,6 @@ MonoBehaviour:
   jumpText: {fileID: 110658086}
   slideText: {fileID: 228163191}
   option3Text: {fileID: 0}
-  option4Text: {fileID: 0}
   clueTextObject: {fileID: 760115165}
   clueText: {fileID: 529262465}
   clueImageObject: {fileID: 0}
@@ -8054,7 +8223,6 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   option3Text: {fileID: 0}
-  option4Text: {fileID: 0}
   clueTextObject: {fileID: 0}
   clueText: {fileID: 0}
   clueImageObject: {fileID: 0}
@@ -8396,7 +8564,6 @@ MonoBehaviour:
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
   option3Text: {fileID: 1336232143}
-  option4Text: {fileID: 0}
   clueTextObject: {fileID: 760115165}
   clueText: {fileID: 529262465}
   clueImageObject: {fileID: 1349210977}
@@ -9401,7 +9568,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 2d639a8b50237ef4aa6b3c10e7a079f5, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2d639a8b50237ef4aa6b3c10e7a079f5, type: 3}
       propertyPath: m_LocalScale.x
