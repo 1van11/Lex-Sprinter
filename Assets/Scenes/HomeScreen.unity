@@ -3656,7 +3656,7 @@ MonoBehaviour:
   contentParent: {fileID: 317297578}
   leaderboardItemPrefab: {fileID: 1559526414}
   currentPlayerName: Player
-  currentDistance: 0
+  currentWordCount: 0
 --- !u!1 &232150553
 GameObject:
   m_ObjectHideFlags: 0
@@ -4629,7 +4629,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: distance
+  m_text: 'words
+
+    obtained'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
   m_sharedMaterial: {fileID: 2477560879271356728, guid: 49ce3096b3d592745ae853aed001ed43, type: 2}
@@ -4840,7 +4842,7 @@ MonoBehaviour:
   contentParent: {fileID: 317297578}
   leaderboardItemPrefab: {fileID: 698571930289819611, guid: 210af29812424ee468da5663a2f5817e, type: 3}
   currentPlayerName: Player
-  currentDistance: 0
+  currentWordCount: 0
 --- !u!114 &317297580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13338,8 +13340,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00093079, y: -0.00073242}
-  m_SizeDelta: {x: 589.79, y: 1142.7}
+  m_AnchoredPosition: {x: 0.00093079, y: -18.752808}
+  m_SizeDelta: {x: 589.79, y: 1105.1958}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &956996351
 MonoBehaviour:
@@ -24307,8 +24309,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.0402, y: -11.18}
-  m_SizeDelta: {x: 591.36, y: 1138.4}
+  m_AnchoredPosition: {x: 1.0402, y: -32.93702}
+  m_SizeDelta: {x: 591.36, y: 1094.8861}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1855816961
 MonoBehaviour:
@@ -28220,7 +28222,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.0411, y: 583.00037}
+  m_AnchoredPosition: {x: -6, y: 561}
   m_SizeDelta: {x: 591.36, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2061355174
@@ -28449,7 +28451,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.00009140335}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2090492364
@@ -28507,7 +28509,7 @@ MonoBehaviour:
   contentParent: {fileID: 2090492363}
   leaderboardItemPrefab: {fileID: 1559526414}
   currentPlayerName: Player
-  currentDistance: 0
+  currentWordCount: 0
 --- !u!1 &2098774833
 GameObject:
   m_ObjectHideFlags: 0
@@ -29307,7 +29309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 698571931448152889, guid: 210af29812424ee468da5663a2f5817e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 39.95395
+      value: 39.953953
       objectReference: {fileID: 0}
     - target: {fileID: 698571931448152889, guid: 210af29812424ee468da5663a2f5817e, type: 3}
       propertyPath: m_AnchoredPosition.y
