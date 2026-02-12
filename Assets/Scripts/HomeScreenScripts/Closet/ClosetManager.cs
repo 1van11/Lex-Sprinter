@@ -31,53 +31,52 @@ public class ClosetManager : MonoBehaviour
     }
 
     public void ShowOutfitPreview(string outfitID, string outfitName, Sprite outfitSprite, int costumeIndex, bool isPurchased)
+{
+    // --- ADD THIS LINE TO UNLOCK BUNDLE 1 ---
+    if (outfitID == "bundle_1") isPurchased = true;
+    // ----------------------------------------
+
+    selectedOutfitID = outfitID;
+    selectedCostumeIndex = costumeIndex;
+    selectedSprite = outfitSprite;
+    selectedOutfitName = outfitName;
+    selectedIsPurchased = isPurchased;
+
+    if (previewImage != null && outfitSprite != null)
     {
-        // Save selection
-        selectedOutfitID = outfitID;
-        selectedCostumeIndex = costumeIndex;
-        selectedSprite = outfitSprite;
-        selectedOutfitName = outfitName;
-        selectedIsPurchased = isPurchased;
-
-        // Show image
-        if (previewImage != null && outfitSprite != null)
-        {
-            previewImage.sprite = outfitSprite;
-            previewImage.enabled = true;
-        }
-
-        // Show name
-        if (outfitNameText != null)
-        {
-            outfitNameText.text = outfitName;
-        }
-
-        // Check if equipped using ID (NOT index)
-        string equippedID = PlayerPrefs.GetString("EquippedOutfitID", "");
-        bool isEquipped = equippedID == outfitID;
-
-        // Update status text
-        if (statusText != null)
-        {
-            if (!isPurchased)
-            {
-                statusText.text = "LOCKED - Buy in shop!";
-                statusText.color = new Color(0.96f, 0.26f, 0.21f);
-            }
-            else if (isEquipped)
-            {
-                statusText.text = "EQUIPPED";
-                statusText.color = new Color(1f, 0.84f, 0f);
-            }
-            else
-            {
-                statusText.text = "OWNED";
-                statusText.color = new Color(0.3f, 0.69f, 0.31f);
-            }
-        }
-
-        UpdateEquipButton(isPurchased, isEquipped);
+        previewImage.sprite = outfitSprite;
+        previewImage.enabled = true;
     }
+
+    if (outfitNameText != null)
+    {
+        outfitNameText.text = outfitName;
+    }
+
+    string equippedID = PlayerPrefs.GetString("EquippedOutfitID", "");
+    bool isEquipped = equippedID == outfitID;
+
+    if (statusText != null)
+    {
+        if (!isPurchased)
+        {
+            statusText.text = "LOCKED - Buy in shop!";
+            statusText.color = new Color(0.96f, 0.26f, 0.21f);
+        }
+        else if (isEquipped)
+        {
+            statusText.text = "EQUIPPED";
+            statusText.color = new Color(1f, 0.84f, 0f);
+        }
+        else
+        {
+            statusText.text = "OWNED";
+            statusText.color = new Color(0.3f, 0.69f, 0.31f);
+        }
+    }
+
+    UpdateEquipButton(isPurchased, isEquipped);
+}
 
     void UpdateEquipButton(bool isPurchased, bool isEquipped)
 {
@@ -101,25 +100,25 @@ public class ClosetManager : MonoBehaviour
 
 
     void EquipOutfit()
+{
+    if (!selectedIsPurchased) return;
+
+    // 1. SAVE the choice
+    PlayerPrefs.SetInt("EquippedCostume", selectedCostumeIndex);
+    PlayerPrefs.SetString("EquippedOutfitID", selectedOutfitID);
+    PlayerPrefs.Save();
+
+    // 2. TELL the character to change
+    CharacterCostumeManager character = FindObjectOfType<CharacterCostumeManager>();
+    if (character != null)
     {
-        if (!selectedIsPurchased)
-        {
-            Debug.Log("❌ Cannot equip! Outfit not purchased!");
-            return;
-        }
-
-        // Save equipped outfit by ID
-        PlayerPrefs.SetString("EquippedOutfitID", selectedOutfitID);
-        PlayerPrefs.Save();
-
-        Debug.Log("✅ EQUIPPED: " + selectedOutfitName);
-
-        // Refresh preview
-        ShowOutfitPreview(selectedOutfitID, selectedOutfitName, selectedSprite, selectedCostumeIndex, selectedIsPurchased);
-
-        // Refresh all outfit buttons
-        RefreshAllOutfitButtons();
+        // Change 'UpdateCostume' to 'SetCostume' to match your other script
+        character.SetCostume(selectedCostumeIndex);
     }
+
+    // 3. Refresh UI
+    ShowOutfitPreview(selectedOutfitID, selectedOutfitName, selectedSprite, selectedCostumeIndex, selectedIsPurchased);
+}
 
     void RefreshAllOutfitButtons()
     {
