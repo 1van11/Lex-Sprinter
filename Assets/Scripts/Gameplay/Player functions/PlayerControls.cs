@@ -166,7 +166,7 @@ public class PlayerControls : MonoBehaviour,
 
     #region Movement Logic
 
-    void CheckGrounded()
+     void CheckGrounded()
     {
         float dist = col.bounds.extents.y + groundCheckDistance;
         isGrounded = Physics.Raycast(transform.position, Vector3.down, dist);
