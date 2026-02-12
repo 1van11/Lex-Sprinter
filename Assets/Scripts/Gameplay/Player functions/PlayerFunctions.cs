@@ -665,7 +665,7 @@ void UpdateWordCountUI()
         // Pause the game as soon as death happens
         Time.timeScale = 0f;
 
-        PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
+        PlayerPrefs.SetInt("LatestWordCount", wordsCollected);
         PlayerPrefs.Save();
         SaveTotalCoins();
 
