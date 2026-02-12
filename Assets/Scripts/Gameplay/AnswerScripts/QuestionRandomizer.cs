@@ -568,6 +568,16 @@ public class QuestionRandomizer : MonoBehaviour
         if (playerInTrigger)
             UpdateClueVisibility();
     }
+    // Call this when player answers correctly
+    public void AddWordCount()
+    {
+        int currentWords = PlayerPrefs.GetInt("TotalWordCount", 0);
+        currentWords++;
+        PlayerPrefs.SetInt("TotalWordCount", currentWords);
+        PlayerPrefs.Save();
+
+        Debug.Log("Total Words: " + currentWords);
+    }
 
     public void HideClueText()
     {

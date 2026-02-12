@@ -410,7 +410,14 @@ void OnTriggerEnter(Collider other)
                 wordsCollected++;
                 UpdateWordCountUI();
 
-                if (DailyTaskManager.Instance != null)
+                    int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
+                    totalWords++;
+                    PlayerPrefs.SetInt("TotalWordCount", totalWords);
+                    PlayerPrefs.Save();
+
+                    Debug.Log("💾 TotalWordCount Saved: " + totalWords);
+
+                    if (DailyTaskManager.Instance != null)
                     DailyTaskManager.Instance
                         .CheckAndCompleteTask(correctWord);
             }
