@@ -390,14 +390,7 @@ void OnTriggerEnter(Collider other)
                 wordsCollected++;
                 UpdateWordCountUI();
 
-                    int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
-                    totalWords++;
-                    PlayerPrefs.SetInt("TotalWordCount", totalWords);
-                    PlayerPrefs.Save();
-
-                    Debug.Log("💾 TotalWordCount Saved: " + totalWords);
-
-                    if (DailyTaskManager.Instance != null)
+                if (DailyTaskManager.Instance != null)
                     DailyTaskManager.Instance
                         .CheckAndCompleteTask(correctWord);
             }
@@ -476,19 +469,13 @@ void OnTriggerEnter(Collider other)
     }
 
     // =========================
-    // SHIELD PICKUP - NOW ADDS HEALTH INSTEAD
+    // SHIELD PICKUP
     // =========================
     if (other.CompareTag("Shield"))
     {
-        // Add health instead of temporary shield
-        currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
-        UpdateHealthUI();
-        
-        if (audioSource != null && coinSound != null) // Using coin sound for feedback, you can change to a health pickup sound if you have one
-            audioSource.PlayOneShot(coinSound);
-            
+        StartCoroutine(ShieldBuff());
         Destroy(other.gameObject);
-        Debug.Log($"❤️ Health pickup! Current health: {currentHealth}/{maxHealth}");
+        Debug.Log("🛡️ Shield activated!");
     }
 
     // =========================
@@ -678,7 +665,7 @@ void UpdateWordCountUI()
         // Pause the game as soon as death happens
         Time.timeScale = 0f;
 
-        PlayerPrefs.SetInt("LatestWordCount", wordsCollected);
+        PlayerPrefs.SetFloat("LatestDistance", distanceTraveled);
         PlayerPrefs.Save();
         SaveTotalCoins();
 
