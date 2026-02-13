@@ -245,18 +245,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71e8d8644b75a94da3dbced92ec5086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  replaceOnStart: 1
-  useSavedIndex: 1
-  models:
-  - modelPrefab: {fileID: 0}
-    useTrigger: 0
-  - modelPrefab: {fileID: 1733637777}
-    useTrigger: 0
-  - modelPrefab: {fileID: 0}
-    useTrigger: 0
-  - modelPrefab: {fileID: 1596048423}
-    useTrigger: 0
-  modelParent: {fileID: 264086230}
 --- !u!1 &56027839
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,6 +980,11 @@ MonoBehaviour:
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+  revivePanel: {fileID: 0}
+  uiToDisable: []
+  revivePriceText: {fileID: 0}
+  revivePrice: 250
+  gameOverPanel: {fileID: 0}
 --- !u!1 &161897637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2229,8 +2222,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 973499212}
-        m_TargetAssemblyTypeName: Revive, Assembly-CSharp
+      - m_Target: {fileID: 973499213}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: RevivePlayer
         m_Mode: 1
         m_Arguments:
@@ -2719,56 +2712,56 @@ MonoBehaviour:
   clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
-  - {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
-  - {fileID: 8300000, guid: c20ab609ec0b94f4998e02f77eaf0b1a, type: 3}
-  - {fileID: 8300000, guid: e302cb499b309df46922527d0a95d101, type: 3}
-  - {fileID: 8300000, guid: a2e7a91020c3f664f93aeda689ca8501, type: 3}
-  - {fileID: 8300000, guid: 7c2a99d5558e256439d537455b37a16a, type: 3}
-  - {fileID: 8300000, guid: 30b24d3be573f0f45b415a5df88fd130, type: 3}
-  - {fileID: 8300000, guid: ff1606edbcc5d1a41b0a118c9c723119, type: 3}
   - {fileID: 8300000, guid: 33f82bd373d2fd64aa780dfed1a343dc, type: 3}
+  - {fileID: 8300000, guid: 77439b44705ed3148bb15b69c8832428, type: 3}
+  - {fileID: 8300000, guid: c6a127563407a664a956620ac0ec051c, type: 3}
+  - {fileID: 8300000, guid: 5f5f34cb7d6497e4da1ca1017e0e31fc, type: 3}
+  - {fileID: 8300000, guid: 5a66365461d4132458f72f156bd3bbd0, type: 3}
+  - {fileID: 8300000, guid: 3786713f3ad7eda41b1fefda69022a4a, type: 3}
+  - {fileID: 8300000, guid: 7001fedcfe6f41b43b07d21f3633af49, type: 3}
+  - {fileID: 8300000, guid: bb505bcc7e90c0a4b915ee81ba2a40af, type: 3}
+  - {fileID: 8300000, guid: 59a647198677c184e802355d5c0762e1, type: 3}
+  - {fileID: 8300000, guid: a9ba255e73e490f4bb1cb3c7eec7a886, type: 3}
+  - {fileID: 8300000, guid: 8938d54685eab6d40bf143420112ad0f, type: 3}
+  - {fileID: 8300000, guid: 2cf71828a7783194895c37ce0ca254c2, type: 3}
+  - {fileID: 8300000, guid: 0b2e8f3903cbaff4a9c39896536ec2d8, type: 3}
+  - {fileID: 8300000, guid: 442f06c4a3f44d44e98f90c8074faf6b, type: 3}
+  - {fileID: 8300000, guid: 7e739c2723d7c374caa85d3bb8f87fe9, type: 3}
+  - {fileID: 8300000, guid: 9654febee4ce9bc4290d409de84ae68f, type: 3}
+  - {fileID: 8300000, guid: da18f88a43a2d0146821ca3e45a4dc5b, type: 3}
+  - {fileID: 8300000, guid: 7c2a99d5558e256439d537455b37a16a, type: 3}
+  - {fileID: 8300000, guid: b3a474b704f48a342b28ec9b307acc2f, type: 3}
+  - {fileID: 8300000, guid: 25fc8a3a5562a5c4d844c6940b4efe9c, type: 3}
+  - {fileID: 8300000, guid: ff1606edbcc5d1a41b0a118c9c723119, type: 3}
+  - {fileID: 8300000, guid: e1faba22438a73640bbc23b2f5034ad7, type: 3}
+  - {fileID: 8300000, guid: 822beb68229b90e459791ff52aecad18, type: 3}
+  - {fileID: 8300000, guid: 310e77d5cb60cb543ae4612ca6a695d9, type: 3}
+  - {fileID: 8300000, guid: 7ce276b603c275049b9f26267f87457b, type: 3}
+  - {fileID: 8300000, guid: 063688743bed3f541bbb6317c2f54d6d, type: 3}
+  - {fileID: 8300000, guid: b832fc009f3e6b644ba410045d257ace, type: 3}
+  - {fileID: 8300000, guid: ecf19664dc229a14eb0d7d2448bae281, type: 3}
+  - {fileID: 8300000, guid: afe20952f94a92a448d6068a9e7f5bd1, type: 3}
+  - {fileID: 8300000, guid: 3b34da3b16d02c64aa40d56273fd5a66, type: 3}
+  - {fileID: 8300000, guid: e53c2d4a31d70c148b4b073dda83f975, type: 3}
+  - {fileID: 8300000, guid: 2a773693816c6424bb3268ff1a79baf0, type: 3}
+  - {fileID: 8300000, guid: 355b418493b1b81438d38289e13c3df2, type: 3}
+  - {fileID: 8300000, guid: c20ab609ec0b94f4998e02f77eaf0b1a, type: 3}
+  - {fileID: 8300000, guid: e1faba22438a73640bbc23b2f5034ad7, type: 3}
   - {fileID: 8300000, guid: 1745acc74cdc5794692403c3ddf36c3c, type: 3}
   - {fileID: 8300000, guid: ed71972f16f73fd45ae7df5845e3a143, type: 3}
-  - {fileID: 8300000, guid: b3a474b704f48a342b28ec9b307acc2f, type: 3}
-  - {fileID: 8300000, guid: da18f88a43a2d0146821ca3e45a4dc5b, type: 3}
-  - {fileID: 8300000, guid: 5a66365461d4132458f72f156bd3bbd0, type: 3}
-  - {fileID: 8300000, guid: b832fc009f3e6b644ba410045d257ace, type: 3}
-  - {fileID: 8300000, guid: bb505bcc7e90c0a4b915ee81ba2a40af, type: 3}
   - {fileID: 8300000, guid: 862b75674a8353d40843c9b14255ccb5, type: 3}
-  - {fileID: 8300000, guid: 3786713f3ad7eda41b1fefda69022a4a, type: 3}
-  - {fileID: 8300000, guid: ecf19664dc229a14eb0d7d2448bae281, type: 3}
-  - {fileID: 8300000, guid: 3b34da3b16d02c64aa40d56273fd5a66, type: 3}
-  - {fileID: 8300000, guid: a9ba255e73e490f4bb1cb3c7eec7a886, type: 3}
-  - {fileID: 8300000, guid: 5f5f34cb7d6497e4da1ca1017e0e31fc, type: 3}
-  - {fileID: 8300000, guid: 7e739c2723d7c374caa85d3bb8f87fe9, type: 3}
-  - {fileID: 8300000, guid: 2cf71828a7783194895c37ce0ca254c2, type: 3}
-  - {fileID: 8300000, guid: d5993da0abaade846aaa0cc93af9a971, type: 3}
-  - {fileID: 8300000, guid: 2a773693816c6424bb3268ff1a79baf0, type: 3}
-  - {fileID: 8300000, guid: e53c2d4a31d70c148b4b073dda83f975, type: 3}
-  - {fileID: 8300000, guid: 25fc8a3a5562a5c4d844c6940b4efe9c, type: 3}
+  - {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
   - {fileID: 8300000, guid: 37b3e8a1339cccd48bdc03c10c2e7dd4, type: 3}
-  - {fileID: 8300000, guid: 18d4e2e5458815f42b20f49fe8e96e49, type: 3}
-  - {fileID: 8300000, guid: 8938d54685eab6d40bf143420112ad0f, type: 3}
-  - {fileID: 8300000, guid: 8859729d17905214eae67fb16f6760ec, type: 3}
-  - {fileID: 8300000, guid: 9654febee4ce9bc4290d409de84ae68f, type: 3}
-  - {fileID: 8300000, guid: 59a647198677c184e802355d5c0762e1, type: 3}
-  - {fileID: 8300000, guid: 77439b44705ed3148bb15b69c8832428, type: 3}
-  - {fileID: 8300000, guid: 6e701546abe077f4998483063ce9f00e, type: 3}
-  - {fileID: 8300000, guid: 310e77d5cb60cb543ae4612ca6a695d9, type: 3}
-  - {fileID: 8300000, guid: e1faba22438a73640bbc23b2f5034ad7, type: 3}
-  - {fileID: 8300000, guid: 7001fedcfe6f41b43b07d21f3633af49, type: 3}
-  - {fileID: 8300000, guid: 442f06c4a3f44d44e98f90c8074faf6b, type: 3}
   - {fileID: 8300000, guid: ae1ea1ac86686a946a23ac082e0a61fa, type: 3}
-  - {fileID: 8300000, guid: b8a8b9e687b774e419d6af64e250a4be, type: 3}
-  - {fileID: 8300000, guid: 355b418493b1b81438d38289e13c3df2, type: 3}
-  - {fileID: 8300000, guid: 822beb68229b90e459791ff52aecad18, type: 3}
-  - {fileID: 8300000, guid: 063688743bed3f541bbb6317c2f54d6d, type: 3}
-  - {fileID: 8300000, guid: 7ce276b603c275049b9f26267f87457b, type: 3}
-  - {fileID: 8300000, guid: c6a127563407a664a956620ac0ec051c, type: 3}
-  - {fileID: 8300000, guid: 0b2e8f3903cbaff4a9c39896536ec2d8, type: 3}
   - {fileID: 8300000, guid: f440d1622c97b034ba9c8b5aa08cc2cd, type: 3}
-  - {fileID: 8300000, guid: afe20952f94a92a448d6068a9e7f5bd1, type: 3}
+  - {fileID: 8300000, guid: 8859729d17905214eae67fb16f6760ec, type: 3}
+  - {fileID: 8300000, guid: 18d4e2e5458815f42b20f49fe8e96e49, type: 3}
+  - {fileID: 8300000, guid: b8a8b9e687b774e419d6af64e250a4be, type: 3}
+  - {fileID: 8300000, guid: e302cb499b309df46922527d0a95d101, type: 3}
+  - {fileID: 8300000, guid: d5993da0abaade846aaa0cc93af9a971, type: 3}
+  - {fileID: 8300000, guid: 6e701546abe077f4998483063ce9f00e, type: 3}
   - {fileID: 8300000, guid: c3ad512b43fc9a343a826cd01eec396f, type: 3}
+  - {fileID: 8300000, guid: a2e7a91020c3f664f93aeda689ca8501, type: 3}
   sentencePronunciations: []
   playAudioOnTrigger: 1
   correctAnswer: 
@@ -3634,7 +3627,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 726484899}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1.4998056, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3690,7 +3683,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1167089704}
+      - m_Target: {fileID: 973499213}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Restart
         m_Mode: 1
@@ -4097,7 +4090,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1167089704}
+      - m_Target: {fileID: 973499213}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Home
         m_Mode: 1
@@ -4234,8 +4227,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapPrefabs:
-  - {fileID: 1394187836}
   - {fileID: 1968631090}
+  - {fileID: 1394187836}
   poolSize: 12
   tilesPerMap: 4
   spawnPoint: {fileID: 774635559}
@@ -5185,7 +5178,6 @@ GameObject:
   - component: {fileID: 973499211}
   - component: {fileID: 973499210}
   - component: {fileID: 973499209}
-  - component: {fileID: 973499212}
   - component: {fileID: 973499213}
   m_Layer: 5
   m_Name: Game Over
@@ -5256,23 +5248,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -56.000366}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &973499212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 973499207}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b49713830d3ca4409936d9db98d01da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerObject: {fileID: 0}
-  revivePanel: {fileID: 973499207}
-  uiToDisable:
-  - {fileID: 1457024180}
-  revivePriceText: {fileID: 821492037}
 --- !u!114 &973499213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5285,11 +5260,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0140352744420eb49a7507c2641d8f97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseMenu: {fileID: 973499207}
-  OtherThingsCanvas: {fileID: 0}
-  countdownText: {fileID: 0}
+  pauseMenu: {fileID: 0}
+  OtherThingsCanvas: {fileID: 1457024180}
+  countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+  revivePanel: {fileID: 973499207}
+  uiToDisable: []
+  revivePriceText: {fileID: 821492037}
+  revivePrice: 250
+  gameOverPanel: {fileID: 0}
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -5657,6 +5637,11 @@ MonoBehaviour:
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+  revivePanel: {fileID: 0}
+  uiToDisable: []
+  revivePriceText: {fileID: 0}
+  revivePrice: 250
+  gameOverPanel: {fileID: 0}
 --- !u!114 &1167089705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6284,7 +6269,7 @@ RectTransform:
   m_GameObject: {fileID: 1349210977}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 9.029999, y: 2.5799997, z: 1}
+  m_LocalScale: {x: 9.029999, y: 2.58, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 180232462}
@@ -6293,7 +6278,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30.557121, y: -439.90643}
+  m_AnchoredPosition: {x: -30.557121, y: -439.90674}
   m_SizeDelta: {x: 39.181, y: 210.388}
   m_Pivot: {x: 0.19426185, y: 0.8561963}
 --- !u!65 &1349210979

@@ -147,8 +147,88 @@ public class QuestionRandomizer : MonoBehaviour
     };
     #endregion
 
-    #region Medium
+#region Medium
     public static string[,] mediumSpellingPairs = new string[,]
+    {
+        { "large reptile with powerful jaws", "alligator", "aligater", "alligater" },
+        { "a heavy object dropped from a ship to keep it in place", "anchor", "anker", "anchore" },
+        { "metal protective clothing worn in battle", "armor", "armour", "armar" },
+        { "a long curved yellow fruit", "banana", "bannana", "bananna" },
+        { "a container for carrying things", "basket", "baskit", "baskett" },
+        { "a warm covering for a bed", "blanket", "blancket", "blankit" },
+        { "severe snow storm with strong winds", "blizzard", "blizzurd", "blizard" },
+        { "a container for liquids", "bottle", "bottel", "botal" },
+        { "a structure built to cross water", "bridge", "brige", "bridg" },
+        { "a desert plant with spines", "cactus", "cactuss", "kactus" },
+        { "a large fortified building", "castle", "castel", "cassle" },
+        { "a dairy food made from milk", "cheese", "cheeze", "chese" },
+        { "sweet brown food made from cocoa", "chocolate", "choclate", "chocolet" },
+        { "tool that shows north, south, east, west", "compass", "compas", "compess" },
+        { "a small sweet baked treat", "cookie", "cookies", "cooky" },
+        { "a royal head decoration", "crown", "croun", "crowne" },
+        { "a dry barren area with little rain", "desert", "dessert", "desart" },
+        { "a large bird of prey", "eagle", "eagel", "egle" },
+        { "a large area covered with trees", "forest", "forrest", "forist" },
+        { "an area for growing plants", "garden", "gardin", "gardon" },
+        { "a tall African animal with a long neck", "giraffe", "girafe", "girrafe" },
+        { "huge slow-moving river of ice", "glacier", "glaceir", "glaciar" },
+        { "protective headgear", "helmet", "helmit", "helmett" },
+        { "powerful tropical cyclone", "hurricane", "hurricaine", "huricane" },
+        { "tool used to create music", "instrument", "insturment", "instrament" },
+        { "decorative items worn on the body", "jewelry", "jewelery", "jewlery" },
+        { "a set of steps or rungs for climbing", "ladder", "lader", "ladar" },
+        { "a portable light source with a protective case", "lantern", "lanturn", "lantren" },
+        { "a tower with a bright light to guide ships", "lighthouse", "lighthous", "lighthuse" },
+        { "a metal object that attracts iron", "magnet", "magnit", "magnett" },
+        { "a public place where goods are sold", "market", "markit", "markett" },
+        { "a large sweet juicy fruit", "melon", "mellon", "melonn" },
+        { "tool to see very small things magnified", "microscope", "microscop", "micrascope" },
+        { "a tree-climbing primate", "monkey", "monkie", "monky" },
+        { "sea creature with eight arms", "octopus", "octupus", "octapus" },
+        { "large black big cat", "panther", "panthar", "pantor" },
+        { "flightless bird from cold regions", "penguin", "penguine", "pengwin" },
+        { "a soft support for the head during sleep", "pillow", "pilloe", "pillo" },
+        { "a small burrowing mammal with long ears", "rabbit", "rabitt", "rabbitt" },
+        { "a place for learning", "school", "skool", "schol" },
+        { "a cutting tool with two blades", "scissors", "sissors", "scisors" },
+        { "long Italian noodle dish", "spaghetti", "spagetti", "spagheti" },
+        { "a carved or cast figure of a person or animal", "statue", "statue", "statue" },
+        { "a public road in a town or city", "street", "streat", "stret" },
+        { "optical tool to see distant objects", "telescope", "telescop", "telascope" },
+        { "a large striped big cat", "tiger", "tigger", "tyger" },
+        { "a red juicy fruit often used in sauces", "tomato", "tamato", "tomatto" },
+        { "mountain that erupts with lava", "volcano", "volcanoe", "volcane" },
+        { "a building with blades that turn in the wind", "windmill", "windmil", "windmill" },
+        { "an African striped animal", "zebra", "zebra", "zebra" }
+    };
+
+    public static string[,] mediumSentencePairs = new string[,]
+    {
+        { "The students will ____ for their final exams tomorrow.", "study", "relax", "ignore" },
+        { "The construction workers ____ the new building quickly.", "built", "repaired", "destroyed" },
+        { "The author ____ a fascinating novel last year.", "wrote", "reviewed", "read" },
+        { "The chef ____ the ingredients carefully for the recipe.", "measured", "washed", "mixed" },
+        { "The athlete ____ every day to improve his skills.", "trains", "rests", "sleeps" },
+        { "The musician ____ a beautiful song for the audience.", "performed", "listened", "recorded" },
+        { "The gardener ____ the plants every morning.", "waters", "trims", "plants" },
+        { "The programmer ____ a new software application.", "developed", "tested", "installed" },
+        { "The detective ____ the mystery carefully.", "investigated", "observed", "solved" },
+        { "The artist ____ the landscape with vibrant colors.", "painted", "sketched", "drew" },
+        { "The scientist ____ the results to confirm the hypothesis.", "analyzed", "ignored", "recorded" },
+        { "The students ____ quietly while the teacher explained.", "listened", "whispered", "slept" },
+        { "The captain ____ the ship safely to shore.", "guided", "followed", "sailed" },
+        { "The nurse ____ the patient throughout the night.", "cared for", "watched", "examined" },
+        { "The engineer ____ a new solution to the problem.", "designed", "reviewed", "tested" },
+        { "The actor ____ his lines before the performance.", "practiced", "forgot", "memorized" },
+        { "The librarian ____ the books back on the shelves.", "organized", "stacked", "sorted" },
+        { "The explorer ____ new regions of the jungle.", "discovered", "visited", "mapped" },
+        { "The reporter ____ the event for the evening news.", "covered", "announced", "filmed" },
+        { "The professor ____ the topic in great detail.", "explained", "mentioned", "discussed" }
+    };
+    #endregion
+
+    #region Hard
+    public static string[,] hardSpellingPairs = new string[,]
     {
         { "a burrowing African mammal with a long nose", "aardvark", "aardvarko", "ardvark" },
         { "an open-air venue for performances", "amphitheater", "amfiteatro", "amphitheatre" },
@@ -200,92 +280,6 @@ public class QuestionRandomizer : MonoBehaviour
         { "a Scandinavian warrior or raider", "viking", "vikingo", "vyking" },
         { "a musical instrument with keys", "xylophone", "zylophono", "xilophone" },
         { "a stepped pyramid from ancient Mesopotamia", "ziggurat", "zigurato", "zigurat" }
-    };
-
-    public static string[,] mediumSentencePairs = new string[,]
-    {
-        { "The students will ____ for their final exams tomorrow.", "study", "relax", "ignore" },
-        { "The construction workers ____ the new building quickly.", "built", "repaired", "destroyed" },
-        { "The author ____ a fascinating novel last year.", "wrote", "reviewed", "read" },
-        { "The chef ____ the ingredients carefully for the recipe.", "measured", "washed", "mixed" },
-        { "The athlete ____ every day to improve his skills.", "trains", "rests", "sleeps" },
-        { "The musician ____ a beautiful song for the audience.", "performed", "listened", "recorded" },
-        { "The gardener ____ the plants every morning.", "waters", "trims", "plants" },
-        { "The programmer ____ a new software application.", "developed", "tested", "installed" },
-        { "The detective ____ the mystery carefully.", "investigated", "observed", "solved" },
-        { "The artist ____ the landscape with vibrant colors.", "painted", "sketched", "drew" },
-        { "The scientist ____ the results to confirm the hypothesis.", "analyzed", "ignored", "recorded" },
-        { "The students ____ quietly while the teacher explained.", "listened", "whispered", "slept" },
-        { "The captain ____ the ship safely to shore.", "guided", "followed", "sailed" },
-        { "The nurse ____ the patient throughout the night.", "cared for", "watched", "examined" },
-        { "The engineer ____ a new solution to the problem.", "designed", "reviewed", "tested" },
-        { "The actor ____ his lines before the performance.", "practiced", "forgot", "memorized" },
-        { "The librarian ____ the books back on the shelves.", "organized", "stacked", "sorted" },
-        { "The explorer ____ new regions of the jungle.", "discovered", "visited", "mapped" },
-        { "The reporter ____ the event for the evening news.", "covered", "announced", "filmed" },
-        { "The professor ____ the topic in great detail.", "explained", "mentioned", "discussed" }
-    };
-    #endregion
-
-    #region Hard
-    public static string[,] hardSpellingPairs = new string[,]
-    {
-        // Animals & nature
-        { "large Australian animal that jumps", "kangaroo", "kangarooo", "kangeroo" },
-        { "large reptile with powerful jaws", "alligator", "aligater", "alligater" },
-        { "large black big cat", "panther", "panthar", "pantor" },
-        { "sea creature with eight arms", "octopus", "octupus", "octapus" },
-        { "flightless bird from cold regions", "penguin", "penguine", "pengwin" },
-        { "mountain that erupts with lava", "volcano", "volcanoe", "volcane" },
-        { "powerful tropical cyclone", "hurricane", "hurricaine", "huricane" },
-        { "huge slow-moving river of ice", "glacier", "glaceir", "glaciar" },
-        { "severe snow storm with strong winds", "blizzard", "blizzurd", "blizard" },
-        // Environment & tools
-        { "wild natural area with little human presence", "wilderness", "wilderniss", "wildernes" },
-        { "tool that shows north, south, east, west", "compass", "compas", "compess" },
-        { "optical tool to see distant objects", "telescope", "telescop", "telascope" },
-        { "tool to see very small things magnified", "microscope", "microscop", "micrascope" },
-        { "decorative items worn on the body", "jewelry", "jewelery", "jewlery" },
-        { "tool used to create music", "instrument", "insturment", "instrament" },
-        // Body & food
-        { "hair above the eye", "eyebrow", "eyebrou", "eyebrau" },
-        { "flat bone in the upper back", "shoulderblade", "sholderblade", "shoulderblayd" },
-        { "joint in the finger", "knuckle", "knuckel", "nuckle" },
-        { "backbone", "spine", "spain", "spyne" },
-        { "muscle in the mouth used for tasting", "tongue", "toung", "tung" },
-        { "white vegetable that looks like a brain", "cauliflower", "coliflower", "cauliflouwer" },
-        { "green fruit with a large pit inside", "avocado", "avacado", "avocodo" },
-        { "long green vegetable eaten in salads", "cucumber", "cuccumber", "cucamber" },
-        { "sweet brown food made from cocoa", "chocolate", "choclate", "chocolet" },
-        { "long Italian noodle dish", "spaghetti", "spagetti", "spagheti" },
-        // People & jobs
-        { "person who studies or does experiments", "scientist", "sciencist", "scientest" },
-        { "person who travels to space", "astronaut", "astroanut", "astronot" },
-        { "leader of a country", "president", "presedent", "presidant" },
-        { "person who comes to see you", "visitor", "visiter", "vizitor" },
-        { "people who live near you", "neighbors", "neighbours", "naybors" },
-        // Actions & traits
-        { "to find something new", "discover", "discovar", "disover" },
-        { "to go to new places to learn", "explore", "explor", "eksplore" },
-        { "to build something", "construct", "construck", "construkt" },
-        { "to look at similarities and differences", "compare", "compair", "compar" },
-        { "to make a choice", "decide", "deside", "decyde" },
-        { "willing to give and share", "generous", "genorous", "generus" },
-        { "wanting to know more", "curious", "curous", "curius" },
-        { "feeling worried or nervous", "anxious", "angshus", "anxius" },
-        { "feeling thankful", "grateful", "greatful", "gratefull" },
-        { "believing in your own abilities", "confident", "confidant", "confadent" },
-        // Advanced / abstract
-        { "advanced human society with cities and government", "civilization", "civilisation", "sivilization" },
-        { "something newly created or invented", "invention", "inventon", "invension" },
-        { "mathematical statement with = sign", "equation", "equasion", "equatian" },
-        { "system of communication (English, Spanish…)", "language", "langwage", "languege" },
-        { "feeling ashamed or shy", "embarrassed", "embarassed", "embarrased" },
-        { "very shy or easily embarrassed", "bashful", "bashfull", "bashfal" },
-        { "aware of something", "conscious", "concious", "consious" },
-        { "very fancy and expensive", "extravagant", "extravagent", "extravagint" },
-        { "small orange-like fruit", "apricot", "apricott", "apracot" },
-        { "to confuse or make someone very puzzled", "discombobulate", "discombobulated", "discombobulat" },
     };
 
     public static string[,] hardSentencePairs = new string[,]
