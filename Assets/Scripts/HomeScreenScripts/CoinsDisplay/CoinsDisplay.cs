@@ -14,6 +14,9 @@ public class CoinsDisplay : MonoBehaviour
     public float animationDuration = 1.2f; // How long the number animates
     public bool animateOnStart = true;
 
+    [Header("Inspector Debug Tools")]
+    public int inspectorCoinInput = 0; // Enter value in Inspector
+
     [Header("Auto-Save Settings")]
     public bool enableAutoSave = true;
     public float autoSaveInterval = 5f; // Save every 5 seconds
@@ -39,11 +42,20 @@ public class CoinsDisplay : MonoBehaviour
     void Start()
     {
         LoadCoins();
+
+        // If inspector value is greater than 0, override saved coins
+        if (inspectorCoinInput > 0)
+        {
+            totalCoins = inspectorCoinInput;
+            SaveCoins();
+        }
+
         if (animateOnStart)
             StartCoroutine(AnimateCoinCount(0, totalCoins));
         else
             UpdateCoinUI(totalCoins);
     }
+
 
     /// <summary>
     /// Loads saved total coins from PlayerPrefs.
@@ -90,6 +102,15 @@ public class CoinsDisplay : MonoBehaviour
         SaveCoins();
         
     }
+    void OnValidate()
+    {
+        if (Application.isPlaying && inspectorCoinInput >= 0)
+        {
+            totalCoins = inspectorCoinInput;
+            UpdateCoinUI(totalCoins);
+            SaveCoins();
+        }
+    }
 
     /// <summary>
     /// Add coins and save immediately.
@@ -104,6 +125,23 @@ public class CoinsDisplay : MonoBehaviour
         StartCoroutine(AnimateCoinCount(oldCoins, totalCoins));
         
         
+    }
+
+    /// <summary>
+    /// Adds the value entered in the Inspector.
+    /// </summary>
+    public void AddInspectorCoins()
+    {
+        AddCoins(inspectorCoinInput);
+        Debug.Log($"🟢 Added {inspectorCoinInput} coins from Inspector.");
+    }
+    /// <summary>
+    /// Sets coins to the value entered in the Inspector.
+    /// </summary>
+    public void SetInspectorCoins()
+    {
+        SetCoins(inspectorCoinInput);
+        Debug.Log($"🔵 Coins set to {inspectorCoinInput} from Inspector.");
     }
 
     /// <summary>
