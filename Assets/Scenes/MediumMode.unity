@@ -1772,7 +1772,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 884a8ff4fc63b784a865cec9c882edbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  forwardSpeed: 10
+  speedIncreaseMultiplier: 1.125
+  maxSpeedMultiplier: 1.8
+  speedIncreaseDistance: 300
   alwaysInvincible: 0
+  playerModel: {fileID: 0}
   audioSource: {fileID: 334565211}
   coinSound: {fileID: 8300000, guid: 39871d362b3b42b4ab0bb9db8179b01f, type: 3}
   hurtSound: {fileID: 8300000, guid: bd60b0e54e86ee441858f501adaa3485, type: 3}
@@ -1780,6 +1785,7 @@ MonoBehaviour:
   wrongAnswerSound: {fileID: 8300000, guid: 5fbc36555fe18b1428f1ec57c198118f, type: 3}
   score: 0
   scoreText: {fileID: 263466928}
+  wordCountText: {fileID: 0}
   totalCoins: 0
   coinSaveKey: PlayerTotalCoins
   totalCoinsText: {fileID: 1873909192}
@@ -1804,6 +1810,8 @@ MonoBehaviour:
   isSlowTime: 0
   shieldDuration: 8
   magnetDuration: 15
+  shieldMaxHits: 3
+  shieldHitsRemaining: 0
   slowTimeDuration: 4
   magnetRadius: 7
   magnetPullSpeed: 10
@@ -1818,6 +1826,13 @@ MonoBehaviour:
   wrongAnswerPrefab: {fileID: 1735868751}
   feedbackDisplayTime: 1.5
   isDead: 0
+  magnetPetPrefab: {fileID: 0}
+  petFollowSpeed: 5
+  petOffset: {x: 0, y: 0, z: -2}
+  petScale: {x: 1, y: 1, z: 1}
+  petRotation: {x: 0, y: 0, z: 0}
+  petCoinAttractRadius: 7
+  petCoinPullSpeed: 10
 --- !u!111 &264086237
 Animation:
   m_ObjectHideFlags: 0
@@ -1845,19 +1860,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forwardSpeed: 10
   laneDistance: 3
   horizontalMoveSpeed: 10
+  forwardSpeed: 10
   jumpForce: 9
-  extraFallForce: 11
-  jumpCooldown: 0.25
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  smashDownForce: 20
+  gravity: 20
+  groundCheckDistance: 0.1
+  enableJump: 1
+  fastDescentForce: 15
+  fastDescentGravityMultiplier: 2.5
+  minSwipeDistance: 50
+  swipeCooldown: 0.3
   tiltAngle: 20
   tiltSpeed: 10
-  lookAngle: 25
-  canMove: 1
+  useTouchControls: 1
+  mobileSensitivity: 0.5
 --- !u!1 &301971632
 GameObject:
   m_ObjectHideFlags: 0
@@ -2182,10 +2199,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueText: {fileID: 0}
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
+  option3Text: {fileID: 0}
   clueTextObject: {fileID: 0}
+  clueText: {fileID: 0}
+  clueImageObject: {fileID: 0}
+  cluePic: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
@@ -2457,12 +2478,10 @@ MonoBehaviour:
   coinScale: {x: 1, y: 1, z: 1}
   coinsPerLane: 6
   coinSpacing: 2
-  maxPowerUpCount: 1
+  powerUpSpawnChance: 10
   firstPowerUpDistance: 500
-  powerUpInterval: 100
   powerUpPositionOffset: {x: 1, y: 3, z: 0}
   powerUpScale: {x: 10, y: 10, z: 10}
-  powerUpSpawnAhead: 100
   spawnChances:
   - type: 0
     chance: 33
@@ -2490,6 +2509,10 @@ MonoBehaviour:
   letterIndicatorAnimationTime: 2
   letterIndicatorStayTime: 5
   letterIndicatorStartHeightOffset: 10
+  letterHurdleSpawnHeightOffset: 8
+  letterHurdleDropAnimationTime: 1
+  letterHurdleFallAnimationTime: 0.5
+  letterHurdleGroundY: -2
   letterUsePrefabTransform: 1
   letterSpawnRotationEuler: {x: 0, y: 0, z: 0}
   letterSpawnScale: {x: 1, y: 1, z: 1}
@@ -2498,10 +2521,13 @@ MonoBehaviour:
   letterHurdleDamage: 2
   letterEventClueUI: {fileID: 1062179859}
   clueTextDelay: 5
+  letterEventStartWarningUI: {fileID: 0}
+  warningDisplayTime: 5
+  letterEventCompleteUI: {fileID: 0}
+  completionUIDisplayTime: 3
   wordsToSolvePerEvent: 1
   despawnDistance: 50
   maxObstacleLifetime: 15
-  maxQuestionLifetime: 50
   showGizmos: 1
   trapGizmoColor: {r: 1, g: 0, b: 0, a: 1}
   questionGizmoColor: {r: 0, g: 1, b: 0, a: 1}
@@ -4459,6 +4485,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 973499207}
   OtherThingsCanvas: {fileID: 1457024180}
+  countdownText: {fileID: 0}
+  slowMotionTimescale: 0.1
+  slowMotionDuration: 3
+  revivePanel: {fileID: 0}
+  uiToDisable: []
+  revivePriceText: {fileID: 0}
+  revivePrice: 250
+  gameOverPanel: {fileID: 0}
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -4780,6 +4814,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 1167089700}
   OtherThingsCanvas: {fileID: 1457024180}
+  countdownText: {fileID: 0}
+  slowMotionTimescale: 0.1
+  slowMotionDuration: 3
+  revivePanel: {fileID: 0}
+  uiToDisable: []
+  revivePriceText: {fileID: 0}
+  revivePrice: 250
+  gameOverPanel: {fileID: 0}
 --- !u!1 &1168608304
 GameObject:
   m_ObjectHideFlags: 0
@@ -5384,6 +5426,27 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.020000024, y: 0.10000007, z: 0.10000013}
   m_Center: {x: 0.00000023841858, y: 0.000000029802322, z: -0.000000029802322}
+--- !u!95 &1367619547
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367619541}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: da943d43475ee3f4fa681cbb1d802e14, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1372272556
 GameObject:
   m_ObjectHideFlags: 0
@@ -5413,10 +5476,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueText: {fileID: 0}
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
+  option3Text: {fileID: 0}
   clueTextObject: {fileID: 0}
+  clueText: {fileID: 0}
+  clueImageObject: {fileID: 0}
+  cluePic: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: f9b875d10483f8d4db52e13510d089f1, type: 3}
@@ -6555,10 +6622,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueText: {fileID: 529262465}
   jumpText: {fileID: 110658086}
   slideText: {fileID: 228163191}
+  option3Text: {fileID: 0}
   clueTextObject: {fileID: 760115165}
+  clueText: {fileID: 529262465}
+  clueImageObject: {fileID: 0}
+  cluePic: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 0}
   pronunciationSounds: []
   sentencePronunciations: []
@@ -6810,10 +6881,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4624e0ba542a21445aaeacd57453408e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clueText: {fileID: 0}
   jumpText: {fileID: 1359166858}
   slideText: {fileID: 1654750962}
+  option3Text: {fileID: 0}
   clueTextObject: {fileID: 0}
+  clueText: {fileID: 0}
+  clueImageObject: {fileID: 0}
+  cluePic: {fileID: 0}
+  clueImages: []
   audioSource: {fileID: 334565211}
   pronunciationSounds:
   - {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
