@@ -5,11 +5,14 @@ public class MainMenuOnclicks : MonoBehaviour
 {
     public PowerManager powerManager;
 
+    [SerializeField]
+    private string SceneMode;
+
     public void PlayButton()
     {
         if (powerManager.UsePower())
         {
-            SceneManager.LoadScene("EasyMode");
+            SceneManager.LoadScene(SceneMode);
         }
         else
         {

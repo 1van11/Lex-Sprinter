@@ -2117,8 +2117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laneDistance: 3
-  horizontalMoveSpeed: 10
+  moveSpeed: 10
+  maxLaneDistance: 3
   forwardSpeed: 10
   jumpForce: 18
   gravity: 20
@@ -2127,11 +2127,12 @@ MonoBehaviour:
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
   minSwipeDistance: 50
-  swipeCooldown: 0.3
+  swipeSensitivity: 0.1
+  maxSwipeSpeed: 20
+  returnToCenterSpeed: 5
+  swipeDirectionThreshold: 0.5
   tiltAngle: 20
   tiltSpeed: 10
-  useTouchControls: 1
-  mobileSensitivity: 0.5
 --- !u!114 &264086239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3043,7 +3044,7 @@ MonoBehaviour:
   coinsPerLane: 6
   coinSpacing: 2
   powerUpSpawnChance: 20
-  firstPowerUpDistance: 0
+  firstPowerUpDistance: 100
   powerUpPositionOffset: {x: 1, y: 1, z: 0}
   powerUpScale: {x: 10, y: 10, z: 10}
   spawnChances:
@@ -3054,7 +3055,7 @@ MonoBehaviour:
   letterContainerPrefab: {fileID: 168779156}
   spawnerIndicatorPrefab: {fileID: 0}
   letterSpawnParent: {fileID: 774635559}
-  letterSpawnDistanceAhead: 60
+  letterSpawnDistanceAhead: 0
   letterSpawnInterval: 15
   letterSpawnHeight: 1
   letterSpawnPositionOffset: {x: 0, y: 0, z: 0}
@@ -3066,7 +3067,7 @@ MonoBehaviour:
   letterEventSpawnDistanceAhead: 0
   letterEventIndicatorDelay: 5
   letterHurdleSpawnDelay: 0
-  letterIndicatorSpawnDistanceAhead: 0
+  letterIndicatorSpawnDistanceAhead: 60
   letterIndicatorMinimumSpawnAhead: 0
   letterIndicatorAnimationTime: 2
   letterIndicatorStayTime: 5
@@ -5944,8 +5945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laneDistance: 3
-  horizontalMoveSpeed: 10
+  moveSpeed: 10
+  maxLaneDistance: 3
   forwardSpeed: 10
   jumpForce: 18
   gravity: 20
@@ -5954,11 +5955,12 @@ MonoBehaviour:
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
   minSwipeDistance: 50
-  swipeCooldown: 0.3
+  swipeSensitivity: 0.1
+  maxSwipeSpeed: 20
+  returnToCenterSpeed: 5
+  swipeDirectionThreshold: 0.5
   tiltAngle: 20
   tiltSpeed: 10
-  useTouchControls: 1
-  mobileSensitivity: 0.5
 --- !u!114 &1203540993
 MonoBehaviour:
   m_ObjectHideFlags: 0

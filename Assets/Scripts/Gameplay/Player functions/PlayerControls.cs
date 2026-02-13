@@ -19,7 +19,7 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Swipe Settings")]
     public float minSwipeDistance = 50f;        // Minimum swipe length (pixels)
-    public float swipeSensitivity = 0.01f;       // How much swipe distance affects movement
+    public float swipeSensitivity = 0.1f;       // How much swipe distance affects movement
     public float maxSwipeSpeed = 20f;            // Maximum speed from swiping
     public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
     public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
@@ -169,12 +169,11 @@ public class PlayerControls : MonoBehaviour
                         float targetInput = Mathf.Clamp(currentOffset * swipeSensitivity * 25f, -1f, 1f);
                         
                         // Smoothly move toward target input - INCREASED from 10f to 20f for faster response
-                        horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 50f);
+                        horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 100f);
                         
                         // Set tilt based on current input
                         targetTilt = -horizontalInput * tiltAngle;
                     }
-                    
                     // Update last position
                     lastTouchPos = touch.position;
                 }

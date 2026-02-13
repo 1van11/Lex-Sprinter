@@ -2087,6 +2087,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
+  SceneMode: EasyMode
 --- !u!114 &99420174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2259,6 +2260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
+  SceneMode: MediumMode
 --- !u!114 &101568265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3329,6 +3331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
+  SceneMode: 
 --- !u!1 &203102013
 GameObject:
   m_ObjectHideFlags: 0
@@ -6612,7 +6615,7 @@ RectTransform:
   m_Father: {fileID: 1982470027}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.9308885}
+  m_AnchorMin: {x: 0, y: 0.9152625}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -7978,7 +7981,7 @@ RectTransform:
   m_Father: {fileID: 1048592826}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.092026696}
+  m_AnchorMin: {x: 0, y: 0.09492022}
   m_AnchorMax: {x: 1, y: 0.9999998}
   m_AnchoredPosition: {x: 0, y: -116.52051}
   m_SizeDelta: {x: 20, y: 253.0405}
@@ -12569,7 +12572,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1330829871}
   m_HandleRect: {fileID: 1330829870}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 0.00000023583188
   m_Size: 0.7917146
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -16603,7 +16606,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 419061110}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.06911151
+  m_Size: 0.08473746
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -17714,8 +17717,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 493602981}
   m_HandleRect: {fileID: 493602980}
   m_Direction: 2
-  m_Value: 0.9999966
-  m_Size: 0.907973
+  m_Value: 0.99999934
+  m_Size: 0.9050797
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18113,7 +18116,7 @@ RectTransform:
   m_Father: {fileID: 443950510}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.000000049120334, y: 0}
   m_AnchorMax: {x: 0.7917146, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -22186,6 +22189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
+  SceneMode: HardMode
 --- !u!114 &1582677421
 MonoBehaviour:
   m_ObjectHideFlags: 0

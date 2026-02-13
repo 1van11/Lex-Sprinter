@@ -3044,7 +3044,7 @@ MonoBehaviour:
   coinsPerLane: 6
   coinSpacing: 2
   powerUpSpawnChance: 20
-  firstPowerUpDistance: 0
+  firstPowerUpDistance: 100
   powerUpPositionOffset: {x: 1, y: 1, z: 0}
   powerUpScale: {x: 10, y: 10, z: 10}
   spawnChances:
@@ -5302,7 +5302,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56.000244}
+  m_AnchoredPosition: {x: 0, y: -56}
   m_SizeDelta: {x: -188.653, y: -536.495}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &973499213
@@ -5635,7 +5635,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -56.000244}
+  m_AnchoredPosition: {x: 0, y: -56}
   m_SizeDelta: {x: -188.65308, y: -536.4949}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
@@ -5750,7 +5750,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -115.00012}
+  m_AnchoredPosition: {x: 0, y: -115}
   m_SizeDelta: {x: -251.72699, y: -1214.504}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168608306
@@ -5955,10 +5955,10 @@ MonoBehaviour:
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
   minSwipeDistance: 50
-  swipeSensitivity: 0.01
+  swipeSensitivity: 0.1
   maxSwipeSpeed: 20
   returnToCenterSpeed: 5
-  swipeDirectionThreshold: 0.1
+  swipeDirectionThreshold: 0.5
   tiltAngle: 20
   tiltSpeed: 10
 --- !u!114 &1203540993
