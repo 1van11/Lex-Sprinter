@@ -1,51 +1,52 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class PlayerControls : MonoBehaviour,
-    IBeginDragHandler, IDragHandler, IEndDragHandler
+public class PlayerControls : MonoBehaviour
 {
     [Header("Movement")]
-    public float laneDistance = 3f;
-    public float horizontalMoveSpeed = 10f;
-    public float forwardSpeed = 10f;
+    public float moveSpeed = 10f;             // Base speed of horizontal movement
+    public float maxLaneDistance = 3f;         // Max distance from center
+    public float forwardSpeed = 10f;           // Forward speed (used externally)
 
     [Header("Jump")]
     public float jumpForce = 9f;
     public float gravity = 20f;
     public float groundCheckDistance = 0.1f;
-    public bool enableJump = true; // NEW: Toggle jump on/off in Inspector
+    public bool enableJump = true;
 
-    [Header("Fast Descent")]
+    [Header("Fast Descent (Swipe Down)")]
     public float fastDescentForce = 15f;
     public float fastDescentGravityMultiplier = 2.5f;
-    public float minSwipeDistance = 50f;
-    public float swipeCooldown = 0.3f;
 
-    [Header("Rotation")]
+    [Header("Swipe Settings")]
+    public float minSwipeDistance = 50f;        // Minimum swipe length (pixels)
+    public float swipeSensitivity = 0.01f;       // How much swipe distance affects movement
+    public float maxSwipeSpeed = 20f;            // Maximum speed from swiping
+    public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
+    public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
+
+    [Header("Visual Tilt")]
     public float tiltAngle = 20f;
     public float tiltSpeed = 10f;
 
-    [Header("Mobile Input")]
-    public bool useTouchControls = true;
-    public float mobileSensitivity = 0.5f;
-
-    // Components
     private Rigidbody rb;
     private CapsuleCollider col;
     private Animator anim;
 
-    // State
-    private float horizontalInput;
+    private float horizontalInput;               // -1 to 1 for movement
     private float targetTilt;
     private bool isGrounded;
     private bool isFastDescending;
-    private float lastSwipeTime;
     private bool isMovementStopped = false;
 
-    // Touch / Drag
-    private Vector2 touchStart;
-    private float touchTime;
-    private bool isDragging;
+    // Touch tracking for continuous swipe
+    private int activeTouchId = -1;
+    private Vector2 touchStartPos;
+    private Vector2 lastTouchPos;
+    private bool isSwiping = false;
+    private bool gestureLocked = false;          // Locks whether this is horizontal or vertical swipe
+    private bool isHorizontalSwipe = false;      // Which direction is locked
+    private float lastSwipeTime;
+    private float swipeCooldown = 0.1f;
 
     void Awake()
     {
@@ -61,11 +62,8 @@ public class PlayerControls : MonoBehaviour,
     {
         CheckGrounded();
         HandleKeyboardInput();
-
-        if (useTouchControls)
-            HandleTouchInput();
-
-        MoveHorizontal();
+        HandleTouchInput();
+        MoveHorizontally();
         ApplyTilt();
         UpdateAnimations();
     }
@@ -81,6 +79,7 @@ public class PlayerControls : MonoBehaviour,
     {
         if (isMovementStopped) return;
 
+        // Continuous movement with arrow keys or A/D
         float h = 0f;
         float tilt = 0f;
 
@@ -98,9 +97,11 @@ public class PlayerControls : MonoBehaviour,
         horizontalInput = h;
         targetTilt = tilt;
 
+        // Jump
         if (enableJump && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
             Jump();
 
+        // Fast descent
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             TryFastDescent();
     }
@@ -108,49 +109,94 @@ public class PlayerControls : MonoBehaviour,
     void HandleTouchInput()
     {
         if (isMovementStopped) return;
-        if (Input.touchCount == 0) return;
 
-        Touch t = Input.GetTouch(0);
-        float screenX = t.position.x / Screen.width;
-
-        horizontalInput = 0;
-        targetTilt = 0;
-
-        if (screenX < 0.4f)
+        // Check all touches
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            horizontalInput = -1;
-            targetTilt = tiltAngle;
+            Touch touch = Input.GetTouch(i);
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                // Start tracking this touch
+                activeTouchId = touch.fingerId;
+                touchStartPos = touch.position;
+                lastTouchPos = touch.position;
+                isSwiping = true;
+                gestureLocked = false; // Not locked until we determine direction
+            }
+            else if (touch.fingerId == activeTouchId)
+            {
+                // This is our active touch
+                if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                {
+                    // Calculate total swipe delta from start
+                    Vector2 totalDelta = touch.position - touchStartPos;
+                    float absTotalX = Mathf.Abs(totalDelta.x);
+                    float absTotalY = Mathf.Abs(totalDelta.y);
+
+                    // Lock gesture direction if not already locked and we've moved enough
+                    if (!gestureLocked && (absTotalX > minSwipeDistance * 0.5f || absTotalY > minSwipeDistance * 0.5f))
+                    {
+                        // Determine if this is primarily horizontal or vertical
+                        isHorizontalSwipe = absTotalX > absTotalY * swipeDirectionThreshold;
+                        gestureLocked = true;
+                        
+                        // If vertical, check if it's a quick gesture for jump/descent
+                        if (!isHorizontalSwipe)
+                        {
+                            if (absTotalY > minSwipeDistance)
+                            {
+                                if (totalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > swipeCooldown)
+                                {
+                                    Jump();
+                                    lastSwipeTime = Time.time;
+                                }
+                                else if (totalDelta.y < 0 && Time.time - lastSwipeTime > swipeCooldown)
+                                {
+                                    TryFastDescent();
+                                    lastSwipeTime = Time.time;
+                                }
+                            }
+                        }
+                    }
+
+                    // Handle horizontal movement only if this is a horizontal swipe
+                    if (gestureLocked && isHorizontalSwipe)
+                    {
+                        // Calculate input based on current position relative to start
+                        // INCREASED SENSITIVITY: Apply 2x multiplier internally
+                        float currentOffset = touch.position.x - touchStartPos.x;
+                        float targetInput = Mathf.Clamp(currentOffset * swipeSensitivity * 25f, -1f, 1f);
+                        
+                        // Smoothly move toward target input - INCREASED from 10f to 20f for faster response
+                        horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 50f);
+                        
+                        // Set tilt based on current input
+                        targetTilt = -horizontalInput * tiltAngle;
+                    }
+                    
+                    // Update last position
+                    lastTouchPos = touch.position;
+                }
+                else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    // Touch ended, return input to zero
+                    isSwiping = false;
+                    activeTouchId = -1;
+                    gestureLocked = false;
+                }
+            }
         }
-        else if (screenX > 0.6f)
+
+        // If no active touch, gradually return input to zero
+        if (!isSwiping && activeTouchId == -1)
         {
-            horizontalInput = 1;
-            targetTilt = -tiltAngle;
-        }
-
-        if (t.phase == TouchPhase.Began)
-        {
-            touchStart = t.position;
-            touchTime = Time.time;
-
-            if (enableJump && screenX >= 0.4f && screenX <= 0.6f)
-                Jump();
-        }
-
-        if (t.phase == TouchPhase.Ended)
-            DetectSwipe(t.position);
-    }
-
-    void DetectSwipe(Vector2 endPos)
-    {
-        if (Time.time - lastSwipeTime < swipeCooldown) return;
-
-        Vector2 delta = endPos - touchStart;
-
-        if (delta.y < -minSwipeDistance &&
-            Mathf.Abs(delta.y) > Mathf.Abs(delta.x))
-        {
-            TryFastDescent();
-            lastSwipeTime = Time.time;
+            horizontalInput = Mathf.Lerp(horizontalInput, 0f, Time.deltaTime * returnToCenterSpeed);
+            targetTilt = -horizontalInput * tiltAngle;
+            
+            // Snap to zero if very small
+            if (Mathf.Abs(horizontalInput) < 0.01f)
+                horizontalInput = 0f;
         }
     }
 
@@ -166,7 +212,7 @@ public class PlayerControls : MonoBehaviour,
 
     #region Movement Logic
 
-     void CheckGrounded()
+    void CheckGrounded()
     {
         float dist = col.bounds.extents.y + groundCheckDistance;
         isGrounded = Physics.Raycast(transform.position, Vector3.down, dist);
@@ -175,13 +221,13 @@ public class PlayerControls : MonoBehaviour,
             isFastDescending = false;
     }
 
-    void MoveHorizontal()
+    void MoveHorizontally()
     {
         if (isMovementStopped) return;
 
         Vector3 pos = transform.position;
-        pos.x += horizontalInput * horizontalMoveSpeed * Time.deltaTime;
-        pos.x = Mathf.Clamp(pos.x, -laneDistance, laneDistance);
+        pos.x += horizontalInput * moveSpeed * Time.deltaTime;
+        pos.x = Mathf.Clamp(pos.x, -maxLaneDistance, maxLaneDistance);
         transform.position = pos;
     }
 
@@ -216,34 +262,6 @@ public class PlayerControls : MonoBehaviour,
 
     #endregion
 
-    #region Drag / Swipe Interface
-
-    public void OnBeginDrag(PointerEventData e)
-    {
-        if (isMovementStopped) return;
-        touchStart = e.position;
-        isDragging = true;
-    }
-
-    public void OnDrag(PointerEventData e)
-    {
-        if (!isDragging || isMovementStopped) return;
-
-        float x = (e.position.x - touchStart.x) * mobileSensitivity / Screen.width;
-        horizontalInput = Mathf.Clamp(x, -1f, 1f);
-        targetTilt = horizontalInput > 0 ? -tiltAngle : tiltAngle;
-    }
-
-    public void OnEndDrag(PointerEventData e)
-    {
-        isDragging = false;
-        DetectSwipe(e.position);
-        horizontalInput = 0;
-        targetTilt = 0;
-    }
-
-    #endregion
-
     #region Animation
 
     void UpdateAnimations()
@@ -258,17 +276,10 @@ public class PlayerControls : MonoBehaviour,
 
     #endregion
 
-    #region Public Control Methods
+    #region Public Methods (for external control)
 
-    public void SetForwardSpeed(float speed)
-    {
-        forwardSpeed = speed;
-    }
-
-    public float GetForwardSpeed()
-    {
-        return forwardSpeed;
-    }
+    public void SetForwardSpeed(float speed) => forwardSpeed = speed;
+    public float GetForwardSpeed() => forwardSpeed;
 
     public void StopMovement()
     {
@@ -276,37 +287,19 @@ public class PlayerControls : MonoBehaviour,
         forwardSpeed = 0f;
         horizontalInput = 0f;
         targetTilt = 0f;
-        if (rb != null)
-            rb.velocity = Vector3.zero;
-        Debug.Log("🛑 PlayerControls movement stopped");
+        rb.velocity = Vector3.zero;
     }
 
-    public void ResumeMovement()
-    {
-        isMovementStopped = false;
-        Debug.Log("▶️ PlayerControls movement resumed");
-    }
+    public void ResumeMovement() => isMovementStopped = false;
 
-    // NEW: Methods to enable/disable jump at runtime
-    public void EnableJump(bool enable)
-    {
-        enableJump = enable;
-        Debug.Log(enable ? "✅ Jump enabled" : "❌ Jump disabled");
-    }
+    public void EnableJump(bool enable) => enableJump = enable;
+    public bool IsJumpEnabled() => enableJump;
 
-    public bool IsJumpEnabled()
-    {
-        return enableJump;
-    }
-
-    #endregion
-
-    #region Public Getters for Animator
-
-    // Make these accessible to the CustomMovementAnimator
+    // For animator
     public float HorizontalInput => horizontalInput;
     public bool IsGrounded => isGrounded;
     public bool IsFastDescending => isFastDescending;
 
     #endregion
 }
+//working

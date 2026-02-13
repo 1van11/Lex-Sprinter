@@ -2117,8 +2117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laneDistance: 3
-  horizontalMoveSpeed: 10
+  moveSpeed: 10
+  maxLaneDistance: 3
   forwardSpeed: 10
   jumpForce: 18
   gravity: 20
@@ -2127,11 +2127,12 @@ MonoBehaviour:
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
   minSwipeDistance: 50
-  swipeCooldown: 0.3
+  swipeSensitivity: 1.5
+  maxSwipeSpeed: 20
+  returnToCenterSpeed: 5
+  swipeDirectionThreshold: 0.5
   tiltAngle: 20
   tiltSpeed: 10
-  useTouchControls: 1
-  mobileSensitivity: 0.5
 --- !u!114 &264086239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5749,7 +5750,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -115}
+  m_AnchoredPosition: {x: 0, y: -115.00012}
   m_SizeDelta: {x: -251.72699, y: -1214.504}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168608306
@@ -5944,8 +5945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1e05ede02c01b45b492f8486150f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laneDistance: 3
-  horizontalMoveSpeed: 10
+  moveSpeed: 10
+  maxLaneDistance: 3
   forwardSpeed: 10
   jumpForce: 18
   gravity: 20
@@ -5954,11 +5955,12 @@ MonoBehaviour:
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
   minSwipeDistance: 50
-  swipeCooldown: 0.3
+  swipeSensitivity: 0.01
+  maxSwipeSpeed: 20
+  returnToCenterSpeed: 5
+  swipeDirectionThreshold: 0.1
   tiltAngle: 20
   tiltSpeed: 10
-  useTouchControls: 1
-  mobileSensitivity: 0.5
 --- !u!114 &1203540993
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29,6 +29,7 @@ public class PauseMenu : MonoBehaviour
     private Animator[] allAnimators;
     private ParticleSystem[] allParticleSystems;
     private AudioSource[] allAudioSources;
+    private CanvasGroup pauseCanvasGroup; // Cache the CanvasGroup
 
     void Start()
     {
@@ -47,10 +48,12 @@ public class PauseMenu : MonoBehaviour
             countdownText.raycastTarget = false;
         }
 
-        CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
+        // Get or add CanvasGroup and store reference
+        pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
         if (pauseCanvasGroup == null)
             pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
 
+        // Ensure initial state is visible
         pauseCanvasGroup.alpha = 1f;
         pauseCanvasGroup.interactable = true;
         pauseCanvasGroup.blocksRaycasts = true;
@@ -85,6 +88,15 @@ public class PauseMenu : MonoBehaviour
         }
 
         pauseMenu.SetActive(true);
+
+        // Reset canvas group to ensure visibility and interaction
+        if (pauseCanvasGroup != null)
+        {
+            pauseCanvasGroup.alpha = 1f;
+            pauseCanvasGroup.interactable = true;
+            pauseCanvasGroup.blocksRaycasts = true;
+        }
+
         if (OtherThingsCanvas != null) OtherThingsCanvas.SetActive(false);
         
         Time.timeScale = 0;
@@ -109,7 +121,6 @@ public class PauseMenu : MonoBehaviour
     {
         isResuming = true;
 
-        CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
         if (pauseCanvasGroup != null)
         {
             pauseCanvasGroup.alpha = 0;
@@ -318,3 +329,4 @@ public class PauseMenu : MonoBehaviour
     void RestoreAllAudioToNormal() { foreach (var a in allAudioSources) if (a) a.pitch = 1; }
     #endregion
 }
+//working
