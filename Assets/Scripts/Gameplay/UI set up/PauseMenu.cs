@@ -9,35 +9,33 @@ public class PauseMenu : MonoBehaviour
     [Header("Pause Menu")]
     [SerializeField] GameObject pauseMenu;
     [SerializeField] GameObject OtherThingsCanvas;
-    [SerializeField] TMP_Text countdownText; // Assign a TMP_Text in the pause menu
-    [SerializeField] float slowMotionTimescale = 0.1f; // Ultra slow motion timescale (10x slower)
-    [SerializeField] float slowMotionDuration = 3f; // seconds of slow motion
+    [SerializeField] TMP_Text countdownText;
+    [SerializeField] float slowMotionTimescale = 0.1f;
+    [SerializeField] float slowMotionDuration = 3f;
 
     [Header("Revive System")]
     public GameObject playerObject;
-    public GameObject revivePanel; // assign your revive panel here
-    public GameObject[] uiToDisable; // assign normal UI here (score, buttons, etc.)
-    public TMP_Text revivePriceText; // Drag your TMP text here
-    private int revivePrice = 250;   // Starting price
+    public GameObject revivePanel;
+    public GameObject[] uiToDisable;
+    public TMP_Text revivePriceText;
+    private int revivePrice = 250;
 
     private PlayerFunctions playerFunctions;
     private bool isResuming = false;
     private Coroutine resumeCoroutine;
     private float originalFixedDeltaTime;
-    private Animator[] allAnimators; // Cache all animators for speed control
-    private ParticleSystem[] allParticleSystems; // Cache all particle systems
-    private AudioSource[] allAudioSources; // Cache all audio sources for pitch adjustment
+    
+    // Caching components
+    private Animator[] allAnimators;
+    private ParticleSystem[] allParticleSystems;
+    private AudioSource[] allAudioSources;
 
     void Start()
     {
-        // Get PlayerFunctions reference
         if (playerObject != null)
             playerFunctions = playerObject.GetComponent<PlayerFunctions>();
         else
             playerFunctions = FindObjectOfType<PlayerFunctions>();
-
-        if (playerFunctions == null)
-            Debug.LogWarning("PlayerFunctions not found in scene!");
 
         originalFixedDeltaTime = Time.fixedDeltaTime;
 
@@ -57,7 +55,7 @@ public class PauseMenu : MonoBehaviour
         pauseCanvasGroup.interactable = true;
         pauseCanvasGroup.blocksRaycasts = true;
 
-        UpdateRevivePriceUI(); // Show initial price
+        UpdateRevivePriceUI();
     }
 
     void CacheAllAnimationComponents()
@@ -65,20 +63,18 @@ public class PauseMenu : MonoBehaviour
         allAnimators = FindObjectsOfType<Animator>(true);
         allParticleSystems = FindObjectsOfType<ParticleSystem>(true);
         allAudioSources = FindObjectsOfType<AudioSource>(true);
-
-        Debug.Log($"📊 Cached {allAnimators.Length} animators, {allParticleSystems.Length} particle systems, {allAudioSources.Length} audio sources");
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Time.timeScale > slowMotionTimescale)
+            if (Time.timeScale > slowMotionTimescale && !isResuming)
                 Pause();
         }
     }
 
-    #region Pause Menu Methods
+    #region Pause/Resume Logic
     public void Pause()
     {
         if (resumeCoroutine != null)
@@ -86,26 +82,16 @@ public class PauseMenu : MonoBehaviour
             StopCoroutine(resumeCoroutine);
             resumeCoroutine = null;
             isResuming = false;
-            Time.timeScale = 0;
-            Time.fixedDeltaTime = originalFixedDeltaTime;
-            RestoreAllAnimationsToNormal();
         }
 
         pauseMenu.SetActive(true);
-        OtherThingsCanvas.SetActive(false);
+        if (OtherThingsCanvas != null) OtherThingsCanvas.SetActive(false);
+        
         Time.timeScale = 0;
 
         PauseAllAnimations();
         PauseAllParticleSystems();
         PauseAllAudio();
-
-        CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
-        if (pauseCanvasGroup != null)
-        {
-            pauseCanvasGroup.alpha = 1f;
-            pauseCanvasGroup.interactable = true;
-            pauseCanvasGroup.blocksRaycasts = true;
-        }
 
         if (countdownText != null)
             countdownText.gameObject.SetActive(false);
@@ -124,17 +110,16 @@ public class PauseMenu : MonoBehaviour
         isResuming = true;
 
         CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
-        if (pauseCanvasGroup == null)
-            pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
-
-        pauseCanvasGroup.alpha = 0;
-        pauseCanvasGroup.interactable = false;
-        pauseCanvasGroup.blocksRaycasts = false;
+        if (pauseCanvasGroup != null)
+        {
+            pauseCanvasGroup.alpha = 0;
+            pauseCanvasGroup.interactable = false;
+            pauseCanvasGroup.blocksRaycasts = false;
+        }
 
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(true);
-            countdownText.color = new Color(countdownText.color.r, countdownText.color.g, countdownText.color.b, 1f);
         }
 
         Time.timeScale = slowMotionTimescale;
@@ -149,32 +134,26 @@ public class PauseMenu : MonoBehaviour
         ResumeAllAudio();
 
         float timer = slowMotionDuration;
-
-        // 3, 2, 1 countdown
         while (timer > 0)
         {
             if (countdownText != null)
             {
-                countdownText.text = Mathf.CeilToInt(timer).ToString(); // will show 3,2,1
+                countdownText.text = Mathf.CeilToInt(timer).ToString();
                 StartCoroutine(ScaleCountdownNumber(countdownText.transform));
             }
-
-            yield return new WaitForSecondsRealtime(1f); // unscaled time
+            yield return new WaitForSecondsRealtime(1f);
             timer -= 1f;
         }
 
-        // Show "go" after 1
         if (countdownText != null)
         {
-            countdownText.text = "go"; // small letters
-            StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f)); // slightly bigger
+            countdownText.text = "go";
+            StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f));
         }
 
-        yield return new WaitForSecondsRealtime(1f); // show "go" for 1 second
+        yield return new WaitForSecondsRealtime(1f);
 
-        // Hide countdown text
-        if (countdownText != null)
-            countdownText.gameObject.SetActive(false);
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
@@ -184,309 +163,158 @@ public class PauseMenu : MonoBehaviour
         RestoreAllAudioToNormal();
 
         pauseMenu.SetActive(false);
-        OtherThingsCanvas.SetActive(true);
-
-        if (pauseCanvasGroup != null)
-        {
-            pauseCanvasGroup.alpha = 1f;
-            pauseCanvasGroup.interactable = true;
-            pauseCanvasGroup.blocksRaycasts = true;
-        }
+        if (OtherThingsCanvas != null) OtherThingsCanvas.SetActive(true);
 
         isResuming = false;
         resumeCoroutine = null;
     }
     #endregion
 
-    #region Revive System Methods
+    #region Revive System
     public void ShowRevivePanel()
     {
         if (revivePanel != null)
         {
             revivePanel.SetActive(true);
-
-            // Pause the game
             Time.timeScale = 0;
 
-            // Disable other UI
             foreach (GameObject ui in uiToDisable)
-                if (ui != null)
-                    ui.SetActive(false);
+                if (ui != null) ui.SetActive(false);
 
             PauseAllAnimations();
             PauseAllParticleSystems();
             PauseAllAudio();
         }
-
         UpdateRevivePriceUI();
     }
 
     public void RevivePlayer()
     {
-        if (playerFunctions == null)
+        if (playerFunctions != null && playerFunctions.SpendCoins(revivePrice))
         {
-            Debug.LogWarning("Cannot revive: PlayerFunctions reference missing!");
-            return;
+            ReviveImmediate();
         }
-
-        // Try to spend coins
-        if (!playerFunctions.SpendCoins(revivePrice))
-        {
-            Debug.Log("❌ Not enough coins to revive!");
-            return;
-        }
-
-        // Revive immediately without slow motion
-        ReviveImmediate();
     }
 
     private void ReviveImmediate()
     {
-        // Hide revive panel
-        if (revivePanel != null)
-            revivePanel.SetActive(false);
+        if (revivePanel != null) revivePanel.SetActive(false);
 
-        // Re-enable UI
         foreach (GameObject ui in uiToDisable)
-            if (ui != null)
-                ui.SetActive(true);
+            if (ui != null) ui.SetActive(true);
 
-        // Actually revive player
         playerFunctions.ReviveFromDeath();
 
-        // Resume normal game speed
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
 
-        // Restore all animation/audio states to normal
         RestoreAllAnimationsToNormal();
         RestoreAllParticleSystemsToNormal();
         RestoreAllAudioToNormal();
-
         ResumeAllAnimations();
         ResumeAllParticleSystems();
         ResumeAllAudio();
 
-        // Increase revive price for next time
         revivePrice = Mathf.RoundToInt(revivePrice * 1.5f);
         UpdateRevivePriceUI();
-
-        Debug.Log("🔄 Revived! New price: " + revivePrice);
     }
 
     public void CancelRevive()
     {
-        // Called if player closes the revive panel without reviving
-        if (revivePanel != null)
-            revivePanel.SetActive(false);
-
+        if (revivePanel != null) revivePanel.SetActive(false);
         foreach (GameObject ui in uiToDisable)
-            if (ui != null)
-                ui.SetActive(true);
+            if (ui != null) ui.SetActive(true);
 
-        // Resume the game
         Time.timeScale = 1f;
-
         ResumeAllAnimations();
         ResumeAllParticleSystems();
         ResumeAllAudio();
-
-        Debug.Log("❌ Revive canceled, game resumed.");
     }
 
     private void UpdateRevivePriceUI()
     {
-        if (revivePriceText != null)
-            revivePriceText.text = revivePrice.ToString();
+        if (revivePriceText != null) revivePriceText.text = revivePrice.ToString();
     }
     #endregion
 
-    #region Scale Animation
-    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = -1f)
-    {
-        if (targetScale < 0f) targetScale = 1.5f;
-
-        Vector3 originalScale = target.localScale;
-        Vector3 goalScale = originalScale * targetScale;
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
-            yield return null;
-        }
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
-            yield return null;
-        }
-    }
-    #endregion
-
-    #region Animation Control Methods
-    void PauseAllAnimations()
-    {
-        foreach (var animator in allAnimators)
-            if (animator != null && animator.isActiveAndEnabled) animator.speed = 0f;
-    }
-
-    void ResumeAllAnimations()
-    {
-        foreach (var animator in allAnimators)
-            if (animator != null && animator.isActiveAndEnabled) animator.speed = 1f;
-    }
-
-    void SetAllAnimationsSpeed(float speed)
-    {
-        foreach (var animator in allAnimators)
-            if (animator != null && animator.isActiveAndEnabled) animator.speed = speed;
-    }
-
-    void RestoreAllAnimationsToNormal()
-    {
-        foreach (var animator in allAnimators)
-            if (animator != null && animator.isActiveAndEnabled) animator.speed = 1f;
-    }
-
-    void PauseAllParticleSystems()
-    {
-        foreach (var ps in allParticleSystems)
-            if (ps != null && ps.isPlaying) ps.Pause();
-    }
-
-    void ResumeAllParticleSystems()
-    {
-        foreach (var ps in allParticleSystems)
-            if (ps != null) ps.Play();
-    }
-
-    void SetAllParticleSystemSpeed(float speed)
-    {
-        foreach (var ps in allParticleSystems)
-            if (ps != null) { var main = ps.main; main.simulationSpeed = speed; }
-    }
-
-    void RestoreAllParticleSystemsToNormal()
-    {
-        foreach (var ps in allParticleSystems)
-            if (ps != null) { var main = ps.main; main.simulationSpeed = 1f; }
-    }
-
-    void PauseAllAudio()
-    {
-        foreach (var audioSource in allAudioSources)
-            if (audioSource != null && audioSource.isPlaying) audioSource.Pause();
-    }
-
-    void ResumeAllAudio()
-    {
-        foreach (var audioSource in allAudioSources)
-            if (audioSource != null && !audioSource.isPlaying) audioSource.UnPause();
-    }
-
-    void SetAllAudioPitch(float pitch)
-    {
-        foreach (var audioSource in allAudioSources)
-            if (audioSource != null) audioSource.pitch = pitch;
-    }
-
-    void RestoreAllAudioToNormal()
-    {
-        foreach (var audioSource in allAudioSources)
-            if (audioSource != null) audioSource.pitch = 1f;
-    }
-    #endregion
-
-    #region Utility Methods
-    public bool IsInSlowMotion() => isResuming && Time.timeScale == slowMotionTimescale;
-
-    public void CancelSlowMotion()
+    #region Scene Transitions (The Fix)
+    // Use this to reset time scale without triggering UI errors
+    private void PrepareForSceneChange()
     {
         if (resumeCoroutine != null) StopCoroutine(resumeCoroutine);
-        
-        resumeCoroutine = null;
+        isResuming = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
-        isResuming = false;
-
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
-
-        if (countdownText != null) countdownText.gameObject.SetActive(false);
-        pauseMenu.SetActive(false);
-        OtherThingsCanvas.SetActive(true);
     }
 
     public void Home()
     {
-        CancelSlowMotion();
+        PrepareForSceneChange();
         SaveCoins();
-        Time.timeScale = 1f;
         SceneManager.LoadScene("HomeScreen");
     }
 
     public void Restart()
     {
-        CancelSlowMotion();
+        PrepareForSceneChange();
         SaveCoins();
         DeductEnergyFromHome();
-        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+    #endregion
 
-    void OnDestroy()
+    #region Internal Helpers
+    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1.5f)
     {
-        if (Time.timeScale != 1f)
-        {
-            Time.timeScale = 1f;
-            Time.fixedDeltaTime = originalFixedDeltaTime;
+        Vector3 originalScale = Vector3.one; 
+        Vector3 goalScale = originalScale * targetScale;
+        float t = 0f;
+        while (t < 1f) {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
+            yield return null;
         }
-
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
-    }
-
-    private void SaveCoins()
-    {
-        if (playerFunctions != null)
-        {
-            playerFunctions.SaveTotalCoins();
-            Debug.Log("💾 Coins saved.");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ PlayerFunctions not found!");
+        t = 0f;
+        while (t < 1f) {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
+            yield return null;
         }
     }
 
-    private void DeductEnergyFromHome()
-    {
-        int maxPower = 5;
-        int currentPower = PlayerPrefs.GetInt("currentPower", maxPower);
+    private void SaveCoins() {
+        if (playerFunctions != null) playerFunctions.SaveTotalCoins();
+    }
 
-        if (currentPower > 0)
-        {
+    private void DeductEnergyFromHome() {
+        int currentPower = PlayerPrefs.GetInt("currentPower", 5);
+        if (currentPower > 0) {
             currentPower--;
             PlayerPrefs.SetInt("currentPower", currentPower);
-
-            int index = maxPower - currentPower - 1;
-            DateTime nextRecharge = DateTime.Now.AddMinutes(15);
-            PlayerPrefs.SetString($"rechargeTime_{index}", nextRecharge.ToBinary().ToString());
-
             PlayerPrefs.Save();
-            Debug.Log($"⚡ Energy used. Remaining: {currentPower}");
-        }
-        else
-        {
-            Debug.Log("⚠️ No energy left!");
         }
     }
+
+    void OnDestroy() {
+        // Ensure time is normal if this script is destroyed
+        Time.timeScale = 1f;
+    }
+    #endregion
+
+    #region Component Controls (Wrapped for Safety)
+    void PauseAllAnimations() { foreach (var a in allAnimators) if (a) a.speed = 0; }
+    void ResumeAllAnimations() { foreach (var a in allAnimators) if (a) a.speed = 1; }
+    void SetAllAnimationsSpeed(float s) { foreach (var a in allAnimators) if (a) a.speed = s; }
+    void RestoreAllAnimationsToNormal() { foreach (var a in allAnimators) if (a) a.speed = 1; }
+    
+    void PauseAllParticleSystems() { foreach (var p in allParticleSystems) if (p) p.Pause(); }
+    void ResumeAllParticleSystems() { foreach (var p in allParticleSystems) if (p) p.Play(); }
+    void SetAllParticleSystemSpeed(float s) { foreach (var p in allParticleSystems) { if (p) { var m = p.main; m.simulationSpeed = s; } } }
+    void RestoreAllParticleSystemsToNormal() { foreach (var p in allParticleSystems) { if (p) { var m = p.main; m.simulationSpeed = 1; } } }
+
+    void PauseAllAudio() { foreach (var a in allAudioSources) if (a && a.isPlaying) a.Pause(); }
+    void ResumeAllAudio() { foreach (var a in allAudioSources) if (a) a.UnPause(); }
+    void SetAllAudioPitch(float p) { foreach (var a in allAudioSources) if (a) a.pitch = p; }
+    void RestoreAllAudioToNormal() { foreach (var a in allAudioSources) if (a) a.pitch = 1; }
     #endregion
 }
-// Slow motion removed from revive – now instant.
