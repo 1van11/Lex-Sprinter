@@ -6,40 +6,40 @@ using TMPro;
 
 public class PauseMenu : MonoBehaviour
 {
-    [Header("Pause Menu UI")]
+    [Header("Pause Menu")]
     [SerializeField] GameObject pauseMenu;
     [SerializeField] GameObject OtherThingsCanvas;
-    [SerializeField] TMP_Text countdownText;
-    [SerializeField] float slowMotionTimescale = 0.1f;
-    [SerializeField] float slowMotionDuration = 3f;
+    [SerializeField] TMP_Text countdownText; // Assign a TMP_Text in the pause menu
+    [SerializeField] float slowMotionTimescale = 0.1f; // Ultra slow motion timescale (10x slower)
+    [SerializeField] float slowMotionDuration = 3f; // seconds of slow motion
 
-    [Header("Revive Panel Settings")]
-    [SerializeField] GameObject revivePanel;
-    [SerializeField] GameObject[] uiToDisable;       // UI to hide when revive panel is active
-    [SerializeField] TMP_Text revivePriceText;
-    [SerializeField] int revivePrice = 250;
-
-    [Header("Game Over Panel (must be assigned!)")]
-    [SerializeField] GameObject gameOverPanel;        // <-- DRAG YOUR GAME OVER PANEL HERE
+    [Header("Revive System")]
+    public GameObject playerObject;
+    public GameObject revivePanel; // assign your revive panel here
+    public GameObject[] uiToDisable; // assign normal UI here (score, buttons, etc.)
+    public TMP_Text revivePriceText; // Drag your TMP text here
+    private int revivePrice = 250;   // Starting price
 
     private PlayerFunctions playerFunctions;
     private bool isResuming = false;
     private Coroutine resumeCoroutine;
     private float originalFixedDeltaTime;
-
-    private Animator[] allAnimators;
-    private ParticleSystem[] allParticleSystems;
-    private AudioSource[] allAudioSources;
-
-    void Awake()
-    {
-        originalFixedDeltaTime = Time.fixedDeltaTime;
-    }
+    private Animator[] allAnimators; // Cache all animators for speed control
+    private ParticleSystem[] allParticleSystems; // Cache all particle systems
+    private AudioSource[] allAudioSources; // Cache all audio sources for pitch adjustment
 
     void Start()
     {
-        if (playerFunctions == null)
+        // Get PlayerFunctions reference
+        if (playerObject != null)
+            playerFunctions = playerObject.GetComponent<PlayerFunctions>();
+        else
             playerFunctions = FindObjectOfType<PlayerFunctions>();
+
+        if (playerFunctions == null)
+            Debug.LogWarning("PlayerFunctions not found in scene!");
+
+        originalFixedDeltaTime = Time.fixedDeltaTime;
 
         CacheAllAnimationComponents();
 
@@ -52,11 +52,12 @@ public class PauseMenu : MonoBehaviour
         CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
         if (pauseCanvasGroup == null)
             pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
+
         pauseCanvasGroup.alpha = 1f;
         pauseCanvasGroup.interactable = true;
         pauseCanvasGroup.blocksRaycasts = true;
 
-        UpdateRevivePriceUI();
+        UpdateRevivePriceUI(); // Show initial price
     }
 
     void CacheAllAnimationComponents()
@@ -64,14 +65,12 @@ public class PauseMenu : MonoBehaviour
         allAnimators = FindObjectsOfType<Animator>(true);
         allParticleSystems = FindObjectsOfType<ParticleSystem>(true);
         allAudioSources = FindObjectsOfType<AudioSource>(true);
+
+        Debug.Log($"📊 Cached {allAnimators.Length} animators, {allParticleSystems.Length} particle systems, {allAudioSources.Length} audio sources");
     }
 
     void Update()
     {
-        // Block escape when revive panel is active
-        if (revivePanel != null && revivePanel.activeSelf)
-            return;
-
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (Time.timeScale > slowMotionTimescale)
@@ -79,10 +78,18 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    // -------------------- PAUSE MENU METHODS --------------------
+    #region Pause Menu Methods
     public void Pause()
     {
-        StopAllSlowMotion(); // kill any ongoing resume coroutine
+        if (resumeCoroutine != null)
+        {
+            StopCoroutine(resumeCoroutine);
+            resumeCoroutine = null;
+            isResuming = false;
+            Time.timeScale = 0;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
+            RestoreAllAnimationsToNormal();
+        }
 
         pauseMenu.SetActive(true);
         OtherThingsCanvas.SetActive(false);
@@ -108,34 +115,28 @@ public class PauseMenu : MonoBehaviour
     {
         if (!isResuming && Time.timeScale == 0)
         {
-            resumeCoroutine = StartCoroutine(SlowMotionResumeCoroutine(false)); // false = from pause menu
+            resumeCoroutine = StartCoroutine(ResumeWithSlowMotion());
         }
     }
 
-    // Unified slow‑motion resume coroutine
-    private IEnumerator SlowMotionResumeCoroutine(bool fromRevive)
+    private IEnumerator ResumeWithSlowMotion()
     {
         isResuming = true;
 
-        // If called from pause menu, hide the pause menu UI
-        if (!fromRevive)
-        {
-            CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
-            if (pauseCanvasGroup == null)
-                pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
-            pauseCanvasGroup.alpha = 0;
-            pauseCanvasGroup.interactable = false;
-            pauseCanvasGroup.blocksRaycasts = false;
-        }
+        CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
+        if (pauseCanvasGroup == null)
+            pauseCanvasGroup = pauseMenu.AddComponent<CanvasGroup>();
 
-        // Show countdown text
+        pauseCanvasGroup.alpha = 0;
+        pauseCanvasGroup.interactable = false;
+        pauseCanvasGroup.blocksRaycasts = false;
+
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(true);
             countdownText.color = new Color(countdownText.color.r, countdownText.color.g, countdownText.color.b, 1f);
         }
 
-        // Enter slow motion
         Time.timeScale = slowMotionTimescale;
         Time.fixedDeltaTime = originalFixedDeltaTime * slowMotionTimescale;
 
@@ -149,31 +150,32 @@ public class PauseMenu : MonoBehaviour
 
         float timer = slowMotionDuration;
 
-        // Countdown 3,2,1
+        // 3, 2, 1 countdown
         while (timer > 0)
         {
             if (countdownText != null)
             {
-                countdownText.text = Mathf.CeilToInt(timer).ToString();
+                countdownText.text = Mathf.CeilToInt(timer).ToString(); // will show 3,2,1
                 StartCoroutine(ScaleCountdownNumber(countdownText.transform));
             }
-            yield return new WaitForSecondsRealtime(1f);
+
+            yield return new WaitForSecondsRealtime(1f); // unscaled time
             timer -= 1f;
         }
 
-        // Show "go"
+        // Show "go" after 1
         if (countdownText != null)
         {
-            countdownText.text = "go";
-            StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f));
+            countdownText.text = "go"; // small letters
+            StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f)); // slightly bigger
         }
-        yield return new WaitForSecondsRealtime(1f);
 
-        // Hide countdown
+        yield return new WaitForSecondsRealtime(1f); // show "go" for 1 second
+
+        // Hide countdown text
         if (countdownText != null)
             countdownText.gameObject.SetActive(false);
 
-        // Restore normal speed
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
 
@@ -181,171 +183,40 @@ public class PauseMenu : MonoBehaviour
         RestoreAllParticleSystemsToNormal();
         RestoreAllAudioToNormal();
 
-        // If called from pause menu, close pause menu and show gameplay canvas
-        if (!fromRevive)
-        {
-            pauseMenu.SetActive(false);
-            OtherThingsCanvas.SetActive(true);
+        pauseMenu.SetActive(false);
+        OtherThingsCanvas.SetActive(true);
 
-            CanvasGroup pauseCanvasGroup = pauseMenu.GetComponent<CanvasGroup>();
-            if (pauseCanvasGroup != null)
-            {
-                pauseCanvasGroup.alpha = 1f;
-                pauseCanvasGroup.interactable = true;
-                pauseCanvasGroup.blocksRaycasts = true;
-            }
-        }
-        else
+        if (pauseCanvasGroup != null)
         {
-            // From revive: just ensure gameplay canvas is visible
-            OtherThingsCanvas.SetActive(true);
+            pauseCanvasGroup.alpha = 1f;
+            pauseCanvasGroup.interactable = true;
+            pauseCanvasGroup.blocksRaycasts = true;
         }
 
         isResuming = false;
         resumeCoroutine = null;
     }
+    #endregion
 
-    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = -1f)
-    {
-        if (targetScale < 0f) targetScale = 1.5f;
-        Vector3 originalScale = target.localScale;
-        Vector3 goalScale = originalScale * targetScale;
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
-            yield return null;
-        }
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
-            yield return null;
-        }
-    }
-
-    public bool IsInSlowMotion() => isResuming && Time.timeScale == slowMotionTimescale;
-
-    // Cancel any active slow‑motion and reset to normal
-    private void StopAllSlowMotion()
-    {
-        if (resumeCoroutine != null)
-            StopCoroutine(resumeCoroutine);
-        resumeCoroutine = null;
-
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = originalFixedDeltaTime;
-        isResuming = false;
-
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
-
-        if (countdownText != null)
-            countdownText.gameObject.SetActive(false);
-    }
-
-    // -------------------- SCENE MANAGEMENT (Home / Restart) --------------------
-    public void Home()
-    {
-        // Force‑hide ALL UI panels that might be open
-        ForceHideAllPanels();
-
-        StopAllSlowMotion();
-        SaveCoins();
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("HomeScreen");
-    }
-
-    public void Restart()
-    {
-        // Force‑hide ALL UI panels that might be open
-        ForceHideAllPanels();
-
-        StopAllSlowMotion();
-        SaveCoins();
-        DeductEnergyFromHome();
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    // Ensures every possible UI panel is closed before scene change
-    private void ForceHideAllPanels()
-    {
-        if (pauseMenu != null) pauseMenu.SetActive(false);
-        if (revivePanel != null) revivePanel.SetActive(false);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (OtherThingsCanvas != null) OtherThingsCanvas.SetActive(true); // gameplay UI back on
-    }
-
-    void OnDestroy()
-    {
-        if (Time.timeScale != 1f)
-        {
-            Time.timeScale = 1f;
-            Time.fixedDeltaTime = originalFixedDeltaTime;
-        }
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
-    }
-
-    private void SaveCoins()
-    {
-        if (playerFunctions != null)
-        {
-            playerFunctions.SaveTotalCoins();
-            Debug.Log("💾 Coins saved.");
-        }
-        else
-            Debug.LogWarning("⚠️ PlayerFunctions not found!");
-    }
-
-    private void DeductEnergyFromHome()
-    {
-        int maxPower = 5;
-        int currentPower = PlayerPrefs.GetInt("currentPower", maxPower);
-
-        if (currentPower > 0)
-        {
-            currentPower--;
-            PlayerPrefs.SetInt("currentPower", currentPower);
-
-            int index = maxPower - currentPower - 1;
-            DateTime nextRecharge = DateTime.Now.AddMinutes(15);
-            PlayerPrefs.SetString($"rechargeTime_{index}", nextRecharge.ToBinary().ToString());
-
-            PlayerPrefs.Save();
-            Debug.Log($"⚡ Energy used. Remaining: {currentPower}");
-        }
-        else
-            Debug.Log("⚠️ No energy left!");
-    }
-
-    // -------------------- REVIVE METHODS --------------------
+    #region Revive System Methods
     public void ShowRevivePanel()
     {
-        if (revivePanel == null)
+        if (revivePanel != null)
         {
-            Debug.LogError("Revive panel not assigned in PauseMenu!");
-            return;
+            revivePanel.SetActive(true);
+
+            // Pause the game
+            Time.timeScale = 0;
+
+            // Disable other UI
+            foreach (GameObject ui in uiToDisable)
+                if (ui != null)
+                    ui.SetActive(false);
+
+            PauseAllAnimations();
+            PauseAllParticleSystems();
+            PauseAllAudio();
         }
-
-        if (playerFunctions == null)
-            playerFunctions = FindObjectOfType<PlayerFunctions>();
-
-        if (pauseMenu.activeSelf)
-            pauseMenu.SetActive(false);
-
-        revivePanel.SetActive(true);
-        Time.timeScale = 0;
-
-        foreach (GameObject ui in uiToDisable)
-            if (ui != null)
-                ui.SetActive(false);
 
         UpdateRevivePriceUI();
     }
@@ -358,37 +229,54 @@ public class PauseMenu : MonoBehaviour
             return;
         }
 
+        // Try to spend coins
         if (!playerFunctions.SpendCoins(revivePrice))
         {
             Debug.Log("❌ Not enough coins to revive!");
             return;
         }
 
+        // Revive immediately without slow motion
+        ReviveImmediate();
+    }
+
+    private void ReviveImmediate()
+    {
         // Hide revive panel
         if (revivePanel != null)
             revivePanel.SetActive(false);
 
-        // Re-enable normal UI
+        // Re-enable UI
         foreach (GameObject ui in uiToDisable)
             if (ui != null)
                 ui.SetActive(true);
 
-        // Revive the player (this should restore health and enable movement)
+        // Actually revive player
         playerFunctions.ReviveFromDeath();
+
+        // Resume normal game speed
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+
+        // Restore all animation/audio states to normal
+        RestoreAllAnimationsToNormal();
+        RestoreAllParticleSystemsToNormal();
+        RestoreAllAudioToNormal();
+
+        ResumeAllAnimations();
+        ResumeAllParticleSystems();
+        ResumeAllAudio();
 
         // Increase revive price for next time
         revivePrice = Mathf.RoundToInt(revivePrice * 1.5f);
         UpdateRevivePriceUI();
-
-        // --- SLOW‑MOTION RESUME AFTER REVIVE (exactly like pause menu) ---
-        StopAllSlowMotion(); // prevent any leftover coroutine
-        resumeCoroutine = StartCoroutine(SlowMotionResumeCoroutine(true)); // true = from revive
 
         Debug.Log("🔄 Revived! New price: " + revivePrice);
     }
 
     public void CancelRevive()
     {
+        // Called if player closes the revive panel without reviving
         if (revivePanel != null)
             revivePanel.SetActive(false);
 
@@ -396,8 +284,12 @@ public class PauseMenu : MonoBehaviour
             if (ui != null)
                 ui.SetActive(true);
 
-        // Resume normally (no slow‑motion)
-        Time.timeScale = 1;
+        // Resume the game
+        Time.timeScale = 1f;
+
+        ResumeAllAnimations();
+        ResumeAllParticleSystems();
+        ResumeAllAudio();
 
         Debug.Log("❌ Revive canceled, game resumed.");
     }
@@ -407,8 +299,35 @@ public class PauseMenu : MonoBehaviour
         if (revivePriceText != null)
             revivePriceText.text = revivePrice.ToString();
     }
+    #endregion
 
-    // -------------------- ANIMATION / AUDIO / PARTICLE HELPERS --------------------
+    #region Scale Animation
+    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = -1f)
+    {
+        if (targetScale < 0f) targetScale = 1.5f;
+
+        Vector3 originalScale = target.localScale;
+        Vector3 goalScale = originalScale * targetScale;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
+            yield return null;
+        }
+    }
+    #endregion
+
+    #region Animation Control Methods
     void PauseAllAnimations()
     {
         foreach (var animator in allAnimators)
@@ -480,4 +399,94 @@ public class PauseMenu : MonoBehaviour
         foreach (var audioSource in allAudioSources)
             if (audioSource != null) audioSource.pitch = 1f;
     }
+    #endregion
+
+    #region Utility Methods
+    public bool IsInSlowMotion() => isResuming && Time.timeScale == slowMotionTimescale;
+
+    public void CancelSlowMotion()
+    {
+        if (resumeCoroutine != null) StopCoroutine(resumeCoroutine);
+        
+        resumeCoroutine = null;
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+        isResuming = false;
+
+        RestoreAllAnimationsToNormal();
+        RestoreAllParticleSystemsToNormal();
+        RestoreAllAudioToNormal();
+
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
+        pauseMenu.SetActive(false);
+        OtherThingsCanvas.SetActive(true);
+    }
+
+    public void Home()
+    {
+        CancelSlowMotion();
+        SaveCoins();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("HomeScreen");
+    }
+
+    public void Restart()
+    {
+        CancelSlowMotion();
+        SaveCoins();
+        DeductEnergyFromHome();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void OnDestroy()
+    {
+        if (Time.timeScale != 1f)
+        {
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
+        }
+
+        RestoreAllAnimationsToNormal();
+        RestoreAllParticleSystemsToNormal();
+        RestoreAllAudioToNormal();
+    }
+
+    private void SaveCoins()
+    {
+        if (playerFunctions != null)
+        {
+            playerFunctions.SaveTotalCoins();
+            Debug.Log("💾 Coins saved.");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ PlayerFunctions not found!");
+        }
+    }
+
+    private void DeductEnergyFromHome()
+    {
+        int maxPower = 5;
+        int currentPower = PlayerPrefs.GetInt("currentPower", maxPower);
+
+        if (currentPower > 0)
+        {
+            currentPower--;
+            PlayerPrefs.SetInt("currentPower", currentPower);
+
+            int index = maxPower - currentPower - 1;
+            DateTime nextRecharge = DateTime.Now.AddMinutes(15);
+            PlayerPrefs.SetString($"rechargeTime_{index}", nextRecharge.ToBinary().ToString());
+
+            PlayerPrefs.Save();
+            Debug.Log($"⚡ Energy used. Remaining: {currentPower}");
+        }
+        else
+        {
+            Debug.Log("⚠️ No energy left!");
+        }
+    }
+    #endregion
 }
+// Slow motion removed from revive – now instant.
