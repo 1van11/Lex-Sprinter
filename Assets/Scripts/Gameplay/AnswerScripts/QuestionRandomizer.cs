@@ -147,7 +147,7 @@ public class QuestionRandomizer : MonoBehaviour
     };
     #endregion
 
-#region Medium
+    #region Medium
     public static string[,] mediumSpellingPairs = new string[,]
     {
         { "large reptile with powerful jaws", "alligator", "aligater", "alligater" },
@@ -436,33 +436,35 @@ public class QuestionRandomizer : MonoBehaviour
         Debug.Log($"Sentence Question: {sentence} | Correct: {correct} at position {correctPosition} | Wrong: {wrong1}, {wrong2}");
     }
 
-    // Assign options to the 3 text fields with the correct answer at the specified position
+    // Fixed AssignOptions: always uses two distinct wrong answers
     private void AssignOptions(string correct, string wrong1, string wrong2, int correctPosition)
     {
-        // Create an array of the 3 TMP texts
         TMP_Text[] optionTexts = new TMP_Text[] { jumpText, slideText, option3Text };
-        
-        // Fill with wrong answers first
+
+        // Collect the two wrong answers
+        string[] wrongs = new string[] { wrong1, wrong2 };
+
+        // Find the indices of the two wrong slots
+        int[] wrongIndices = new int[2];
+        int idx = 0;
         for (int i = 0; i < 3; i++)
         {
-            if (i == correctPosition)
-            {
-                optionTexts[i].text = correct;
-            }
-            else
-            {
-                // Distribute the two wrong answers among the remaining 2 positions
-                // We have 2 wrong answers for 2 remaining slots
-                if (i < correctPosition)
-                {
-                    optionTexts[i].text = wrong1;
-                }
-                else
-                {
-                    optionTexts[i].text = wrong2;
-                }
-            }
+            if (i != correctPosition)
+                wrongIndices[idx++] = i;
         }
+
+        // Optional: shuffle the wrong answers so the order varies
+        if (Random.value > 0.5f)
+        {
+            string temp = wrongs[0];
+            wrongs[0] = wrongs[1];
+            wrongs[1] = temp;
+        }
+
+        // Assign
+        optionTexts[correctPosition].text = correct;
+        optionTexts[wrongIndices[0]].text = wrongs[0];
+        optionTexts[wrongIndices[1]].text = wrongs[1];
     }
 
     public void SetRandomQuestion()
