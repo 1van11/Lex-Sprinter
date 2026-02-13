@@ -986,15 +986,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 1167089700}
-  OtherThingsCanvas: {fileID: 1457024180}
+  OtherThingsCanvas: {fileID: 0}
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+  playerObject: {fileID: 0}
   revivePanel: {fileID: 0}
   uiToDisable: []
   revivePriceText: {fileID: 0}
-  revivePrice: 250
-  gameOverPanel: {fileID: 0}
 --- !u!1 &161897637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2104,7 +2103,7 @@ MonoBehaviour:
   isDead: 0
   magnetPetPrefab: {fileID: 1420756012}
   petFollowSpeed: 5
-  petOffset: {x: 0, y: 0, z: 4}
+  petOffset: {x: -1, y: 2, z: -1}
   petScale: {x: 0.5, y: 0.5, z: 0.5}
   petRotation: {x: 0, y: 90, z: 0}
   petCoinAttractRadius: 7
@@ -5321,15 +5320,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 0}
-  OtherThingsCanvas: {fileID: 1457024180}
+  OtherThingsCanvas: {fileID: 0}
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
+  playerObject: {fileID: 0}
   revivePanel: {fileID: 973499207}
   uiToDisable: []
   revivePriceText: {fileID: 821492037}
-  revivePrice: 250
-  gameOverPanel: {fileID: 0}
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -5697,11 +5695,10 @@ MonoBehaviour:
   countdownText: {fileID: 1705583298}
   slowMotionTimescale: 0.1
   slowMotionDuration: 3
-  revivePanel: {fileID: 0}
+  playerObject: {fileID: 264086228}
+  revivePanel: {fileID: 973499207}
   uiToDisable: []
-  revivePriceText: {fileID: 0}
-  revivePrice: 250
-  gameOverPanel: {fileID: 0}
+  revivePriceText: {fileID: 1873909192}
 --- !u!114 &1167089705
 MonoBehaviour:
   m_ObjectHideFlags: 0
