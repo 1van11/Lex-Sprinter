@@ -225,50 +225,50 @@ public class PlayerFunctions : MonoBehaviour
     }
 
     void Update()
+{
+    if (isDead) return;
+
+    // Forward movement - moved to PlayerFunctions
+    Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+    transform.position += forwardMove;
+
+    // Track distance using player model position
+    Vector3 currentPosition;
+    if (playerModel != null)
     {
-        if (isDead) return;
+        currentPosition = playerModel.position;
+    }
+    else
+    {
+        currentPosition = transform.position;
+    }
+    
+    distanceTraveled += Vector3.Distance(currentPosition, lastPosition);
+    lastPosition = currentPosition;
 
-        // Forward movement - moved to PlayerFunctions
-        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
-        transform.position += forwardMove;
+    if (distanceText != null)
+        distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
 
-        // Track distance using player model position
-        Vector3 currentPosition;
-        if (playerModel != null)
+    // Speed increase logic
+    UpdateSpeedBasedOnDistance();
+
+    // Magnet effect during magnet buff - PLAYER ATTRACTS COINS
+    if (hasMagnet && Time.timeScale > 0)
+    {
+        GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
+        foreach (GameObject coinObj in allCoins)
         {
-            currentPosition = playerModel.position;
-        }
-        else
-        {
-            currentPosition = transform.position;
-        }
-        
-        distanceTraveled += Vector3.Distance(currentPosition, lastPosition);
-        lastPosition = currentPosition;
-
-        if (distanceText != null)
-            distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
-
-        // Speed increase logic
-        UpdateSpeedBasedOnDistance();
-
-        // Magnet effect during magnet buff
-        if (hasMagnet && Time.timeScale > 0)
-        {
-            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
-            foreach (GameObject coinObj in allCoins)
-            {
-                if (coinObj == null || !coinObj.activeInHierarchy) continue;
-                float distance = Vector3.Distance(transform.position, coinObj.transform.position);
-                if (distance <= magnetRadius)
-                    coinObj.transform.position = Vector3.MoveTowards(
-                        coinObj.transform.position,
-                        transform.position,
-                        magnetPullSpeed * Time.deltaTime
-                    );
-            }
+            if (coinObj == null || !coinObj.activeInHierarchy) continue;
+            float distance = Vector3.Distance(transform.position, coinObj.transform.position);
+            if (distance <= magnetRadius)
+                coinObj.transform.position = Vector3.MoveTowards(
+                    coinObj.transform.position,
+                    transform.position,
+                    magnetPullSpeed * Time.deltaTime
+                );
         }
     }
+}
 
     /// <summary>
     /// Updates speed based on distance traveled
@@ -512,13 +512,13 @@ void OnTriggerEnter(Collider other)
     }
 
     // =========================
-    // MAGNET PICKUP - SUMMONS PET THAT ATTRACTS COINS
+    // MAGNET PICKUP - SUMMONS PET THAT FOLLOWS PLAYER
     // =========================
     if (other.CompareTag("Magnet"))
     {
         StartCoroutine(MagnetBuff());
         Destroy(other.gameObject);
-        Debug.Log("🧲 Magnet activated! Pet summoned to attract coins!");
+        Debug.Log("🧲 Magnet activated! Pet summoned to follow player!");
     }
 
     // =========================
@@ -532,7 +532,6 @@ void OnTriggerEnter(Collider other)
     }
 }
 #endregion
-
 
 void UpdateWordCountUI()
 {
@@ -941,15 +940,13 @@ IEnumerator ShieldBuff()
     }
 }
 
-// Magnet Pet System - NOW ATTRACTS COINS TO PET
+// Magnet Pet System - PET FOLLOWS PLAYER, PLAYER ATTRACTS COINS
 [Header("Magnet Pet Settings")]
 public GameObject magnetPetPrefab; // Assign a pet prefab in Inspector
 public float petFollowSpeed = 5f;
 public Vector3 petOffset = new Vector3(0, 0, -2f); // Position relative to player
 public Vector3 petScale = Vector3.one; // Editable size (1,1,1 = normal)
 public Vector3 petRotation = Vector3.zero; // Editable rotation in degrees
-public float petCoinAttractRadius = 7f; // Radius for pet to attract coins
-public float petCoinPullSpeed = 10f; // Speed coins are pulled to pet
 private GameObject activePet;
 
 IEnumerator MagnetBuff()
@@ -974,7 +971,7 @@ IEnumerator MagnetBuff()
     if (magnetVisual != null)
         magnetVisual.SetActive(true);
         
-    Debug.Log($"🧲 Magnet Pet active for {magnetDuration} seconds - Attracting coins to pet!");
+    Debug.Log($"🧲 Magnet active for {magnetDuration} seconds - Player attracts coins! Pet follows!");
 
     float timer = magnetDuration;
     while (timer > 0 && hasMagnet)
@@ -992,29 +989,8 @@ IEnumerator MagnetBuff()
                 petFollowSpeed * Time.deltaTime
             );
             
-            // Keep rotation consistent (don't override custom rotation)
-            // activePet.transform.rotation = Quaternion.Euler(petRotation);
-        }
-        
-        // ATTRACT COINS TO PET (not player)
-        if (activePet != null)
-        {
-            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
-            foreach (GameObject coinObj in allCoins)
-            {
-                if (coinObj == null || !coinObj.activeInHierarchy) continue;
-                
-                float distance = Vector3.Distance(activePet.transform.position, coinObj.transform.position);
-                if (distance <= petCoinAttractRadius)
-                {
-                    // Pull coin towards the PET
-                    coinObj.transform.position = Vector3.MoveTowards(
-                        coinObj.transform.position,
-                        activePet.transform.position,
-                        petCoinPullSpeed * Time.deltaTime
-                    );
-                }
-            }
+            // Keep rotation consistent
+            activePet.transform.rotation = Quaternion.Euler(petRotation);
         }
         
         timer -= Time.deltaTime;
@@ -1049,7 +1025,6 @@ IEnumerator SlowTimeBuff()
     Debug.Log("⏰ Slow Time expired");
 }
 #endregion
-   
    
    
     private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
