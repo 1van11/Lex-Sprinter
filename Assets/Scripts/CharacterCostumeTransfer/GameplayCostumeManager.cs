@@ -15,9 +15,6 @@ public class GameplayCostumeManager : MonoBehaviour
     public bool replaceOnStart = true;
     public bool useSavedIndex = true;
 
-    [Header("Saved Index (Editable)")]
-    public int savedCostumeIndex = 0;
-
     [Header("Model Options")]
     public ModelOption[] models;
 
@@ -33,9 +30,10 @@ public class GameplayCostumeManager : MonoBehaviour
         if (!replaceOnStart || models.Length == 0)
             return;
 
+        // CHANGED: Read from "EquippedCostume" instead of "SelectedCostume"
         currentIndex = useSavedIndex
-            ? PlayerPrefs.GetInt("SelectedCostume", savedCostumeIndex)
-            : savedCostumeIndex;
+            ? PlayerPrefs.GetInt("EquippedCostume", 0)
+            : 0;
 
         currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
 
@@ -50,11 +48,6 @@ public class GameplayCostumeManager : MonoBehaviour
 
         currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
         ReplaceModel(models[currentIndex].modelPrefab);
-
-        // Keep Inspector + PlayerPrefs in sync
-        savedCostumeIndex = currentIndex;
-        PlayerPrefs.SetInt("SelectedCostume", currentIndex);
-
         lastIndex = currentIndex;
     }
 
@@ -63,13 +56,18 @@ public class GameplayCostumeManager : MonoBehaviour
         if (prefab == null || modelParent == null)
             return;
 
+        // Remove existing model
         foreach (Transform child in modelParent)
+        {
             Destroy(child.gameObject);
+        }
 
+        // Spawn new model
         currentModel = Instantiate(prefab, modelParent);
         currentModel.transform.localPosition = Vector3.zero;
         currentModel.transform.localRotation = Quaternion.identity;
 
+        // Sync animator if present
         Animator newAnimator = currentModel.GetComponent<Animator>();
         Animator parentAnimator = modelParent.GetComponent<Animator>();
 
