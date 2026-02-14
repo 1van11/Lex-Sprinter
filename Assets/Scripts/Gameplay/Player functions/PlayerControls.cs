@@ -46,7 +46,7 @@ public class PlayerControls : MonoBehaviour
     private bool gestureLocked = false;          // Locks whether this is horizontal or vertical swipe
     private bool isHorizontalSwipe = false;      // Which direction is locked
     private float lastSwipeTime;
-    private float swipeCooldown = 0.1f;
+    private float swipeCooldown = 0;
 
     void Awake()
     {
