@@ -5939,7 +5939,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &367668996
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6019,7 +6019,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -7504,6 +7504,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1530713992}
+        m_TargetAssemblyTypeName: CharacterCostumeManager, Assembly-CSharp
+        m_MethodName: SetCostume
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &456855413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7981,7 +7993,7 @@ RectTransform:
   m_Father: {fileID: 1048592826}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.09492022}
+  m_AnchorMin: {x: 0, y: 0.077798575}
   m_AnchorMax: {x: 1, y: 0.9999998}
   m_AnchoredPosition: {x: 0, y: -116.52051}
   m_SizeDelta: {x: 20, y: 253.0405}
@@ -12572,7 +12584,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1330829871}
   m_HandleRect: {fileID: 1330829870}
   m_Direction: 0
-  m_Value: 0.00000023583188
+  m_Value: 0
   m_Size: 0.7917146
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -17717,8 +17729,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 493602981}
   m_HandleRect: {fileID: 493602980}
   m_Direction: 2
-  m_Value: 0.99999934
-  m_Size: 0.9050797
+  m_Value: 0.9999973
+  m_Size: 0.9222012
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18116,7 +18128,7 @@ RectTransform:
   m_Father: {fileID: 443950510}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.000000049120334, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.7917146, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -22451,7 +22463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 0.13725491}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -25951,6 +25963,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1530713992}
+        m_TargetAssemblyTypeName: CharacterCostumeManager, Assembly-CSharp
+        m_MethodName: SetCostume
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1861798135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29223,6 +29247,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 21300000, guid: b9842feab81573c48b0e2008c8199f20, type: 3}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1530713992}
+        m_TargetAssemblyTypeName: CharacterCostumeManager, Assembly-CSharp
+        m_MethodName: SetCostume
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
