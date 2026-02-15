@@ -919,11 +919,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: 8a9d6bd7-2541-46a1-aaa7-48138417123f
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: Lex-Sprinter
+  organizationId: ivan541
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
