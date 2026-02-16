@@ -5294,6 +5294,39 @@ struct TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F  : public Runtim
 		Il2CppCodeGenWriteBarrier((void**)m_Items + index, (void*)value);
 	}
 };
+// System.Int32[]
+struct Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C  : public RuntimeArray
+{
+	ALIGN_FIELD (8) int32_t m_Items[1];
+
+	inline int32_t GetAt(il2cpp_array_size_t index) const
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items[index];
+	}
+	inline int32_t* GetAddressAt(il2cpp_array_size_t index)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items + index;
+	}
+	inline void SetAt(il2cpp_array_size_t index, int32_t value)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		m_Items[index] = value;
+	}
+	inline int32_t GetAtUnchecked(il2cpp_array_size_t index) const
+	{
+		return m_Items[index];
+	}
+	inline int32_t* GetAddressAtUnchecked(il2cpp_array_size_t index)
+	{
+		return m_Items + index;
+	}
+	inline void SetAtUnchecked(il2cpp_array_size_t index, int32_t value)
+	{
+		m_Items[index] = value;
+	}
+};
 // UnityEngine.AudioClip[]
 struct AudioClipU5BU5D_t916722468F7EDCFA833318C35CD7D41097D75D31  : public RuntimeArray
 {
@@ -5496,39 +5529,6 @@ struct SingleU5BU5D_t89DEFE97BCEDB5857010E79ECE0F52CF6E93B87C  : public RuntimeA
 		return m_Items + index;
 	}
 	inline void SetAtUnchecked(il2cpp_array_size_t index, float value)
-	{
-		m_Items[index] = value;
-	}
-};
-// System.Int32[]
-struct Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C  : public RuntimeArray
-{
-	ALIGN_FIELD (8) int32_t m_Items[1];
-
-	inline int32_t GetAt(il2cpp_array_size_t index) const
-	{
-		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
-		return m_Items[index];
-	}
-	inline int32_t* GetAddressAt(il2cpp_array_size_t index)
-	{
-		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
-		return m_Items + index;
-	}
-	inline void SetAt(il2cpp_array_size_t index, int32_t value)
-	{
-		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
-		m_Items[index] = value;
-	}
-	inline int32_t GetAtUnchecked(il2cpp_array_size_t index) const
-	{
-		return m_Items[index];
-	}
-	inline int32_t* GetAddressAtUnchecked(il2cpp_array_size_t index)
-	{
-		return m_Items + index;
-	}
-	inline void SetAtUnchecked(il2cpp_array_size_t index, int32_t value)
 	{
 		m_Items[index] = value;
 	}
@@ -11851,11 +11851,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void QuestionRandomizer_AssignOptions_m2FD6CC
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* V_0 = NULL;
-	int32_t V_1 = 0;
+	StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* V_1 = NULL;
+	Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C* V_2 = NULL;
+	int32_t V_3 = 0;
+	int32_t V_4 = 0;
+	String_t* V_5 = NULL;
 	{
 		// TMP_Text[] optionTexts = new TMP_Text[] { jumpText, slideText, option3Text };
 		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_0 = (TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F*)(TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F*)SZArrayNew(TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F_il2cpp_TypeInfo_var, (uint32_t)3);
@@ -11875,87 +11881,140 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void QuestionRandomizer_AssignOptions_m2FD6CC
 		ArrayElementTypeCheck (L_5, L_6);
 		(L_5)->SetAt(static_cast<il2cpp_array_size_t>(2), (TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9*)L_6);
 		V_0 = L_5;
+		// string[] wrongs = new string[] { wrong1, wrong2 };
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_7 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)2);
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_8 = L_7;
+		String_t* L_9 = ___1_wrong1;
+		NullCheck(L_8);
+		ArrayElementTypeCheck (L_8, L_9);
+		(L_8)->SetAt(static_cast<il2cpp_array_size_t>(0), (String_t*)L_9);
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_10 = L_8;
+		String_t* L_11 = ___2_wrong2;
+		NullCheck(L_10);
+		ArrayElementTypeCheck (L_10, L_11);
+		(L_10)->SetAt(static_cast<il2cpp_array_size_t>(1), (String_t*)L_11);
+		V_1 = L_10;
+		// int[] wrongIndices = new int[2];
+		Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C* L_12 = (Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C*)(Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C*)SZArrayNew(Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C_il2cpp_TypeInfo_var, (uint32_t)2);
+		V_2 = L_12;
+		// int idx = 0;
+		V_3 = 0;
 		// for (int i = 0; i < 3; i++)
-		V_1 = 0;
-		goto IL_0053;
+		V_4 = 0;
+		goto IL_0054;
 	}
 
-IL_0026:
+IL_003f:
 	{
-		// if (i == correctPosition)
-		int32_t L_7 = V_1;
-		int32_t L_8 = ___3_correctPosition;
-		if ((!(((uint32_t)L_7) == ((uint32_t)L_8))))
+		// if (i != correctPosition)
+		int32_t L_13 = V_4;
+		int32_t L_14 = ___3_correctPosition;
+		if ((((int32_t)L_13) == ((int32_t)L_14)))
 		{
-			goto IL_0036;
+			goto IL_004e;
 		}
 	}
 	{
-		// optionTexts[i].text = correct;
-		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_9 = V_0;
-		int32_t L_10 = V_1;
-		NullCheck(L_9);
-		int32_t L_11 = L_10;
-		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_12 = (L_9)->GetAt(static_cast<il2cpp_array_size_t>(L_11));
-		String_t* L_13 = ___0_correct;
-		NullCheck(L_12);
-		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_12, L_13);
-		goto IL_004f;
+		// wrongIndices[idx++] = i;
+		Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C* L_15 = V_2;
+		int32_t L_16 = V_3;
+		int32_t L_17 = L_16;
+		V_3 = ((int32_t)il2cpp_codegen_add(L_17, 1));
+		int32_t L_18 = V_4;
+		NullCheck(L_15);
+		(L_15)->SetAt(static_cast<il2cpp_array_size_t>(L_17), (int32_t)L_18);
 	}
 
-IL_0036:
+IL_004e:
 	{
-		// if (i < correctPosition)
-		int32_t L_14 = V_1;
-		int32_t L_15 = ___3_correctPosition;
-		if ((((int32_t)L_14) >= ((int32_t)L_15)))
+		// for (int i = 0; i < 3; i++)
+		int32_t L_19 = V_4;
+		V_4 = ((int32_t)il2cpp_codegen_add(L_19, 1));
+	}
+
+IL_0054:
+	{
+		// for (int i = 0; i < 3; i++)
+		int32_t L_20 = V_4;
+		if ((((int32_t)L_20) < ((int32_t)3)))
 		{
-			goto IL_0046;
+			goto IL_003f;
 		}
 	}
 	{
-		// optionTexts[i].text = wrong1;
-		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_16 = V_0;
-		int32_t L_17 = V_1;
-		NullCheck(L_16);
-		int32_t L_18 = L_17;
-		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_19 = (L_16)->GetAt(static_cast<il2cpp_array_size_t>(L_18));
-		String_t* L_20 = ___1_wrong1;
-		NullCheck(L_19);
-		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_19, L_20);
-		goto IL_004f;
-	}
-
-IL_0046:
-	{
-		// optionTexts[i].text = wrong2;
-		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_21 = V_0;
-		int32_t L_22 = V_1;
-		NullCheck(L_21);
-		int32_t L_23 = L_22;
-		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_24 = (L_21)->GetAt(static_cast<il2cpp_array_size_t>(L_23));
-		String_t* L_25 = ___2_wrong2;
-		NullCheck(L_24);
-		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_24, L_25);
-	}
-
-IL_004f:
-	{
-		// for (int i = 0; i < 3; i++)
-		int32_t L_26 = V_1;
-		V_1 = ((int32_t)il2cpp_codegen_add(L_26, 1));
-	}
-
-IL_0053:
-	{
-		// for (int i = 0; i < 3; i++)
-		int32_t L_27 = V_1;
-		if ((((int32_t)L_27) < ((int32_t)3)))
+		// if (Random.value > 0.5f)
+		float L_21;
+		L_21 = Random_get_value_m2CEA87FADF5222EF9E13D32695F15E2BA282E24B(NULL);
+		if ((!(((float)L_21) > ((float)(0.5f)))))
 		{
-			goto IL_0026;
+			goto IL_0075;
 		}
 	}
 	{
+		// string temp = wrongs[0];
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_22 = V_1;
+		NullCheck(L_22);
+		int32_t L_23 = 0;
+		String_t* L_24 = (L_22)->GetAt(static_cast<il2cpp_array_size_t>(L_23));
+		V_5 = L_24;
+		// wrongs[0] = wrongs[1];
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_25 = V_1;
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_26 = V_1;
+		NullCheck(L_26);
+		int32_t L_27 = 1;
+		String_t* L_28 = (L_26)->GetAt(static_cast<il2cpp_array_size_t>(L_27));
+		NullCheck(L_25);
+		ArrayElementTypeCheck (L_25, L_28);
+		(L_25)->SetAt(static_cast<il2cpp_array_size_t>(0), (String_t*)L_28);
+		// wrongs[1] = temp;
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_29 = V_1;
+		String_t* L_30 = V_5;
+		NullCheck(L_29);
+		ArrayElementTypeCheck (L_29, L_30);
+		(L_29)->SetAt(static_cast<il2cpp_array_size_t>(1), (String_t*)L_30);
+	}
+
+IL_0075:
+	{
+		// optionTexts[correctPosition].text = correct;
+		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_31 = V_0;
+		int32_t L_32 = ___3_correctPosition;
+		NullCheck(L_31);
+		int32_t L_33 = L_32;
+		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_34 = (L_31)->GetAt(static_cast<il2cpp_array_size_t>(L_33));
+		String_t* L_35 = ___0_correct;
+		NullCheck(L_34);
+		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_34, L_35);
+		// optionTexts[wrongIndices[0]].text = wrongs[0];
+		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_36 = V_0;
+		Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C* L_37 = V_2;
+		NullCheck(L_37);
+		int32_t L_38 = 0;
+		int32_t L_39 = (L_37)->GetAt(static_cast<il2cpp_array_size_t>(L_38));
+		NullCheck(L_36);
+		int32_t L_40 = L_39;
+		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_41 = (L_36)->GetAt(static_cast<il2cpp_array_size_t>(L_40));
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_42 = V_1;
+		NullCheck(L_42);
+		int32_t L_43 = 0;
+		String_t* L_44 = (L_42)->GetAt(static_cast<il2cpp_array_size_t>(L_43));
+		NullCheck(L_41);
+		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_41, L_44);
+		// optionTexts[wrongIndices[1]].text = wrongs[1];
+		TMP_TextU5BU5D_t12384CBAF397196B9A7886087BDC8C19D800C24F* L_45 = V_0;
+		Int32U5BU5D_t19C97395396A72ECAF310612F0760F165060314C* L_46 = V_2;
+		NullCheck(L_46);
+		int32_t L_47 = 1;
+		int32_t L_48 = (L_46)->GetAt(static_cast<il2cpp_array_size_t>(L_47));
+		NullCheck(L_45);
+		int32_t L_49 = L_48;
+		TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* L_50 = (L_45)->GetAt(static_cast<il2cpp_array_size_t>(L_49));
+		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_51 = V_1;
+		NullCheck(L_51);
+		int32_t L_52 = 1;
+		String_t* L_53 = (L_51)->GetAt(static_cast<il2cpp_array_size_t>(L_52));
+		NullCheck(L_50);
+		VirtualActionInvoker1< String_t* >::Invoke(66 /* System.Void TMPro.TMP_Text::set_text(System.String) */, L_50, L_53);
 		// }
 		return;
 	}

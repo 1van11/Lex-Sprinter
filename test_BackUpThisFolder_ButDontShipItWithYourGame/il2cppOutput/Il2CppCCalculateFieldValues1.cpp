@@ -380,8 +380,6 @@ struct ArrayList_t7A8E5AF0C4378015B5731ABE2BED8F2782FEEF8A;
 struct AsnEncodedData_t9341C847F05FA5D9D579173CBB19B4448445C8A8;
 // System.AsyncCallback
 struct AsyncCallback_t7FEF460CBDCFB9C5FA2EF776984778B9A4145F4C;
-// UnityEngine.AsyncOperation
-struct AsyncOperation_tD2789250E4B098DEDA92B366A577E500A92D2D3C;
 // UnityEngine.AudioClip
 struct AudioClip_t5D272C4EB4F2D3ED49F1C346DEA373CF6D585F20;
 // UnityEngine.Audio.AudioMixer
@@ -564,8 +562,8 @@ struct ShopItemBuyer_tC5F5D905557535A8D4081745588E246095A3AD80;
 struct SkinnedMeshRenderer_t020C4E8648EA1C4C6BA5C41502919B387E7E1C2E;
 // UnityEngine.UI.Slider
 struct Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F;
-// SplashScreenZoom
-struct SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7;
+// SplashScreen
+struct SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4;
 // UnityEngine.Sprite
 struct Sprite_tAFF74BC83CD68037494CB0B4F28CBDF8971CAB99;
 // UnityEngine.TextCore.Text.SpriteAsset
@@ -1738,16 +1736,16 @@ struct U3CU3Ec_t90F8CB10B454B45A81BE65AA841DD85FE08EA21A  : public RuntimeObject
 {
 };
 
-// PauseMenu/<ResumeWithSlowMotion>d__22
-struct U3CResumeWithSlowMotionU3Ed__22_tF1CEBD691137BDA7A242B2392AC33494883B241F  : public RuntimeObject
+// PauseMenu/<ResumeWithSlowMotion>d__23
+struct U3CResumeWithSlowMotionU3Ed__23_t143892DA979104C0B20DEC71B25370BE0F059E62  : public RuntimeObject
 {
-	// System.Int32 PauseMenu/<ResumeWithSlowMotion>d__22::<>1__state
+	// System.Int32 PauseMenu/<ResumeWithSlowMotion>d__23::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object PauseMenu/<ResumeWithSlowMotion>d__22::<>2__current
+	// System.Object PauseMenu/<ResumeWithSlowMotion>d__23::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// PauseMenu PauseMenu/<ResumeWithSlowMotion>d__22::<>4__this
+	// PauseMenu PauseMenu/<ResumeWithSlowMotion>d__23::<>4__this
 	PauseMenu_t36539DEACE8377BD498A235C80769301799E1985* ___U3CU3E4__this_2;
-	// System.Single PauseMenu/<ResumeWithSlowMotion>d__22::<timer>5__2
+	// System.Single PauseMenu/<ResumeWithSlowMotion>d__23::<timer>5__2
 	float ___U3CtimerU3E5__2_3;
 };
 
@@ -1893,23 +1891,17 @@ struct U3CAutoClosePopupsU3Ed__24_t8CCF35AFCD31CD77604C2FC48E678EBCEC38D75E  : p
 	ShopItemBuyer_tC5F5D905557535A8D4081745588E246095A3AD80* ___U3CU3E4__this_2;
 };
 
-// SplashScreenZoom/<LoadSceneAsync>d__10
-struct U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A  : public RuntimeObject
+// SplashScreen/<PlayAnimation>d__10
+struct U3CPlayAnimationU3Ed__10_t1F03F7D2F629D26A07E2DB6AD8A1B4BE1282A341  : public RuntimeObject
 {
-	// System.Int32 SplashScreenZoom/<LoadSceneAsync>d__10::<>1__state
+	// System.Int32 SplashScreen/<PlayAnimation>d__10::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object SplashScreenZoom/<LoadSceneAsync>d__10::<>2__current
+	// System.Object SplashScreen/<PlayAnimation>d__10::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// System.String SplashScreenZoom/<LoadSceneAsync>d__10::sceneName
-	String_t* ___sceneName_2;
-	// SplashScreenZoom SplashScreenZoom/<LoadSceneAsync>d__10::<>4__this
-	SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7* ___U3CU3E4__this_3;
-	// UnityEngine.AsyncOperation SplashScreenZoom/<LoadSceneAsync>d__10::<operation>5__2
-	AsyncOperation_tD2789250E4B098DEDA92B366A577E500A92D2D3C* ___U3CoperationU3E5__2_4;
-	// System.Single SplashScreenZoom/<LoadSceneAsync>d__10::<displayProgress>5__3
-	float ___U3CdisplayProgressU3E5__3_5;
-	// System.Single SplashScreenZoom/<LoadSceneAsync>d__10::<elapsedTime>5__4
-	float ___U3CelapsedTimeU3E5__4_6;
+	// SplashScreen SplashScreen/<PlayAnimation>d__10::<>4__this
+	SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4* ___U3CU3E4__this_2;
+	// System.Single SplashScreen/<PlayAnimation>d__10::<time>5__2
+	float ___U3CtimeU3E5__2_3;
 };
 
 // UnityEngine.TextCore.Text.SpriteAsset/<>c
@@ -1991,14 +1983,14 @@ struct MoreInfo_tB58ABF2D5D75E92D35BBC37192CD0D5C02C3F0FA  : public RuntimeObjec
 	String_t* ___RemoteUrl_4;
 };
 
-// Validation/<ClearInvalidInput>d__18
-struct U3CClearInvalidInputU3Ed__18_t4170AD1107175ADC4B76EA4C37899C3C831C59B4  : public RuntimeObject
+// Validation/<ClearInvalidInput>d__19
+struct U3CClearInvalidInputU3Ed__19_t4B66C8293695BB3DD51DAE5B3EB2E760B4C8D008  : public RuntimeObject
 {
-	// System.Int32 Validation/<ClearInvalidInput>d__18::<>1__state
+	// System.Int32 Validation/<ClearInvalidInput>d__19::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object Validation/<ClearInvalidInput>d__18::<>2__current
+	// System.Object Validation/<ClearInvalidInput>d__19::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// Validation Validation/<ClearInvalidInput>d__18::<>4__this
+	// Validation Validation/<ClearInvalidInput>d__19::<>4__this
 	Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4* ___U3CU3E4__this_2;
 };
 
@@ -5294,22 +5286,22 @@ struct Particle_tF16C89682A98AB276CCBE4DA0A6E82F98500F79D
 	uint32_t ___m_Flags_16;
 };
 
-// PauseMenu/<ScaleCountdownNumber>d__31
-struct U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2  : public RuntimeObject
+// PauseMenu/<ScaleCountdownNumber>d__32
+struct U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01  : public RuntimeObject
 {
-	// System.Int32 PauseMenu/<ScaleCountdownNumber>d__31::<>1__state
+	// System.Int32 PauseMenu/<ScaleCountdownNumber>d__32::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object PauseMenu/<ScaleCountdownNumber>d__31::<>2__current
+	// System.Object PauseMenu/<ScaleCountdownNumber>d__32::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// System.Single PauseMenu/<ScaleCountdownNumber>d__31::targetScale
+	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::targetScale
 	float ___targetScale_2;
-	// UnityEngine.Transform PauseMenu/<ScaleCountdownNumber>d__31::target
+	// UnityEngine.Transform PauseMenu/<ScaleCountdownNumber>d__32::target
 	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___target_3;
-	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__31::<originalScale>5__2
+	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<originalScale>5__2
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___U3CoriginalScaleU3E5__2_4;
-	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__31::<goalScale>5__3
+	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<goalScale>5__3
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___U3CgoalScaleU3E5__3_5;
-	// System.Single PauseMenu/<ScaleCountdownNumber>d__31::<t>5__4
+	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::<t>5__4
 	float ___U3CtU3E5__4_6;
 };
 
@@ -8205,6 +8197,8 @@ struct CharacterCostumeManager_tF5109FCE06552693629F80A178E9896AF608928B  : publ
 {
 	// UnityEngine.GameObject[] CharacterCostumeManager::costumeModels
 	GameObjectU5BU5D_tFF67550DFCE87096D7A3734EA15B75896B2722CF* ___costumeModels_4;
+	// System.Int32 CharacterCostumeManager::lastCostumeIndex
+	int32_t ___lastCostumeIndex_5;
 };
 
 // CharacterPreviewRotator
@@ -8761,6 +8755,8 @@ struct MainMenuOnclicks_tD3A5131C8732342A3D7F255724917B0C54578E0F  : public Mono
 {
 	// PowerManager MainMenuOnclicks::powerManager
 	PowerManager_t3407FF39157718EDE81CFBF3EBCFE6556C996CC1* ___powerManager_4;
+	// System.String MainMenuOnclicks::SceneMode
+	String_t* ___SceneMode_5;
 };
 
 // MedalUnlockManager
@@ -9147,15 +9143,17 @@ struct PauseMenu_t36539DEACE8377BD498A235C80769301799E1985  : public MonoBehavio
 	ParticleSystemU5BU5D_tC5E33DA557C9C2064085128B3530C5F04D48F6E6* ___allParticleSystems_19;
 	// UnityEngine.AudioSource[] PauseMenu::allAudioSources
 	AudioSourceU5BU5D_tBBF6E920E0DC80D53D4BB2A8D4C80D244EF170B2* ___allAudioSources_20;
+	// UnityEngine.CanvasGroup PauseMenu::pauseCanvasGroup
+	CanvasGroup_t048C1461B14628CFAEBE6E7353093ADB04EBC094* ___pauseCanvasGroup_21;
 };
 
 // PlayerControls
 struct PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
 {
-	// System.Single PlayerControls::laneDistance
-	float ___laneDistance_4;
-	// System.Single PlayerControls::horizontalMoveSpeed
-	float ___horizontalMoveSpeed_5;
+	// System.Single PlayerControls::moveSpeed
+	float ___moveSpeed_4;
+	// System.Single PlayerControls::maxLaneDistance
+	float ___maxLaneDistance_5;
 	// System.Single PlayerControls::forwardSpeed
 	float ___forwardSpeed_6;
 	// System.Single PlayerControls::jumpForce
@@ -9172,40 +9170,50 @@ struct PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77  : public MonoBe
 	float ___fastDescentGravityMultiplier_12;
 	// System.Single PlayerControls::minSwipeDistance
 	float ___minSwipeDistance_13;
-	// System.Single PlayerControls::swipeCooldown
-	float ___swipeCooldown_14;
+	// System.Single PlayerControls::swipeSensitivity
+	float ___swipeSensitivity_14;
+	// System.Single PlayerControls::maxSwipeSpeed
+	float ___maxSwipeSpeed_15;
+	// System.Single PlayerControls::returnToCenterSpeed
+	float ___returnToCenterSpeed_16;
+	// System.Single PlayerControls::swipeDirectionThreshold
+	float ___swipeDirectionThreshold_17;
 	// System.Single PlayerControls::tiltAngle
-	float ___tiltAngle_15;
+	float ___tiltAngle_18;
 	// System.Single PlayerControls::tiltSpeed
-	float ___tiltSpeed_16;
-	// System.Boolean PlayerControls::useTouchControls
-	bool ___useTouchControls_17;
-	// System.Single PlayerControls::mobileSensitivity
-	float ___mobileSensitivity_18;
+	float ___tiltSpeed_19;
 	// UnityEngine.Rigidbody PlayerControls::rb
-	Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___rb_19;
+	Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___rb_20;
 	// UnityEngine.CapsuleCollider PlayerControls::col
-	CapsuleCollider_t3A1671C74F0836ABEF5D01A7470B5B2BE290A808* ___col_20;
+	CapsuleCollider_t3A1671C74F0836ABEF5D01A7470B5B2BE290A808* ___col_21;
 	// UnityEngine.Animator PlayerControls::anim
-	Animator_t8A52E42AE54F76681838FE9E632683EF3952E883* ___anim_21;
+	Animator_t8A52E42AE54F76681838FE9E632683EF3952E883* ___anim_22;
 	// System.Single PlayerControls::horizontalInput
-	float ___horizontalInput_22;
+	float ___horizontalInput_23;
 	// System.Single PlayerControls::targetTilt
-	float ___targetTilt_23;
+	float ___targetTilt_24;
 	// System.Boolean PlayerControls::isGrounded
-	bool ___isGrounded_24;
+	bool ___isGrounded_25;
 	// System.Boolean PlayerControls::isFastDescending
-	bool ___isFastDescending_25;
-	// System.Single PlayerControls::lastSwipeTime
-	float ___lastSwipeTime_26;
+	bool ___isFastDescending_26;
 	// System.Boolean PlayerControls::isMovementStopped
 	bool ___isMovementStopped_27;
-	// UnityEngine.Vector2 PlayerControls::touchStart
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___touchStart_28;
-	// System.Single PlayerControls::touchTime
-	float ___touchTime_29;
-	// System.Boolean PlayerControls::isDragging
-	bool ___isDragging_30;
+	// System.Int32 PlayerControls::activeTouchId
+	int32_t ___activeTouchId_28;
+	// UnityEngine.Vector2 PlayerControls::touchStartPos
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___touchStartPos_29;
+	// UnityEngine.Vector2 PlayerControls::lastTouchPos
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___lastTouchPos_30;
+	// System.Boolean PlayerControls::isSwiping
+	bool ___isSwiping_31;
+	// System.Boolean PlayerControls::gestureLocked
+	bool ___gestureLocked_32;
+	// System.Boolean PlayerControls::isHorizontalSwipe
+	bool ___isHorizontalSwipe_33;
+	// System.Single PlayerControls::lastSwipeTime
+	float ___lastSwipeTime_34;
+	// System.Single PlayerControls::swipeCooldown
+	float ___swipeCooldown_35;
 };
 
 // PlayerFunctions
@@ -9522,25 +9530,27 @@ struct SliderController_t28803A87CAE890CD0001E507808B72CFF8A26D02  : public Mono
 	Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___valueText_4;
 };
 
-// SplashScreenZoom
-struct SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
+// SplashScreen
+struct SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
 {
-	// UnityEngine.GameObject SplashScreenZoom::loadingScreenParent
-	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___loadingScreenParent_4;
-	// UnityEngine.UI.Slider SplashScreenZoom::loadingSlider
-	Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F* ___loadingSlider_5;
-	// UnityEngine.UI.Text SplashScreenZoom::progressText
-	Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___progressText_6;
-	// System.String SplashScreenZoom::setupSceneName
-	String_t* ___setupSceneName_7;
-	// System.String SplashScreenZoom::homeSceneName
-	String_t* ___homeSceneName_8;
-	// System.Single SplashScreenZoom::fakeLoadSpeed
-	float ___fakeLoadSpeed_9;
-	// System.Single SplashScreenZoom::smoothSpeed
-	float ___smoothSpeed_10;
-	// System.Single SplashScreenZoom::minLoadingTime
-	float ___minLoadingTime_11;
+	// UnityEngine.RectTransform SplashScreen::monster
+	RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___monster_4;
+	// UnityEngine.UI.Image SplashScreen::letterImage
+	Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___letterImage_5;
+	// System.Single SplashScreen::moveDistance
+	float ___moveDistance_6;
+	// System.Single SplashScreen::animationDuration
+	float ___animationDuration_7;
+	// System.Single SplashScreen::eatSpeed
+	float ___eatSpeed_8;
+	// System.Single SplashScreen::eatAmount
+	float ___eatAmount_9;
+	// System.String SplashScreen::nextSceneName
+	String_t* ___nextSceneName_10;
+	// UnityEngine.Vector2 SplashScreen::startPos
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___startPos_11;
+	// UnityEngine.Vector2 SplashScreen::endPos
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___endPos_12;
 };
 
 // SpriteButton
@@ -9689,6 +9699,8 @@ struct Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4  : public MonoBehavi
 	bool ___hasNameInput_11;
 	// System.Boolean Validation::hasSelectedLight
 	bool ___hasSelectedLight_12;
+	// System.String[] Validation::bannedWords
+	StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___bannedWords_16;
 };
 
 // VibratorManager
@@ -10944,9 +10956,9 @@ struct U3CU3Ec_t90F8CB10B454B45A81BE65AA841DD85FE08EA21A_StaticFields
 
 // Internal.Cryptography.OidLookup/<>c
 
-// PauseMenu/<ResumeWithSlowMotion>d__22
+// PauseMenu/<ResumeWithSlowMotion>d__23
 
-// PauseMenu/<ResumeWithSlowMotion>d__22
+// PauseMenu/<ResumeWithSlowMotion>d__23
 
 // UnityEngine.EventSystems.PhysicsRaycaster/RaycastHitComparer
 struct RaycastHitComparer_t8EF6567C19BE9FB575E01A10941FBF7DE3D3DDF1_StaticFields
@@ -11006,9 +11018,9 @@ struct SingleRangeComparer_t2D299E0E54D7F24BAF67EA65E92B6FCDB806F9D0_StaticField
 
 // ShopItemBuyer/<AutoClosePopups>d__24
 
-// SplashScreenZoom/<LoadSceneAsync>d__10
+// SplashScreen/<PlayAnimation>d__10
 
-// SplashScreenZoom/<LoadSceneAsync>d__10
+// SplashScreen/<PlayAnimation>d__10
 
 // UnityEngine.TextCore.Text.SpriteAsset/<>c
 struct U3CU3Ec_t04E77827D54CC7D69F04FDFC5A84C3F7392F9A76_StaticFields
@@ -11047,9 +11059,9 @@ struct U3CU3Ec_t04E77827D54CC7D69F04FDFC5A84C3F7392F9A76_StaticFields
 
 // System.Uri/MoreInfo
 
-// Validation/<ClearInvalidInput>d__18
+// Validation/<ClearInvalidInput>d__19
 
-// Validation/<ClearInvalidInput>d__18
+// Validation/<ClearInvalidInput>d__19
 
 // WordUnlockManager/<>c__DisplayClass15_0
 
@@ -11817,9 +11829,9 @@ struct YogaConfig_tE8B56F99460C291C1F7F46DBD8BAC9F0B653A345_StaticFields
 
 // UnityEngine.ParticleSystem/Particle
 
-// PauseMenu/<ScaleCountdownNumber>d__31
+// PauseMenu/<ScaleCountdownNumber>d__32
 
-// PauseMenu/<ScaleCountdownNumber>d__31
+// PauseMenu/<ScaleCountdownNumber>d__32
 
 // SpriteButton/<AnimateTo>d__34
 
@@ -12759,9 +12771,9 @@ struct QuestionRandomizer_t8B83E40A74879342BDB16F8D92E0B0193F2B9C01_StaticFields
 
 // SliderController
 
-// SplashScreenZoom
+// SplashScreen
 
-// SplashScreenZoom
+// SplashScreen
 
 // SpriteButton
 struct SpriteButton_t220C313C72DFEBBD36B3365A6E72F2F6EF7BF84B_StaticFields
@@ -13077,9 +13089,9 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3083[16] =
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3084[5] = 
 {
 	static_cast<int32_t>(offsetof(MediumLetterRandomizer_tFC7A77DCE93F5C22C9FE5F0EB09AE1D5D75DE5C1, ___displayText_4)),static_cast<int32_t>(offsetof(MediumLetterRandomizer_tFC7A77DCE93F5C22C9FE5F0EB09AE1D5D75DE5C1, ___collectedText_5)),static_cast<int32_t>(offsetof(MediumLetterRandomizer_tFC7A77DCE93F5C22C9FE5F0EB09AE1D5D75DE5C1, ___targetWordText_6)),static_cast<int32_t>(offsetof(MediumLetterRandomizer_tFC7A77DCE93F5C22C9FE5F0EB09AE1D5D75DE5C1, ___correctLetterChance_7)),static_cast<int32_t>(offsetof(MediumLetterRandomizer_tFC7A77DCE93F5C22C9FE5F0EB09AE1D5D75DE5C1, ___letter_8)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3085[27] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3085[32] = 
 {
-	static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___laneDistance_4)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___horizontalMoveSpeed_5)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___forwardSpeed_6)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___jumpForce_7)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___gravity_8)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___groundCheckDistance_9)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___enableJump_10)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___fastDescentForce_11)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___fastDescentGravityMultiplier_12)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___minSwipeDistance_13)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___swipeCooldown_14)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___tiltAngle_15)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___tiltSpeed_16)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___useTouchControls_17)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___mobileSensitivity_18)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___rb_19)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___col_20)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___anim_21)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___horizontalInput_22)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___targetTilt_23)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isGrounded_24)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isFastDescending_25)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___lastSwipeTime_26)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isMovementStopped_27)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___touchStart_28)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___touchTime_29)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isDragging_30)),};
+	static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___moveSpeed_4)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___maxLaneDistance_5)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___forwardSpeed_6)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___jumpForce_7)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___gravity_8)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___groundCheckDistance_9)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___enableJump_10)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___fastDescentForce_11)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___fastDescentGravityMultiplier_12)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___minSwipeDistance_13)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___swipeSensitivity_14)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___maxSwipeSpeed_15)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___returnToCenterSpeed_16)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___swipeDirectionThreshold_17)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___tiltAngle_18)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___tiltSpeed_19)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___rb_20)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___col_21)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___anim_22)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___horizontalInput_23)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___targetTilt_24)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isGrounded_25)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isFastDescending_26)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isMovementStopped_27)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___activeTouchId_28)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___touchStartPos_29)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___lastTouchPos_30)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isSwiping_31)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___gestureLocked_32)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___isHorizontalSwipe_33)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___lastSwipeTime_34)),static_cast<int32_t>(offsetof(PlayerControls_t7EFF800E1E7E86137BD4DBD2F5C5D16BD2CA4D77, ___swipeCooldown_35)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3086[9] = 
 {
 	static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CU3E4__this_2)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___flashInterval_3)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___duration_4)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CtimerU3E5__2_5)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CflashStateU3E5__3_6)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CinitialStatesU3E5__4_7)),static_cast<int32_t>(offsetof(U3CTriggerIFramesU3Ed__80_t94279DE937746484B25391C02346D2609D96BFBE, ___U3CallRenderersU3E5__5_8)),};
@@ -13127,16 +13139,16 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3101[2] =
 	static_cast<int32_t>(offsetof(FollowPlayerUI_t74052F7B1E1711F7F2539418AB9D52FCBA0305ED, ___target3D_4)),static_cast<int32_t>(offsetof(FollowPlayerUI_t74052F7B1E1711F7F2539418AB9D52FCBA0305ED, ___uiElements_5)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3102[4] = 
 {
-	static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__22_tF1CEBD691137BDA7A242B2392AC33494883B241F, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__22_tF1CEBD691137BDA7A242B2392AC33494883B241F, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__22_tF1CEBD691137BDA7A242B2392AC33494883B241F, ___U3CU3E4__this_2)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__22_tF1CEBD691137BDA7A242B2392AC33494883B241F, ___U3CtimerU3E5__2_3)),};
+	static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__23_t143892DA979104C0B20DEC71B25370BE0F059E62, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__23_t143892DA979104C0B20DEC71B25370BE0F059E62, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__23_t143892DA979104C0B20DEC71B25370BE0F059E62, ___U3CU3E4__this_2)),static_cast<int32_t>(offsetof(U3CResumeWithSlowMotionU3Ed__23_t143892DA979104C0B20DEC71B25370BE0F059E62, ___U3CtimerU3E5__2_3)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3103[7] = 
 {
-	static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___targetScale_2)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___target_3)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___U3CoriginalScaleU3E5__2_4)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___U3CgoalScaleU3E5__3_5)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__31_tAED4D4BAE6D0DCB6C53C25E672CEF12CDF7857A2, ___U3CtU3E5__4_6)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3104[17] = 
+	static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___targetScale_2)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___target_3)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___U3CoriginalScaleU3E5__2_4)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___U3CgoalScaleU3E5__3_5)),static_cast<int32_t>(offsetof(U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01, ___U3CtU3E5__4_6)),};
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3104[18] = 
 {
-	static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___pauseMenu_4)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___OtherThingsCanvas_5)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___countdownText_6)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___slowMotionTimescale_7)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___slowMotionDuration_8)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___playerObject_9)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePanel_10)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___uiToDisable_11)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePriceText_12)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePrice_13)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___playerFunctions_14)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___isResuming_15)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___resumeCoroutine_16)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___originalFixedDeltaTime_17)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allAnimators_18)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allParticleSystems_19)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allAudioSources_20)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3105[1] = 
+	static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___pauseMenu_4)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___OtherThingsCanvas_5)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___countdownText_6)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___slowMotionTimescale_7)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___slowMotionDuration_8)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___playerObject_9)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePanel_10)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___uiToDisable_11)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePriceText_12)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___revivePrice_13)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___playerFunctions_14)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___isResuming_15)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___resumeCoroutine_16)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___originalFixedDeltaTime_17)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allAnimators_18)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allParticleSystems_19)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___allAudioSources_20)),static_cast<int32_t>(offsetof(PauseMenu_t36539DEACE8377BD498A235C80769301799E1985, ___pauseCanvasGroup_21)),};
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3105[2] = 
 {
-	static_cast<int32_t>(offsetof(CharacterCostumeManager_tF5109FCE06552693629F80A178E9896AF608928B, ___costumeModels_4)),};
+	static_cast<int32_t>(offsetof(CharacterCostumeManager_tF5109FCE06552693629F80A178E9896AF608928B, ___costumeModels_4)),static_cast<int32_t>(offsetof(CharacterCostumeManager_tF5109FCE06552693629F80A178E9896AF608928B, ___lastCostumeIndex_5)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3106[8] = 
 {
 	static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___autoRotate_4)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___autoRotateSpeed_5)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___enableManualRotation_6)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___manualRotationSpeed_7)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___rotationArea_8)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___isDragging_9)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___lastMouseX_10)),static_cast<int32_t>(offsetof(CharacterPreviewRotator_tC1CBAE88DE2CC7ABC178088272F2E52DEE914D59, ___currentRotation_11)),};
@@ -13191,9 +13203,9 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3122[3] =
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3123[1] = 
 {
 	static_cast<int32_t>(offsetof(LoadingSplash_t0F1E0B7B84F936C627A721576CB7F5A11EDE33B5, ___gameSceneName_4)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3124[1] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3124[2] = 
 {
-	static_cast<int32_t>(offsetof(MainMenuOnclicks_tD3A5131C8732342A3D7F255724917B0C54578E0F, ___powerManager_4)),};
+	static_cast<int32_t>(offsetof(MainMenuOnclicks_tD3A5131C8732342A3D7F255724917B0C54578E0F, ___powerManager_4)),static_cast<int32_t>(offsetof(MainMenuOnclicks_tD3A5131C8732342A3D7F255724917B0C54578E0F, ___SceneMode_5)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3125[1] = 
 {
 	static_cast<int32_t>(offsetof(MediumMode_tD034A3CA024FB893816340C9944F602EC260A3C5, ___powerManager_4)),};
@@ -13215,12 +13227,12 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3130[6] =
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3131[8] = 
 {
 	static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___glowColor_4)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___glowThickness_5)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___pulseSpeed_6)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___enableGlow_7)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___fadeSpeed_8)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___outline_9)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___glowRoutine_10)),static_cast<int32_t>(offsetof(UIImageGlow_t3C3F5D9BF62659DAA3CAAE92AA097B34001BE007, ___fadeRoutine_11)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3132[7] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3132[4] = 
 {
-	static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___sceneName_2)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CU3E4__this_3)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CoperationU3E5__2_4)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CdisplayProgressU3E5__3_5)),static_cast<int32_t>(offsetof(U3CLoadSceneAsyncU3Ed__10_t7A43C7D5598C96A662D417AE7D8C163DFDFE050A, ___U3CelapsedTimeU3E5__4_6)),};
+	static_cast<int32_t>(offsetof(U3CPlayAnimationU3Ed__10_t1F03F7D2F629D26A07E2DB6AD8A1B4BE1282A341, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CPlayAnimationU3Ed__10_t1F03F7D2F629D26A07E2DB6AD8A1B4BE1282A341, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CPlayAnimationU3Ed__10_t1F03F7D2F629D26A07E2DB6AD8A1B4BE1282A341, ___U3CU3E4__this_2)),static_cast<int32_t>(offsetof(U3CPlayAnimationU3Ed__10_t1F03F7D2F629D26A07E2DB6AD8A1B4BE1282A341, ___U3CtimeU3E5__2_3)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3133[9] = 
 {
-	static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___loadingScreenParent_4)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___loadingSlider_5)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___progressText_6)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___setupSceneName_7)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___homeSceneName_8)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___fakeLoadSpeed_9)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___smoothSpeed_10)),static_cast<int32_t>(offsetof(SplashScreenZoom_t67F75581744B7EC210AE7C0297F136DF8984B7B7, ___minLoadingTime_11)),0,};
+	static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___monster_4)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___letterImage_5)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___moveDistance_6)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___animationDuration_7)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___eatSpeed_8)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___eatAmount_9)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___nextSceneName_10)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___startPos_11)),static_cast<int32_t>(offsetof(SplashScreen_tA005FEA658015A9DEAEF5988088206BAC2A3B1F4, ___endPos_12)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3134[3] = 
 {
 	static_cast<int32_t>(offsetof(U3CStartU3Ed__23_tFA9C98F39529102D323B47FE7FDB30DFC3085AAC, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CStartU3Ed__23_tFA9C98F39529102D323B47FE7FDB30DFC3085AAC, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CStartU3Ed__23_tFA9C98F39529102D323B47FE7FDB30DFC3085AAC, ___U3CU3E4__this_2)),};
@@ -13262,10 +13274,10 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3146[2] =
 	static_cast<int32_t>(offsetof(PowerTooltip_t0F713D174A4F01E05890C5A41B3B1F3BCF464B4E, ___powerManager_4)),static_cast<int32_t>(offsetof(PowerTooltip_t0F713D174A4F01E05890C5A41B3B1F3BCF464B4E, ___infoText_5)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3147[3] = 
 {
-	static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__18_t4170AD1107175ADC4B76EA4C37899C3C831C59B4, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__18_t4170AD1107175ADC4B76EA4C37899C3C831C59B4, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__18_t4170AD1107175ADC4B76EA4C37899C3C831C59B4, ___U3CU3E4__this_2)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3148[12] = 
+	static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__19_t4B66C8293695BB3DD51DAE5B3EB2E760B4C8D008, ___U3CU3E1__state_0)),static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__19_t4B66C8293695BB3DD51DAE5B3EB2E760B4C8D008, ___U3CU3E2__current_1)),static_cast<int32_t>(offsetof(U3CClearInvalidInputU3Ed__19_t4B66C8293695BB3DD51DAE5B3EB2E760B4C8D008, ___U3CU3E4__this_2)),};
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3148[13] = 
 {
-	static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___directionalLight1_4)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___directionalLight2_5)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___button1_6)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___button2_7)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___confirmButton_8)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___nameInputField_9)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___feedbackText_10)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___hasNameInput_11)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___hasSelectedLight_12)),0,0,0,};
+	static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___directionalLight1_4)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___directionalLight2_5)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___button1_6)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___button2_7)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___confirmButton_8)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___nameInputField_9)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___feedbackText_10)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___hasNameInput_11)),static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___hasSelectedLight_12)),0,0,0,static_cast<int32_t>(offsetof(Validation_t4DF0E30D547976A82661138591FA9EE4C923E5D4, ___bannedWords_16)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable3149[1] = 
 {
 	static_cast<int32_t>(offsetof(FeedbackManager_t1DE7A591BCA792B6C7056417E0E2D14BE7D99FBC_StaticFields, ___Instance_4)),};
