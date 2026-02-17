@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: qilka SDF
+  m_Name: qilka SDF 1
   m_EditorClassIdentifier: 
-  hashCode: 1591529999
+  hashCode: -1990619746
   material: {fileID: 3670987756786888712}
-  materialHashCode: -275804849
+  materialHashCode: -1282507138
   m_Version: 1.1.0
   m_SourceFontFileGUID: 187d2c8195c3c0742bc6e3c8b7a48906
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 187d2c8195c3c0742bc6e3c8b7a48906, type: 3}
@@ -2651,7 +2651,7 @@ Material:
     - _TextureWidth: 512
     - _UnderlayDilate: 0
     - _UnderlayOffsetX: 0
-    - _UnderlayOffsetY: -0.35
+    - _UnderlayOffsetY: -0.38
     - _UnderlaySoftness: 0
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
@@ -2667,7 +2667,7 @@ Material:
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0.60382754, g: 0.25415218, b: 0.015996292, a: 1}
+    - _UnderlayColor: {r: 0.65837497, g: 0.1470273, b: 0.07036011, a: 1}
   m_BuildTextureStacks: []
 --- !u!28 &8804435512452175632
 Texture2D:
