@@ -275,23 +275,32 @@ public class PauseMenu : MonoBehaviour
     #endregion
 
     #region Internal Helpers
-    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1.5f)
+private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1.5f)
+{
+    Vector3 originalScale = target.localScale;          // store the actual starting scale
+    Vector3 goalScale = originalScale * targetScale;    // scale up from that
+    float t = 0f;
+
+    // Scale up
+    while (t < 1f)
     {
-        Vector3 originalScale = Vector3.one; 
-        Vector3 goalScale = originalScale * targetScale;
-        float t = 0f;
-        while (t < 1f) {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
-            yield return null;
-        }
-        t = 0f;
-        while (t < 1f) {
-            t += Time.unscaledDeltaTime * 5f;
-            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
-            yield return null;
-        }
+        t += Time.unscaledDeltaTime * 5f;
+        target.localScale = Vector3.Lerp(originalScale, goalScale, t);
+        yield return null;
     }
+    target.localScale = goalScale;   // ensure exact final up-scale
+
+    t = 0f;
+
+    // Scale back down
+    while (t < 1f)
+    {
+        t += Time.unscaledDeltaTime * 5f;
+        target.localScale = Vector3.Lerp(goalScale, originalScale, t);
+        yield return null;
+    }
+    target.localScale = originalScale;   // restore exactly
+}
 
     private void SaveCoins() {
         if (playerFunctions != null) playerFunctions.SaveTotalCoins();
