@@ -1,0 +1,16 @@
+Font: Qilka  Style: Bold
+Point Size: 51   SP/PD Ratio: 17.6%
+
+Characters included: 95/99
+Missing characters: 4
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+ID: 96	Hex: 60	Char [`]
+ID: 126	Hex: 7E	Char [~]
+ID: 8203	Hex: 200B	Char [​]
+ID: 9633	Hex: 25A1	Char [□]
+
+Characters excluded from packing:
+----------------------------------------
