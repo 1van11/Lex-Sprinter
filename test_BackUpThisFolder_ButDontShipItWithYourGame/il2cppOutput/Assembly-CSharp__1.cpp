@@ -2465,10 +2465,10 @@ struct U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01
 	int32_t ___U3CU3E1__state_0;
 	// System.Object PauseMenu/<ScaleCountdownNumber>d__32::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::targetScale
-	float ___targetScale_2;
 	// UnityEngine.Transform PauseMenu/<ScaleCountdownNumber>d__32::target
-	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___target_3;
+	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___target_2;
+	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::targetScale
+	float ___targetScale_3;
 	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<originalScale>5__2
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___U3CoriginalScaleU3E5__2_4;
 	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<goalScale>5__3
@@ -22548,12 +22548,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* PauseMenu_ScaleCountdownNumber
 		U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01* L_1 = L_0;
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_2 = ___0_target;
 		NullCheck(L_1);
-		L_1->___target_3 = L_2;
-		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target_3), (void*)L_2);
+		L_1->___target_2 = L_2;
+		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target_2), (void*)L_2);
 		U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01* L_3 = L_1;
 		float L_4 = ___1_targetScale;
 		NullCheck(L_3);
-		L_3->___targetScale_2 = L_4;
+		L_3->___targetScale_3 = L_4;
 		return L_3;
 	}
 }
@@ -23960,11 +23960,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CScaleCountdownNumberU3Ed__32_MoveNext
 			}
 			case 1:
 			{
-				goto IL_009b;
+				goto IL_00a1;
 			}
 			case 2:
 			{
-				goto IL_0106;
+				goto IL_011d;
 			}
 		}
 	}
@@ -23975,37 +23975,39 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CScaleCountdownNumberU3Ed__32_MoveNext
 IL_001b:
 	{
 		__this->___U3CU3E1__state_0 = (-1);
-		// Vector3 originalScale = Vector3.one;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2;
-		L_2 = Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline(NULL);
-		__this->___U3CoriginalScaleU3E5__2_4 = L_2;
-		// Vector3 goalScale = originalScale * targetScale;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_3 = __this->___U3CoriginalScaleU3E5__2_4;
-		float L_4 = __this->___targetScale_2;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_5;
-		L_5 = Vector3_op_Multiply_m87BA7C578F96C8E49BB07088DAAC4649F83B0353_inline(L_3, L_4, NULL);
-		__this->___U3CgoalScaleU3E5__3_5 = L_5;
+		// Vector3 originalScale = target.localScale;          // store the actual starting scale
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_2 = __this->___target_2;
+		NullCheck(L_2);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_3;
+		L_3 = Transform_get_localScale_m804A002A53A645CDFCD15BB0F37209162720363F(L_2, NULL);
+		__this->___U3CoriginalScaleU3E5__2_4 = L_3;
+		// Vector3 goalScale = originalScale * targetScale;    // scale up from that
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = __this->___U3CoriginalScaleU3E5__2_4;
+		float L_5 = __this->___targetScale_3;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_6;
+		L_6 = Vector3_op_Multiply_m87BA7C578F96C8E49BB07088DAAC4649F83B0353_inline(L_4, L_5, NULL);
+		__this->___U3CgoalScaleU3E5__3_5 = L_6;
 		// float t = 0f;
 		__this->___U3CtU3E5__4_6 = (0.0f);
-		goto IL_00a2;
+		goto IL_00a8;
 	}
 
-IL_0051:
+IL_0057:
 	{
 		// t += Time.unscaledDeltaTime * 5f;
-		float L_6 = __this->___U3CtU3E5__4_6;
-		float L_7;
-		L_7 = Time_get_unscaledDeltaTime_mF057EECA857E5C0F90A3F910D26D3EE59F27C4B5(NULL);
-		__this->___U3CtU3E5__4_6 = ((float)il2cpp_codegen_add(L_6, ((float)il2cpp_codegen_multiply(L_7, (5.0f)))));
+		float L_7 = __this->___U3CtU3E5__4_6;
+		float L_8;
+		L_8 = Time_get_unscaledDeltaTime_mF057EECA857E5C0F90A3F910D26D3EE59F27C4B5(NULL);
+		__this->___U3CtU3E5__4_6 = ((float)il2cpp_codegen_add(L_7, ((float)il2cpp_codegen_multiply(L_8, (5.0f)))));
 		// target.localScale = Vector3.Lerp(originalScale, goalScale, t);
-		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_8 = __this->___target_3;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_9 = __this->___U3CoriginalScaleU3E5__2_4;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = __this->___U3CgoalScaleU3E5__3_5;
-		float L_11 = __this->___U3CtU3E5__4_6;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_12;
-		L_12 = Vector3_Lerp_m3A906D0530A94FAABB94F0F905E84D99BE85C3F8_inline(L_9, L_10, L_11, NULL);
-		NullCheck(L_8);
-		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_8, L_12, NULL);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_9 = __this->___target_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = __this->___U3CoriginalScaleU3E5__2_4;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_11 = __this->___U3CgoalScaleU3E5__3_5;
+		float L_12 = __this->___U3CtU3E5__4_6;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_13;
+		L_13 = Vector3_Lerp_m3A906D0530A94FAABB94F0F905E84D99BE85C3F8_inline(L_10, L_11, L_12, NULL);
+		NullCheck(L_9);
+		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_9, L_13, NULL);
 		// yield return null;
 		__this->___U3CU3E2__current_1 = NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current_1), (void*)NULL);
@@ -24013,42 +24015,47 @@ IL_0051:
 		return (bool)1;
 	}
 
-IL_009b:
+IL_00a1:
 	{
 		__this->___U3CU3E1__state_0 = (-1);
 	}
 
-IL_00a2:
+IL_00a8:
 	{
-		// while (t < 1f) {
-		float L_13 = __this->___U3CtU3E5__4_6;
-		if ((((float)L_13) < ((float)(1.0f))))
+		// while (t < 1f)
+		float L_14 = __this->___U3CtU3E5__4_6;
+		if ((((float)L_14) < ((float)(1.0f))))
 		{
-			goto IL_0051;
+			goto IL_0057;
 		}
 	}
 	{
+		// target.localScale = goalScale;   // ensure exact final up-scale
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_15 = __this->___target_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_16 = __this->___U3CgoalScaleU3E5__3_5;
+		NullCheck(L_15);
+		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_15, L_16, NULL);
 		// t = 0f;
 		__this->___U3CtU3E5__4_6 = (0.0f);
-		goto IL_010d;
+		goto IL_0124;
 	}
 
-IL_00bc:
+IL_00d3:
 	{
 		// t += Time.unscaledDeltaTime * 5f;
-		float L_14 = __this->___U3CtU3E5__4_6;
-		float L_15;
-		L_15 = Time_get_unscaledDeltaTime_mF057EECA857E5C0F90A3F910D26D3EE59F27C4B5(NULL);
-		__this->___U3CtU3E5__4_6 = ((float)il2cpp_codegen_add(L_14, ((float)il2cpp_codegen_multiply(L_15, (5.0f)))));
+		float L_17 = __this->___U3CtU3E5__4_6;
+		float L_18;
+		L_18 = Time_get_unscaledDeltaTime_mF057EECA857E5C0F90A3F910D26D3EE59F27C4B5(NULL);
+		__this->___U3CtU3E5__4_6 = ((float)il2cpp_codegen_add(L_17, ((float)il2cpp_codegen_multiply(L_18, (5.0f)))));
 		// target.localScale = Vector3.Lerp(goalScale, originalScale, t);
-		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_16 = __this->___target_3;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_17 = __this->___U3CgoalScaleU3E5__3_5;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_18 = __this->___U3CoriginalScaleU3E5__2_4;
-		float L_19 = __this->___U3CtU3E5__4_6;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_20;
-		L_20 = Vector3_Lerp_m3A906D0530A94FAABB94F0F905E84D99BE85C3F8_inline(L_17, L_18, L_19, NULL);
-		NullCheck(L_16);
-		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_16, L_20, NULL);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_19 = __this->___target_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_20 = __this->___U3CgoalScaleU3E5__3_5;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_21 = __this->___U3CoriginalScaleU3E5__2_4;
+		float L_22 = __this->___U3CtU3E5__4_6;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_23;
+		L_23 = Vector3_Lerp_m3A906D0530A94FAABB94F0F905E84D99BE85C3F8_inline(L_20, L_21, L_22, NULL);
+		NullCheck(L_19);
+		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_19, L_23, NULL);
 		// yield return null;
 		__this->___U3CU3E2__current_1 = NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E2__current_1), (void*)NULL);
@@ -24056,21 +24063,26 @@ IL_00bc:
 		return (bool)1;
 	}
 
-IL_0106:
+IL_011d:
 	{
 		__this->___U3CU3E1__state_0 = (-1);
 	}
 
-IL_010d:
+IL_0124:
 	{
-		// while (t < 1f) {
-		float L_21 = __this->___U3CtU3E5__4_6;
-		if ((((float)L_21) < ((float)(1.0f))))
+		// while (t < 1f)
+		float L_24 = __this->___U3CtU3E5__4_6;
+		if ((((float)L_24) < ((float)(1.0f))))
 		{
-			goto IL_00bc;
+			goto IL_00d3;
 		}
 	}
 	{
+		// target.localScale = originalScale;   // restore exactly
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_25 = __this->___target_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_26 = __this->___U3CoriginalScaleU3E5__2_4;
+		NullCheck(L_25);
+		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_25, L_26, NULL);
 		// }
 		return (bool)0;
 	}

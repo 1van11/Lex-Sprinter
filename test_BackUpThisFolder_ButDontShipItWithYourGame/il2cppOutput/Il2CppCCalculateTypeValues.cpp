@@ -29610,10 +29610,10 @@ struct U3CScaleCountdownNumberU3Ed__32_t1FB13A826114FF05879E2B0BD0B97A57FC1E0F01
 	int32_t ___U3CU3E1__state_0;
 	// System.Object PauseMenu/<ScaleCountdownNumber>d__32::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::targetScale
-	float ___targetScale_2;
 	// UnityEngine.Transform PauseMenu/<ScaleCountdownNumber>d__32::target
-	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___target_3;
+	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___target_2;
+	// System.Single PauseMenu/<ScaleCountdownNumber>d__32::targetScale
+	float ___targetScale_3;
 	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<originalScale>5__2
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___U3CoriginalScaleU3E5__2_4;
 	// UnityEngine.Vector3 PauseMenu/<ScaleCountdownNumber>d__32::<goalScale>5__3
