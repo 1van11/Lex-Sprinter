@@ -67,6 +67,8 @@ public class ObstacleSpawner : MonoBehaviour
     public float firstPowerUpDistance = 100f;
     public Vector3 powerUpPositionOffset = Vector3.zero;
     public Vector3 powerUpScale = Vector3.one;
+    [Tooltip("Rotation speed for power-ups (degrees per second)")]
+    public float powerUpRotationSpeed = 100f;
 
     [Tooltip("Set spawn chances for different power-up types (must total 100)")]
     public PowerUpSpawnChance[] spawnChances = new PowerUpSpawnChance[]
@@ -178,6 +180,8 @@ public class ObstacleSpawner : MonoBehaviour
     private Queue<GameObject> letterPool = new Queue<GameObject>();
     private List<LetterSpawnedInfo> activeLetterObjects = new List<LetterSpawnedInfo>();
     private Dictionary<GameObject, Coroutine> letterAnimations = new Dictionary<GameObject, Coroutine>();
+    // Dictionary to track power-up rotation coroutines
+    private Dictionary<GameObject, Coroutine> powerUpRotations = new Dictionary<GameObject, Coroutine>();
     private bool allowRegularLetterSpawning = false;
     private float nextLetterSpawnZ;
     private bool isLetterEventActive = false;
@@ -1004,9 +1008,23 @@ public class ObstacleSpawner : MonoBehaviour
         powerUp.transform.localScale = prefab.transform.localScale;
 
         activePowerUps.Add(powerUp);
+        // Start rotation coroutine and store it
+        Coroutine rotateCoroutine = StartCoroutine(RotatePowerUp(powerUp));
+        powerUpRotations[powerUp] = rotateCoroutine;
+
         StartCoroutine(AutoDespawnPowerUp(powerUp, maxObstacleLifetime));
 
         Debug.Log($"Spawned {powerUpType} power-up at position: {spawnPos} (Player Z: {PlayerFunctions.transform.position.z})");
+    }
+
+    // Coroutine to rotate power-up continuously
+    IEnumerator RotatePowerUp(GameObject powerUp)
+    {
+        while (powerUp != null)
+        {
+            powerUp.transform.Rotate(Vector3.up, powerUpRotationSpeed * Time.deltaTime);
+            yield return null;
+        }
     }
 
     public void ResetPowerUpSpawning()
@@ -1020,6 +1038,12 @@ public class ObstacleSpawner : MonoBehaviour
         yield return new WaitForSeconds(lifetime);
         if (powerUp != null)
         {
+            // Stop rotation coroutine if it exists
+            if (powerUpRotations.ContainsKey(powerUp))
+            {
+                StopCoroutine(powerUpRotations[powerUp]);
+                powerUpRotations.Remove(powerUp);
+            }
             activePowerUps.Remove(powerUp);
             Destroy(powerUp);
         }
@@ -1029,13 +1053,20 @@ public class ObstacleSpawner : MonoBehaviour
     {
         for (int i = activePowerUps.Count - 1; i >= 0; i--)
         {
-            if (activePowerUps[i] == null)
+            GameObject powerUp = activePowerUps[i];
+            if (powerUp == null)
             {
                 activePowerUps.RemoveAt(i);
+                continue;
             }
-            else if (activePowerUps[i].transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
+            else if (powerUp.transform.position.z < PlayerFunctions.transform.position.z - despawnDistance)
             {
-                GameObject powerUp = activePowerUps[i];
+                // Stop rotation coroutine before destroying
+                if (powerUpRotations.ContainsKey(powerUp))
+                {
+                    StopCoroutine(powerUpRotations[powerUp]);
+                    powerUpRotations.Remove(powerUp);
+                }
                 activePowerUps.RemoveAt(i);
                 Destroy(powerUp);
             }

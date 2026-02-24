@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerControls : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 10f;             // Base speed of horizontal movement
+    public float moveSpeed = 10f;             // Base speed of horizontal movement (continuous mode)
     public float maxLaneDistance = 3f;         // Max distance from center
     public float forwardSpeed = 10f;           // Forward speed (used externally)
 
@@ -19,7 +19,7 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Swipe Settings")]
     public float minSwipeDistance = 50f;        // Minimum swipe length (pixels)
-    public float swipeSensitivity = 0.1f;       // How much swipe distance affects movement
+    public float swipeSensitivity = 0.1f;       // How much swipe distance affects movement (continuous mode)
     public float maxSwipeSpeed = 20f;            // Maximum speed from swiping
     public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
     public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
@@ -28,20 +28,31 @@ public class PlayerControls : MonoBehaviour
     public float tiltAngle = 20f;
     public float tiltSpeed = 10f;
 
+    [Header("Lane Snapping (Subway Surfers style)")]
+    public bool useLaneSnapping = false;         // Enable discrete lane switching
+    public int laneCount = 3;                     // Number of lanes (e.g., 3 for left, center, right)
+    public float laneSwitchSpeed = 10f;            // Speed of moving to target lane
+
     private Rigidbody rb;
     private CapsuleCollider col;
     private Animator anim;
 
-    private float horizontalInput;               // -1 to 1 for movement
+    private float horizontalInput;               // -1 to 1 for movement (continuous mode)
     private float targetTilt;
     private bool isGrounded;
     private bool isFastDescending;
     private bool isMovementStopped = false;
 
+    // Lane snapping variables
+    private float[] lanePositions;
+    private int currentLaneIndex;
+    private float targetLaneX;
+
     // Touch tracking for continuous swipe
     private int activeTouchId = -1;
     private Vector2 touchStartPos;
     private Vector2 lastTouchPos;
+    private Vector2 swipeTotalDelta;              // Total delta from start to current touch
     private bool isSwiping = false;
     private bool gestureLocked = false;          // Locks whether this is horizontal or vertical swipe
     private bool isHorizontalSwipe = false;      // Which direction is locked
@@ -56,6 +67,46 @@ public class PlayerControls : MonoBehaviour
 
         rb.constraints = RigidbodyConstraints.FreezeRotation
                        | RigidbodyConstraints.FreezePositionZ;
+    }
+
+    void Start()
+    {
+        if (useLaneSnapping)
+            InitializeLanes();
+    }
+
+    void InitializeLanes()
+    {
+        if (laneCount < 1) laneCount = 1;
+        lanePositions = new float[laneCount];
+        if (laneCount == 1)
+        {
+            lanePositions[0] = 0f;
+        }
+        else
+        {
+            for (int i = 0; i < laneCount; i++)
+            {
+                // Map i from 0 to laneCount-1 to -maxLaneDistance to +maxLaneDistance
+                float t = i / (float)(laneCount - 1);
+                lanePositions[i] = Mathf.Lerp(-maxLaneDistance, maxLaneDistance, t);
+            }
+        }
+        // Find nearest lane to current position
+        float currentX = transform.position.x;
+        int nearest = 0;
+        float minDist = Mathf.Abs(currentX - lanePositions[0]);
+        for (int i = 1; i < laneCount; i++)
+        {
+            float dist = Mathf.Abs(currentX - lanePositions[i]);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = i;
+            }
+        }
+        currentLaneIndex = nearest;
+        targetLaneX = lanePositions[currentLaneIndex];
     }
 
     void Update()
@@ -79,29 +130,40 @@ public class PlayerControls : MonoBehaviour
     {
         if (isMovementStopped) return;
 
-        // Continuous movement with arrow keys or A/D
-        float h = 0f;
-        float tilt = 0f;
-
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        if (useLaneSnapping)
         {
-            h = -1f;
-            tilt = tiltAngle;
+            // Discrete lane changes
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+                ChangeLane(-1);
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+                ChangeLane(1);
         }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        else
         {
-            h = 1f;
-            tilt = -tiltAngle;
+            // Continuous movement
+            float h = 0f;
+            float tilt = 0f;
+
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            {
+                h = -1f;
+                tilt = tiltAngle;
+            }
+            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            {
+                h = 1f;
+                tilt = -tiltAngle;
+            }
+
+            horizontalInput = h;
+            targetTilt = tilt;
         }
 
-        horizontalInput = h;
-        targetTilt = tilt;
-
-        // Jump
+        // Jump (same for both modes)
         if (enableJump && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
             Jump();
 
-        // Fast descent
+        // Fast descent (same for both modes)
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             TryFastDescent();
     }
@@ -121,18 +183,19 @@ public class PlayerControls : MonoBehaviour
                 activeTouchId = touch.fingerId;
                 touchStartPos = touch.position;
                 lastTouchPos = touch.position;
+                swipeTotalDelta = Vector2.zero;
                 isSwiping = true;
-                gestureLocked = false; // Not locked until we determine direction
+                gestureLocked = false;
             }
             else if (touch.fingerId == activeTouchId)
             {
                 // This is our active touch
                 if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
                 {
-                    // Calculate total swipe delta from start
-                    Vector2 totalDelta = touch.position - touchStartPos;
-                    float absTotalX = Mathf.Abs(totalDelta.x);
-                    float absTotalY = Mathf.Abs(totalDelta.y);
+                    // Update total swipe delta
+                    swipeTotalDelta = touch.position - touchStartPos;
+                    float absTotalX = Mathf.Abs(swipeTotalDelta.x);
+                    float absTotalY = Mathf.Abs(swipeTotalDelta.y);
 
                     // Lock gesture direction if not already locked and we've moved enough
                     if (!gestureLocked && (absTotalX > minSwipeDistance * 0.5f || absTotalY > minSwipeDistance * 0.5f))
@@ -140,18 +203,18 @@ public class PlayerControls : MonoBehaviour
                         // Determine if this is primarily horizontal or vertical
                         isHorizontalSwipe = absTotalX > absTotalY * swipeDirectionThreshold;
                         gestureLocked = true;
-                        
+
                         // If vertical, check if it's a quick gesture for jump/descent
                         if (!isHorizontalSwipe)
                         {
                             if (absTotalY > minSwipeDistance)
                             {
-                                if (totalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > swipeCooldown)
+                                if (swipeTotalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > swipeCooldown)
                                 {
                                     Jump();
                                     lastSwipeTime = Time.time;
                                 }
-                                else if (totalDelta.y < 0 && Time.time - lastSwipeTime > swipeCooldown)
+                                else if (swipeTotalDelta.y < 0 && Time.time - lastSwipeTime > swipeCooldown)
                                 {
                                     TryFastDescent();
                                     lastSwipeTime = Time.time;
@@ -160,26 +223,32 @@ public class PlayerControls : MonoBehaviour
                         }
                     }
 
-                    // Handle horizontal movement only if this is a horizontal swipe
-                    if (gestureLocked && isHorizontalSwipe)
+                    // Handle horizontal movement (continuous mode only)
+                    if (!useLaneSnapping && gestureLocked && isHorizontalSwipe)
                     {
                         // Calculate input based on current position relative to start
-                        // INCREASED SENSITIVITY: Apply 2x multiplier internally
                         float currentOffset = touch.position.x - touchStartPos.x;
                         float targetInput = Mathf.Clamp(currentOffset * swipeSensitivity * 25f, -1f, 1f);
-                        
-                        // Smoothly move toward target input - INCREASED from 10f to 20f for faster response
                         horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 100f);
-                        
-                        // Set tilt based on current input
                         targetTilt = -horizontalInput * tiltAngle;
                     }
-                    // Update last position
+
                     lastTouchPos = touch.position;
                 }
                 else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
                 {
-                    // Touch ended, return input to zero
+                    // Touch ended
+                    if (useLaneSnapping && gestureLocked && isHorizontalSwipe)
+                    {
+                        // Lane change based on total horizontal swipe
+                        if (Mathf.Abs(swipeTotalDelta.x) > minSwipeDistance)
+                        {
+                            int direction = swipeTotalDelta.x > 0 ? 1 : -1;
+                            ChangeLane(direction);
+                        }
+                    }
+
+                    // Reset touch state
                     isSwiping = false;
                     activeTouchId = -1;
                     gestureLocked = false;
@@ -187,15 +256,24 @@ public class PlayerControls : MonoBehaviour
             }
         }
 
-        // If no active touch, gradually return input to zero
-        if (!isSwiping && activeTouchId == -1)
+        // If no active touch, gradually return input to zero (continuous mode only)
+        if (!useLaneSnapping && !isSwiping && activeTouchId == -1)
         {
             horizontalInput = Mathf.Lerp(horizontalInput, 0f, Time.deltaTime * returnToCenterSpeed);
             targetTilt = -horizontalInput * tiltAngle;
-            
-            // Snap to zero if very small
+
             if (Mathf.Abs(horizontalInput) < 0.01f)
                 horizontalInput = 0f;
+        }
+    }
+
+    void ChangeLane(int direction)
+    {
+        int newIndex = currentLaneIndex + direction;
+        if (newIndex >= 0 && newIndex < laneCount)
+        {
+            currentLaneIndex = newIndex;
+            targetLaneX = lanePositions[currentLaneIndex];
         }
     }
 
@@ -224,10 +302,32 @@ public class PlayerControls : MonoBehaviour
     {
         if (isMovementStopped) return;
 
-        Vector3 pos = transform.position;
-        pos.x += horizontalInput * moveSpeed * Time.deltaTime;
-        pos.x = Mathf.Clamp(pos.x, -maxLaneDistance, maxLaneDistance);
-        transform.position = pos;
+        if (useLaneSnapping)
+        {
+            // Move towards target lane
+            Vector3 pos = transform.position;
+            pos.x = Mathf.MoveTowards(pos.x, targetLaneX, laneSwitchSpeed * Time.deltaTime);
+            transform.position = pos;
+
+            // Update tilt based on movement direction
+            float diff = targetLaneX - pos.x;
+            if (Mathf.Abs(diff) > 0.001f)
+            {
+                // Moving left (diff < 0) -> tilt right (positive angle)
+                targetTilt = (diff < 0) ? tiltAngle : -tiltAngle;
+            }
+            else
+            {
+                targetTilt = 0f;
+            }
+        }
+        else
+        {
+            Vector3 pos = transform.position;
+            pos.x += horizontalInput * moveSpeed * Time.deltaTime;
+            pos.x = Mathf.Clamp(pos.x, -maxLaneDistance, maxLaneDistance);
+            transform.position = pos;
+        }
     }
 
     void ApplyGravity()
@@ -267,7 +367,15 @@ public class PlayerControls : MonoBehaviour
     {
         if (!anim) return;
 
-        anim.SetBool("isRunning", Mathf.Abs(horizontalInput) > 0.1f);
+        if (useLaneSnapping)
+        {
+            anim.SetBool("isRunning", forwardSpeed > 0);
+        }
+        else
+        {
+            anim.SetBool("isRunning", Mathf.Abs(horizontalInput) > 0.1f);
+        }
+
         anim.SetBool("isJumping", !isGrounded);
         anim.SetBool("isFastDescending", isFastDescending);
         anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.1f);

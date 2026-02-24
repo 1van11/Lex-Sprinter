@@ -5,6 +5,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
+// Enum for slide direction of the clue elements
+public enum SlideDirection
+{
+    Left,
+    Right,
+    Up,
+    Down
+}
+
 public class QuestionRandomizer : MonoBehaviour
 {
     [Header("UI")]
@@ -27,6 +36,20 @@ public class QuestionRandomizer : MonoBehaviour
     [Header("Trigger Settings")]
     public bool playAudioOnTrigger = true;
 
+    [Header("Clue Image Animation")]
+    public bool animateClueImage = true;               // Enable/disable animation for image
+    public float imageAnimationDuration = 0.3f;         // Duration of fade & slide
+    public AnimationCurve imageAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public SlideDirection imageSlideDirection = SlideDirection.Up;   // Where to slide from
+    public float imageSlideDistance = 100f;             // Distance off‑screen to start
+
+    [Header("Clue Text Animation")]
+    public bool animateClueText = true;                 // Enable/disable animation for text
+    public float textAnimationDuration = 0.3f;          // Duration of fade & slide
+    public AnimationCurve textAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public SlideDirection textSlideDirection = SlideDirection.Up;     // Where to slide from
+    public float textSlideDistance = 100f;               // Distance off‑screen to start
+
     // Current question state
     public string correctAnswer;
     private int currentQuestionIndex = -1;
@@ -37,6 +60,18 @@ public class QuestionRandomizer : MonoBehaviour
     // Active sets based on scene
     private string[,] activeSpellingPairs;
     private string[,] activeSentencePairs;
+
+    // Animation components for image
+    private CanvasGroup imageCanvasGroup;
+    private RectTransform imageRect;
+    private Vector2 originalImagePos;
+    private Coroutine imageAnimationCoroutine;
+
+    // Animation components for text
+    private CanvasGroup textCanvasGroup;
+    private RectTransform textRect;
+    private Vector2 originalTextPos;
+    private Coroutine textAnimationCoroutine;
 
     // ─────────────────────────────────────────────────────────────────────────────
     // DIFFICULTY BANKS – each row has 4 columns: clue + correct + wrong1 + wrong2
@@ -340,6 +375,45 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        Collider collider = GetComponent<Collider>();
+        if (collider != null) collider.isTrigger = true;
+        else Debug.LogWarning("QuestionRandomizer: No collider found on question object. Add a Collider component.");
+
+        if (clueTextObject != null) clueTextObject.SetActive(false);
+        if (clueImageObject != null) clueImageObject.SetActive(false);
+
+        // Prepare for clue image animation
+        if (clueImageObject != null)
+        {
+            imageCanvasGroup = clueImageObject.GetComponent<CanvasGroup>();
+            if (imageCanvasGroup == null)
+                imageCanvasGroup = clueImageObject.AddComponent<CanvasGroup>();
+
+            imageRect = clueImageObject.GetComponent<RectTransform>();
+            if (imageRect != null)
+                originalImagePos = imageRect.anchoredPosition;
+        }
+
+        // Prepare for clue text animation
+        if (clueTextObject != null)
+        {
+            textCanvasGroup = clueTextObject.GetComponent<CanvasGroup>();
+            if (textCanvasGroup == null)
+                textCanvasGroup = clueTextObject.AddComponent<CanvasGroup>();
+
+            textRect = clueTextObject.GetComponent<RectTransform>();
+            if (textRect != null)
+                originalTextPos = textRect.anchoredPosition;
+        }
+
+        if (!TryLoadDailyTaskQuestion())
+        {
+            SetRandomQuestion();
+        }
+    }
+
     public bool TryLoadDailyTaskQuestion()
     {
         if (!PlayerPrefs.HasKey("CurrentTaskID")) return false;
@@ -356,21 +430,6 @@ public class QuestionRandomizer : MonoBehaviour
         else
             SetSentenceQuestion(questionIndex);
         return true;
-    }
-
-    void Start()
-    {
-        Collider collider = GetComponent<Collider>();
-        if (collider != null) collider.isTrigger = true;
-        else Debug.LogWarning("QuestionRandomizer: No collider found on question object. Add a Collider component.");
-
-        if (clueTextObject != null) clueTextObject.SetActive(false);
-        if (clueImageObject != null) clueImageObject.SetActive(false);
-
-        if (!TryLoadDailyTaskQuestion())
-        {
-            SetRandomQuestion();
-        }
     }
 
     // ------------------------------------------------------------
@@ -525,6 +584,7 @@ public class QuestionRandomizer : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerInTrigger = false;
 
+        // Instantly hide both clues (you could add a fade‑out animation here if needed)
         if (clueTextObject != null) clueTextObject.SetActive(false);
         if (clueImageObject != null) clueImageObject.SetActive(false);
     }
@@ -536,7 +596,13 @@ public class QuestionRandomizer : MonoBehaviour
         // Sentence questions always show text clue, never image
         if (isSentenceQuestion)
         {
-            if (clueTextObject != null) clueTextObject.SetActive(true);
+            if (clueTextObject != null)
+            {
+                if (animateClueText)
+                    AnimateClueTextIn();
+                else
+                    clueTextObject.SetActive(true);
+            }
             if (clueImageObject != null) clueImageObject.SetActive(false);
         }
         // Spelling questions: show image if available, else text
@@ -546,15 +612,146 @@ public class QuestionRandomizer : MonoBehaviour
             {
                 if (cluePic != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length)
                     cluePic.sprite = clueImages[currentQuestionIndex];
-                if (clueImageObject != null) clueImageObject.SetActive(true);
+
+                if (animateClueImage && clueImageObject != null)
+                    AnimateClueImageIn();
+                else if (clueImageObject != null)
+                    clueImageObject.SetActive(true);
+
                 if (clueTextObject != null) clueTextObject.SetActive(false);
             }
             else
             {
-                if (clueTextObject != null) clueTextObject.SetActive(true);
+                if (clueTextObject != null)
+                {
+                    if (animateClueText)
+                        AnimateClueTextIn();
+                    else
+                        clueTextObject.SetActive(true);
+                }
                 if (clueImageObject != null) clueImageObject.SetActive(false);
             }
         }
+    }
+
+    // Animates the clue image with fade + slide from the chosen direction
+    private void AnimateClueImageIn()
+    {
+        if (clueImageObject == null || imageRect == null || imageCanvasGroup == null) return;
+
+        // Stop any ongoing animation
+        if (imageAnimationCoroutine != null)
+            StopCoroutine(imageAnimationCoroutine);
+
+        imageAnimationCoroutine = StartCoroutine(AnimateImageCoroutine());
+    }
+
+    private IEnumerator AnimateImageCoroutine()
+    {
+        // Ensure object is active and set initial alpha to 0
+        clueImageObject.SetActive(true);
+        imageCanvasGroup.alpha = 0f;
+
+        // Calculate start position based on direction
+        Vector2 startPos = originalImagePos;
+        switch (imageSlideDirection)
+        {
+            case SlideDirection.Left:
+                startPos.x -= imageSlideDistance;
+                break;
+            case SlideDirection.Right:
+                startPos.x += imageSlideDistance;
+                break;
+            case SlideDirection.Up:
+                startPos.y += imageSlideDistance;
+                break;
+            case SlideDirection.Down:
+                startPos.y -= imageSlideDistance;
+                break;
+        }
+        imageRect.anchoredPosition = startPos;
+
+        float elapsed = 0f;
+        while (elapsed < imageAnimationDuration)
+        {
+            float t = elapsed / imageAnimationDuration;
+            float curveValue = imageAnimationCurve.Evaluate(t);
+
+            // Fade
+            imageCanvasGroup.alpha = curveValue;
+
+            // Slide
+            imageRect.anchoredPosition = Vector2.Lerp(startPos, originalImagePos, curveValue);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final values are exact
+        imageCanvasGroup.alpha = 1f;
+        imageRect.anchoredPosition = originalImagePos;
+
+        imageAnimationCoroutine = null;
+    }
+
+    // Animates the clue text with fade + slide from the chosen direction
+    private void AnimateClueTextIn()
+    {
+        if (clueTextObject == null || textRect == null || textCanvasGroup == null) return;
+
+        // Stop any ongoing animation
+        if (textAnimationCoroutine != null)
+            StopCoroutine(textAnimationCoroutine);
+
+        textAnimationCoroutine = StartCoroutine(AnimateTextCoroutine());
+    }
+
+    private IEnumerator AnimateTextCoroutine()
+    {
+        // Ensure object is active and set initial alpha to 0
+        clueTextObject.SetActive(true);
+        textCanvasGroup.alpha = 0f;
+
+        // Calculate start position based on direction
+        Vector2 startPos = originalTextPos;
+        switch (textSlideDirection)
+        {
+            case SlideDirection.Left:
+                startPos.x -= textSlideDistance;
+                break;
+            case SlideDirection.Right:
+                startPos.x += textSlideDistance;
+                break;
+            case SlideDirection.Up:
+                startPos.y += textSlideDistance;
+                break;
+            case SlideDirection.Down:
+                startPos.y -= textSlideDistance;
+                break;
+        }
+        textRect.anchoredPosition = startPos;
+
+        float elapsed = 0f;
+        while (elapsed < textAnimationDuration)
+        {
+            float t = elapsed / textAnimationDuration;
+            float curveValue = textAnimationCurve.Evaluate(t);
+
+            // Fade
+            textCanvasGroup.alpha = curveValue;
+
+            // Slide
+            textRect.anchoredPosition = Vector2.Lerp(startPos, originalTextPos, curveValue);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final values are exact
+        textCanvasGroup.alpha = 1f;
+        textRect.anchoredPosition = originalTextPos;
+
+        textAnimationCoroutine = null;
     }
 
     public void TriggerQuestionAudio() => PlayQuestionAudio();
@@ -564,6 +761,7 @@ public class QuestionRandomizer : MonoBehaviour
         if (playerInTrigger)
             UpdateClueVisibility();
     }
+
     // Call this when player answers correctly
     public void AddWordCount()
     {
@@ -601,3 +799,5 @@ public class QuestionRandomizer : MonoBehaviour
         return clueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length && clueImages[currentQuestionIndex] != null;
     }
 }
+
+//working animation
