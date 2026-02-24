@@ -825,34 +825,36 @@ public class ObstacleSpawner : MonoBehaviour
         bool shouldSpawnPowerUp = canSpawnPowerUp && Random.Range(0, 100) < powerUpSpawnChance;
         bool powerUpSpawned = false;
 
-        for (int i = 0; i < obstaclesToSpawn; i++)
-        {
-            int index = Random.Range(0, availableLanes.Count);
-            int lane = availableLanes[index];
-            availableLanes.RemoveAt(index);
+       for (int i = 0; i < obstaclesToSpawn; i++)
+{
+    int index = Random.Range(0, availableLanes.Count);
+    int lane = availableLanes[index];
+    availableLanes.RemoveAt(index);
 
-            float laneX = (lane - 1.3f) * laneDistance;
-            Vector3 spawnPos = new Vector3(laneX, spawnHeight, PlayerFunctions.transform.position.z + zOffset);
+    // Align exactly like coins/power-ups (centered)
+    float laneX = (lane - 1) * laneDistance;
 
-            // If we should spawn a power-up and haven't spawned one yet, spawn it
-            if (shouldSpawnPowerUp && !powerUpSpawned)
-            {
-                SpawnPowerUpAtPosition(spawnPos);
-                powerUpSpawned = true;
-            }
-            else
-            {
-                // Spawn normal obstacle
-                int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
-                GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
+    Vector3 spawnPos = new Vector3(laneX, spawnHeight, PlayerFunctions.transform.position.z + zOffset);
 
-                spawnPos.y = selectedPrefab.transform.position.y; // Use obstacle's own height
-                GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
+    // Spawn power-up if needed
+    if (shouldSpawnPowerUp && !powerUpSpawned)
+    {
+        SpawnPowerUpAtPosition(spawnPos);
+        powerUpSpawned = true;
+    }
+    else
+    {
+        int randomPrefabIndex = Random.Range(0, obstaclePrefabs.Length);
+        GameObject selectedPrefab = obstaclePrefabs[randomPrefabIndex];
 
-                activeObstacles.Add(obstacle);
-                StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
-            }
-        }
+        // Use prefab's Y position (height)
+        spawnPos.y = selectedPrefab.transform.position.y;
+
+        GameObject obstacle = Instantiate(selectedPrefab, spawnPos, selectedPrefab.transform.rotation, ObstacleParentTransform);
+        activeObstacles.Add(obstacle);
+        StartCoroutine(AutoDespawnObstacle(obstacle, maxObstacleLifetime));
+    }
+}
 
         // Spawn coins in empty lanes
         if (coinPrefab != null)

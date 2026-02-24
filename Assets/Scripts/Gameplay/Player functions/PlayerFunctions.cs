@@ -9,15 +9,15 @@ public class PlayerFunctions : MonoBehaviour
     public float forwardSpeed = 10f;
     public float speedIncreaseMultiplier = 1.125f;
     public float maxSpeedMultiplier = 1.8f;
-    public float speedIncreaseDistance = 300f; // Distance interval for speed increase
-    
+    public float speedIncreaseDistance = 300f;
+
     [Header("Debug / Cheat Options")]
-    public bool alwaysInvincible = false; // toggle in Inspector or via code
+    public bool alwaysInvincible = false;
 
     [Header("Player Model Reference")]
     [Tooltip("Auto-detects GameObject with 'Player' tag. Can be manually assigned if needed.")]
-    public Transform playerModel; // Reference to the actual 3D model (drag in Inspector)
-    
+    public Transform playerModel;
+
     [Header("Audio Sounds")]
     public AudioSource audioSource;
     public AudioClip coinSound;
@@ -28,12 +28,13 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Score")]
     public int score = 0;
     public TMP_Text scoreText;
-    public TMP_Text wordCountText; // Drag a TextMeshPro UI element here in Inspector
+    public TMP_Text wordCountText;
     private int wordsCollected = 0;
+
     [Header("Total Coins (Persistent)")]
     public int totalCoins = 0;
     public string coinSaveKey = "PlayerTotalCoins";
-    public TMP_Text totalCoinsText; // Added TextMeshPro for total coins display
+    public TMP_Text totalCoinsText;
 
     [Header("Distance")]
     public float distanceTraveled = 0f;
@@ -63,7 +64,7 @@ public class PlayerFunctions : MonoBehaviour
     [Header("Buff Durations")]
     public float shieldDuration = 8f;
     public float magnetDuration = 6f;
-    public int shieldMaxHits = 3; // 👈 EDIT THIS - how many hits the shield can absorb
+    public int shieldMaxHits = 3;
     [HideInInspector] public int shieldHitsRemaining;
     public float slowTimeDuration = 4f;
 
@@ -80,7 +81,7 @@ public class PlayerFunctions : MonoBehaviour
     public GameObject gameOverPanel;
 
     [Header("Revive Panel")]
-    public GameObject revivePanel; // NEW: Reference to revive panel
+    public GameObject revivePanel;
 
     [Header("Answer Feedback")]
     public GameObject correctAnswerPrefab;
@@ -91,24 +92,18 @@ public class PlayerFunctions : MonoBehaviour
     private Queue<GameObject> wrongPool = new Queue<GameObject>();
 
     private Renderer[] renderers;
-    private Renderer[] modelRenderers; // Renderers from the actual 3D model
+    private Renderer[] modelRenderers;
 
     [HideInInspector] public bool isDead = false;
 
-    // Reference to PlayerControls
     private PlayerControls playerControls;
 
     void Start()
     {
-
-    UpdateWordCountUI();
-        // AUTO-DETECT PLAYER MODEL USING TAG
+        UpdateWordCountUI();
         AutoDetectPlayerModel();
 
-        // Initialize renderers arrays
         renderers = GetComponentsInChildren<Renderer>();
-        
-        // Get renderers from the actual 3D model
         if (playerModel != null)
         {
             modelRenderers = playerModel.GetComponentsInChildren<Renderer>();
@@ -116,72 +111,48 @@ public class PlayerFunctions : MonoBehaviour
         }
         else
         {
-            // Fallback to getting all renderers in children
             modelRenderers = GetComponentsInChildren<Renderer>();
             Debug.LogWarning("⚠️ Player model not found. Using all child renderers.");
         }
 
         playerControls = GetComponent<PlayerControls>();
 
-        // Initialize lastPosition based on player model
         if (playerModel != null)
-        {
             lastPosition = playerModel.position;
-        }
         else
-        {
             lastPosition = transform.position;
-        }
 
-        // Initialize health
         currentHealth = maxHealth;
         UpdateHealthUI();
 
-        // Load total coins from PlayerPrefs
         LoadTotalCoins();
-
-        // Update total coins UI on start
         UpdateTotalCoinsUI();
 
-        // Hide buff visuals and panels at start
         if (shieldVisual != null) shieldVisual.SetActive(false);
         if (magnetVisual != null) magnetVisual.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (revivePanel != null) revivePanel.SetActive(false);
-        
-        // Initialize forward speed in PlayerControls
+
         if (playerControls != null)
             playerControls.SetForwardSpeed(forwardSpeed);
     }
 
-    
-
-    /// <summary>
-    /// Auto-detects the player model by looking for GameObject with "Player" tag
-    /// </summary>
     private void AutoDetectPlayerModel()
     {
-        // If already assigned, use that
         if (playerModel != null)
         {
             Debug.Log($"✅ Player model already assigned: {playerModel.name}");
             return;
         }
 
-        // Method 1: Look for GameObject with "Player" tag in the scene
         GameObject taggedPlayer = GameObject.FindGameObjectWithTag("Player");
-        if (taggedPlayer != null)
+        if (taggedPlayer != null && taggedPlayer != this.gameObject)
         {
-            // Check if this is the same GameObject (to avoid infinite loops)
-            if (taggedPlayer != this.gameObject)
-            {
-                playerModel = taggedPlayer.transform;
-                Debug.Log($"✅ Found player model via tag 'Player': {playerModel.name}");
-                return;
-            }
+            playerModel = taggedPlayer.transform;
+            Debug.Log($"✅ Found player model via tag 'Player': {playerModel.name}");
+            return;
         }
 
-        // Method 2: Look among children for a GameObject tagged as "Player"
         foreach (Transform child in transform)
         {
             if (child.CompareTag("Player"))
@@ -192,7 +163,6 @@ public class PlayerFunctions : MonoBehaviour
             }
         }
 
-        // Method 3: Look for any child with renderer
         Renderer[] childRenderers = GetComponentsInChildren<Renderer>(true);
         foreach (Renderer rend in childRenderers)
         {
@@ -204,7 +174,6 @@ public class PlayerFunctions : MonoBehaviour
             }
         }
 
-        // Method 4: If this GameObject has a renderer, use it
         Renderer myRenderer = GetComponent<Renderer>();
         if (myRenderer != null)
         {
@@ -213,7 +182,6 @@ public class PlayerFunctions : MonoBehaviour
             return;
         }
 
-        // Last resort: Check if this is the player controller
         if (gameObject.CompareTag("Player") || GetComponent<PlayerControls>() != null)
         {
             playerModel = transform;
@@ -225,59 +193,48 @@ public class PlayerFunctions : MonoBehaviour
     }
 
     void Update()
-{
-    if (isDead) return;
-
-    // Forward movement - moved to PlayerFunctions
-    Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
-    transform.position += forwardMove;
-
-    // Track distance using player model position
-    Vector3 currentPosition;
-    if (playerModel != null)
     {
-        currentPosition = playerModel.position;
-    }
-    else
-    {
-        currentPosition = transform.position;
-    }
-    
-    distanceTraveled += Vector3.Distance(currentPosition, lastPosition);
-    lastPosition = currentPosition;
+        if (isDead) return;
 
-    if (distanceText != null)
-        distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
+        Vector3 forwardMove = new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+        transform.position += forwardMove;
 
-    // Speed increase logic
-    UpdateSpeedBasedOnDistance();
+        Vector3 currentPosition;
+        if (playerModel != null)
+            currentPosition = playerModel.position;
+        else
+            currentPosition = transform.position;
 
-    // Magnet effect during magnet buff - PLAYER ATTRACTS COINS
-    if (hasMagnet && Time.timeScale > 0)
-    {
-        GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
-        foreach (GameObject coinObj in allCoins)
+        distanceTraveled += Vector3.Distance(currentPosition, lastPosition);
+        lastPosition = currentPosition;
+
+        if (distanceText != null)
+            distanceText.text = $"Distance: {Mathf.FloorToInt(distanceTraveled)} m";
+
+        UpdateSpeedBasedOnDistance();
+
+        if (hasMagnet && Time.timeScale > 0)
         {
-            if (coinObj == null || !coinObj.activeInHierarchy) continue;
-            float distance = Vector3.Distance(transform.position, coinObj.transform.position);
-            if (distance <= magnetRadius)
-                coinObj.transform.position = Vector3.MoveTowards(
-                    coinObj.transform.position,
-                    transform.position,
-                    magnetPullSpeed * Time.deltaTime
-                );
+            GameObject[] allCoins = GameObject.FindGameObjectsWithTag("Coin");
+            foreach (GameObject coinObj in allCoins)
+            {
+                if (coinObj == null || !coinObj.activeInHierarchy) continue;
+                float distance = Vector3.Distance(transform.position, coinObj.transform.position);
+                if (distance <= magnetRadius)
+                    coinObj.transform.position = Vector3.MoveTowards(
+                        coinObj.transform.position,
+                        transform.position,
+                        magnetPullSpeed * Time.deltaTime
+                    );
+            }
         }
     }
-}
 
-    /// <summary>
-    /// Updates speed based on distance traveled
-    /// </summary>
     private void UpdateSpeedBasedOnDistance()
     {
         float bonus = 1f;
         int intervals = Mathf.FloorToInt(distanceTraveled / speedIncreaseDistance);
-        
+
         for (int i = 1; i <= intervals; i++)
         {
             bonus *= speedIncreaseMultiplier;
@@ -287,109 +244,132 @@ public class PlayerFunctions : MonoBehaviour
                 break;
             }
         }
-        
+
         forwardSpeed = 10f * bonus;
-        
-        // Update PlayerControls with the new speed
+
         if (playerControls != null)
             playerControls.SetForwardSpeed(forwardSpeed);
     }
 
-#region OnTriggerEnter
-void OnTriggerEnter(Collider other)
-{
-    if (isDead) return;
-
-    // =========================
-    // COIN COLLECTION
-    // =========================
-    if (other.CompareTag("Coin"))
+    #region OnTriggerEnter
+    void OnTriggerEnter(Collider other)
     {
-        score += 1;
-        totalCoins += 1;
-        UpdateScoreUI();
-        UpdateTotalCoinsUI();
+        if (isDead) return;
 
-        if (audioSource != null && coinSound != null)
-            audioSource.PlayOneShot(coinSound);
-
-        other.gameObject.SetActive(false);
-        Debug.Log("💰 Coin collected!");
-        return;
-    }
-
-    // =========================
-    // TRAP COLLISION
-    // =========================
-    if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
-    {
-        TakeDamage(1);
-        if (audioSource != null && hurtSound != null)
-            audioSource.PlayOneShot(hurtSound);
-    }
-
-    // =========================
-    // LETTER HURDLE
-    // =========================
-    if (other.CompareTag("LetterHurdle"))
-    {
-        Debug.Log("🔤 Hit a Letter Hurdle!");
-
-        if (alwaysInvincible || isInvincible)
+        // =========================
+        // COIN COLLECTION
+        // =========================
+        if (other.CompareTag("Coin"))
         {
-            Debug.Log("🛡️ No damage taken");
+            score += 1;
+            totalCoins += 1;
+            UpdateScoreUI();
+            UpdateTotalCoinsUI();
+
+            if (audioSource != null && coinSound != null)
+                audioSource.PlayOneShot(coinSound);
+
+            other.gameObject.SetActive(false);
+            Debug.Log("💰 Coin collected!");
+            return;
         }
-        else
+
+        // =========================
+        // TRAP COLLISION
+        // =========================
+        if (other.CompareTag("Trap") && !isInvincible && !alwaysInvincible)
         {
             TakeDamage(1);
             if (audioSource != null && hurtSound != null)
                 audioSource.PlayOneShot(hurtSound);
         }
 
-        other.gameObject.SetActive(false);
-    }
-
-    // =========================
-    // ANSWER OPTIONS
-    // =========================
-    if (other.CompareTag("AnswerOptions"))
-    {
-        QuestionRandomizer questionRandomizer =
-            other.GetComponentInParent<QuestionRandomizer>();
-
-        if (questionRandomizer != null)
+        // =========================
+        // LETTER HURDLE
+        // =========================
+        if (other.CompareTag("LetterHurdle"))
         {
-            // FIX: Get the text component directly from the answer option
-            TMP_Text answerText = other.GetComponentInChildren<TMP_Text>();
-            
-            string selectedAnswer = "";
-            
-            if (answerText != null)
+            Debug.Log("🔤 Hit a Letter Hurdle!");
+
+            // 🔹 I‑FRAMES: ignore completely (no damage, no deactivation)
+            if (!alwaysInvincible && isInvincible)
             {
-                selectedAnswer = answerText.text;
-                Debug.Log($"📝 Selected answer: '{selectedAnswer}' from object: {other.gameObject.name}");
+                Debug.Log("🛡️ I‑frames active – ignoring letter hurdle");
+                return;
+            }
+
+            if (alwaysInvincible || isInvincible)
+            {
+                Debug.Log("🛡️ No damage taken");
             }
             else
             {
-                // Fallback to old method if text component not found
+                TakeDamage(1);
+                if (audioSource != null && hurtSound != null)
+                    audioSource.PlayOneShot(hurtSound);
+            }
+
+            other.gameObject.SetActive(false);
+        }
+
+// =========================
+// ANSWER OPTIONS
+// =========================
+if (other.CompareTag("AnswerOptions"))
+{
+    // 🔹 I‑FRAMES: show feedback but skip everything else (damage, word unlock, score)
+    bool skipEffects = !alwaysInvincible && isInvincible;
+
+    QuestionRandomizer questionRandomizer =
+        other.GetComponentInParent<QuestionRandomizer>();
+
+    if (questionRandomizer != null)
+    {
+        // Determine the correct answer
+        string correctAnswer = questionRandomizer.correctAnswer;
+
+        // Collect all answer option GameObjects under the same parent
+        List<GameObject> answerOptions = new List<GameObject>();
+        foreach (Transform child in other.transform.parent)
+        {
+            if (child.CompareTag("AnswerOptions"))
+                answerOptions.Add(child.gameObject);
+        }
+
+        // For each answer option, spawn feedback based on whether it's correct
+        foreach (GameObject opt in answerOptions)
+        {
+            TMP_Text txt = opt.GetComponentInChildren<TMP_Text>();
+            if (txt == null) continue;
+
+            bool isCorrect = txt.text == correctAnswer;
+            GameObject prefab = isCorrect ? correctAnswerPrefab : wrongAnswerPrefab;
+            ReplaceWithFeedbackModel(opt, prefab);
+        }
+
+        // If we are NOT in i‑frames, process normal gameplay effects
+        if (!skipEffects)
+        {
+            // Find which option the player actually hit
+            TMP_Text answerText = other.GetComponentInChildren<TMP_Text>();
+            string selectedAnswer = answerText != null ? answerText.text : "";
+
+            if (string.IsNullOrEmpty(selectedAnswer))
+            {
+                // Fallback for old naming
                 if (other.gameObject.name.Contains("Jump"))
                     selectedAnswer = questionRandomizer.jumpText.text;
                 else if (other.gameObject.name.Contains("Slide"))
                     selectedAnswer = questionRandomizer.slideText.text;
                 else if (other.gameObject.name.Contains("Option3"))
                     selectedAnswer = questionRandomizer.option3Text.text;
-                else
-                {
-                    Debug.LogError($"❌ Could not find TMP_Text on answer option: {other.gameObject.name}");
-                    return;
-                }
             }
 
-            bool isCorrect = selectedAnswer == questionRandomizer.correctAnswer;
+            bool isCorrectSelected = selectedAnswer == correctAnswer;
 
-            if (isCorrect)
+            if (isCorrectSelected)
             {
-                // ✅ CORRECT ANSWER
+                // ✅ CORRECT ANSWER – give rewards
                 Debug.Log($"✅ Correct Answer! [{selectedAnswer}]");
 
                 score += 5;
@@ -400,153 +380,99 @@ void OnTriggerEnter(Collider other)
                 if (audioSource != null && correctAnswerSound != null)
                     audioSource.PlayOneShot(correctAnswerSound);
 
-                ReplaceWithFeedbackModel(other.gameObject, correctAnswerPrefab);
-
-                string correctWord =
-                    questionRandomizer.correctAnswer.ToLower();
-
+                string correctWord = correctAnswer.ToLower();
                 AddUnlockedWord(correctWord);
 
                 wordsCollected++;
                 UpdateWordCountUI();
 
-                    int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
-                    totalWords++;
-                    PlayerPrefs.SetInt("TotalWordCount", totalWords);
-                    PlayerPrefs.Save();
+                int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
+                totalWords++;
+                PlayerPrefs.SetInt("TotalWordCount", totalWords);
+                PlayerPrefs.Save();
 
-                    Debug.Log("💾 TotalWordCount Saved: " + totalWords);
-
-                    if (DailyTaskManager.Instance != null)
-                    DailyTaskManager.Instance
-                        .CheckAndCompleteTask(correctWord);
+                if (DailyTaskManager.Instance != null)
+                    DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
             }
             else
             {
-                // ❌ WRONG ANSWER
-                Debug.Log(
-                    $"❌ Wrong Answer! [{selectedAnswer}] | Correct: {questionRandomizer.correctAnswer}"
-                );
+                // ❌ WRONG ANSWER – play sound and take damage
+                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] | Correct: {correctAnswer}");
 
                 if (audioSource != null && wrongAnswerSound != null)
                     audioSource.PlayOneShot(wrongAnswerSound);
 
-                // ❌ feedback on chosen option
-                ReplaceWithFeedbackModel(
-                    other.gameObject,
-                    wrongAnswerPrefab
-                );
-
-                // ✅ show correct feedback on correct option
-                Transform parent = other.transform.parent;
-                if (parent != null)
-                {
-                    foreach (Transform child in parent)
-                    {
-                        if (child == other.transform) continue;
-
-                        TMP_Text txt =
-                            child.GetComponentInChildren<TMP_Text>();
-
-                        if (txt != null &&
-                            txt.text == questionRandomizer.correctAnswer)
-                        {
-                            ReplaceWithFeedbackModel(
-                                child.gameObject,
-                                correctAnswerPrefab
-                            );
-                            break;
-                        }
-                    }
-                }
-
-                if (!alwaysInvincible)
+                // Damage only if not invincible (i‑frames already caught above, but double‑check)
+                if (!alwaysInvincible && !isInvincible)
                     TakeDamage(1);
             }
+        }
 
-            // =========================
-            // HIDE CLUE UI AFTER ANSWER
-            // =========================
-            if (questionRandomizer.clueTextObject != null)
-                questionRandomizer.clueTextObject.SetActive(false);
+        // Hide clue UI (always do this, even during i‑frames)
+        if (questionRandomizer.clueTextObject != null)
+            questionRandomizer.clueTextObject.SetActive(false);
 
-            if (questionRandomizer.clueImageObject != null)
-                questionRandomizer.clueImageObject.SetActive(false);
+        if (questionRandomizer.clueImageObject != null)
+            questionRandomizer.clueImageObject.SetActive(false);
 
-            // =========================
-            // CLEANUP QUESTION OBJECT
-            // =========================
-            if (other.transform.parent != null)
-            {
-                Collider[] colliders =
-                    other.transform.parent
-                        .GetComponentsInChildren<Collider>();
+        // Clean up the question object after a delay
+        if (other.transform.parent != null)
+        {
+            Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
+            foreach (Collider col in colliders)
+                Destroy(col);
 
-                foreach (Collider col in colliders)
-                    Destroy(col);
-
-                StartCoroutine(
-                    DestroyAfterDelay(
-                        other.transform.parent.gameObject,
-                        feedbackDisplayTime
-                    )
-                );
-            }
+            StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
         }
     }
-
-    // =========================
-    // SHIELD PICKUP - NOW ADDS HEALTH INSTEAD
-    // =========================
-    if (other.CompareTag("Shield"))
-    {
-        // Add health instead of temporary shield
-        currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
-        UpdateHealthUI();
-        
-        if (audioSource != null && coinSound != null)
-            audioSource.PlayOneShot(coinSound);
-            
-        Destroy(other.gameObject);
-        Debug.Log($"❤️ Health pickup! Current health: {currentHealth}/{maxHealth}");
-    }
-
-    // =========================
-    // MAGNET PICKUP - SUMMONS PET THAT FOLLOWS PLAYER
-    // =========================
-    if (other.CompareTag("Magnet"))
-    {
-        StartCoroutine(MagnetBuff());
-        Destroy(other.gameObject);
-        Debug.Log("🧲 Magnet activated! Pet summoned to follow player!");
-    }
-
-    // =========================
-    // SLOW TIME PICKUP
-    // =========================
-    if (other.CompareTag("SlowTime"))
-    {
-        StartCoroutine(SlowTimeBuff());
-        Destroy(other.gameObject);
-        Debug.Log("⏰ Slow Time activated!");
-    }
-}
-#endregion
-
-void UpdateWordCountUI()
-{
-    if (wordCountText != null)
-        wordCountText.text = $"Words: {wordsCollected}";
 }
 
-    /// <summary>
-    /// Adds a word to the unlocked words list in PlayerPrefs
-    /// </summary>
+        // =========================
+        // SHIELD PICKUP (now health)
+        // =========================
+        if (other.CompareTag("Shield"))
+        {
+            currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
+            UpdateHealthUI();
+
+            if (audioSource != null && coinSound != null)
+                audioSource.PlayOneShot(coinSound);
+
+            Destroy(other.gameObject);
+            Debug.Log($"❤️ Health pickup! Current health: {currentHealth}/{maxHealth}");
+        }
+
+        // =========================
+        // MAGNET PICKUP
+        // =========================
+        if (other.CompareTag("Magnet"))
+        {
+            StartCoroutine(MagnetBuff());
+            Destroy(other.gameObject);
+            Debug.Log("🧲 Magnet activated! Pet summoned to follow player!");
+        }
+
+        // =========================
+        // SLOW TIME PICKUP
+        // =========================
+        if (other.CompareTag("SlowTime"))
+        {
+            StartCoroutine(SlowTimeBuff());
+            Destroy(other.gameObject);
+            Debug.Log("⏰ Slow Time activated!");
+        }
+    }
+    #endregion
+
+    void UpdateWordCountUI()
+    {
+        if (wordCountText != null)
+            wordCountText.text = $"Words: {wordsCollected}";
+    }
+
     private void AddUnlockedWord(string word)
     {
-        // Get existing unlocked words
         string existingWords = PlayerPrefs.GetString("NewlyUnlockedWords", "");
-        // Check if word is already in the list
         if (!string.IsNullOrEmpty(existingWords))
         {
             string[] words = existingWords.Split(',');
@@ -555,15 +481,13 @@ void UpdateWordCountUI()
                 if (w.Trim().ToLower() == word.ToLower())
                 {
                     Debug.Log($"⚠️ Word '{word}' already unlocked, skipping.");
-                    return; // Word already exists, don't add again
+                    return;
                 }
             }
-            // Add to existing list
             existingWords += "," + word;
         }
         else
         {
-            // First word
             existingWords = word;
         }
         PlayerPrefs.SetString("NewlyUnlockedWords", existingWords);
@@ -571,21 +495,16 @@ void UpdateWordCountUI()
         Debug.Log($"💾 Saved to NewlyUnlockedWords: {existingWords}");
     }
 
-    #region Save Words Unlocked
     public void SaveAllUnlockedWordsForDictionary()
     {
-        // This is called when going back to HomeScreen
-        // The WordUnlockManager will read "NewlyUnlockedWords" and unlock them all
         PlayerPrefs.Save();
         Debug.Log("📚 All unlocked words saved for Dictionary");
     }
-    #endregion
 
     void TakeDamage(int damage)
     {
         if (isDead || alwaysInvincible) return;
 
-        // Debug current state
         DebugIFrameStatus();
 
         if (hasShield && shieldHitsRemaining > 0)
@@ -599,10 +518,9 @@ void UpdateWordCountUI()
                 if (shieldVisual != null) shieldVisual.SetActive(false);
                 Debug.Log("🛡️ Shield fully depleted and deactivated");
             }
-            return; // Shield took the hit → no health loss
+            return;
         }
 
-        // No shield or shield depleted → take real damage
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
         Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
@@ -618,10 +536,16 @@ void UpdateWordCountUI()
         }
     }
 
-    #region Letter Hurdle
     public void TakeDamageFromWrongLetter()
     {
         if (isDead || alwaysInvincible) return;
+
+        // 🔹 I‑FRAMES: ignore wrong letter damage completely
+        if (isInvincible)
+        {
+            Debug.Log("🛡️ I‑frames active – ignoring wrong letter damage");
+            return;
+        }
 
         if (hasShield && shieldHitsRemaining > 0)
         {
@@ -642,9 +566,7 @@ void UpdateWordCountUI()
             audioSource.PlayOneShot(hurtSound);
         Debug.Log("❌ Wrong letter! Took damage.");
     }
-    #endregion
 
-    // Toggleable invincibility helpers
     public void EnableInvincibility()
     {
         alwaysInvincible = true;
@@ -695,7 +617,6 @@ void UpdateWordCountUI()
         isDead = true;
         Debug.Log("💀 Player died!");
 
-        // Pause the game as soon as death happens
         Time.timeScale = 0f;
 
         PlayerPrefs.SetInt("LatestWordCount", wordsCollected);
@@ -705,7 +626,6 @@ void UpdateWordCountUI()
         if (playerControls != null)
             playerControls.StopMovement();
 
-        // Show revive panel if available
         if (revivePanel != null)
         {
             revivePanel.SetActive(true);
@@ -713,40 +633,32 @@ void UpdateWordCountUI()
         }
         else
         {
-            // If no revive panel, show game over panel
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(true);
         }
     }
 
-    // NEW METHOD: Revive the player from death
     public void ReviveFromDeath()
     {
-        // Reset death state
         isDead = false;
 
-        // Restore health
         currentHealth = maxHealth;
         UpdateHealthUI();
 
-        // Reset all buff states
         isInvincible = false;
         hasShield = false;
         shieldHitsRemaining = 0;
         hasMagnet = false;
         isSlowTime = false;
 
-        // Hide buff visuals
         if (shieldVisual != null)
             shieldVisual.SetActive(false);
         if (magnetVisual != null)
             magnetVisual.SetActive(false);
 
-        // Re-enable player movement
         if (playerControls != null)
             playerControls.ResumeMovement();
 
-        // Hide game over panel
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
@@ -856,14 +768,11 @@ void UpdateWordCountUI()
         isInvincible = true;
         float timer = 0f;
         bool flashState = true;
-        
-        // Store initial renderer states
+
         Dictionary<Renderer, bool> initialStates = new Dictionary<Renderer, bool>();
-        
-        // Collect all renderers to flash
+
         List<Renderer> allRenderers = new List<Renderer>();
-        
-        // Add model renderers
+
         if (modelRenderers != null)
         {
             foreach (Renderer r in modelRenderers)
@@ -875,8 +784,7 @@ void UpdateWordCountUI()
                 }
             }
         }
-        
-        // Add other renderers
+
         foreach (Renderer r in renderers)
         {
             if (r != null && !allRenderers.Contains(r))
@@ -885,148 +793,131 @@ void UpdateWordCountUI()
                 initialStates[r] = r.enabled;
             }
         }
-        
+
         while (timer < duration)
         {
-            // Toggle visibility of all renderers
             foreach (Renderer r in allRenderers)
             {
                 if (r != null)
                     r.enabled = flashState;
             }
-            
-            // Wait for the flash interval
+
             yield return new WaitForSeconds(flashInterval);
-            
-            // Toggle flash state
+
             flashState = !flashState;
             timer += flashInterval;
         }
-        
-        // Restore all renderers to their original state
+
         foreach (Renderer r in allRenderers)
         {
             if (r != null && initialStates.ContainsKey(r))
                 r.enabled = initialStates[r];
         }
-        
+
         isInvincible = false;
         Debug.Log("🛡️ iFrames ended");
     }
     #endregion
 
-#region power ups
-IEnumerator ShieldBuff()
-{
-    hasShield = true;
-    shieldHitsRemaining = shieldMaxHits;
-    if (shieldVisual != null)
-        shieldVisual.SetActive(true);
-
-    Debug.Log($"🛡️ Shield activated! Absorbs {shieldMaxHits} hits for up to {shieldDuration} seconds");
-
-    float timer = shieldDuration;
-    while (timer > 0 && hasShield)
+    #region power ups
+    IEnumerator ShieldBuff()
     {
-        timer -= Time.deltaTime;
-        yield return null;
+        hasShield = true;
+        shieldHitsRemaining = shieldMaxHits;
+        if (shieldVisual != null)
+            shieldVisual.SetActive(true);
+
+        Debug.Log($"🛡️ Shield activated! Absorbs {shieldMaxHits} hits for up to {shieldDuration} seconds");
+
+        float timer = shieldDuration;
+        while (timer > 0 && hasShield)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (hasShield)
+        {
+            hasShield = false;
+            if (shieldVisual != null) shieldVisual.SetActive(false);
+            Debug.Log("🛡️ Shield expired (time out)");
+        }
     }
 
-    if (hasShield)
-    {
-        hasShield = false;
-        if (shieldVisual != null) shieldVisual.SetActive(false);
-        Debug.Log("🛡️ Shield expired (time out)");
-    }
-}
+    [Header("Magnet Pet Settings")]
+    public GameObject magnetPetPrefab;
+    public float petFollowSpeed = 5f;
+    public Vector3 petOffset = new Vector3(0, 0, -2f);
+    public Vector3 petScale = Vector3.one;
+    public Vector3 petRotation = Vector3.zero;
+    private GameObject activePet;
 
-// Magnet Pet System - PET FOLLOWS PLAYER, PLAYER ATTRACTS COINS
-[Header("Magnet Pet Settings")]
-public GameObject magnetPetPrefab; // Assign a pet prefab in Inspector
-public float petFollowSpeed = 5f;
-public Vector3 petOffset = new Vector3(0, 0, -2f); // Position relative to player
-public Vector3 petScale = Vector3.one; // Editable size (1,1,1 = normal)
-public Vector3 petRotation = Vector3.zero; // Editable rotation in degrees
-private GameObject activePet;
-
-IEnumerator MagnetBuff()
-{
-    hasMagnet = true;
-    
-    // Spawn pet if prefab is assigned
-    if (magnetPetPrefab != null && activePet == null)
+    IEnumerator MagnetBuff()
     {
-        Vector3 spawnPosition = transform.position + petOffset;
-        activePet = Instantiate(magnetPetPrefab, spawnPosition, Quaternion.identity);
-        
-        // Apply custom scale
-        activePet.transform.localScale = petScale;
-        
-        // Apply custom rotation
-        activePet.transform.rotation = Quaternion.Euler(petRotation);
-        
-        Debug.Log($"🐕 Pet summoned: {activePet.name} | Scale: {petScale} | Rotation: {petRotation}");
-    }
-    
-    if (magnetVisual != null)
-        magnetVisual.SetActive(true);
-        
-    Debug.Log($"🧲 Magnet active for {magnetDuration} seconds - Player attracts coins! Pet follows!");
+        hasMagnet = true;
 
-    float timer = magnetDuration;
-    while (timer > 0 && hasMagnet)
-    {
-        // Move pet towards player
+        if (magnetPetPrefab != null && activePet == null)
+        {
+            Vector3 spawnPosition = transform.position + petOffset;
+            activePet = Instantiate(magnetPetPrefab, spawnPosition, Quaternion.identity);
+
+            activePet.transform.localScale = petScale;
+            activePet.transform.rotation = Quaternion.Euler(petRotation);
+
+            Debug.Log($"🐕 Pet summoned: {activePet.name} | Scale: {petScale} | Rotation: {petRotation}");
+        }
+
+        if (magnetVisual != null)
+            magnetVisual.SetActive(true);
+
+        Debug.Log($"🧲 Magnet active for {magnetDuration} seconds - Player attracts coins! Pet follows!");
+
+        float timer = magnetDuration;
+        while (timer > 0 && hasMagnet)
+        {
+            if (activePet != null)
+            {
+                Vector3 targetPosition = transform.position + petOffset;
+                activePet.transform.position = Vector3.Lerp(
+                    activePet.transform.position,
+                    targetPosition,
+                    petFollowSpeed * Time.deltaTime
+                );
+                activePet.transform.rotation = Quaternion.Euler(petRotation);
+            }
+
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
         if (activePet != null)
         {
-            // Calculate target position relative to player
-            Vector3 targetPosition = transform.position + petOffset;
-            
-            // Smoothly move pet towards target
-            activePet.transform.position = Vector3.Lerp(
-                activePet.transform.position,
-                targetPosition,
-                petFollowSpeed * Time.deltaTime
-            );
-            
-            // Keep rotation consistent
-            activePet.transform.rotation = Quaternion.Euler(petRotation);
+            Destroy(activePet);
+            activePet = null;
+            Debug.Log("🐕 Pet despawned");
         }
-        
-        timer -= Time.deltaTime;
-        yield return null;
+
+        if (magnetVisual != null)
+            magnetVisual.SetActive(false);
+
+        hasMagnet = false;
+        Debug.Log("🧲 Magnet expired");
     }
 
-    // Cleanup pet when buff ends
-    if (activePet != null)
+    IEnumerator SlowTimeBuff()
     {
-        Destroy(activePet);
-        activePet = null;
-        Debug.Log("🐕 Pet despawned");
+        isSlowTime = true;
+        Time.timeScale = 0.5f;
+        Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
+
+        yield return new WaitForSecondsRealtime(slowTimeDuration);
+
+        Time.timeScale = 1f;
+        isSlowTime = false;
+        Debug.Log("⏰ Slow Time expired");
     }
+    #endregion
 
-    if (magnetVisual != null)
-        magnetVisual.SetActive(false);
-        
-    hasMagnet = false;
-    Debug.Log("🧲 Magnet expired");
-}
-
-IEnumerator SlowTimeBuff()
-{
-    isSlowTime = true;
-    Time.timeScale = 0.5f;
-    Debug.Log($"⏰ Slow Time active for {slowTimeDuration} seconds (real time)");
-
-    yield return new WaitForSecondsRealtime(slowTimeDuration);
-
-    Time.timeScale = 1f;
-    isSlowTime = false;
-    Debug.Log("⏰ Slow Time expired");
-}
-#endregion
-   
-   
     private GameObject GetFromPool(Queue<GameObject> pool, GameObject prefab)
     {
         if (pool.Count > 0)
@@ -1048,8 +939,7 @@ IEnumerator SlowTimeBuff()
     {
         if (feedbackPrefab == null) return;
 
-        Queue<GameObject> pool =
-            feedbackPrefab == correctAnswerPrefab ? correctPool : wrongPool;
+        Queue<GameObject> pool = feedbackPrefab == correctAnswerPrefab ? correctPool : wrongPool;
 
         GameObject feedback = GetFromPool(pool, feedbackPrefab);
         feedback.transform.position = answerOption.transform.position;
@@ -1099,7 +989,6 @@ IEnumerator SlowTimeBuff()
         }
     }
 
-    // Public method to manually set player model (optional)
     public void SetPlayerModel(Transform newModel)
     {
         playerModel = newModel;
@@ -1109,16 +998,15 @@ IEnumerator SlowTimeBuff()
             Debug.Log($"✅ Player model manually set to: {playerModel.name}");
         }
     }
-    
-    // Public methods for forward speed control
+
     public float GetForwardSpeed() => forwardSpeed;
-    
+
     public void SetForwardSpeed(float speed)
     {
         forwardSpeed = speed;
         Debug.Log($"⚡ Speed set to: {forwardSpeed}");
     }
-    
+
     public void StopMovement()
     {
         forwardSpeed = 0f;
@@ -1126,7 +1014,7 @@ IEnumerator SlowTimeBuff()
             playerControls.SetForwardSpeed(0f);
         Debug.Log("🛑 Movement stopped");
     }
-    
+
     public void ResumeMovement(float baseSpeed = 10f)
     {
         forwardSpeed = baseSpeed;
@@ -1135,7 +1023,6 @@ IEnumerator SlowTimeBuff()
         Debug.Log($"▶️ Movement resumed at speed: {forwardSpeed}");
     }
 
-    // Debug Helper for iFrames
     public void DebugIFrameStatus()
     {
         Debug.Log($"iFrame Status:");
@@ -1144,7 +1031,7 @@ IEnumerator SlowTimeBuff()
         Debug.Log($"- hasShield: {hasShield}");
         Debug.Log($"- shieldHitsRemaining: {shieldHitsRemaining}");
         Debug.Log($"- modelRenderers count: {(modelRenderers != null ? modelRenderers.Length : 0)}");
-        
+
         if (modelRenderers != null)
         {
             for (int i = 0; i < Mathf.Min(3, modelRenderers.Length); i++)
@@ -1171,4 +1058,3 @@ IEnumerator SlowTimeBuff()
     }
 #endif
 }
-//testing
