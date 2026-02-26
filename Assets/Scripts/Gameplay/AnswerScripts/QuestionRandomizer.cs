@@ -349,19 +349,19 @@ public class QuestionRandomizer : MonoBehaviour
     void Awake()
     {
         string sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName == "EasyMode")
+        if (sceneName == "GAMEMODE")
         {
             activeSpellingPairs = easySpellingPairs;
             activeSentencePairs = easySentencePairs;
             Debug.Log("Difficulty: EASY MODE activated");
         }
-        else if (sceneName == "MediumMode")
+        else if (sceneName == "GAMEMODE 1")
         {
             activeSpellingPairs = mediumSpellingPairs;
             activeSentencePairs = mediumSentencePairs;
             Debug.Log("Difficulty: MEDIUM MODE activated");
         }
-        else if (sceneName == "HardMode")
+        else if (sceneName == "GAMEMODE 2")
         {
             activeSpellingPairs = hardSpellingPairs;
             activeSentencePairs = hardSentencePairs;

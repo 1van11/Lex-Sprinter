@@ -2088,7 +2088,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
-  SceneMode: EasyMode
+  SceneMode: GAMEMODE
 --- !u!114 &99420174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2261,7 +2261,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
-  SceneMode: MediumMode
+  SceneMode: GAMEMODE 1
 --- !u!114 &101568265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22404,7 +22404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerManager: {fileID: 1683477649}
-  SceneMode: HardMode
+  SceneMode: GAMEMODE 2
 --- !u!114 &1582677421
 MonoBehaviour:
   m_ObjectHideFlags: 0
