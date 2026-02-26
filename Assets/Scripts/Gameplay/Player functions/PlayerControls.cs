@@ -32,6 +32,7 @@ public class PlayerControls : MonoBehaviour
     public bool useLaneSnapping = false;         // Enable discrete lane switching
     public int laneCount = 3;                     // Number of lanes (e.g., 3 for left, center, right)
     public float laneSwitchSpeed = 10f;            // Speed of moving to target lane
+    public float laneChangeTimeout = 1.0f;         // Max time allowed to complete a lane change
 
     private Rigidbody rb;
     private CapsuleCollider col;
@@ -46,7 +47,11 @@ public class PlayerControls : MonoBehaviour
     // Lane snapping variables
     private float[] lanePositions;
     private int currentLaneIndex;
+    private int targetLaneIndex;
     private float targetLaneX;
+    private bool isChangingLane = false;
+    private float laneChangeStartTime;
+    private Vector3 laneChangeStartPosition;
 
     // Touch tracking for continuous swipe
     private int activeTouchId = -1;
@@ -106,7 +111,9 @@ public class PlayerControls : MonoBehaviour
             }
         }
         currentLaneIndex = nearest;
+        targetLaneIndex = currentLaneIndex;
         targetLaneX = lanePositions[currentLaneIndex];
+        isChangingLane = false;
     }
 
     void Update()
@@ -272,8 +279,83 @@ public class PlayerControls : MonoBehaviour
         int newIndex = currentLaneIndex + direction;
         if (newIndex >= 0 && newIndex < laneCount)
         {
-            currentLaneIndex = newIndex;
+            // If we're already changing lanes, check if this is a new direction
+            if (isChangingLane)
+            {
+                // If trying to change to a different lane than current target, cancel current and start new
+                if (newIndex != targetLaneIndex)
+                {
+                    CancelLaneChange();
+                    StartLaneChange(newIndex);
+                }
+            }
+            else
+            {
+                StartLaneChange(newIndex);
+            }
+        }
+    }
+
+    void StartLaneChange(int newLaneIndex)
+    {
+        targetLaneIndex = newLaneIndex;
+        targetLaneX = lanePositions[targetLaneIndex];
+        isChangingLane = true;
+        laneChangeStartTime = Time.time;
+        laneChangeStartPosition = transform.position;
+    }
+
+    void CheckLaneChangeProgress()
+    {
+        if (!isChangingLane) return;
+
+        // Check if we've reached the target lane
+        if (Mathf.Abs(transform.position.x - targetLaneX) < 0.01f)
+        {
+            CompleteLaneChange();
+            return;
+        }
+
+        // Check for timeout
+        float timeElapsed = Time.time - laneChangeStartTime;
+        if (timeElapsed > laneChangeTimeout)
+        {
+            // Calculate how far we've moved toward the target lane
+            float startToTarget = Mathf.Abs(targetLaneX - laneChangeStartPosition.x);
+            float currentDistanceToTarget = Mathf.Abs(targetLaneX - transform.position.x);
+            float distanceMoved = startToTarget - currentDistanceToTarget;
+            
+            // If we haven't made significant progress (less than 20% of the way), cancel the lane change
+            if (startToTarget > 0.01f && distanceMoved < startToTarget * 0.2f)
+            {
+                Debug.Log("Lane change cancelled - blocked by obstacle");
+                CancelLaneChange();
+            }
+            else if (timeElapsed > laneChangeTimeout * 2f) // Force cancel if taking too long
+            {
+                Debug.Log("Lane change cancelled - timeout");
+                CancelLaneChange();
+            }
+        }
+    }
+
+    void CancelLaneChange()
+    {
+        if (isChangingLane)
+        {
+            // Revert to current lane
+            targetLaneIndex = currentLaneIndex;
             targetLaneX = lanePositions[currentLaneIndex];
+            isChangingLane = false;
+        }
+    }
+
+    void CompleteLaneChange()
+    {
+        if (isChangingLane)
+        {
+            currentLaneIndex = targetLaneIndex;
+            isChangingLane = false;
         }
     }
 
@@ -304,14 +386,35 @@ public class PlayerControls : MonoBehaviour
 
         if (useLaneSnapping)
         {
+            // Store previous position to check if we're actually moving
+            Vector3 previousPosition = transform.position;
+            
             // Move towards target lane
             Vector3 pos = transform.position;
             pos.x = Mathf.MoveTowards(pos.x, targetLaneX, laneSwitchSpeed * Time.deltaTime);
             transform.position = pos;
 
+            // Check if we're actually moving horizontally
+            bool isMovingHorizontally = Mathf.Abs(transform.position.x - previousPosition.x) > 0.001f;
+
+            // Check lane change progress
+            if (isChangingLane)
+            {
+                // If we're not moving horizontally but should be (blocked), check timeout
+                if (!isMovingHorizontally && Mathf.Abs(transform.position.x - targetLaneX) > 0.1f)
+                {
+                    CheckLaneChangeProgress();
+                }
+                else
+                {
+                    // Normal progress check
+                    CheckLaneChangeProgress();
+                }
+            }
+
             // Update tilt based on movement direction
             float diff = targetLaneX - pos.x;
-            if (Mathf.Abs(diff) > 0.001f)
+            if (Mathf.Abs(diff) > 0.001f && isMovingHorizontally)
             {
                 // Moving left (diff < 0) -> tilt right (positive angle)
                 targetTilt = (diff < 0) ? tiltAngle : -tiltAngle;
@@ -379,6 +482,7 @@ public class PlayerControls : MonoBehaviour
         anim.SetBool("isJumping", !isGrounded);
         anim.SetBool("isFastDescending", isFastDescending);
         anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.1f);
+        anim.SetBool("isChangingLane", isChangingLane);
     }
 
     #endregion
@@ -406,7 +510,9 @@ public class PlayerControls : MonoBehaviour
     public float HorizontalInput => horizontalInput;
     public bool IsGrounded => isGrounded;
     public bool IsFastDescending => isFastDescending;
+    public bool IsChangingLane => isChangingLane;
+    public int CurrentLane => currentLaneIndex;
+    public int TargetLane => targetLaneIndex;
 
     #endregion
 }
-//working
