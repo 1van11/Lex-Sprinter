@@ -10,8 +10,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] GameObject pauseMenu;
     [SerializeField] GameObject OtherThingsCanvas;
     [SerializeField] TMP_Text countdownText;
-    [SerializeField] float slowMotionTimescale = 0.1f;
-    [SerializeField] float slowMotionDuration = 3f;
+    [SerializeField] float freezeFrameDuration = 3f; // Now used as freeze duration
 
     [Header("Revive System")]
     public GameObject playerObject;
@@ -72,7 +71,7 @@ public class PauseMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Time.timeScale > slowMotionTimescale && !isResuming)
+            if (Time.timeScale > 0 && !isResuming) // Changed condition since we're using freeze (0 timeScale)
                 Pause();
         }
     }
@@ -113,14 +112,15 @@ public class PauseMenu : MonoBehaviour
     {
         if (!isResuming && Time.timeScale == 0)
         {
-            resumeCoroutine = StartCoroutine(ResumeWithSlowMotion());
+            resumeCoroutine = StartCoroutine(ResumeWithFreezeFrame());
         }
     }
 
-    private IEnumerator ResumeWithSlowMotion()
+    private IEnumerator ResumeWithFreezeFrame()
     {
         isResuming = true;
 
+        // Hide pause menu but keep game frozen
         if (pauseCanvasGroup != null)
         {
             pauseCanvasGroup.alpha = 0;
@@ -128,51 +128,66 @@ public class PauseMenu : MonoBehaviour
             pauseCanvasGroup.blocksRaycasts = false;
         }
 
+        // Show countdown text
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(true);
         }
 
-        Time.timeScale = slowMotionTimescale;
-        Time.fixedDeltaTime = originalFixedDeltaTime * slowMotionTimescale;
+        // Keep timeScale at 0 (completely frozen) during countdown
+        Time.timeScale = 0f;
+        Time.fixedDeltaTime = originalFixedDeltaTime * 0f;
 
-        SetAllAnimationsSpeed(slowMotionTimescale);
-        SetAllParticleSystemSpeed(slowMotionTimescale);
-        SetAllAudioPitch(slowMotionTimescale);
+        // Ensure all animations and particles remain paused
+        PauseAllAnimations();
+        PauseAllParticleSystems();
+        PauseAllAudio();
 
-        ResumeAllAnimations();
-        ResumeAllParticleSystems();
-        ResumeAllAudio();
-
-        float timer = slowMotionDuration;
+        // Countdown with frozen game
+        float timer = freezeFrameDuration;
         while (timer > 0)
         {
             if (countdownText != null)
             {
                 countdownText.text = Mathf.CeilToInt(timer).ToString();
+                // Start the scale animation but it will be frozen - we'll handle it with unscaled time
                 StartCoroutine(ScaleCountdownNumber(countdownText.transform));
             }
-            yield return new WaitForSecondsRealtime(1f);
+            
+            // Wait for 1 second in real time (unscaled)
+            float waitStartTime = Time.unscaledTime;
+            while (Time.unscaledTime - waitStartTime < 1f)
+            {
+                yield return null; // Wait using unscaled time
+            }
+            
             timer -= 1f;
         }
 
+        // Show "GO!" text
         if (countdownText != null)
         {
-            countdownText.text = "go";
+            countdownText.text = "go!";
             StartCoroutine(ScaleCountdownNumber(countdownText.transform, 1.8f));
         }
 
-        yield return new WaitForSecondsRealtime(1f);
+        // Brief pause before resuming
+        yield return new WaitForSecondsRealtime(0.3f);
 
-        if (countdownText != null) countdownText.gameObject.SetActive(false);
+        // Hide countdown text
+        if (countdownText != null) 
+            countdownText.gameObject.SetActive(false);
 
+        // Resume the game
         Time.timeScale = 1f;
         Time.fixedDeltaTime = originalFixedDeltaTime;
 
-        RestoreAllAnimationsToNormal();
-        RestoreAllParticleSystemsToNormal();
-        RestoreAllAudioToNormal();
+        // Resume all animations and effects
+        ResumeAllAnimations();
+        ResumeAllParticleSystems();
+        ResumeAllAudio();
 
+        // Hide pause menu and show other UI
         pauseMenu.SetActive(false);
         if (OtherThingsCanvas != null) OtherThingsCanvas.SetActive(true);
 
@@ -275,32 +290,34 @@ public class PauseMenu : MonoBehaviour
     #endregion
 
     #region Internal Helpers
-private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1.5f)
-{
-    Vector3 originalScale = target.localScale;          // store the actual starting scale
-    Vector3 goalScale = originalScale * targetScale;    // scale up from that
-    float t = 0f;
-
-    // Scale up
-    while (t < 1f)
+    private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1.5f)
     {
-        t += Time.unscaledDeltaTime * 5f;
-        target.localScale = Vector3.Lerp(originalScale, goalScale, t);
-        yield return null;
-    }
-    target.localScale = goalScale;   // ensure exact final up-scale
+        if (target == null) yield break;
+        
+        Vector3 originalScale = target.localScale;          // store the actual starting scale
+        Vector3 goalScale = originalScale * targetScale;    // scale up from that
+        float t = 0f;
 
-    t = 0f;
+        // Scale up - using unscaledDeltaTime since time is frozen
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(originalScale, goalScale, t);
+            yield return null;
+        }
+        target.localScale = goalScale;   // ensure exact final up-scale
 
-    // Scale back down
-    while (t < 1f)
-    {
-        t += Time.unscaledDeltaTime * 5f;
-        target.localScale = Vector3.Lerp(goalScale, originalScale, t);
-        yield return null;
+        t = 0f;
+
+        // Scale back down - using unscaledDeltaTime since time is frozen
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime * 5f;
+            target.localScale = Vector3.Lerp(goalScale, originalScale, t);
+            yield return null;
+        }
+        target.localScale = originalScale;   // restore exactly
     }
-    target.localScale = originalScale;   // restore exactly
-}
 
     private void SaveCoins() {
         if (playerFunctions != null) playerFunctions.SaveTotalCoins();
@@ -318,6 +335,7 @@ private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1
     void OnDestroy() {
         // Ensure time is normal if this script is destroyed
         Time.timeScale = 1f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
     }
     #endregion
 
@@ -338,4 +356,3 @@ private IEnumerator ScaleCountdownNumber(Transform target, float targetScale = 1
     void RestoreAllAudioToNormal() { foreach (var a in allAudioSources) if (a) a.pitch = 1; }
     #endregion
 }
-//working
