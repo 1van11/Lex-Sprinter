@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ObstacleSpawner : MonoBehaviour
 {
@@ -94,7 +95,7 @@ public class ObstacleSpawner : MonoBehaviour
     public int platformRowSpawnChance = 25;
 
     [Range(0, 100)]
-    [Tooltip("Chance (0-100) that a platform spans 2 lanes instead of 1")]
+    [Tooltip("Chance (0-100) that a platform row has two platforms (one per lane) instead of one")]
     public int platformDoubleLaneChance = 30;
 
     [Header("Platform Position and Height")]
@@ -207,6 +208,29 @@ public class ObstacleSpawner : MonoBehaviour
     [Tooltip("Number of words to solve before ending the event (set to 1 for single word)")]
     public int wordsToSolvePerEvent = 1;
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // LETTER EVENT UI ANIMATION (similar to QuestionRandomizer)
+    // ─────────────────────────────────────────────────────────────────────────
+    [Header("─── LETTER UI ANIMATION ────────────────────────────────")]
+    public bool animateLetterUI = true;
+    public float letterUIAnimationDuration = 0.3f;
+    public AnimationCurve letterUIAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public SlideDirection letterUISlideDirection = SlideDirection.Up;
+    public float letterUISlideDistance = 100f;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LETTER HURDLE END ANIMATION
+    // ─────────────────────────────────────────────────────────────────────────
+    [Header("─── LETTER HURDLE END ANIMATION ────────────────────────")]
+    public bool animateHurdlesOnEventEnd = true;
+    public float hurdleRotationDuration = 1f;
+    public float hurdleRotationSpeed = 360f; // degrees per second
+    public RotationAxis hurdleRotationAxis = RotationAxis.Y;
+    public AnimationCurve hurdleRotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public float hurdleSlideDownDuration = 0.5f;
+    public AnimationCurve hurdleSlideCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public float hurdleSlideDownHeight = -2f; // if not set, uses letterHurdleGroundY
+
     [Header("Despawn Settings")]
     public float despawnDistance = 10f;
     public float maxObstacleLifetime = 15f;
@@ -247,7 +271,22 @@ public class ObstacleSpawner : MonoBehaviour
     private Coroutine letterEventCoroutine;
     private int wordsCompletedInCurrentEvent = 0;
 
+    // UI Animation components
+    private CanvasGroup clueUICanvasGroup;
+    private RectTransform clueUIRect;
+    private Vector2 originalClueUIPos;
+
+    private CanvasGroup warningUICanvasGroup;
+    private RectTransform warningUIRect;
+    private Vector2 originalWarningUIPos;
+
+    private CanvasGroup completeUICanvasGroup;
+    private RectTransform completeUIRect;
+    private Vector2 originalCompleteUIPos;
+
     public enum PowerUpType { Shield, Magnet, SlowTime }
+    public enum SlideDirection { Left, Right, Up, Down }
+    public enum RotationAxis { X, Y, Z }
 
     [System.Serializable]
     public class PowerUpSpawnChance
@@ -280,11 +319,51 @@ public class ObstacleSpawner : MonoBehaviour
 
         allowRegularLetterSpawning = false;
 
-        if (letterEventClueUI != null)          letterEventClueUI.SetActive(false);
-        if (letterEventStartWarningUI != null)  letterEventStartWarningUI.SetActive(false);
-        if (letterEventCompleteUI != null)      letterEventCompleteUI.SetActive(false);
+        // Initialize UI animation components
+        InitializeUIAnimations();
+
+        // Ensure UI elements start hidden
+        if (letterEventClueUI != null) letterEventClueUI.SetActive(false);
+        if (letterEventStartWarningUI != null) letterEventStartWarningUI.SetActive(false);
+        if (letterEventCompleteUI != null) letterEventCompleteUI.SetActive(false);
 
         letterEventCoroutine = StartCoroutine(LetterEventSpawner());
+    }
+
+    void InitializeUIAnimations()
+    {
+        // Clue UI
+        if (letterEventClueUI != null)
+        {
+            clueUICanvasGroup = letterEventClueUI.GetComponent<CanvasGroup>();
+            if (clueUICanvasGroup == null)
+                clueUICanvasGroup = letterEventClueUI.AddComponent<CanvasGroup>();
+            clueUIRect = letterEventClueUI.GetComponent<RectTransform>();
+            if (clueUIRect != null)
+                originalClueUIPos = clueUIRect.anchoredPosition;
+        }
+
+        // Warning UI
+        if (letterEventStartWarningUI != null)
+        {
+            warningUICanvasGroup = letterEventStartWarningUI.GetComponent<CanvasGroup>();
+            if (warningUICanvasGroup == null)
+                warningUICanvasGroup = letterEventStartWarningUI.AddComponent<CanvasGroup>();
+            warningUIRect = letterEventStartWarningUI.GetComponent<RectTransform>();
+            if (warningUIRect != null)
+                originalWarningUIPos = warningUIRect.anchoredPosition;
+        }
+
+        // Completion UI
+        if (letterEventCompleteUI != null)
+        {
+            completeUICanvasGroup = letterEventCompleteUI.GetComponent<CanvasGroup>();
+            if (completeUICanvasGroup == null)
+                completeUICanvasGroup = letterEventCompleteUI.AddComponent<CanvasGroup>();
+            completeUIRect = letterEventCompleteUI.GetComponent<RectTransform>();
+            if (completeUIRect != null)
+                originalCompleteUIPos = completeUIRect.anchoredPosition;
+        }
     }
 
     void Update()
@@ -326,15 +405,98 @@ public class ObstacleSpawner : MonoBehaviour
     }
 
     // =========================================================================
+    // UI ANIMATION HELPERS
+    // =========================================================================
+    #region UI Animation
+
+    IEnumerator AnimateUIIn(GameObject uiObject, CanvasGroup canvasGroup, RectTransform rect, Vector2 originalPos)
+    {
+        if (uiObject == null || canvasGroup == null || rect == null) yield break;
+
+        uiObject.SetActive(true);
+        canvasGroup.alpha = 0f;
+
+        Vector2 startPos = originalPos;
+        switch (letterUISlideDirection)
+        {
+            case SlideDirection.Left:  startPos.x -= letterUISlideDistance; break;
+            case SlideDirection.Right: startPos.x += letterUISlideDistance; break;
+            case SlideDirection.Up:    startPos.y += letterUISlideDistance; break;
+            case SlideDirection.Down:  startPos.y -= letterUISlideDistance; break;
+        }
+        rect.anchoredPosition = startPos;
+
+        float elapsed = 0f;
+        while (elapsed < letterUIAnimationDuration)
+        {
+            float t = elapsed / letterUIAnimationDuration;
+            float curveVal = letterUIAnimationCurve.Evaluate(t);
+
+            canvasGroup.alpha = curveVal;
+            rect.anchoredPosition = Vector2.Lerp(startPos, originalPos, curveVal);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        canvasGroup.alpha = 1f;
+        rect.anchoredPosition = originalPos;
+    }
+
+    IEnumerator AnimateUIOut(GameObject uiObject, CanvasGroup canvasGroup, RectTransform rect, Vector2 originalPos)
+    {
+        if (uiObject == null || canvasGroup == null || rect == null) yield break;
+
+        Vector2 targetPos = originalPos;
+        switch (letterUISlideDirection)
+        {
+            case SlideDirection.Left:  targetPos.x -= letterUISlideDistance; break;
+            case SlideDirection.Right: targetPos.x += letterUISlideDistance; break;
+            case SlideDirection.Up:    targetPos.y += letterUISlideDistance; break;
+            case SlideDirection.Down:  targetPos.y -= letterUISlideDistance; break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < letterUIAnimationDuration)
+        {
+            float t = elapsed / letterUIAnimationDuration;
+            float curveVal = letterUIAnimationCurve.Evaluate(t);
+
+            canvasGroup.alpha = 1f - curveVal;
+            rect.anchoredPosition = Vector2.Lerp(originalPos, targetPos, curveVal);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        canvasGroup.alpha = 0f;
+        rect.anchoredPosition = targetPos;
+        uiObject.SetActive(false);
+    }
+
+    void ShowUIWithAnimation(GameObject uiObject, CanvasGroup canvasGroup, RectTransform rect, Vector2 originalPos)
+    {
+        if (animateLetterUI)
+            StartCoroutine(AnimateUIIn(uiObject, canvasGroup, rect, originalPos));
+        else
+            uiObject.SetActive(true);
+    }
+
+    void HideUIWithAnimation(GameObject uiObject, CanvasGroup canvasGroup, RectTransform rect, Vector2 originalPos)
+    {
+        if (animateLetterUI && uiObject.activeSelf)
+            StartCoroutine(AnimateUIOut(uiObject, canvasGroup, rect, originalPos));
+        else
+            uiObject.SetActive(false);
+    }
+
+    #endregion
+
+    // =========================================================================
     // PLATFORM SPAWNER SYSTEM
     // =========================================================================
     #region Platform Spawner System
 
-    /// <summary>
-    /// Spawns a platform row at the given Z offset.
-    /// Handles single-lane and double-lane platforms, coins, and power-ups on top.
-    /// Also spawns the configured number of obstacles in lanes NOT occupied by the platform.
-    /// </summary>
     void SpawnPlatformRow(float zOffset)
     {
         if (platformPrefabs == null || platformPrefabs.Length == 0)
@@ -346,84 +508,70 @@ public class ObstacleSpawner : MonoBehaviour
 
         float baseZ = PlayerFunctions.transform.position.z + zOffset;
 
-        // Decide single (1 lane) or double (2 lanes) platform
-        bool isDoubleLane = Random.Range(0, 100) < platformDoubleLaneChance;
+        bool isDoublePlatformRow = Random.Range(0, 100) < platformDoubleLaneChance;
 
-        // Pick random platform prefab
-        int prefabIdx = Random.Range(0, platformPrefabs.Length);
-        GameObject prefab = platformPrefabs[prefabIdx];
-
-        // ── Determine which lanes the platform occupies ───────────────────
-        List<int> allLanes = new List<int> { 0, 1, 2 }; // 0=left, 1=center, 2=right
         List<int> platformLanes = new List<int>();
-        List<int> freeLanes    = new List<int>();
-
-        if (isDoubleLane)
+        if (isDoublePlatformRow)
         {
-            // Pick 2 adjacent lanes
-            int startLane = Random.Range(0, 2); // 0 or 1
+            int startLane = Random.Range(0, 2);
             platformLanes.Add(startLane);
             platformLanes.Add(startLane + 1);
         }
         else
         {
-            // Pick 1 random lane
-            int lane = allLanes[Random.Range(0, allLanes.Count)];
-            platformLanes.Add(lane);
+            platformLanes.Add(Random.Range(0, 3));
         }
 
+        List<GameObject> spawnedPlatforms = new List<GameObject>();
+
+        foreach (int lane in platformLanes)
+        {
+            int prefabIdx = Random.Range(0, platformPrefabs.Length);
+            GameObject prefab = platformPrefabs[prefabIdx];
+
+            float laneX = (lane - 1) * laneDistance;
+            float platformY = platformUsePrefabHeight ? prefab.transform.position.y : platformSpawnHeight;
+
+            Vector3 spawnPos = new Vector3(
+                laneX + platformPositionOffset.x,
+                platformY + platformPositionOffset.y,
+                baseZ + platformPositionOffset.z);
+
+            GameObject platform = Instantiate(
+                prefab,
+                spawnPos,
+                prefab.transform.rotation,
+                PlatformParentTransform);
+
+            platform.transform.localScale = prefab.transform.localScale;
+
+            activePlatforms.Add(platform);
+            spawnedPlatforms.Add(platform);
+            StartCoroutine(AutoDespawnPlatform(platform, maxObstacleLifetime));
+
+            Debug.Log($"🟩 Spawned platform at lane {lane}, Z: {baseZ}");
+        }
+
+        if (coinPrefab != null && Random.Range(0, 100) < platformCoinChance)
+        {
+            foreach (GameObject platform in spawnedPlatforms)
+            {
+                SpawnCoinsOnSinglePlatform(platform, baseZ);
+            }
+        }
+
+        if (hasPassedFirstPowerUpDistance && Random.Range(0, 100) < platformPowerUpChance && spawnedPlatforms.Count > 0)
+        {
+            GameObject chosenPlatform = spawnedPlatforms[Random.Range(0, spawnedPlatforms.Count)];
+            SpawnPowerUpOnSinglePlatform(chosenPlatform, baseZ);
+        }
+
+        List<int> allLanes = new List<int> { 0, 1, 2 };
+        List<int> freeLanes = new List<int>();
         foreach (int l in allLanes)
             if (!platformLanes.Contains(l))
                 freeLanes.Add(l);
 
-        // ── Calculate platform world position ─────────────────────────────
-        float platformCenterX;
-        if (isDoubleLane)
-        {
-            // Average of the two lane X positions
-            float x0 = (platformLanes[0] - 1) * laneDistance;
-            float x1 = (platformLanes[1] - 1) * laneDistance;
-            platformCenterX = (x0 + x1) * 0.5f;
-        }
-        else
-        {
-            platformCenterX = (platformLanes[0] - 1) * laneDistance;
-        }
-
-        float platformY = platformUsePrefabHeight ? prefab.transform.position.y : platformSpawnHeight;
-        Vector3 spawnPos = new Vector3(
-            platformCenterX + platformPositionOffset.x,
-            platformY       + platformPositionOffset.y,
-            baseZ           + platformPositionOffset.z);
-
-        // Instantiate platform using prefab's own rotation and scale
-        GameObject platform = Instantiate(
-            prefab,
-            spawnPos,
-            prefab.transform.rotation,
-            PlatformParentTransform);
-
-        platform.transform.localScale = prefab.transform.localScale;
-        activePlatforms.Add(platform);
-        StartCoroutine(AutoDespawnPlatform(platform, maxObstacleLifetime));
-
-        Debug.Log($"🟩 Spawned {(isDoubleLane ? "DOUBLE" : "SINGLE")}-lane platform at Z: {baseZ}, Lane(s): {string.Join(",", platformLanes)}");
-
-        // ── Spawn coins on top of platform ────────────────────────────────
-        if (coinPrefab != null && Random.Range(0, 100) < platformCoinChance)
-        {
-            SpawnCoinsOnPlatform(platform, platformLanes, baseZ);
-        }
-
-        // ── Spawn power-up on top of platform ────────────────────────────
-        // Only if no coins were placed (or you want both — remove this check to allow both)
-        bool skipPowerUp = false;
-        if (!skipPowerUp && hasPassedFirstPowerUpDistance && Random.Range(0, 100) < platformPowerUpChance)
-        {
-            SpawnPowerUpOnPlatform(platform, baseZ);
-        }
-
-        // ── Spawn obstacle(s) in free lanes beside the platform ───────────
         int toSpawn = Mathf.Min(obstaclesAlongsidePlatform, freeLanes.Count);
         for (int i = 0; i < toSpawn; i++)
         {
@@ -434,7 +582,6 @@ public class ObstacleSpawner : MonoBehaviour
             float laneX = (lane - 1) * laneDistance;
             Vector3 obsPos = new Vector3(laneX, spawnHeight, baseZ);
 
-            // Check if a power-up should replace this obstacle
             bool canSpawnPowerUpHere = hasPassedFirstPowerUpDistance;
             bool doPowerUp = canSpawnPowerUpHere && Random.Range(0, 100) < powerUpSpawnChance;
 
@@ -453,7 +600,6 @@ public class ObstacleSpawner : MonoBehaviour
             }
         }
 
-        // ── Fill remaining free lanes with coins ──────────────────────────
         if (coinPrefab != null)
         {
             foreach (int emptyLane in freeLanes)
@@ -482,25 +628,17 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Places a row of coins on top of the platform surface.
-    /// </summary>
-    void SpawnCoinsOnPlatform(GameObject platform, List<int> platformLanes, float baseZ)
+    void SpawnCoinsOnSinglePlatform(GameObject platform, float baseZ)
     {
         if (coinPrefab == null) return;
 
-        // Approximate surface height using platform bounds
         float surfaceY = GetPlatformSurfaceY(platform);
         float coinY = surfaceY + platformCoinHeightOffset;
 
-        // Place coins in a line centered on the platform
+        float centerX = platform.transform.position.x;
+
         float totalLength = (platformCoinsCount - 1) * platformCoinSpacing;
         float startZ = baseZ - totalLength * 0.5f;
-
-        float centerX = 0f;
-        foreach (int l in platformLanes)
-            centerX += (l - 1) * laneDistance;
-        centerX /= platformLanes.Count;
 
         for (int i = 0; i < platformCoinsCount; i++)
         {
@@ -511,13 +649,10 @@ public class ObstacleSpawner : MonoBehaviour
             StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
         }
 
-        Debug.Log($"💰 Spawned {platformCoinsCount} coins on platform at Z: {baseZ}");
+        Debug.Log($"💰 Spawned {platformCoinsCount} coins on platform at X: {centerX}, Z: {baseZ}");
     }
 
-    /// <summary>
-    /// Places a power-up on top of the platform surface.
-    /// </summary>
-    void SpawnPowerUpOnPlatform(GameObject platform, float baseZ)
+    void SpawnPowerUpOnSinglePlatform(GameObject platform, float baseZ)
     {
         float surfaceY = GetPlatformSurfaceY(platform);
         float puY = surfaceY + platformPowerUpHeightOffset;
@@ -525,13 +660,9 @@ public class ObstacleSpawner : MonoBehaviour
         Vector3 puPos = new Vector3(platform.transform.position.x, puY, baseZ);
         SpawnPowerUpAtPosition(puPos);
 
-        Debug.Log($"⭐ Spawned power-up on platform at Z: {baseZ}");
+        Debug.Log($"⭐ Spawned power-up on platform at X: {platform.transform.position.x}, Z: {baseZ}");
     }
 
-    /// <summary>
-    /// Returns the Y coordinate of the top surface of a platform using its Renderer bounds.
-    /// Falls back to spawnHeight + 1 if no renderer is found.
-    /// </summary>
     float GetPlatformSurfaceY(GameObject platform)
     {
         Renderer rend = platform.GetComponentInChildren<Renderer>();
@@ -765,14 +896,15 @@ public class ObstacleSpawner : MonoBehaviour
 
             if (letterEventStartWarningUI != null)
             {
-                letterEventStartWarningUI.SetActive(true);
+                ShowUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
                 Debug.Log($"⚠️ Letter Event Warning displayed! Event starts in {warningDisplayTime} seconds");
             }
 
             if (timeUntilEvent > 0) yield return new WaitForSeconds(warningDisplayTime);
             else                    yield return new WaitForSeconds(letterEventFrequency);
 
-            if (letterEventStartWarningUI != null) letterEventStartWarningUI.SetActive(false);
+            if (letterEventStartWarningUI != null)
+                HideUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
 
             isLetterEventActive = true;
             wordsCompletedInCurrentEvent = 0;
@@ -789,7 +921,8 @@ public class ObstacleSpawner : MonoBehaviour
             if (letterEventClueUI != null)
             {
                 yield return new WaitForSeconds(clueTextDelay);
-                if (isLetterEventActive) letterEventClueUI.SetActive(true);
+                if (isLetterEventActive)
+                    ShowUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
             }
 
             yield return new WaitForSeconds(letterInitialSpawnDelaySeconds);
@@ -821,32 +954,131 @@ public class ObstacleSpawner : MonoBehaviour
     {
         isLetterEventActive = false;
         allowRegularLetterSpawning = false;
-        wordsCompletedInCurrentEvent = 0;
 
         if (wasCompleted)
         {
             Debug.Log("✅ Letter Event Completed Successfully!");
-            if (letterEventCompleteUI != null) StartCoroutine(ShowCompletionUI());
+            if (animateHurdlesOnEventEnd)
+            {
+                StartCoroutine(AnimateLetterHurdlesEnd());
+            }
+            if (letterEventCompleteUI != null)
+                StartCoroutine(ShowCompletionUIWithAnimation());
         }
         else
         {
             Debug.Log("⏱️ Letter Event Ended (Time Expired) - Normal spawning resumes");
         }
 
-        if (letterEventClueUI != null) letterEventClueUI.SetActive(false);
+        if (letterEventClueUI != null)
+            HideUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
+
+        wordsCompletedInCurrentEvent = 0;
+
         if (letterEventCoroutine != null) StopCoroutine(letterEventCoroutine);
         letterEventCoroutine = StartCoroutine(LetterEventSpawner());
     }
 
-    IEnumerator ShowCompletionUI()
+    IEnumerator ShowCompletionUIWithAnimation()
     {
         if (letterEventCompleteUI != null)
         {
-            letterEventCompleteUI.SetActive(true);
+            ShowUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
             Debug.Log($"🎉 Letter Event Complete UI displayed for {completionUIDisplayTime} seconds");
             yield return new WaitForSeconds(completionUIDisplayTime);
-            letterEventCompleteUI.SetActive(false);
+            HideUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
         }
+    }
+
+    IEnumerator AnimateLetterHurdlesEnd()
+    {
+        // Stop any existing animations on these hurdles
+        foreach (var info in activeLetterObjects)
+        {
+            if (letterAnimations.ContainsKey(info.obj))
+            {
+                if (letterAnimations[info.obj] != null)
+                    StopCoroutine(letterAnimations[info.obj]);
+                letterAnimations.Remove(info.obj);
+            }
+        }
+
+        // Phase 1: Rotate all hurdles
+        float rotTime = 0f;
+        Quaternion[] startRots = new Quaternion[activeLetterObjects.Count];
+        for (int i = 0; i < activeLetterObjects.Count; i++)
+            startRots[i] = activeLetterObjects[i].obj.transform.rotation;
+
+        while (rotTime < hurdleRotationDuration)
+        {
+            float t = rotTime / hurdleRotationDuration;
+            float curveT = hurdleRotationCurve.Evaluate(t);
+            float angle = hurdleRotationSpeed * rotTime; // continuous rotation based on speed
+
+            for (int i = 0; i < activeLetterObjects.Count; i++)
+            {
+                if (activeLetterObjects[i].obj != null)
+                {
+                    Vector3 axis = Vector3.up; // default Y
+                    switch (hurdleRotationAxis)
+                    {
+                        case RotationAxis.X: axis = Vector3.right; break;
+                        case RotationAxis.Y: axis = Vector3.up; break;
+                        case RotationAxis.Z: axis = Vector3.forward; break;
+                    }
+                    activeLetterObjects[i].obj.transform.rotation = startRots[i] * Quaternion.AngleAxis(angle, axis);
+                }
+            }
+            rotTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Phase 2: Slide down
+        Vector3[] startPositions = new Vector3[activeLetterObjects.Count];
+        Vector3[] targetPositions = new Vector3[activeLetterObjects.Count];
+        float slideY = hurdleSlideDownHeight != 0 ? hurdleSlideDownHeight : letterHurdleGroundY;
+
+        for (int i = 0; i < activeLetterObjects.Count; i++)
+        {
+            if (activeLetterObjects[i].obj != null)
+            {
+                startPositions[i] = activeLetterObjects[i].obj.transform.position;
+                targetPositions[i] = new Vector3(startPositions[i].x, slideY, startPositions[i].z);
+            }
+        }
+
+        float slideTime = 0f;
+        while (slideTime < hurdleSlideDownDuration)
+        {
+            float t = slideTime / hurdleSlideDownDuration;
+            float curveT = hurdleSlideCurve.Evaluate(t);
+
+            for (int i = 0; i < activeLetterObjects.Count; i++)
+            {
+                if (activeLetterObjects[i].obj != null)
+                {
+                    activeLetterObjects[i].obj.transform.position = Vector3.Lerp(startPositions[i], targetPositions[i], curveT);
+                }
+            }
+            slideTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final positions
+        for (int i = 0; i < activeLetterObjects.Count; i++)
+        {
+            if (activeLetterObjects[i].obj != null)
+                activeLetterObjects[i].obj.transform.position = targetPositions[i];
+        }
+
+        // Despawn after short delay
+        yield return new WaitForSeconds(0.5f);
+        for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
+        {
+            if (activeLetterObjects[i].obj != null)
+                ReturnLetterToPool(activeLetterObjects[i].obj);
+        }
+        activeLetterObjects.Clear();
     }
 
     public void OnLetterHurdleFailed()
@@ -980,7 +1212,6 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else
             {
-                // Roll for platform row
                 if (platformPrefabs != null && platformPrefabs.Length > 0 &&
                     Random.Range(0, 100) < platformRowSpawnChance)
                 {
@@ -1036,7 +1267,6 @@ public class ObstacleSpawner : MonoBehaviour
             }
         }
 
-        // Fill empty lanes with coins
         if (coinPrefab != null)
         {
             foreach (int emptyLane in availableLanes)
@@ -1070,7 +1300,6 @@ public class ObstacleSpawner : MonoBehaviour
         for (int row = 0; row < rowsPerSpawn; row++)
         {
             float zOffset = spawnDistance + (row * rowSpacing);
-            // Roll for platform on each row
             if (platformPrefabs != null && platformPrefabs.Length > 0 &&
                 Random.Range(0, 100) < platformRowSpawnChance)
             {
@@ -1294,7 +1523,6 @@ public class ObstacleSpawner : MonoBehaviour
                 }
                 else
                 {
-                    // Draw platform gizmo overlay (translucent cyan box over normal lane boxes)
                     Gizmos.color = new Color(platformGizmoColor.r, platformGizmoColor.g, platformGizmoColor.b, alpha * 0.4f);
                     Gizmos.DrawCube(new Vector3(0f, gizmoHeight, spawnZ), new Vector3(laneDistance * 2f, 0.2f, laneLength));
 
@@ -1321,4 +1549,3 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 }
-//TEST PLATFOTM
