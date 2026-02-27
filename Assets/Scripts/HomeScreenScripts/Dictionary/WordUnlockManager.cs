@@ -3,6 +3,16 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+/// <summary>
+/// WordUnlockManager  (updated)
+/// ─────────────────────────────────────────────────────────────────────────────
+/// Change from original:
+///   • Every word button — locked, unlocked, OR clicked — now opens the
+///     Dictionary Panel via DictionaryWordViewer.ShowWord(word).
+///   • Locked buttons remain visually locked (grey sprite, non-interactive
+///     for gameplay) but are still clickable for dictionary look-up.
+///   • Assign dictionaryViewer in the Inspector.
+/// </summary>
 public class WordUnlockManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -15,6 +25,10 @@ public class WordUnlockManager : MonoBehaviour
     public Sprite unlockedSprite;
     public Sprite clickedSprite;
 
+    [Header("Dictionary Viewer")]
+    [Tooltip("Drag the object that holds DictionaryWordViewer here.")]
+    public DictionaryWordViewer dictionaryViewer;
+
     [Header("Word Data - ALL WORDS IN GAME")]
     public List<string> allWords = new List<string>();
 
@@ -22,267 +36,201 @@ public class WordUnlockManager : MonoBehaviour
     private HashSet<string> clickedWords = new HashSet<string>();
     private Dictionary<string, Button> wordButtonDict = new Dictionary<string, Button>();
 
+    // ─────────────────────────────────────────────────────────────────────────
     void Awake()
     {
         Debug.Log("🔍 WordUnlockManager Awake() called");
 
         string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-
         allWords.Clear();
 
-        // Pull words directly from QuestionRandomizer
         if (sceneName == "HomeScreen" || sceneName == "MainMenu")
         {
-            // If we're in HomeScreen, load from both Easy and Medium
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
-            Debug.Log("📚 Loaded ALL words (Easy + Medium) for Dictionary");
         }
-        else if (sceneName == "EasyMode")
+        else if (sceneName == "EasyMode" || sceneName == "GAMEMODE")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
-            Debug.Log("📚 Loaded EASY MODE words from QuestionRandomizer");
         }
-        else if (sceneName == "MediumMode")
+        else if (sceneName == "MediumMode" || sceneName == "GAMEMODE 1")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
-            Debug.Log("📚 Loaded MEDIUM MODE words from QuestionRandomizer");
+        }
+        else if (sceneName == "GAMEMODE 2")
+        {
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.hardSpellingPairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.hardSentencePairs));
         }
         else
         {
-            // Default to Easy
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
             Debug.LogWarning("Unknown scene. Defaulting to EASY MODE words.");
         }
 
-        // Remove duplicates and sort alphabetically
+        // De-duplicate and sort alphabetically
         allWords = new List<string>(new HashSet<string>(allWords));
         allWords.Sort();
 
         Debug.Log($"📚 Total words in dictionary: {allWords.Count}");
     }
 
-    /// <summary>
-    /// Helper method to extract correct answers from question pairs
-    /// </summary>
     private List<string> GetWordsFromPairs(string[,] pairs)
     {
-        List<string> words = new List<string>();
+        var words = new List<string>();
         for (int i = 0; i < pairs.GetLength(0); i++)
-        {
-            words.Add(pairs[i, 1].ToLower()); // Index 1 is the correct answer
-        }
+            words.Add(pairs[i, 1].ToLower());
         return words;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
     void Start()
     {
-        Debug.Log("🎬 WordUnlockManager Start() called");
-
-        // Setup search input
         if (searchInput != null)
         {
             searchInput.characterLimit = 10;
             searchInput.onValueChanged.AddListener(OnSearchValueChanged);
-            Debug.Log("✅ Search input configured");
         }
 
-        // Load unlocked words from PlayerPrefs
         LoadUnlockedWords();
-
-        // Check for newly unlocked word from gameplay
         CheckForNewUnlockedWord();
-
-        // Generate ALL word buttons (locked and unlocked)
         GenerateWordButtons();
-
-        Debug.Log($"🎮 Dictionary initialized: {allWords.Count} total words, {unlockedWords.Count} unlocked");
     }
 
     void OnEnable()
     {
-        Debug.Log("👁️ WordUnlockManager OnEnable() called");
-
-        // Check for new unlocked words when panel opens
         CheckForNewUnlockedWord();
 
-        // Refresh all button visuals
         if (wordButtonDict.Count > 0)
         {
             foreach (string word in allWords)
-            {
                 UpdateButtonVisual(word);
-            }
-            Debug.Log("🔄 Refreshed button visuals");
         }
     }
 
-    /// <summary>
-    /// Checks PlayerPrefs for newly unlocked words from gameplay
-    /// Now supports MULTIPLE words separated by commas
-    /// </summary>
+    // ─────────────────────────────────────────────────────────────────────────
     void CheckForNewUnlockedWord()
     {
-        // Check for multiple newly unlocked words
         string newlyUnlockedWords = PlayerPrefs.GetString("NewlyUnlockedWords", "");
+        if (string.IsNullOrEmpty(newlyUnlockedWords)) return;
 
-        if (!string.IsNullOrEmpty(newlyUnlockedWords))
+        foreach (string word in newlyUnlockedWords.Split(','))
         {
-            // Split by comma to get all words
-            string[] words = newlyUnlockedWords.Split(',');
-
-            int unlockedCount = 0;
-            foreach (string word in words)
+            string w = word.Trim();
+            if (!string.IsNullOrEmpty(w))
             {
-                string trimmedWord = word.Trim();
-                if (!string.IsNullOrEmpty(trimmedWord))
-                {
-                    UnlockWord(trimmedWord);
-                    unlockedCount++;
-                    Debug.Log($"🆕 Unlocked word from gameplay: {trimmedWord}");
-                }
+                UnlockWord(w);
+                Debug.Log($"🆕 Unlocked word from gameplay: {w}");
             }
-
-            // Clear the list after processing
-            PlayerPrefs.DeleteKey("NewlyUnlockedWords");
-            PlayerPrefs.Save();
-
-            Debug.Log($"✅ Total words unlocked this session: {unlockedCount}");
         }
+
+        PlayerPrefs.DeleteKey("NewlyUnlockedWords");
+        PlayerPrefs.Save();
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Generates buttons for ALL words (locked and unlocked)
-    /// UNLOCKED/CLICKED words appear FIRST (top), then LOCKED words (bottom)
+    /// Generates all word buttons.
+    /// Order: clicked → unlocked → locked.
+    /// ALL buttons are now interactable so the dictionary panel can open.
     /// </summary>
     void GenerateWordButtons()
     {
-        Debug.Log("🏗️ GenerateWordButtons() called");
-
-        if (wordButtonContainer == null)
+        if (wordButtonContainer == null || wordButtonPrefab == null)
         {
-            Debug.LogError("❌ Word Button Container is not assigned!");
+            Debug.LogError("❌ WordButtonContainer or WordButtonPrefab not assigned!");
             return;
         }
 
-        if (wordButtonPrefab == null)
-        {
-            Debug.LogError("❌ Word Button Prefab is not assigned!");
-            return;
-        }
-
-        // Clear existing buttons
-        int childCount = wordButtonContainer.childCount;
-        for (int i = childCount - 1; i >= 0; i--)
-        {
+        // Clear existing
+        for (int i = wordButtonContainer.childCount - 1; i >= 0; i--)
             Destroy(wordButtonContainer.GetChild(i).gameObject);
-        }
         wordButtonDict.Clear();
 
-        Debug.Log($"🧹 Cleared {childCount} existing buttons");
+        // Sort: clicked first, then unlocked, then locked
+        var sorted = new List<string>();
+        foreach (string w in allWords) if (clickedWords.Contains(w)) sorted.Add(w);
+        foreach (string w in allWords) if (unlockedWords.Contains(w) && !clickedWords.Contains(w)) sorted.Add(w);
+        foreach (string w in allWords) if (!unlockedWords.Contains(w)) sorted.Add(w);
 
-        // ✅ SORT: Unlocked/Clicked words FIRST, then Locked words
-        List<string> sortedWords = new List<string>();
-
-        // Add clicked words first (top priority)
-        foreach (string word in allWords)
+        foreach (string word in sorted)
         {
-            if (clickedWords.Contains(word))
-                sortedWords.Add(word);
-        }
+            GameObject btnObj = Instantiate(wordButtonPrefab, wordButtonContainer);
+            Button btn = btnObj.GetComponent<Button>();
+            TMP_Text label = btnObj.GetComponentInChildren<TMP_Text>();
+            Image img = btnObj.GetComponent<Image>();
 
-        // Add unlocked but not clicked words
-        foreach (string word in allWords)
-        {
-            if (unlockedWords.Contains(word) && !clickedWords.Contains(word))
-                sortedWords.Add(word);
-        }
-
-        // Add locked words at the end
-        foreach (string word in allWords)
-        {
-            if (!unlockedWords.Contains(word))
-                sortedWords.Add(word);
-        }
-
-        // Create buttons in sorted order
-        int successCount = 0;
-        foreach (string word in sortedWords)
-        {
-            GameObject buttonObj = Instantiate(wordButtonPrefab, wordButtonContainer);
-            Button btn = buttonObj.GetComponent<Button>();
-            TMP_Text btnText = buttonObj.GetComponentInChildren<TMP_Text>();
-            Image btnImage = buttonObj.GetComponent<Image>();
-
-            if (btn == null || btnImage == null)
+            if (btn == null || img == null)
             {
-                Debug.LogError($"❌ Prefab missing Button or Image component!");
-                Destroy(buttonObj);
+                Destroy(btnObj);
                 continue;
             }
 
-            // Always show the word text (lowercase)
-            if (btnText != null)
-            {
-                btnText.text = word.ToLower();
-            }
+            if (label != null)
+                label.text = word.ToLower();
 
-            // Set sprite and interactability based on unlock status
             bool isUnlocked = unlockedWords.Contains(word);
             bool isClicked = clickedWords.Contains(word);
 
-            if (isClicked)
-            {
-                if (clickedSprite != null)
-                    btnImage.sprite = clickedSprite;
-                btn.interactable = true;
-                Debug.Log($"📖 Button created: {word} (CLICKED)");
-            }
-            else if (isUnlocked)
-            {
-                if (unlockedSprite != null)
-                    btnImage.sprite = unlockedSprite;
-                btn.interactable = true;
-                Debug.Log($"🔓 Button created: {word} (UNLOCKED)");
-            }
-            else
-            {
-                if (lockedSprite != null)
-                    btnImage.sprite = lockedSprite;
-                btn.interactable = false;
-                Debug.Log($"🔒 Button created: {word} (LOCKED)");
-            }
+            // Set sprite
+            if (isClicked && clickedSprite != null)
+                img.sprite = clickedSprite;
+            else if (isUnlocked && unlockedSprite != null)
+                img.sprite = unlockedSprite;
+            else if (lockedSprite != null)
+                img.sprite = lockedSprite;
 
-            // Add click listener (only works if unlocked)
+            // ── KEY CHANGE: ALL buttons are interactable for dictionary lookup ──
+            btn.interactable = true;
+
+            // Click → open dictionary panel regardless of locked/unlocked state
             string wordCopy = word;
             btn.onClick.AddListener(() => OnWordButtonClick(wordCopy));
 
             wordButtonDict[word] = btn;
-            successCount++;
         }
 
-        Debug.Log($"✅ Generated {successCount}/{allWords.Count} word buttons");
-
-        // Force layout rebuild
         LayoutRebuilder.ForceRebuildLayoutImmediate(wordButtonContainer as RectTransform);
+        Debug.Log($"✅ Generated {wordButtonDict.Count} word buttons");
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Unlocks a word (called from gameplay or manually)
+    /// Called when any word button is tapped.
+    /// Opens the dictionary panel for ALL words (locked or not).
+    /// Only marks the word as "clicked/viewed" if it is already unlocked.
     /// </summary>
+    void OnWordButtonClick(string word)
+    {
+        // Always show the dictionary panel
+        if (dictionaryViewer != null)
+            dictionaryViewer.ShowWord(word);
+        else
+            Debug.LogWarning("[WordUnlockManager] DictionaryWordViewer reference not assigned!");
+
+        // Mark as viewed only if the word is unlocked
+        if (unlockedWords.Contains(word) && !clickedWords.Contains(word))
+        {
+            clickedWords.Add(word);
+            SaveClickedWords();
+            UpdateButtonVisual(word);
+        }
+
+        Debug.Log($"📖 Opened dictionary for: {word} (unlocked={unlockedWords.Contains(word)})");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     public void UnlockWord(string word)
     {
-        // Normalize the word (lowercase)
         word = word.ToLower();
-
         if (!allWords.Contains(word))
         {
-            Debug.LogWarning($"⚠️ Word '{word}' is not in the dictionary!");
+            Debug.LogWarning($"⚠️ Word '{word}' not in dictionary!");
             return;
         }
 
@@ -290,10 +238,7 @@ public class WordUnlockManager : MonoBehaviour
         {
             unlockedWords.Add(word);
             SaveUnlockedWords();
-            Debug.Log($"🔓 Unlocked word: {word}");
-
-            // ✅ Regenerate buttons to re-sort (unlocked words move to top)
-            GenerateWordButtons();
+            GenerateWordButtons();   // re-sort so unlocked word floats to top
         }
         else
         {
@@ -301,59 +246,28 @@ public class WordUnlockManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called when player clicks an unlocked word button
-    /// </summary>
-    void OnWordButtonClick(string word)
-    {
-        if (!unlockedWords.Contains(word))
-        {
-            Debug.Log($"🔒 Word '{word}' is locked!");
-            return;
-        }
-
-        // Mark as clicked/viewed
-        if (!clickedWords.Contains(word))
-        {
-            clickedWords.Add(word);
-            SaveClickedWords();
-            Debug.Log($"📖 Viewed word: {word}");
-        }
-
-        UpdateButtonVisual(word);
-    }
-
-    /// <summary>
-    /// Updates a single button's visual state
-    /// </summary>
     void UpdateButtonVisual(string word)
     {
         if (!wordButtonDict.ContainsKey(word)) return;
 
         Button btn = wordButtonDict[word];
-        Image btnImage = btn.GetComponent<Image>();
-
+        Image img = btn.GetComponent<Image>();
         bool isUnlocked = unlockedWords.Contains(word);
         bool isClicked = clickedWords.Contains(word);
 
-        // Update sprite and clickability
-        if (isClicked)
-        {
-            btnImage.sprite = clickedSprite;
-            btn.interactable = true;
-        }
-        else if (isUnlocked)
-        {
-            btnImage.sprite = unlockedSprite;
-            btn.interactable = true;
-        }
-        else
-        {
-            btnImage.sprite = lockedSprite;
-            btn.interactable = false;
-        }
+        if (isClicked && clickedSprite != null)
+            img.sprite = clickedSprite;
+        else if (isUnlocked && unlockedSprite != null)
+            img.sprite = unlockedSprite;
+        else if (lockedSprite != null)
+            img.sprite = lockedSprite;
+
+        btn.interactable = true;   // always keep interactive
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // PERSISTENCE
+    // ─────────────────────────────────────────────────────────────────────────
     void SaveUnlockedWords()
     {
         PlayerPrefs.SetString("UnlockedWords", string.Join(",", unlockedWords));
@@ -368,82 +282,47 @@ public class WordUnlockManager : MonoBehaviour
 
     void LoadUnlockedWords()
     {
-        // Load unlocked words
         string savedUnlocked = PlayerPrefs.GetString("UnlockedWords", "");
         if (!string.IsNullOrEmpty(savedUnlocked))
-        {
             unlockedWords = new HashSet<string>(savedUnlocked.Split(','));
-            Debug.Log($"📚 Loaded {unlockedWords.Count} unlocked words");
-        }
 
-        // Load clicked words
         string savedClicked = PlayerPrefs.GetString("ClickedWords", "");
         if (!string.IsNullOrEmpty(savedClicked))
-        {
             clickedWords = new HashSet<string>(savedClicked.Split(','));
-            Debug.Log($"👆 Loaded {clickedWords.Count} clicked words");
-        }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // SEARCH
+    // ─────────────────────────────────────────────────────────────────────────
     public void OnSearchValueChanged(string input)
     {
-        // Only allow letters
+        // Strip non-letters
         string filtered = "";
         foreach (char c in input)
-        {
-            if (char.IsLetter(c))
-                filtered += c;
-        }
+            if (char.IsLetter(c)) filtered += c;
 
         if (filtered != input)
             searchInput.text = filtered;
 
         string searchTerm = filtered.ToLower();
 
-        // Filter buttons - ONLY show unlocked/clicked words in search
-        int visibleCount = 0;
         foreach (var kvp in wordButtonDict)
         {
             string word = kvp.Key;
-            GameObject buttonObj = kvp.Value.gameObject;
-
-            bool isUnlocked = unlockedWords.Contains(word);
-            bool isClicked = clickedWords.Contains(word);
-
-            // ✅ Only show if: (unlocked OR clicked) AND matches search
-            bool matchesSearch = string.IsNullOrEmpty(searchTerm) || word.ToLower().Contains(searchTerm);
-            bool isAccessible = isUnlocked || isClicked;
-
-            bool show = matchesSearch && (isAccessible || string.IsNullOrEmpty(searchTerm));
-
-            // If searching, hide locked words completely
-            if (!string.IsNullOrEmpty(searchTerm) && !isAccessible)
-            {
-                show = false;
-            }
-
-            buttonObj.SetActive(show);
-
-            if (show) visibleCount++;
+            bool matches = string.IsNullOrEmpty(searchTerm) || word.Contains(searchTerm);
+            kvp.Value.gameObject.SetActive(matches);
         }
-
-        Debug.Log($"🔍 Search: '{searchTerm}' - Showing {visibleCount}/{wordButtonDict.Count} buttons");
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // DEBUG
+    // ─────────────────────────────────────────────────────────────────────────
     [ContextMenu("Debug: Unlock All Words")]
     void DebugUnlockAll()
     {
-        foreach (string word in allWords)
-        {
-            unlockedWords.Add(word);
-        }
+        foreach (string w in allWords) unlockedWords.Add(w);
         SaveUnlockedWords();
-
-        foreach (string word in allWords)
-        {
-            UpdateButtonVisual(word);
-        }
-
+        foreach (string w in allWords) UpdateButtonVisual(w);
         Debug.Log("🔓 All words unlocked for testing!");
     }
 
@@ -455,15 +334,7 @@ public class WordUnlockManager : MonoBehaviour
         PlayerPrefs.DeleteKey("UnlockedWords");
         PlayerPrefs.DeleteKey("ClickedWords");
         PlayerPrefs.Save();
-
-        if (wordButtonDict.Count > 0)
-        {
-            foreach (string word in allWords)
-            {
-                UpdateButtonVisual(word);
-            }
-        }
-
-        Debug.Log("🔒 All words reset to locked state!");
+        foreach (string w in allWords) UpdateButtonVisual(w);
+        Debug.Log("🔒 All words reset to locked!");
     }
 }
