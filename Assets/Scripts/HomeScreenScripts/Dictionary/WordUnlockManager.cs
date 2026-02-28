@@ -207,21 +207,28 @@ public class WordUnlockManager : MonoBehaviour
     /// </summary>
     void OnWordButtonClick(string word)
     {
-        // Always show the dictionary panel
+        // Block dictionary access if word is locked
+        if (!unlockedWords.Contains(word))
+        {
+            Debug.Log($"🔒 Word '{word}' is locked. Unlock it by playing the game first!");
+            return;
+        }
+
+        // Show the dictionary panel only for unlocked words
         if (dictionaryViewer != null)
             dictionaryViewer.ShowWord(word);
         else
             Debug.LogWarning("[WordUnlockManager] DictionaryWordViewer reference not assigned!");
 
-        // Mark as viewed only if the word is unlocked
-        if (unlockedWords.Contains(word) && !clickedWords.Contains(word))
+        // Mark as viewed/clicked
+        if (!clickedWords.Contains(word))
         {
             clickedWords.Add(word);
             SaveClickedWords();
             UpdateButtonVisual(word);
         }
 
-        Debug.Log($"📖 Opened dictionary for: {word} (unlocked={unlockedWords.Contains(word)})");
+        Debug.Log($"📖 Opened dictionary for: {word}");
     }
 
     // ─────────────────────────────────────────────────────────────────────────

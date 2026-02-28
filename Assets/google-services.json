@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "670521672666",
+    "firebase_url": "https://lexsprinterleaderboard-15235-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "lexsprinterleaderboard-15235",
+    "storage_bucket": "lexsprinterleaderboard-15235.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670521672666:android:d7f09ddd8a52fa3d4f36e3",
+        "android_client_info": {
+          "package_name": "com.kaishi.lexsprinter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7l1P3mLp4CjiDc-45CEmRauAJOZyoAng"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
