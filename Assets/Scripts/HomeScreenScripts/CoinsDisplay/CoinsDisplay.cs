@@ -15,7 +15,7 @@ public class CoinsDisplay : MonoBehaviour
     public bool animateOnStart = true;
 
     [Header("Inspector Debug Tools")]
-    public int inspectorCoinInput = 0; // Enter value in Inspector
+    public int inspectorCoinInput = 20000; // Enter value in Inspector
 
     [Header("Auto-Save Settings")]
     public bool enableAutoSave = true;
@@ -40,21 +40,24 @@ public class CoinsDisplay : MonoBehaviour
     }
 
     void Start()
+{
+    LoadCoins();
+
+    // If no coins saved yet AND inspector has a value, use inspector value
+    if (totalCoins == 0 && inspectorCoinInput > 0)
     {
-        LoadCoins();
-
-        // If inspector value is greater than 0, override saved coins
-        if (inspectorCoinInput > 0)
-        {
-            totalCoins = inspectorCoinInput;
-            SaveCoins();
-        }
-
-        if (animateOnStart)
-            StartCoroutine(AnimateCoinCount(0, totalCoins));
-        else
-            UpdateCoinUI(totalCoins);
+        Debug.Log($"🆕 First launch! Setting starting coins to {inspectorCoinInput}");
+        totalCoins = inspectorCoinInput;
+        SaveCoins();
     }
+
+    if (animateOnStart)
+        StartCoroutine(AnimateCoinCount(0, totalCoins));
+    else
+        UpdateCoinUI(totalCoins);
+    
+    Debug.Log($"💰 CoinsDisplay loaded: {totalCoins} coins");
+}
 
 
     /// <summary>
@@ -102,15 +105,22 @@ public class CoinsDisplay : MonoBehaviour
         SaveCoins();
         
     }
-    void OnValidate()
+    // DISABLED FOR PRODUCTION - Causes coins to constantly reset
+/*
+// DISABLED - Only use inspector value on FIRST launch, not every frame
+// This was causing constant resets!
+/*
+void OnValidate()
+{
+    if (Application.isPlaying && inspectorCoinInput >= 0)
     {
-        if (Application.isPlaying && inspectorCoinInput >= 0)
-        {
-            totalCoins = inspectorCoinInput;
-            UpdateCoinUI(totalCoins);
-            SaveCoins();
-        }
+        totalCoins = inspectorCoinInput;
+        UpdateCoinUI(totalCoins);
+        SaveCoins();
     }
+}
+*/
+
 
     /// <summary>
     /// Add coins and save immediately.

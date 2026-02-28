@@ -32,7 +32,32 @@ public class CoinManager : MonoBehaviour
     
     void Start()
     {
+        // Wait for CoinsDisplay to initialize first
+        StartCoroutine(InitializeCoins());
+    }
+
+    IEnumerator InitializeCoins()
+    {
+        // Wait 2 frames for CoinsDisplay to finish its Start()
+        yield return null;
+        yield return null;
+        
         LoadCoins();
+        
+        // Sync with CoinsDisplay if it exists
+        if (coinsDisplay != null)
+        {
+            int displayCoins = coinsDisplay.GetCoins();
+            
+            if (displayCoins != currentCoins)
+            {
+                Debug.Log($"⚠️ Syncing coins: CoinManager had {currentCoins}, CoinsDisplay has {displayCoins}");
+                currentCoins = displayCoins;
+                SaveCoins();
+            }
+        }
+        
+        Debug.Log($"💰 CoinManager initialized: {currentCoins} coins");
     }
     
     // Add coins
