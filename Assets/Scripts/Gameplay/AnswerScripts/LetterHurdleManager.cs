@@ -47,15 +47,11 @@ public class LetterHurdleManager : MonoBehaviour
     };
 
     private string[] hardWordList = {
-        "Kangaroo", "Alligator", "Panther", "Octopus", "Penguin", "Volcano", "Hurricane", "Glacier", "Blizzard",
-        "Wilderness", "Compass", "Telescope", "Microscope",
-        "Eyebrow", "Shoulderblade", "Knuckle", "Spine", "Tongue", "Cauliflower", "Avocado", "Cucumber",
-        "Chocolate", "Spaghetti",
-        "Scientist", "Astronaut", "President", "Visitor", "Neighbors",
-        "Discover", "Explore", "Construct", "Compare", "Decide", "Generous",
-        "Curious", "Anxious", "Grateful", "Confident",
-        "Civilization", "Invention", "Equation", "Language", "Embarrassed",
-        "Bashful", "Conscious", "Extravagant", "Apricot", "Discombobulate"
+    "Aardvark", "Amphitheater", "Armadillo", "Astrolabe", "Axolotl", "Ballista", "Battlement", "Carousel", "Catapult", "Centaur",
+    "Chameleon", "Chandelier", "Chrysalis", "Cockatoo", "Colosseum", "Drawbridge", "Gargoyle", "Gladiator", "Guillotine", "Harpoon",
+    "Hieroglyph", "Kaleidoscope", "Labyrinth", "Marquee", "Menagerie", "Minotaur", "Monolith", "Narwhal", "Obelisk", "Obsidian",
+    "Oubliette", "Parthenon", "Periscope", "Pharaoh", "Platypus", "Portcullis", "Pyramid", "Quokka", "Samurai", "Sarcophagus",
+    "Scorpion", "Sextant", "Sphinx", "Spyglass", "Tarantula", "Trebuchet", "Trident", "Viking", "Xylophone", "Ziggurat",
     };
 
     private string[] wordList;
@@ -70,12 +66,12 @@ public class LetterHurdleManager : MonoBehaviour
     {
         string scene = SceneManager.GetActiveScene().name;
 
-        if (scene == "HardMode")
+        if (scene == "GAMEMODE 2")
         {
             wordList = hardWordList;
             Debug.Log("LetterHurdleManager: Hard mode word list loaded");
         }
-        else if (scene == "MediumMode")
+        else if (scene == "GAMEMODE 1")
         {
             wordList = mediumWordList;
             Debug.Log("LetterHurdleManager: Medium mode word list loaded");

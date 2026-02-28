@@ -80,81 +80,110 @@ public class QuestionRandomizer : MonoBehaviour
     #region Easy
     public static string[,] easySpellingPairs = new string[,]
     {
-        { "a common pet that barks", "dog", "dag", "dug" },
-        { "something you wear on your head", "hat", "hoat", "hut" },
-        { "a color between red and white", "pink", "ponk", "pank" },
-        { "the star in the sky during daytime", "sun", "san", "son" },
-        { "body part used for walking", "leg", "log", "lig" },
-        { "food from animals, often eaten cooked", "meat", "met", "mait" },
-        { "a small container for drinking", "cup", "cawp", "cop" },
-        { "you listen with this", "ear", "eer", "eur" },
-        { "a plant with leaves and branches", "tree", "tri", "trea" },
-        { "opposite of white", "black", "bolck", "blak" },
-        { "moving quickly", "fast", "fest", "fust" },
-        { "activity in water", "swim", "swom", "swam" },
-        { "refers to the person being addressed", "you", "yoo", "yu" },
-        { "where you sleep at night", "bed", "ved", "bad" },
-        { "part of your body used to hold things", "hand", "henk", "hend" },
-        { "a flying animal with feathers", "bird", "burd", "berd" },
-        { "white drink from cows", "milk", "milx", "melk" },
-        { "to leap into the air", "jump", "jomp", "jamp" },
-        { "baked food made from flour", "bread", "bredd", "bred" },
-        { "sweet dessert", "cake", "cak", "caek" },
-        { "used for walking or running", "foot", "fut", "fot" },
-        { "female child", "girl", "gurl", "gerl" },
-        { "part of your face used to smell", "nose", "nosh", "noze" },
-        { "color of the sky on a clear day", "blue", "blu", "blew" },
-        { "vehicle with wheels", "car", "cor", "kar" },
-        { "yellow vegetable", "corn", "curn", "korn" },
-        { "mother's sister", "aunt", "ant", "awnt" },
-        { "farm animal that gives milk", "cow", "coe", "kow" },
-        { "feeling of joy", "happy", "hoppy", "hapi" },
-        { "color of an apple", "red", "rad", "reed" },
-        { "limb attached to shoulder", "arm", "arum", "erm" },
-        { "a companion", "friend", "frend", "freind" },
-        { "container with sides", "box", "bocs", "boks" },
-        { "used to carry things", "bag", "bog", "beg" },
-        { "furniture to sit on", "chair", "chare", "chear" },
-        { "jump on one foot", "hop", "hut", "hap" },
-        { "a male parent", "dad", "did", "dod" },
-        { "a young child", "kid", "kod", "ked" },
-        { "female chicken", "hen", "han", "hin" },
-        { "staple food, often eaten with dishes", "rice", "rais", "ryce" },
-        { "opposite of fast", "slow", "slew", "sloe" },
-        { "reading material", "book", "buck", "boke" },
-        { "farm animal that oinks", "pig", "peg", "pog" },
-        { "very young human", "baby", "bebe", "beby" },
-        { "refers to a male person", "him", "hem", "hym" },
-        { "makes ringing sound", "bell", "vel", "bel" },
-        { "plaything for children", "toy", "toi", "tay" },
-        { "female parent", "mom", "mum", "mam" },
-        { "feeling of sadness", "sad", "sed", "sod" },
-        { "part of a tree or plant", "leaf", "loaf", "leef" },
-        { "to form letters on paper", "write", "rite", "writ" },
-        { "color opposite of black", "white", "whyte", "wite" },
-        { "small furry pet that meows", "cat", "gat", "kat" },
-        { "farm animal with horns", "goat", "got", "gote" },
-        { "furniture for working", "desk", "deks", "dask" },
-        { "a celestial object at night", "moon", "mun", "mune" },
-        { "falling water from clouds", "rain", "rein", "rayn" },
-        { "frozen precipitation", "snow", "snou", "snoe" },
-        { "part of the face used for speaking", "lip", "lap", "lep" },
-        { "sweet spread for bread", "jam", "jem", "jom" },
-        { "young male child", "boy", "boi", "bouy" },
-        { "brother of your parent", "uncle", "unkl", "uncal" },
-        { "good or desirable", "good", "gud", "goud" },
-        { "opposite of good", "bad", "badd", "bod" },
-        { "to move on feet at a moderate pace", "walk", "wok", "wolk" },
-        { "to be upright on feet", "stand", "stend", "stond" },
-        { "to make music with voice", "sing", "sung", "seng" },
-        { "transport by road", "bus", "bos", "bas" },
-        { "passage to enter or exit", "door", "dor", "doer" },
-        { "something that shows location", "map", "mop", "mep" },
-        { "oval farm product from birds", "egg", "egh", "eg" },
-        { "edible fruit shaped like a bulb", "pear", "per", "pare" },
-        { "small swimming waterbird", "duck", "duc", "duk" },
-        { "small rodent", "mouse", "mawz", "mous" },
-        { "air in motion", "wind", "windz", "wynd" },
+/*-- 0 --*/  { "a common pet that barks", /*-- 0 --*/ "dog"/*-- 0 --*/, "dag", "dug" }, /*-- 0 --*/ 
+/*-- 1 --*/  { "something you wear on your head", /*-- 1 --*/ "hat"/*-- 1 --*/, "hoat", "hut" }, /*-- 1 --*/ 
+/*-- 2 --*/  { "a color between red and white", /*-- 2 --*/ "pink"/*-- 2 --*/, "ponk", "pank" }, /*-- 2 --*/ 
+/*-- 3 --*/  { "the star in the sky during daytime", /*-- 3 --*/ "sun"/*-- 3 --*/, "san", "son" }, /*-- 3 --*/ 
+/*-- 4 --*/  { "body part used for walking", /*-- 4 --*/ "leg"/*-- 4 --*/, "log", "lig" }, /*-- 4 --*/ 
+/*-- 5 --*/  { "food from animals, often eaten cooked", /*-- 5 --*/ "meat"/*-- 5 --*/, "met", "mait" }, /*-- 5 --*/ 
+/*-- 6 --*/  { "a small container for drinking", /*-- 6 --*/ "cup"/*-- 6 --*/, "cawp", "cop" }, /*-- 6 --*/ 
+/*-- 7 --*/  { "you listen with this", /*-- 7 --*/ "ear"/*-- 7 --*/, "eer", "eur" }, /*-- 7 --*/ 
+/*-- 8 --*/  { "a plant with leaves and branches", /*-- 8 --*/ "tree"/*-- 8 --*/, "tri", "trea" }, /*-- 8 --*/ 
+/*-- 9 --*/  { "opposite of white", /*-- 9 --*/ "black"/*-- 9 --*/, "bolck", "blak" }, /*-- 9 --*/ 
+/*-- 10 --*/ { "moving quickly", /*-- 10 --*/ "fast"/*-- 10 --*/, "fest", "fust" }, /*-- 10 --*/ 
+/*-- 11 --*/ { "activity in water", /*-- 11 --*/ "swim"/*-- 11 --*/, "swom", "swam" }, /*-- 11 --*/ 
+/*-- 12 --*/ { "refers to the person being addressed", /*-- 12 --*/ "you"/*-- 12 --*/, "yoo", "yu" }, /*-- 12 --*/ 
+/*-- 13 --*/ { "where you sleep at night", /*-- 13 --*/ "bed"/*-- 13 --*/, "ved", "bad" }, /*-- 13 --*/ 
+/*-- 14 --*/ { "part of your body used to hold things", /*-- 14 --*/ "hand"/*-- 14 --*/, "henk", "hend" }, /*-- 14 --*/ 
+/*-- 15 --*/ { "a flying animal with feathers", /*-- 15 --*/ "bird"/*-- 15 --*/, "burd", "berd" }, /*-- 15 --*/ 
+/*-- 16 --*/ { "white drink from cows", /*-- 16 --*/ "milk"/*-- 16 --*/, "milx", "melk" }, /*-- 16 --*/ 
+/*-- 17 --*/ { "to leap into the air", /*-- 17 --*/ "jump"/*-- 17 --*/, "jomp", "jamp" }, /*-- 17 --*/ 
+/*-- 18 --*/ { "baked food made from flour", /*-- 18 --*/ "bread"/*-- 18 --*/, "bredd", "bred" }, /*-- 18 --*/ 
+/*-- 19 --*/ { "sweet dessert", /*-- 19 --*/ "cake"/*-- 19 --*/, "cak", "caek" }, /*-- 19 --*/ 
+/*-- 20 --*/ { "used for walking or running", /*-- 20 --*/ "foot"/*-- 20 --*/, "fut", "fot" }, /*-- 20 --*/ 
+/*-- 21 --*/ { "female child", /*-- 21 --*/ "girl"/*-- 21 --*/, "gurl", "gerl" }, /*-- 21 --*/ 
+/*-- 22 --*/ { "part of your face used to smell", /*-- 22 --*/ "nose"/*-- 22 --*/, "nosh", "noze" }, /*-- 22 --*/ 
+/*-- 23 --*/ { "color of the sky on a clear day", /*-- 23 --*/ "blue"/*-- 23 --*/, "blu", "blew" }, /*-- 23 --*/ 
+/*-- 24 --*/ { "vehicle with wheels", /*-- 24 --*/ "car"/*-- 24 --*/, "cor", "kar" }, /*-- 24 --*/ 
+/*-- 25 --*/ { "yellow vegetable", /*-- 25 --*/ "corn"/*-- 25 --*/, "curn", "korn" }, /*-- 25 --*/ 
+/*-- 26 --*/ { "mother's sister", /*-- 26 --*/ "aunt"/*-- 26 --*/, "ant", "awnt" }, /*-- 26 --*/ 
+/*-- 27 --*/ { "farm animal that gives milk", /*-- 27 --*/ "cow"/*-- 27 --*/, "coe", "kow" }, /*-- 27 --*/ 
+/*-- 28 --*/ { "feeling of joy", /*-- 28 --*/ "happy"/*-- 28 --*/, "hoppy", "hapi" }, /*-- 28 --*/ 
+/*-- 29 --*/ { "color of an apple", /*-- 29 --*/ "red"/*-- 29 --*/, "rad", "reed" }, /*-- 29 --*/ 
+/*-- 30 --*/ { "limb attached to shoulder", /*-- 30 --*/ "arm"/*-- 30 --*/, "arum", "erm" }, /*-- 30 --*/ 
+/*-- 31 --*/ { "a companion", /*-- 31 --*/ "friend"/*-- 31 --*/, "frend", "freind" }, /*-- 31 --*/ 
+/*-- 32 --*/ { "container with sides", /*-- 32 --*/ "box"/*-- 32 --*/, "bocs", "boks" }, /*-- 32 --*/ 
+/*-- 33 --*/ { "used to carry things", /*-- 33 --*/ "bag"/*-- 33 --*/, "bog", "beg" }, /*-- 33 --*/ 
+/*-- 34 --*/ { "furniture to sit on", /*-- 34 --*/ "chair"/*-- 34 --*/, "chare", "chear" }, /*-- 34 --*/ 
+/*-- 35 --*/ { "jump on one foot", /*-- 35 --*/ "hop"/*-- 35 --*/, "hut", "hap" }, /*-- 35 --*/ 
+/*-- 36 --*/ { "a male parent", /*-- 36 --*/ "dad"/*-- 36 --*/, "did", "dod" }, /*-- 36 --*/ 
+/*-- 37 --*/ { "a young child", /*-- 37 --*/ "kid"/*-- 37 --*/, "kod", "ked" }, /*-- 37 --*/ 
+/*-- 38 --*/ { "female chicken", /*-- 38 --*/ "hen"/*-- 38 --*/, "han", "hin" }, /*-- 38 --*/ 
+/*-- 39 --*/ { "staple food, often eaten with dishes", /*-- 39 --*/ "rice"/*-- 39 --*/, "rais", "ryce" }, /*-- 39 --*/ 
+/*-- 40 --*/ { "opposite of fast", /*-- 40 --*/ "slow"/*-- 40 --*/, "slew", "sloe" }, /*-- 40 --*/ 
+/*-- 41 --*/ { "reading material", /*-- 41 --*/ "book"/*-- 41 --*/, "buck", "boke" }, /*-- 41 --*/ 
+/*-- 42 --*/ { "farm animal that oinks", /*-- 42 --*/ "pig"/*-- 42 --*/, "peg", "pog" }, /*-- 42 --*/ 
+/*-- 43 --*/ { "very young human", /*-- 43 --*/ "baby"/*-- 43 --*/, "bebe", "beby" }, /*-- 43 --*/ 
+/*-- 44 --*/ { "refers to a male person", /*-- 44 --*/ "him"/*-- 44 --*/, "hem", "hym" }, /*-- 44 --*/ 
+/*-- 45 --*/ { "makes ringing sound", /*-- 45 --*/ "bell"/*-- 45 --*/, "vel", "bel" }, /*-- 45 --*/ 
+/*-- 46 --*/ { "plaything for children", /*-- 46 --*/ "toy"/*-- 46 --*/, "toi", "tay" }, /*-- 46 --*/ 
+/*-- 47 --*/ { "female parent", /*-- 47 --*/ "mom"/*-- 47 --*/, "mum", "mam" }, /*-- 47 --*/ 
+/*-- 48 --*/ { "feeling of sadness", /*-- 48 --*/ "sad"/*-- 48 --*/, "sed", "sod" }, /*-- 48 --*/ 
+/*-- 49 --*/ { "part of a tree or plant", /*-- 49 --*/ "leaf"/*-- 49 --*/, "loaf", "leef" }, /*-- 49 --*/ 
+/*-- 50 --*/ { "to form letters on paper", /*-- 50 --*/ "write"/*-- 50 --*/, "rite", "writ" }, /*-- 50 --*/ 
+/*-- 51 --*/ { "color opposite of black", /*-- 51 --*/ "white"/*-- 51 --*/, "whyte", "wite" }, /*-- 51 --*/ 
+/*-- 52 --*/ { "small furry pet that meows", /*-- 52 --*/ "cat"/*-- 52 --*/, "gat", "kat" }, /*-- 52 --*/ 
+/*-- 53 --*/ { "farm animal with horns", /*-- 53 --*/ "goat"/*-- 53 --*/, "got", "gote" }, /*-- 53 --*/ 
+/*-- 54 --*/ { "furniture for working", /*-- 54 --*/ "desk"/*-- 54 --*/, "deks", "dask" }, /*-- 54 --*/ 
+/*-- 55 --*/ { "a celestial object at night", /*-- 55 --*/ "moon"/*-- 55 --*/, "mun", "mune" }, /*-- 55 --*/ 
+/*-- 56 --*/ { "falling water from clouds", /*-- 56 --*/ "rain"/*-- 56 --*/, "rein", "rayn" }, /*-- 56 --*/ 
+/*-- 57 --*/ { "frozen precipitation", /*-- 57 --*/ "snow"/*-- 57 --*/, "snou", "snoe" }, /*-- 57 --*/ 
+/*-- 58 --*/ { "part of the face used for speaking", /*-- 58 --*/ "lip"/*-- 58 --*/, "lap", "lep" }, /*-- 58 --*/ 
+/*-- 59 --*/ { "sweet spread for bread", /*-- 59 --*/ "jam"/*-- 59 --*/, "jem", "jom" }, /*-- 59 --*/ 
+/*-- 60 --*/ { "young male child", /*-- 60 --*/ "boy"/*-- 60 --*/, "boi", "bouy" }, /*-- 60 --*/ 
+/*-- 61 --*/ { "brother of your parent", /*-- 61 --*/ "uncle"/*-- 61 --*/, "unkl", "uncal" }, /*-- 61 --*/ 
+/*-- 62 --*/ { "good or desirable", /*-- 62 --*/ "good"/*-- 62 --*/, "gud", "goud" }, /*-- 62 --*/ 
+/*-- 63 --*/ { "opposite of good", /*-- 63 --*/ "bad"/*-- 63 --*/, "badd", "bod" }, /*-- 63 --*/ 
+/*-- 64 --*/ { "to move on feet at a moderate pace", /*-- 64 --*/ "walk"/*-- 64 --*/, "wok", "wolk" }, /*-- 64 --*/ 
+/*-- 65 --*/ { "to be upright on feet", /*-- 65 --*/ "stand"/*-- 65 --*/, "stend", "stond" }, /*-- 65 --*/ 
+/*-- 66 --*/ { "to make music with voice", /*-- 66 --*/ "sing"/*-- 66 --*/, "sung", "seng" }, /*-- 66 --*/ 
+/*-- 67 --*/ { "transport by road", /*-- 67 --*/ "bus"/*-- 67 --*/, "bos", "bas" }, /*-- 67 --*/ 
+/*-- 68 --*/ { "passage to enter or exit", /*-- 68 --*/ "door"/*-- 68 --*/, "dor", "doer" }, /*-- 68 --*/ 
+/*-- 69 --*/ { "something that shows location", /*-- 69 --*/ "map"/*-- 69 --*/, "mop", "mep" }, /*-- 69 --*/ 
+/*-- 70 --*/ { "oval farm product from birds", /*-- 70 --*/ "egg"/*-- 70 --*/, "egh", "eg" }, /*-- 70 --*/ 
+/*-- 71 --*/ { "edible fruit shaped like a bulb", /*-- 71 --*/ "pear"/*-- 71 --*/, "per", "pare" }, /*-- 71 --*/ 
+/*-- 72 --*/ { "small swimming waterbird", /*-- 72 --*/ "duck"/*-- 72 --*/, "duc", "duk" }, /*-- 72 --*/ 
+/*-- 73 --*/ { "small rodent", /*-- 73 --*/ "mouse"/*-- 73 --*/, "mawz", "mous" }, /*-- 73 --*/ 
+/*-- 74 --*/ { "air in motion", /*-- 74 --*/ "wind"/*-- 74 --*/, "windz", "wynd" }, /*-- 74 --*/ 
+
+
+//forgoten words
+
+/*-- 75 --*/ { "an animal that lives in water", /*-- 75 --*/ "fish"/*-- 75 --*/, "fesh", "fosh" }, /*-- 75 --*/ 
+/*-- 76 --*/ { "tool used for writing with ink", /*-- 76 --*/ "pen"/*-- 76 --*/, "pin", "pan" }, /*-- 76 --*/ 
+/*-- 77 --*/ { "grows on your head", /*-- 77 --*/ "hair"/*-- 77 --*/, "hare", "heir" }, /*-- 77 --*/ 
+/*-- 78 --*/ { "used to bite and chew", /*-- 78 --*/ "tooth"/*-- 78 --*/, "toot", "toth" }, /*-- 78 --*/ 
+/*-- 79 --*/ { "move fast on foot", /*-- 79 --*/ "run"/*-- 79 --*/, "ran", "ron" }, /*-- 79 --*/ 
+/*-- 80 --*/ { "rest on your bottom", /*-- 80 --*/ "sit"/*-- 80 --*/, "set", "sat" }, /*-- 80 --*/ 
+/*-- 81 --*/ { "bright object in the night sky", /*-- 81 --*/ "star"/*-- 81 --*/, "stor", "stir" }, /*-- 81 --*/ 
+/*-- 82 --*/ { "color of grass", /*-- 82 --*/ "green"/*-- 82 --*/, "grean", "gren" }, /*-- 82 --*/ 
+/*-- 83 --*/ { "refers to the speaker", /*-- 83 --*/ "me"/*-- 83 --*/, "mi", "meh" }, /*-- 83 --*/ 
+/*-- 84 --*/ { "color of the sun", /*-- 84 --*/ "yellow"/*-- 84 --*/, "yelow", "yello" }, /*-- 84 --*/ 
+/*-- 85 --*/ { "look at words and understand", /*-- 85 --*/ "read"/*-- 85 --*/, "reed", "red" }, /*-- 85 --*/ 
+/*-- 86 --*/ { "refers to a female person", /*-- 86 --*/ "her"/*-- 86 --*/, "hur", "hir" }, /*-- 86 --*/ 
+/*-- 87 --*/ { "color like chocolate", /*-- 87 --*/ "brown"/*-- 87 --*/, "brawn", "bron" }, /*-- 87 --*/ 
+/*-- 88 --*/ { "seen in the sky, made of vapor", /*-- 88 --*/ "cloud"/*-- 88 --*/, "clod", "clowd" }, /*-- 88 --*/ 
+/*-- 89 --*/ { "liquid food eaten hot", /*-- 89 --*/ "soup"/*-- 89 --*/, "soop", "sup" }, /*-- 89 --*/ 
+/*-- 90 --*/ { "clear liquid you drink", /*-- 90 --*/ "water"/*-- 90 --*/, "watar", "woter" }, /*-- 90 --*/ 
+/*-- 91 --*/ { "color between black and white", /*-- 91 --*/ "gray"/*-- 91 --*/, "grey", "grai" }, /*-- 91 --*/ 
+/*-- 92 --*/ { "hard natural stone", /*-- 92 --*/ "rock"/*-- 92 --*/, "rok", "ruck" }, /*-- 92 --*/ 
+/*-- 93 --*/ { "having low temperature", /*-- 93 --*/ "cold"/*-- 93 --*/, "kold", "cald" }, /*-- 93 --*/ 
+/*-- 94 --*/ { "color between red and yellow", /*-- 94 --*/ "orange"/*-- 94 --*/, "oranj", "ornge" }, /*-- 94 --*/ 
+/*-- 95 --*/ { "organ used for seeing", /*-- 95 --*/ "eye"/*-- 95 --*/, "aye", "eie" }, /*-- 95 --*/ 
+/*-- 96 --*/ { "large in size", /*-- 96 --*/ "big"/*-- 96 --*/, "beg", "bug" }, /*-- 96 --*/ 
+/*-- 97 --*/ { "round object used in games", /*-- 97 --*/ "ball"/*-- 97 --*/, "bol", "bawl" }, /*-- 97 --*/ 
+/*-- 98 --*/ { "adult male human", /*-- 98 --*/ "man"/*-- 98 --*/, "men", "mun" }, /*-- 98 --*/ 
+/*-- 99 --*/ { "not large in size", /*-- 99 --*/ "small"/*-- 99 --*/, "smol", "smel" }, /*-- 99 --*/ 
     };
 
     public static string[,] easySentencePairs = new string[,]
@@ -185,56 +214,56 @@ public class QuestionRandomizer : MonoBehaviour
     #region Medium
     public static string[,] mediumSpellingPairs = new string[,]
     {
-        { "large reptile with powerful jaws", "alligator", "aligater", "alligater" },
-        { "a heavy object dropped from a ship to keep it in place", "anchor", "anker", "anchore" },
-        { "metal protective clothing worn in battle", "armor", "armour", "armar" },
-        { "a long curved yellow fruit", "banana", "bannana", "bananna" },
-        { "a container for carrying things", "basket", "baskit", "baskett" },
-        { "a warm covering for a bed", "blanket", "blancket", "blankit" },
-        { "severe snow storm with strong winds", "blizzard", "blizzurd", "blizard" },
-        { "a container for liquids", "bottle", "bottel", "botal" },
-        { "a structure built to cross water", "bridge", "brige", "bridg" },
-        { "a desert plant with spines", "cactus", "cactuss", "kactus" },
-        { "a large fortified building", "castle", "castel", "cassle" },
-        { "a dairy food made from milk", "cheese", "cheeze", "chese" },
-        { "sweet brown food made from cocoa", "chocolate", "choclate", "chocolet" },
-        { "tool that shows north, south, east, west", "compass", "compas", "compess" },
-        { "a small sweet baked treat", "cookie", "cookies", "cooky" },
-        { "a royal head decoration", "crown", "croun", "crowne" },
-        { "a dry barren area with little rain", "desert", "dessert", "desart" },
-        { "a large bird of prey", "eagle", "eagel", "egle" },
-        { "a large area covered with trees", "forest", "forrest", "forist" },
-        { "an area for growing plants", "garden", "gardin", "gardon" },
-        { "a tall African animal with a long neck", "giraffe", "girafe", "girrafe" },
-        { "huge slow-moving river of ice", "glacier", "glaceir", "glaciar" },
-        { "protective headgear", "helmet", "helmit", "helmett" },
-        { "powerful tropical cyclone", "hurricane", "hurricaine", "huricane" },
-        { "tool used to create music", "instrument", "insturment", "instrament" },
-        { "decorative items worn on the body", "jewelry", "jewelery", "jewlery" },
-        { "a set of steps or rungs for climbing", "ladder", "lader", "ladar" },
-        { "a portable light source with a protective case", "lantern", "lanturn", "lantren" },
-        { "a tower with a bright light to guide ships", "lighthouse", "lighthous", "lighthuse" },
-        { "a metal object that attracts iron", "magnet", "magnit", "magnett" },
-        { "a public place where goods are sold", "market", "markit", "markett" },
-        { "a large sweet juicy fruit", "melon", "mellon", "melonn" },
-        { "tool to see very small things magnified", "microscope", "microscop", "micrascope" },
-        { "a tree-climbing primate", "monkey", "monkie", "monky" },
-        { "sea creature with eight arms", "octopus", "octupus", "octapus" },
-        { "large black big cat", "panther", "panthar", "pantor" },
-        { "flightless bird from cold regions", "penguin", "penguine", "pengwin" },
-        { "a soft support for the head during sleep", "pillow", "pilloe", "pillo" },
-        { "a small burrowing mammal with long ears", "rabbit", "rabitt", "rabbitt" },
-        { "a place for learning", "school", "skool", "schol" },
-        { "a cutting tool with two blades", "scissors", "sissors", "scisors" },
-        { "long Italian noodle dish", "spaghetti", "spagetti", "spagheti" },
-        { "a carved or cast figure of a person or animal", "statue", "statue", "statue" },
-        { "a public road in a town or city", "street", "streat", "stret" },
-        { "optical tool to see distant objects", "telescope", "telescop", "telascope" },
-        { "a large striped big cat", "tiger", "tigger", "tyger" },
-        { "a red juicy fruit often used in sauces", "tomato", "tamato", "tomatto" },
-        { "mountain that erupts with lava", "volcano", "volcanoe", "volcane" },
-        { "a building with blades that turn in the wind", "windmill", "windmil", "windmill" },
-        { "an African striped animal", "zebra", "zebra", "zebra" }
+/*-- 0 --*/  { "large reptile with powerful jaws", /*-- 0 --*/ "alligator"/*-- 0 --*/, "aligater", "alligater" }, /*-- 0 --*/ 
+/*-- 1 --*/  { "a heavy object dropped from a ship to keep it in place", /*-- 1 --*/ "anchor"/*-- 1 --*/, "anker", "anchore" }, /*-- 1 --*/ 
+/*-- 2 --*/  { "metal protective clothing worn in battle", /*-- 2 --*/ "armor"/*-- 2 --*/, "armour", "armar" }, /*-- 2 --*/ 
+/*-- 3 --*/  { "a long curved yellow fruit", /*-- 3 --*/ "banana"/*-- 3 --*/, "bannana", "bananna" }, /*-- 3 --*/ 
+/*-- 4 --*/  { "a container for carrying things", /*-- 4 --*/ "basket"/*-- 4 --*/, "baskit", "baskett" }, /*-- 4 --*/ 
+/*-- 5 --*/  { "a warm covering for a bed", /*-- 5 --*/ "blanket"/*-- 5 --*/, "blancket", "blankit" }, /*-- 5 --*/ 
+/*-- 6 --*/  { "severe snow storm with strong winds", /*-- 6 --*/ "blizzard"/*-- 6 --*/, "blizzurd", "blizard" }, /*-- 6 --*/ 
+/*-- 7 --*/  { "a container for liquids", /*-- 7 --*/ "bottle"/*-- 7 --*/, "bottel", "botal" }, /*-- 7 --*/ 
+/*-- 8 --*/  { "a structure built to cross water", /*-- 8 --*/ "bridge"/*-- 8 --*/, "brige", "bridg" }, /*-- 8 --*/ 
+/*-- 9 --*/  { "a desert plant with spines", /*-- 9 --*/ "cactus"/*-- 9 --*/, "cactuss", "kactus" }, /*-- 9 --*/ 
+/*-- 10 --*/ { "a large fortified building", /*-- 10 --*/ "castle"/*-- 10 --*/, "castel", "cassle" }, /*-- 10 --*/ 
+/*-- 11 --*/ { "a dairy food made from milk", /*-- 11 --*/ "cheese"/*-- 11 --*/, "cheeze", "chese" }, /*-- 11 --*/ 
+/*-- 12 --*/ { "sweet brown food made from cocoa", /*-- 12 --*/ "chocolate"/*-- 12 --*/, "choclate", "chocolet" }, /*-- 12 --*/ 
+/*-- 13 --*/ { "tool that shows north, south, east, west", /*-- 13 --*/ "compass"/*-- 13 --*/, "compas", "compess" }, /*-- 13 --*/ 
+/*-- 14 --*/ { "a small sweet baked treat", /*-- 14 --*/ "cookie"/*-- 14 --*/, "cookies", "cooky" }, /*-- 14 --*/ 
+/*-- 15 --*/ { "a royal head decoration", /*-- 15 --*/ "crown"/*-- 15 --*/, "croun", "crowne" }, /*-- 15 --*/ 
+/*-- 16 --*/ { "a dry barren area with little rain", /*-- 16 --*/ "desert"/*-- 16 --*/, "dessert", "desart" }, /*-- 16 --*/ 
+/*-- 17 --*/ { "a large bird of prey", /*-- 17 --*/ "eagle"/*-- 17 --*/, "eagel", "egle" }, /*-- 17 --*/ 
+/*-- 18 --*/ { "a large area covered with trees", /*-- 18 --*/ "forest"/*-- 18 --*/, "forrest", "forist" }, /*-- 18 --*/ 
+/*-- 19 --*/ { "an area for growing plants", /*-- 19 --*/ "garden"/*-- 19 --*/, "gardin", "gardon" }, /*-- 19 --*/ 
+/*-- 20 --*/ { "a tall African animal with a long neck", /*-- 20 --*/ "giraffe"/*-- 20 --*/, "girafe", "girrafe" }, /*-- 20 --*/ 
+/*-- 21 --*/ { "huge slow-moving river of ice", /*-- 21 --*/ "glacier"/*-- 21 --*/, "glaceir", "glaciar" }, /*-- 21 --*/ 
+/*-- 22 --*/ { "protective headgear", /*-- 22 --*/ "helmet"/*-- 22 --*/, "helmit", "helmett" }, /*-- 22 --*/ 
+/*-- 23 --*/ { "powerful tropical cyclone", /*-- 23 --*/ "hurricane"/*-- 23 --*/, "hurricaine", "huricane" }, /*-- 23 --*/ 
+/*-- 24 --*/ { "tool used to create music", /*-- 24 --*/ "instrument"/*-- 24 --*/, "insturment", "instrament" }, /*-- 24 --*/ 
+/*-- 25 --*/ { "decorative items worn on the body", /*-- 25 --*/ "jewelry"/*-- 25 --*/, "jewelery", "jewlery" }, /*-- 25 --*/ 
+/*-- 26 --*/ { "a set of steps or rungs for climbing", /*-- 26 --*/ "ladder"/*-- 26 --*/, "lader", "ladar" }, /*-- 26 --*/ 
+/*-- 27 --*/ { "a portable light source with a protective case", /*-- 27 --*/ "lantern"/*-- 27 --*/, "lanturn", "lantren" }, /*-- 27 --*/ 
+/*-- 28 --*/ { "a tower with a bright light to guide ships", /*-- 28 --*/ "lighthouse"/*-- 28 --*/, "lighthous", "lighthuse" }, /*-- 28 --*/ 
+/*-- 29 --*/ { "a metal object that attracts iron", /*-- 29 --*/ "magnet"/*-- 29 --*/, "magnit", "magnett" }, /*-- 29 --*/ 
+/*-- 30 --*/ { "a public place where goods are sold", /*-- 30 --*/ "market"/*-- 30 --*/, "markit", "markett" }, /*-- 30 --*/ 
+/*-- 31 --*/ { "a large sweet juicy fruit", /*-- 31 --*/ "melon"/*-- 31 --*/, "mellon", "melonn" }, /*-- 31 --*/ 
+/*-- 32 --*/ { "tool to see very small things magnified", /*-- 32 --*/ "microscope"/*-- 32 --*/, "microscop", "micrascope" }, /*-- 32 --*/ 
+/*-- 33 --*/ { "a tree-climbing primate", /*-- 33 --*/ "monkey"/*-- 33 --*/, "monkie", "monky" }, /*-- 33 --*/ 
+/*-- 34 --*/ { "sea creature with eight arms", /*-- 34 --*/ "octopus"/*-- 34 --*/, "octupus", "octapus" }, /*-- 34 --*/ 
+/*-- 35 --*/ { "large black big cat", /*-- 35 --*/ "panther"/*-- 35 --*/, "panthar", "pantor" }, /*-- 35 --*/ 
+/*-- 36 --*/ { "flightless bird from cold regions", /*-- 36 --*/ "penguin"/*-- 36 --*/, "penguine", "pengwin" }, /*-- 36 --*/ 
+/*-- 37 --*/ { "a soft support for the head during sleep", /*-- 37 --*/ "pillow"/*-- 37 --*/, "pilloe", "pillo" }, /*-- 37 --*/ 
+/*-- 38 --*/ { "a small burrowing mammal with long ears", /*-- 38 --*/ "rabbit"/*-- 38 --*/, "rabitt", "rabbitt" }, /*-- 38 --*/ 
+/*-- 39 --*/ { "a place for learning", /*-- 39 --*/ "school"/*-- 39 --*/, "skool", "schol" }, /*-- 39 --*/ 
+/*-- 40 --*/ { "a cutting tool with two blades", /*-- 40 --*/ "scissors"/*-- 40 --*/, "sissors", "scisors" }, /*-- 40 --*/ 
+/*-- 41 --*/ { "long Italian noodle dish", /*-- 41 --*/ "spaghetti"/*-- 41 --*/, "spagetti", "spagheti" }, /*-- 41 --*/ 
+/*-- 42 --*/ { "a carved or cast figure of a person or animal", /*-- 42 --*/ "statue"/*-- 42 --*/, "statue", "statue" }, /*-- 42 --*/ 
+/*-- 43 --*/ { "a public road in a town or city", /*-- 43 --*/ "street"/*-- 43 --*/, "streat", "stret" }, /*-- 43 --*/ 
+/*-- 44 --*/ { "optical tool to see distant objects", /*-- 44 --*/ "telescope"/*-- 44 --*/, "telescop", "telascope" }, /*-- 44 --*/ 
+/*-- 45 --*/ { "a large striped big cat", /*-- 45 --*/ "tiger"/*-- 45 --*/, "tigger", "tyger" }, /*-- 45 --*/ 
+/*-- 46 --*/ { "a red juicy fruit often used in sauces", /*-- 46 --*/ "tomato"/*-- 46 --*/, "tamato", "tomatto" }, /*-- 46 --*/ 
+/*-- 47 --*/ { "mountain that erupts with lava", /*-- 47 --*/ "volcano"/*-- 47 --*/, "volcanoe", "volcane" }, /*-- 47 --*/ 
+/*-- 48 --*/ { "a building with blades that turn in the wind", /*-- 48 --*/ "windmill"/*-- 48 --*/, "windmil", "windmill" }, /*-- 48 --*/ 
+/*-- 49 --*/ { "an African striped animal", /*-- 49 --*/ "zebra"/*-- 49 --*/, "zebra", "zebra" }, /*-- 49 --*/ 
     };
 
     public static string[,] mediumSentencePairs = new string[,]
@@ -265,56 +294,56 @@ public class QuestionRandomizer : MonoBehaviour
     #region Hard
     public static string[,] hardSpellingPairs = new string[,]
     {
-        { "a burrowing African mammal with a long nose", "aardvark", "aardvarko", "ardvark" },
-        { "an open-air venue for performances", "amphitheater", "amfiteatro", "amphitheatre" },
-        { "a small armored mammal that rolls into a ball", "armadillo", "armadilo", "armadelo" },
-        { "an ancient astronomical instrument for measuring stars", "astrolabe", "astrolabbo", "astrolab" },
-        { "a rare aquatic salamander with external gills", "axolotl", "axoloto", "axolotal" },
-        { "an ancient missile weapon that launches projectiles", "ballista", "balista", "ballisto" },
-        { "a defensive wall on top of a castle", "battlement", "batlemanto", "battlemont" },
-        { "a rotating amusement ride with seats", "carousel", "karuselo", "carosel" },
-        { "a medieval device for hurling heavy stones", "catapult", "katapulto", "catopult" },
-        { "a mythical creature that is half human, half horse", "centaur", "sentaoro", "centuar" },
-        { "a lizard that can change its color", "chameleon", "kamaleono", "chamelion" },
-        { "a hanging decorative light fixture", "chandelier", "shandeler", "chandalier" },
-        { "the pupal stage of a butterfly", "chrysalis", "chrysaliso", "chrysalys" },
-        { "a colorful parrot with a crest", "cockatoo", "kokatu", "cockatou" },
-        { "a large ancient Roman theater", "colosseum", "coloseo", "coliseum" },
-        { "a bridge that can be raised or lowered", "drawbridge", "drawbriggo", "drawbrige" },
-        { "a carved figure often on buildings", "gargoyle", "gargoyo", "gargoil" },
-        { "a professional fighter in ancient Rome", "gladiator", "gladiato", "gladiater" },
-        { "a device used for executions by decapitation", "guillotine", "guilotino", "guillotene" },
-        { "a spear-like weapon for fishing or combat", "harpoon", "harpono", "harpune" },
-        { "ancient writing system of Egypt using symbols", "hieroglyph", "hyerogliffo", "hieroglif" },
-        { "an optical toy showing colorful patterns", "kaleidoscope", "kaleidoskopo", "kaleidoskope" },
-        { "a complex network of paths", "labyrinth", "labirinto", "laberinth" },
-        { "a large tent for events or shows", "marquee", "markweo", "marquea" },
-        { "a collection of exotic animals", "menagerie", "menajero", "managerie" },
-        { "a mythical creature with the body of a man and head of a bull", "minotaur", "minotauro", "minotar" },
-        { "a single massive upright stone", "monolith", "monolito", "monoleth" },
-        { "a whale with a long tusk", "narwhal", "narwalo", "narwal" },
-        { "a tall stone pillar or monument", "obelisk", "obelisko", "obelics" },
-        { "a dark volcanic glass", "obsidian", "obsidiano", "obsidien" },
-        { "a dungeon with a secret trapdoor", "oubliette", "oblietto", "oubliete" },
-        { "a famous temple in Athens", "parthenon", "parthenono", "parthanon" },
-        { "a tube for viewing distant objects", "periscope", "periskopo", "perascope" },
-        { "a ruler of ancient Egypt", "pharaoh", "faraono", "pharoh" },
-        { "a duck-billed egg-laying mammal", "platypus", "platipo", "platypos" },
-        { "a heavy gate that slides vertically", "portcullis", "portkulo", "portculis" },
-        { "a massive triangular structure", "pyramid", "piramido", "pyramyd" },
-        { "a small marsupial from Australia", "quokka", "quokko", "quoka" },
-        { "a Japanese warrior", "samurai", "samuraio", "samuray" },
-        { "a stone coffin, usually for royalty", "sarcophagus", "sarkofago", "sarcofagus" },
-        { "an arachnid with a sting", "scorpion", "skorpiono", "scorpeon" },
-        { "an ancient navigation instrument", "sextant", "sekstanto", "sextent" },
-        { "a mythical creature with a lion's body and human head", "sphinx", "sfinkso", "sfinx" },
-        { "a handheld telescope", "spyglass", "spyglasso", "spyglas" },
-        { "a large spider with long legs", "tarantula", "tarantulo", "tarantala" },
-        { "a medieval siege engine that throws stones", "trebuchet", "trebuchato", "trebuchat" },
-        { "a three-pronged spear", "trident", "tridanto", "tridant" },
-        { "a Scandinavian warrior or raider", "viking", "vikingo", "vyking" },
-        { "a musical instrument with keys", "xylophone", "zylophono", "xilophone" },
-        { "a stepped pyramid from ancient Mesopotamia", "ziggurat", "zigurato", "zigurat" }
+/*-- 0 --*/  { "a burrowing African mammal with a long nose", /*-- 0 --*/ "aardvark"/*-- 0 --*/, "aardvarko", "ardvark" }, /*-- 0 --*/ 
+/*-- 1 --*/  { "an open-air venue for performances", /*-- 1 --*/ "amphitheater"/*-- 1 --*/, "amfiteatro", "amphitheatre" }, /*-- 1 --*/ 
+/*-- 2 --*/  { "a small armored mammal that rolls into a ball", /*-- 2 --*/ "armadillo"/*-- 2 --*/, "armadilo", "armadelo" }, /*-- 2 --*/ 
+/*-- 3 --*/  { "an ancient astronomical instrument for measuring stars", /*-- 3 --*/ "astrolabe"/*-- 3 --*/, "astrolabbo", "astrolab" }, /*-- 3 --*/ 
+/*-- 4 --*/  { "a rare aquatic salamander with external gills", /*-- 4 --*/ "axolotl"/*-- 4 --*/, "axoloto", "axolotal" }, /*-- 4 --*/ 
+/*-- 5 --*/  { "an ancient missile weapon that launches projectiles", /*-- 5 --*/ "ballista"/*-- 5 --*/, "balista", "ballisto" }, /*-- 5 --*/ 
+/*-- 6 --*/  { "a defensive wall on top of a castle", /*-- 6 --*/ "battlement"/*-- 6 --*/, "batlemanto", "battlemont" }, /*-- 6 --*/ 
+/*-- 7 --*/  { "a rotating amusement ride with seats", /*-- 7 --*/ "carousel"/*-- 7 --*/, "karuselo", "carosel" }, /*-- 7 --*/ 
+/*-- 8 --*/  { "a medieval device for hurling heavy stones", /*-- 8 --*/ "catapult"/*-- 8 --*/, "katapulto", "catopult" }, /*-- 8 --*/ 
+/*-- 9 --*/  { "a mythical creature that is half human, half horse", /*-- 9 --*/ "centaur"/*-- 9 --*/, "sentaoro", "centuar" }, /*-- 9 --*/ 
+/*-- 10 --*/ { "a lizard that can change its color", /*-- 10 --*/ "chameleon"/*-- 10 --*/, "kamaleono", "chamelion" }, /*-- 10 --*/ 
+/*-- 11 --*/ { "a hanging decorative light fixture", /*-- 11 --*/ "chandelier"/*-- 11 --*/, "shandeler", "chandalier" }, /*-- 11 --*/ 
+/*-- 12 --*/ { "the pupal stage of a butterfly", /*-- 12 --*/ "chrysalis"/*-- 12 --*/, "chrysaliso", "chrysalys" }, /*-- 12 --*/ 
+/*-- 13 --*/ { "a colorful parrot with a crest", /*-- 13 --*/ "cockatoo"/*-- 13 --*/, "kokatu", "cockatou" }, /*-- 13 --*/ 
+/*-- 14 --*/ { "a large ancient Roman theater", /*-- 14 --*/ "colosseum"/*-- 14 --*/, "coloseo", "coliseum" }, /*-- 14 --*/ 
+/*-- 15 --*/ { "a bridge that can be raised or lowered", /*-- 15 --*/ "drawbridge"/*-- 15 --*/, "drawbriggo", "drawbrige" }, /*-- 15 --*/ 
+/*-- 16 --*/ { "a carved figure often on buildings", /*-- 16 --*/ "gargoyle"/*-- 16 --*/, "gargoyo", "gargoil" }, /*-- 16 --*/ 
+/*-- 17 --*/ { "a professional fighter in ancient Rome", /*-- 17 --*/ "gladiator"/*-- 17 --*/, "gladiato", "gladiater" }, /*-- 17 --*/ 
+/*-- 18 --*/ { "a device used for executions by decapitation", /*-- 18 --*/ "guillotine"/*-- 18 --*/, "guilotino", "guillotene" }, /*-- 18 --*/ 
+/*-- 19 --*/ { "a spear-like weapon for fishing or combat", /*-- 19 --*/ "harpoon"/*-- 19 --*/, "harpono", "harpune" }, /*-- 19 --*/ 
+/*-- 20 --*/ { "ancient writing system of Egypt using symbols", /*-- 20 --*/ "hieroglyph"/*-- 20 --*/, "hyerogliffo", "hieroglif" }, /*-- 20 --*/ 
+/*-- 21 --*/ { "an optical toy showing colorful patterns", /*-- 21 --*/ "kaleidoscope"/*-- 21 --*/, "kaleidoskopo", "kaleidoskope" }, /*-- 21 --*/ 
+/*-- 22 --*/ { "a complex network of paths", /*-- 22 --*/ "labyrinth"/*-- 22 --*/, "labirinto", "laberinth" }, /*-- 22 --*/ 
+/*-- 23 --*/ { "a large tent for events or shows", /*-- 23 --*/ "marquee"/*-- 23 --*/, "markweo", "marquea" }, /*-- 23 --*/ 
+/*-- 24 --*/ { "a collection of exotic animals", /*-- 24 --*/ "menagerie"/*-- 24 --*/, "menajero", "managerie" }, /*-- 24 --*/ 
+/*-- 25 --*/ { "a mythical creature with the body of a man and head of a bull", /*-- 25 --*/ "minotaur"/*-- 25 --*/, "minotauro", "minotar" }, /*-- 25 --*/ 
+/*-- 26 --*/ { "a single massive upright stone", /*-- 26 --*/ "monolith"/*-- 26 --*/, "monolito", "monoleth" }, /*-- 26 --*/ 
+/*-- 27 --*/ { "a whale with a long tusk", /*-- 27 --*/ "narwhal"/*-- 27 --*/, "narwalo", "narwal" }, /*-- 27 --*/ 
+/*-- 28 --*/ { "a tall stone pillar or monument", /*-- 28 --*/ "obelisk"/*-- 28 --*/, "obelisko", "obelics" }, /*-- 28 --*/ 
+/*-- 29 --*/ { "a dark volcanic glass", /*-- 29 --*/ "obsidian"/*-- 29 --*/, "obsidiano", "obsidien" }, /*-- 29 --*/ 
+/*-- 30 --*/ { "a dungeon with a secret trapdoor", /*-- 30 --*/ "oubliette"/*-- 30 --*/, "oblietto", "oubliete" }, /*-- 30 --*/ 
+/*-- 31 --*/ { "a famous temple in Athens", /*-- 31 --*/ "parthenon"/*-- 31 --*/, "parthenono", "parthanon" }, /*-- 31 --*/ 
+/*-- 32 --*/ { "a tube for viewing distant objects", /*-- 32 --*/ "periscope"/*-- 32 --*/, "periskopo", "perascope" }, /*-- 32 --*/ 
+/*-- 33 --*/ { "a ruler of ancient Egypt", /*-- 33 --*/ "pharaoh"/*-- 33 --*/, "faraono", "pharoh" }, /*-- 33 --*/ 
+/*-- 34 --*/ { "a duck-billed egg-laying mammal", /*-- 34 --*/ "platypus"/*-- 34 --*/, "platipo", "platypos" }, /*-- 34 --*/ 
+/*-- 35 --*/ { "a heavy gate that slides vertically", /*-- 35 --*/ "portcullis"/*-- 35 --*/, "portkulo", "portculis" }, /*-- 35 --*/ 
+/*-- 36 --*/ { "a massive triangular structure", /*-- 36 --*/ "pyramid"/*-- 36 --*/, "piramido", "pyramyd" }, /*-- 36 --*/ 
+/*-- 37 --*/ { "a small marsupial from Australia", /*-- 37 --*/ "quokka"/*-- 37 --*/, "quokko", "quoka" }, /*-- 37 --*/ 
+/*-- 38 --*/ { "a Japanese warrior", /*-- 38 --*/ "samurai"/*-- 38 --*/, "samuraio", "samuray" }, /*-- 38 --*/ 
+/*-- 39 --*/ { "a stone coffin, usually for royalty", /*-- 39 --*/ "sarcophagus"/*-- 39 --*/, "sarkofago", "sarcofagus" }, /*-- 39 --*/ 
+/*-- 40 --*/ { "an arachnid with a sting", /*-- 40 --*/ "scorpion"/*-- 40 --*/, "skorpiono", "scorpeon" }, /*-- 40 --*/ 
+/*-- 41 --*/ { "an ancient navigation instrument", /*-- 41 --*/ "sextant"/*-- 41 --*/, "sekstanto", "sextent" }, /*-- 41 --*/ 
+/*-- 42 --*/ { "a mythical creature with a lion's body and human head", /*-- 42 --*/ "sphinx"/*-- 42 --*/, "sfinkso", "sfinx" }, /*-- 42 --*/ 
+/*-- 43 --*/ { "a handheld telescope", /*-- 43 --*/ "spyglass"/*-- 43 --*/, "spyglasso", "spyglas" }, /*-- 43 --*/ 
+/*-- 44 --*/ { "a large spider with long legs", /*-- 44 --*/ "tarantula"/*-- 44 --*/, "tarantulo", "tarantala" }, /*-- 44 --*/ 
+/*-- 45 --*/ { "a medieval siege engine that throws stones", /*-- 45 --*/ "trebuchet"/*-- 45 --*/, "trebuchato", "trebuchat" }, /*-- 45 --*/ 
+/*-- 46 --*/ { "a three-pronged spear", /*-- 46 --*/ "trident"/*-- 46 --*/, "tridanto", "tridant" }, /*-- 46 --*/ 
+/*-- 47 --*/ { "a Scandinavian warrior or raider", /*-- 47 --*/ "viking"/*-- 47 --*/, "vikingo", "vyking" }, /*-- 47 --*/ 
+/*-- 48 --*/ { "a musical instrument with keys", /*-- 48 --*/ "xylophone"/*-- 48 --*/, "zylophono", "xilophone" }, /*-- 48 --*/ 
+/*-- 49 --*/ { "a stepped pyramid from ancient Mesopotamia", /*-- 49 --*/ "ziggurat"/*-- 49 --*/, "zigurato", "zigurat" }, /*-- 49 --*/ 
     };
 
     public static string[,] hardSentencePairs = new string[,]
