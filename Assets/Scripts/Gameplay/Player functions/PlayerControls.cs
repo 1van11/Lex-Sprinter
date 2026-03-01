@@ -8,10 +8,13 @@ public class PlayerControls : MonoBehaviour
     public float forwardSpeed = 10f;           // Forward speed (used externally)
 
     [Header("Jump")]
-    public float jumpForce = 9f;
-    public float gravity = 20f;
-    public float groundCheckDistance = 0.1f;
-    public bool enableJump = true;
+    public float jumpHeight = 5f;               // Desired max height of the jump
+    public float jumpTimeToPeak = 0.5f;          // Time to reach the peak (smaller = faster jump)
+    public bool enableJump = true;                // Can the player jump?
+    public float groundCheckDistance = 0.1f;      // How far to check for ground
+
+    private float jumpForce;                     // Calculated from height & time
+    private float gravity;                        // Calculated from height & time
 
     [Header("Fast Descent (Swipe Down)")]
     public float fastDescentForce = 15f;
@@ -24,9 +27,10 @@ public class PlayerControls : MonoBehaviour
     public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
     public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
 
-    [Header("Visual Tilt")]
-    public float tiltAngle = 20f;
-    public float tiltSpeed = 10f;
+    [Header("Visual Tilt & Yaw")]
+    public float tiltAngle = 20f;                // Max roll angle when moving sideways
+    public float maxYawAngle = 30f;               // Max yaw angle when moving sideways
+    public float rotationSpeed = 10f;             // Smoothing speed for both yaw and tilt
 
     [Header("Lane Snapping (Subway Surfers style)")]
     public bool useLaneSnapping = false;         // Enable discrete lane switching
@@ -40,6 +44,7 @@ public class PlayerControls : MonoBehaviour
 
     private float horizontalInput;               // -1 to 1 for movement (continuous mode)
     private float targetTilt;
+    private float targetYaw;                      // New: desired yaw angle for facing direction
     private bool isGrounded;
     private bool isFastDescending;
     private bool isMovementStopped = false;
@@ -72,12 +77,23 @@ public class PlayerControls : MonoBehaviour
 
         rb.constraints = RigidbodyConstraints.FreezeRotation
                        | RigidbodyConstraints.FreezePositionZ;
+
+        // Calculate jump parameters based on desired height and time
+        RecalculateJumpPhysics();
     }
 
     void Start()
     {
         if (useLaneSnapping)
             InitializeLanes();
+    }
+
+    // Call this if you change jumpHeight or jumpTimeToPeak at runtime
+    public void RecalculateJumpPhysics()
+    {
+        if (jumpTimeToPeak <= 0f) jumpTimeToPeak = 0.1f; // avoid division by zero
+        gravity = 2f * jumpHeight / (jumpTimeToPeak * jumpTimeToPeak);
+        jumpForce = gravity * jumpTimeToPeak;
     }
 
     void InitializeLanes()
@@ -122,7 +138,7 @@ public class PlayerControls : MonoBehaviour
         HandleKeyboardInput();
         HandleTouchInput();
         MoveHorizontally();
-        ApplyTilt();
+        ApplyRotation();          // Now handles both yaw and tilt
         UpdateAnimations();
     }
 
@@ -397,19 +413,16 @@ public class PlayerControls : MonoBehaviour
             // Check if we're actually moving horizontally
             bool isMovingHorizontally = Mathf.Abs(transform.position.x - previousPosition.x) > 0.001f;
 
-            // Check lane change progress
-            if (isChangingLane)
+            // Update yaw based on lane change direction
+            if (isChangingLane && isMovingHorizontally)
             {
-                // If we're not moving horizontally but should be (blocked), check timeout
-                if (!isMovingHorizontally && Mathf.Abs(transform.position.x - targetLaneX) > 0.1f)
-                {
-                    CheckLaneChangeProgress();
-                }
-                else
-                {
-                    // Normal progress check
-                    CheckLaneChangeProgress();
-                }
+                // Point towards the target lane
+                float direction = Mathf.Sign(targetLaneX - transform.position.x);
+                targetYaw = direction * maxYawAngle;
+            }
+            else
+            {
+                targetYaw = 0f;
             }
 
             // Update tilt based on movement direction
@@ -423,13 +436,31 @@ public class PlayerControls : MonoBehaviour
             {
                 targetTilt = 0f;
             }
+
+            // Check lane change progress (for timeout/blocking)
+            if (isChangingLane)
+            {
+                if (!isMovingHorizontally && Mathf.Abs(transform.position.x - targetLaneX) > 0.1f)
+                {
+                    CheckLaneChangeProgress();
+                }
+                else
+                {
+                    CheckLaneChangeProgress();
+                }
+            }
         }
         else
         {
+            // Continuous mode: move horizontally
             Vector3 pos = transform.position;
             pos.x += horizontalInput * moveSpeed * Time.deltaTime;
             pos.x = Mathf.Clamp(pos.x, -maxLaneDistance, maxLaneDistance);
             transform.position = pos;
+
+            // Set yaw based on horizontal input
+            targetYaw = horizontalInput * maxYawAngle;
+            // Tilt is already set in input handling
         }
     }
 
@@ -445,14 +476,21 @@ public class PlayerControls : MonoBehaviour
         }
     }
 
-    void ApplyTilt()
+    void ApplyRotation()
     {
-        Quaternion rot = Quaternion.Euler(0, 0, targetTilt);
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            rot,
-            Time.deltaTime * tiltSpeed
-        );
+        // Determine the forward direction based on target yaw
+        // We assume forward is along world Z, and yaw rotates around world Y
+        Vector3 forwardDir = Quaternion.Euler(0f, targetYaw, 0f) * Vector3.forward;
+
+        // If forwardDir is zero (shouldn't happen), default to world forward
+        if (forwardDir == Vector3.zero)
+            forwardDir = Vector3.forward;
+
+        // Build the target rotation: first face forwardDir, then apply local tilt
+        Quaternion targetRotation = Quaternion.LookRotation(forwardDir) * Quaternion.Euler(0f, 0f, targetTilt);
+
+        // Smoothly rotate towards the target
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
 
     void Jump()
@@ -498,6 +536,7 @@ public class PlayerControls : MonoBehaviour
         forwardSpeed = 0f;
         horizontalInput = 0f;
         targetTilt = 0f;
+        targetYaw = 0f;
         rb.velocity = Vector3.zero;
     }
 

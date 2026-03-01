@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LetterHurdleManager : MonoBehaviour
 {
@@ -24,6 +25,18 @@ public class LetterHurdleManager : MonoBehaviour
     public GameObject letterPrefab;
     public Transform spawnParent;
     public float letterSpacing = 1f;
+
+    [Header("Clue Images - Per Difficulty")]
+    public Sprite[] easyClueImages;
+    public Sprite[] mediumClueImages;
+    public Sprite[] hardClueImages;
+    
+    [Header("Clue Display")]
+    public Image clueDisplayImage;  // Direct reference to the UI Image component
+    public bool showClueOnEventActive = true;
+
+    private Sprite[] currentClueImages;
+    private Dictionary<string, Sprite> wordToImageMap = new Dictionary<string, Sprite>();
 
     [Header("Word Lists")]
     private string[] easyWordList = {
@@ -47,11 +60,11 @@ public class LetterHurdleManager : MonoBehaviour
     };
 
     private string[] hardWordList = {
-    "Aardvark", "Amphitheater", "Armadillo", "Astrolabe", "Axolotl", "Ballista", "Battlement", "Carousel", "Catapult", "Centaur",
-    "Chameleon", "Chandelier", "Chrysalis", "Cockatoo", "Colosseum", "Drawbridge", "Gargoyle", "Gladiator", "Guillotine", "Harpoon",
-    "Hieroglyph", "Kaleidoscope", "Labyrinth", "Marquee", "Menagerie", "Minotaur", "Monolith", "Narwhal", "Obelisk", "Obsidian",
-    "Oubliette", "Parthenon", "Periscope", "Pharaoh", "Platypus", "Portcullis", "Pyramid", "Quokka", "Samurai", "Sarcophagus",
-    "Scorpion", "Sextant", "Sphinx", "Spyglass", "Tarantula", "Trebuchet", "Trident", "Viking", "Xylophone", "Ziggurat",
+        "Aardvark", "Amphitheater", "Armadillo", "Astrolabe", "Axolotl", "Ballista", "Battlement", "Carousel", "Catapult", "Centaur",
+        "Chameleon", "Chandelier", "Chrysalis", "Cockatoo", "Colosseum", "Drawbridge", "Gargoyle", "Gladiator", "Guillotine", "Harpoon",
+        "Hieroglyph", "Kaleidoscope", "Labyrinth", "Marquee", "Menagerie", "Minotaur", "Monolith", "Narwhal", "Obelisk", "Obsidian",
+        "Oubliette", "Parthenon", "Periscope", "Pharaoh", "Platypus", "Portcullis", "Pyramid", "Quokka", "Samurai", "Sarcophagus",
+        "Scorpion", "Sextant", "Sphinx", "Spyglass", "Tarantula", "Trebuchet", "Trident", "Viking", "Xylophone", "Ziggurat",
     };
 
     private string[] wordList;
@@ -69,20 +82,30 @@ public class LetterHurdleManager : MonoBehaviour
         if (scene == "GAMEMODE 2")
         {
             wordList = hardWordList;
+            currentClueImages = hardClueImages;
             Debug.Log("LetterHurdleManager: Hard mode word list loaded");
         }
         else if (scene == "GAMEMODE 1")
         {
             wordList = mediumWordList;
+            currentClueImages = mediumClueImages;
             Debug.Log("LetterHurdleManager: Medium mode word list loaded");
         }
         else
         {
             wordList = easyWordList;
+            currentClueImages = easyClueImages;
             Debug.Log("LetterHurdleManager: Easy mode (default) word list loaded");
         }
 
+        // Build word-to-image dictionary
+        BuildWordToImageMap();
+
         shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+
+        // Hide clue image at start
+        if (clueDisplayImage != null)
+            clueDisplayImage.gameObject.SetActive(false);
 
         SetNewTargetWord();
 
@@ -97,6 +120,29 @@ public class LetterHurdleManager : MonoBehaviour
         // Auto-find ObstacleSpawner if not assigned
         if (obstacleSpawner == null)
             obstacleSpawner = FindObjectOfType<ObstacleSpawner>();
+    }
+
+    void BuildWordToImageMap()
+    {
+        wordToImageMap.Clear();
+        
+        if (currentClueImages == null || currentClueImages.Length == 0)
+        {
+            Debug.LogWarning("No clue images assigned for current difficulty");
+            return;
+        }
+
+        int count = Mathf.Min(wordList.Length, currentClueImages.Length);
+        for (int i = 0; i < count; i++)
+        {
+            string word = wordList[i].ToLower();
+            if (!wordToImageMap.ContainsKey(word) && currentClueImages[i] != null)
+            {
+                wordToImageMap.Add(word, currentClueImages[i]);
+            }
+        }
+        
+        Debug.Log($"Word to image map built: {wordToImageMap.Count} words mapped");
     }
 
     void Update()
@@ -138,6 +184,47 @@ public class LetterHurdleManager : MonoBehaviour
 
         if (feedbackText != null)
             feedbackText.text = "";
+
+        // Update clue image for the new word
+        UpdateClueImage();
+    }
+
+    void UpdateClueImage()
+    {
+        if (clueDisplayImage == null) return;
+
+        // Only show clue if event is active and setting is enabled
+        if (showClueOnEventActive && obstacleSpawner != null && !obstacleSpawner.IsLetterEventActive)
+        {
+            clueDisplayImage.gameObject.SetActive(false);
+            return;
+        }
+
+        string targetWord = currentTargetWord.ToLower();
+        
+        if (wordToImageMap.TryGetValue(targetWord, out Sprite clueSprite))
+        {
+            clueDisplayImage.sprite = clueSprite;
+            clueDisplayImage.gameObject.SetActive(true);
+            Debug.Log($"Showing clue image for word: {currentTargetWord}");
+        }
+        else
+        {
+            // Try case-insensitive fallback
+            var match = wordToImageMap.FirstOrDefault(x => 
+                string.Equals(x.Key, targetWord, System.StringComparison.OrdinalIgnoreCase));
+            
+            if (match.Value != null)
+            {
+                clueDisplayImage.sprite = match.Value;
+                clueDisplayImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                clueDisplayImage.gameObject.SetActive(false);
+                Debug.LogWarning($"No clue image found for word: {currentTargetWord}");
+            }
+        }
     }
 
     void SpawnLetters(string word)
@@ -150,7 +237,7 @@ public class LetterHurdleManager : MonoBehaviour
             letterObj.transform.localPosition = new Vector3(i * letterSpacing, 0, 0);
             TMP_Text letterText = letterObj.GetComponent<TMP_Text>();
             if (letterText != null)
-                letterText.text = word[i].ToString().ToUpper();   // ← nicer to show uppercase letters
+                letterText.text = word[i].ToString().ToUpper();
 
             spawnedLetters.Add(letterObj);
         }
@@ -175,8 +262,8 @@ public class LetterHurdleManager : MonoBehaviour
                 string scene = SceneManager.GetActiveScene().name;
                 int coinReward = scene switch
                 {
-                    "HardMode"   => 200,
-                    "MediumMode" => 100,
+                    "GAMEMODE 2" => 200,
+                    "GAMEMODE 1" => 100,
                     _            => 25
                 };
                 playerFunctions.AddCoins(coinReward);
@@ -187,6 +274,10 @@ public class LetterHurdleManager : MonoBehaviour
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
                 Debug.Log("✅ Word completed! Notified ObstacleSpawner.");
+                
+                // Hide clue image when event ends
+                if (clueDisplayImage != null)
+                    clueDisplayImage.gameObject.SetActive(false);
             }
 
             // Call boss manager if it exists
@@ -280,12 +371,24 @@ public class LetterHurdleManager : MonoBehaviour
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
                 Debug.Log("✅ CheckBossSpell: Word completed! Ending letter event.");
+                
+                // Hide clue image when event ends
+                if (clueDisplayImage != null)
+                    clueDisplayImage.gameObject.SetActive(false);
             }
-
-            // Then call boss manager if it exists
-            // if (bossManager != null)
-            //     bossManager.FinishBoss();
         }
     }
+
+    // Public method to manually show/hide clue image
+    public void ShowClueImage(bool show)
+    {
+        if (clueDisplayImage != null)
+            clueDisplayImage.gameObject.SetActive(show && showClueOnEventActive);
+    }
+
+    // Public method to refresh clue image (useful when event state changes)
+    public void RefreshClueImage()
+    {
+        UpdateClueImage();
+    }
 }
-//testing

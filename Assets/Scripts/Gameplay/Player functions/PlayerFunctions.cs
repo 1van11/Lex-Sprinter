@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class PlayerFunctions : MonoBehaviour
 {
@@ -77,6 +80,21 @@ public class PlayerFunctions : MonoBehaviour
     public GameObject shieldVisual;
     public GameObject magnetVisual;
 
+    [Header("Magnet Pet Settings")]
+    public GameObject magnetPetPrefab;
+    public float petFollowSpeed = 5f;
+    public Vector3 petOffset = new Vector3(0, 0, -2f);
+    public Vector3 petScale = Vector3.one;
+    public Vector3 petRotation = Vector3.zero;
+    // Enhanced jumping animation
+    public float petJumpHeight = 1.5f;      // How high the pet hops (increased for visibility)
+    public float petJumpSpeed = 10f;        // How fast it hops (faster for snappier motion)
+    public float petWobbleAngle = 15f;      // Optional: slight rotation while jumping (set to 0 to disable)
+
+    [Header("Magnet End Warning")]
+    public float magnetEndIFrameDuration = 1.5f;   // Duration of warning flash before magnet expires
+    public float magnetEndFlashInterval = 0.1f;    // Flash speed during warning
+
     [Header("Game Over")]
     public GameObject gameOverPanel;
 
@@ -97,6 +115,10 @@ public class PlayerFunctions : MonoBehaviour
     [HideInInspector] public bool isDead = false;
 
     private PlayerControls playerControls;
+
+    // For magnet end warning
+    private Coroutine petWarningCoroutine;   // only track pet flash now
+    private GameObject activePet;
 
     void Start()
     {
@@ -312,120 +334,120 @@ public class PlayerFunctions : MonoBehaviour
             other.gameObject.SetActive(false);
         }
 
-// =========================
-// ANSWER OPTIONS
-// =========================
-if (other.CompareTag("AnswerOptions"))
-{
-    // 🔹 I‑FRAMES: show feedback but skip everything else (damage, word unlock, score)
-    bool skipEffects = !alwaysInvincible && isInvincible;
-
-    QuestionRandomizer questionRandomizer =
-        other.GetComponentInParent<QuestionRandomizer>();
-
-    if (questionRandomizer != null)
-    {
-        // Determine the correct answer
-        string correctAnswer = questionRandomizer.correctAnswer;
-
-        // Collect all answer option GameObjects under the same parent
-        List<GameObject> answerOptions = new List<GameObject>();
-        foreach (Transform child in other.transform.parent)
+        // =========================
+        // ANSWER OPTIONS
+        // =========================
+        if (other.CompareTag("AnswerOptions"))
         {
-            if (child.CompareTag("AnswerOptions"))
-                answerOptions.Add(child.gameObject);
-        }
+            // 🔹 I‑FRAMES: show feedback but skip everything else (damage, word unlock, score)
+            bool skipEffects = !alwaysInvincible && isInvincible;
 
-        // For each answer option, spawn feedback based on whether it's correct
-        foreach (GameObject opt in answerOptions)
-        {
-            TMP_Text txt = opt.GetComponentInChildren<TMP_Text>();
-            if (txt == null) continue;
+            QuestionRandomizer questionRandomizer =
+                other.GetComponentInParent<QuestionRandomizer>();
 
-            bool isCorrect = txt.text == correctAnswer;
-            GameObject prefab = isCorrect ? correctAnswerPrefab : wrongAnswerPrefab;
-            ReplaceWithFeedbackModel(opt, prefab);
-        }
-
-        // If we are NOT in i‑frames, process normal gameplay effects
-        if (!skipEffects)
-        {
-            // Find which option the player actually hit
-            TMP_Text answerText = other.GetComponentInChildren<TMP_Text>();
-            string selectedAnswer = answerText != null ? answerText.text : "";
-
-            if (string.IsNullOrEmpty(selectedAnswer))
+            if (questionRandomizer != null)
             {
-                // Fallback for old naming
-                if (other.gameObject.name.Contains("Jump"))
-                    selectedAnswer = questionRandomizer.jumpText.text;
-                else if (other.gameObject.name.Contains("Slide"))
-                    selectedAnswer = questionRandomizer.slideText.text;
-                else if (other.gameObject.name.Contains("Option3"))
-                    selectedAnswer = questionRandomizer.option3Text.text;
-            }
+                // Determine the correct answer
+                string correctAnswer = questionRandomizer.correctAnswer;
 
-            bool isCorrectSelected = selectedAnswer == correctAnswer;
+                // Collect all answer option GameObjects under the same parent
+                List<GameObject> answerOptions = new List<GameObject>();
+                foreach (Transform child in other.transform.parent)
+                {
+                    if (child.CompareTag("AnswerOptions"))
+                        answerOptions.Add(child.gameObject);
+                }
 
-            if (isCorrectSelected)
-            {
-                // ✅ CORRECT ANSWER – give rewards
-                Debug.Log($"✅ Correct Answer! [{selectedAnswer}]");
+                // For each answer option, spawn feedback based on whether it's correct
+                foreach (GameObject opt in answerOptions)
+                {
+                    TMP_Text txt = opt.GetComponentInChildren<TMP_Text>();
+                    if (txt == null) continue;
 
-                score += 5;
-                totalCoins += 5;
-                UpdateScoreUI();
-                UpdateTotalCoinsUI();
+                    bool isCorrect = txt.text == correctAnswer;
+                    GameObject prefab = isCorrect ? correctAnswerPrefab : wrongAnswerPrefab;
+                    ReplaceWithFeedbackModel(opt, prefab);
+                }
 
-                if (audioSource != null && correctAnswerSound != null)
-                    audioSource.PlayOneShot(correctAnswerSound);
+                // If we are NOT in i‑frames, process normal gameplay effects
+                if (!skipEffects)
+                {
+                    // Find which option the player actually hit
+                    TMP_Text answerText = other.GetComponentInChildren<TMP_Text>();
+                    string selectedAnswer = answerText != null ? answerText.text : "";
 
-                string correctWord = correctAnswer.ToLower();
-                AddUnlockedWord(correctWord);
+                    if (string.IsNullOrEmpty(selectedAnswer))
+                    {
+                        // Fallback for old naming
+                        if (other.gameObject.name.Contains("Jump"))
+                            selectedAnswer = questionRandomizer.jumpText.text;
+                        else if (other.gameObject.name.Contains("Slide"))
+                            selectedAnswer = questionRandomizer.slideText.text;
+                        else if (other.gameObject.name.Contains("Option3"))
+                            selectedAnswer = questionRandomizer.option3Text.text;
+                    }
 
-                wordsCollected++;
-                UpdateWordCountUI();
+                    bool isCorrectSelected = selectedAnswer == correctAnswer;
 
-                int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
-                totalWords++;
-                PlayerPrefs.SetInt("TotalWordCount", totalWords);
-                PlayerPrefs.Save();
+                    if (isCorrectSelected)
+                    {
+                        // ✅ CORRECT ANSWER – give rewards
+                        Debug.Log($"✅ Correct Answer! [{selectedAnswer}]");
 
-                if (DailyTaskManager.Instance != null)
-                    DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
-            }
-            else
-            {
-                // ❌ WRONG ANSWER – play sound and take damage
-                Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] | Correct: {correctAnswer}");
+                        score += 5;
+                        totalCoins += 5;
+                        UpdateScoreUI();
+                        UpdateTotalCoinsUI();
 
-                if (audioSource != null && wrongAnswerSound != null)
-                    audioSource.PlayOneShot(wrongAnswerSound);
+                        if (audioSource != null && correctAnswerSound != null)
+                            audioSource.PlayOneShot(correctAnswerSound);
 
-                // Damage only if not invincible (i‑frames already caught above, but double‑check)
-                if (!alwaysInvincible && !isInvincible)
-                    TakeDamage(1);
+                        string correctWord = correctAnswer.ToLower();
+                        AddUnlockedWord(correctWord);
+
+                        wordsCollected++;
+                        UpdateWordCountUI();
+
+                        int totalWords = PlayerPrefs.GetInt("TotalWordCount", 0);
+                        totalWords++;
+                        PlayerPrefs.SetInt("TotalWordCount", totalWords);
+                        PlayerPrefs.Save();
+
+                        if (DailyTaskManager.Instance != null)
+                            DailyTaskManager.Instance.CheckAndCompleteTask(correctWord);
+                    }
+                    else
+                    {
+                        // ❌ WRONG ANSWER – play sound and take damage
+                        Debug.Log($"❌ Wrong Answer! [{selectedAnswer}] | Correct: {correctAnswer}");
+
+                        if (audioSource != null && wrongAnswerSound != null)
+                            audioSource.PlayOneShot(wrongAnswerSound);
+
+                        // Damage only if not invincible (i‑frames already caught above, but double‑check)
+                        if (!alwaysInvincible && !isInvincible)
+                            TakeDamage(1);
+                    }
+                }
+
+                // Hide clue UI (always do this, even during i‑frames)
+                if (questionRandomizer.clueTextObject != null)
+                    questionRandomizer.clueTextObject.SetActive(false);
+
+                if (questionRandomizer.clueImageObject != null)
+                    questionRandomizer.clueImageObject.SetActive(false);
+
+                // Clean up the question object after a delay
+                if (other.transform.parent != null)
+                {
+                    Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
+                    foreach (Collider col in colliders)
+                        Destroy(col);
+
+                    StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
+                }
             }
         }
-
-        // Hide clue UI (always do this, even during i‑frames)
-        if (questionRandomizer.clueTextObject != null)
-            questionRandomizer.clueTextObject.SetActive(false);
-
-        if (questionRandomizer.clueImageObject != null)
-            questionRandomizer.clueImageObject.SetActive(false);
-
-        // Clean up the question object after a delay
-        if (other.transform.parent != null)
-        {
-            Collider[] colliders = other.transform.parent.GetComponentsInChildren<Collider>();
-            foreach (Collider col in colliders)
-                Destroy(col);
-
-            StartCoroutine(DestroyAfterDelay(other.transform.parent.gameObject, feedbackDisplayTime));
-        }
-    }
-}
 
         // =========================
         // SHIELD PICKUP (now health)
@@ -817,6 +839,74 @@ if (other.CompareTag("AnswerOptions"))
         isInvincible = false;
         Debug.Log("🛡️ iFrames ended");
     }
+
+    // Visual-only flash (no damage immunity) – used for magnet end warning
+    public IEnumerator VisualFlash(float duration, float flashInterval)
+    {
+        float timer = 0f;
+        bool flashState = true;
+
+        List<Renderer> allRenderers = new List<Renderer>();
+
+        if (modelRenderers != null)
+        {
+            foreach (Renderer r in modelRenderers)
+                if (r != null) allRenderers.Add(r);
+        }
+
+        foreach (Renderer r in renderers)
+            if (r != null && !allRenderers.Contains(r)) allRenderers.Add(r);
+
+        // Store initial states, but we'll restore at the end
+        Dictionary<Renderer, bool> initialStates = new Dictionary<Renderer, bool>();
+        foreach (Renderer r in allRenderers)
+            if (r != null) initialStates[r] = r.enabled;
+
+        while (timer < duration)
+        {
+            foreach (Renderer r in allRenderers)
+                if (r != null) r.enabled = flashState;
+
+            yield return new WaitForSeconds(flashInterval);
+            flashState = !flashState;
+            timer += flashInterval;
+        }
+
+        // Restore initial states
+        foreach (Renderer r in allRenderers)
+            if (r != null && initialStates.ContainsKey(r))
+                r.enabled = initialStates[r];
+    }
+
+    // Visual flash for a specific GameObject (e.g., the pet)
+    public IEnumerator VisualFlashForObject(GameObject obj, float duration, float flashInterval)
+    {
+        if (obj == null) yield break;
+        Renderer[] objRenderers = obj.GetComponentsInChildren<Renderer>();
+        if (objRenderers.Length == 0) yield break;
+
+        float timer = 0f;
+        bool flashState = true;
+
+        // Store initial states
+        Dictionary<Renderer, bool> initialStates = new Dictionary<Renderer, bool>();
+        foreach (Renderer r in objRenderers)
+            if (r != null) initialStates[r] = r.enabled;
+
+        while (timer < duration)
+        {
+            foreach (Renderer r in objRenderers)
+                if (r != null) r.enabled = flashState;
+            yield return new WaitForSeconds(flashInterval);
+            flashState = !flashState;
+            timer += flashInterval;
+        }
+
+        // Restore initial states
+        foreach (Renderer r in objRenderers)
+            if (r != null && initialStates.ContainsKey(r))
+                r.enabled = initialStates[r];
+    }
     #endregion
 
     #region power ups
@@ -844,18 +934,11 @@ if (other.CompareTag("AnswerOptions"))
         }
     }
 
-    [Header("Magnet Pet Settings")]
-    public GameObject magnetPetPrefab;
-    public float petFollowSpeed = 5f;
-    public Vector3 petOffset = new Vector3(0, 0, -2f);
-    public Vector3 petScale = Vector3.one;
-    public Vector3 petRotation = Vector3.zero;
-    private GameObject activePet;
-
     IEnumerator MagnetBuff()
     {
         hasMagnet = true;
 
+        // Summon pet
         if (magnetPetPrefab != null && activePet == null)
         {
             Vector3 spawnPosition = transform.position + petOffset;
@@ -870,26 +953,57 @@ if (other.CompareTag("AnswerOptions"))
         if (magnetVisual != null)
             magnetVisual.SetActive(true);
 
-        Debug.Log($"🧲 Magnet active for {magnetDuration} seconds - Player attracts coins! Pet follows!");
+        Debug.Log($"🧲 Magnet active for {magnetDuration} seconds - Player attracts coins! Pet follows & jumps!");
 
         float timer = magnetDuration;
+        bool warningStarted = false;
+
         while (timer > 0 && hasMagnet)
         {
+            // ----- Pet jumping & following -----
             if (activePet != null)
             {
+                // Base follow position
                 Vector3 targetPosition = transform.position + petOffset;
+
+                // Add hopping using sine wave (faster + higher)
+                float yOffset = Mathf.Sin(Time.time * petJumpSpeed) * petJumpHeight;
+                targetPosition.y += yOffset;
+
+                // Optional rotation wobble for extra flair
+                if (petWobbleAngle > 0)
+                {
+                    float zRot = Mathf.Sin(Time.time * petJumpSpeed * 2f) * petWobbleAngle;
+                    activePet.transform.rotation = Quaternion.Euler(petRotation.x, petRotation.y, petRotation.z + zRot);
+                }
+                else
+                {
+                    activePet.transform.rotation = Quaternion.Euler(petRotation);
+                }
+
                 activePet.transform.position = Vector3.Lerp(
                     activePet.transform.position,
                     targetPosition,
                     petFollowSpeed * Time.deltaTime
                 );
-                activePet.transform.rotation = Quaternion.Euler(petRotation);
+            }
+
+            // ----- Magnet end warning (flash ONLY the pet) -----
+            if (!warningStarted && timer <= magnetEndIFrameDuration)
+            {
+                warningStarted = true;
+                // Flash pet (player does NOT flash)
+                if (activePet != null)
+                {
+                    petWarningCoroutine = StartCoroutine(VisualFlashForObject(activePet, magnetEndIFrameDuration, magnetEndFlashInterval));
+                }
             }
 
             timer -= Time.deltaTime;
             yield return null;
         }
 
+        // Clean up pet and warning
         if (activePet != null)
         {
             Destroy(activePet);
@@ -902,6 +1016,18 @@ if (other.CompareTag("AnswerOptions"))
 
         hasMagnet = false;
         Debug.Log("🧲 Magnet expired");
+
+        // Stop pet flash and restore its renderers
+        if (petWarningCoroutine != null)
+        {
+            StopCoroutine(petWarningCoroutine);
+            petWarningCoroutine = null;
+            if (activePet != null) // pet might still exist if we stopped early (unlikely, but safe)
+            {
+                Renderer[] petRenderers = activePet.GetComponentsInChildren<Renderer>();
+                foreach (Renderer r in petRenderers) if (r != null) r.enabled = true;
+            }
+        }
     }
 
     IEnumerator SlowTimeBuff()
@@ -1041,8 +1167,11 @@ if (other.CompareTag("AnswerOptions"))
             }
         }
     }
+}
 
 #if UNITY_EDITOR
+public static class PlayerFunctionsEditor
+{
     [UnityEditor.InitializeOnLoadMethod]
     static void ClearCoinsOnEditorPlayStop()
     {
@@ -1056,5 +1185,5 @@ if (other.CompareTag("AnswerOptions"))
             }
         };
     }
-#endif
 }
+#endif
