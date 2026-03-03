@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.UI;
 
 // Enum for slide direction of the clue elements
@@ -25,30 +26,63 @@ public class QuestionRandomizer : MonoBehaviour
     public GameObject clueImageObject;
     public Image cluePic;
 
-    [Header("Clue Images")]
-    public Sprite[] clueImages;
+    [Header("Letter Hurdle UI")]
+    public TMP_Text collectedText;
+    public TMP_Text targetWordText;
+    public Image letterHurdleClueImage;  // This will use the same clue images
+
+    [Header("Clue Images (Difficulty Based)")]
+    public Sprite[] easyClueImages;
+    public Sprite[] mediumClueImages;
+    public Sprite[] hardClueImages;
+    private Sprite[] currentClueImages;          // active set based on difficulty
+
+    [Header("Pronunciation Sounds (Difficulty Based)")]
+    public AudioClip[] easyPronunciationSounds;
+    public AudioClip[] mediumPronunciationSounds;
+    public AudioClip[] hardPronunciationSounds;
+    private AudioClip[] currentPronunciationSounds; // active set
+
+    [Header("Sentence Pronunciations (optional, could also be split)")]
+    public AudioClip[] sentencePronunciations;   // may be extended later
+
+    [Header("Spelling vs Sentence Frequency")]
+    public int easySpellingBeforeSentence = 3;   // after 3 spelling, spawn a sentence
+    public int mediumSpellingBeforeSentence = 4;
+    public int hardSpellingBeforeSentence = 5;
+
+    // Static so other scripts (like ObstacleSpawner) can read the current difficulty's value
+    public static int CurrentSpellingBeforeSentence = 3; // default
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip[] pronunciationSounds;
-    public AudioClip[] sentencePronunciations;
 
     [Header("Trigger Settings")]
     public bool playAudioOnTrigger = true;
 
     [Header("Clue Image Animation")]
-    public bool animateClueImage = true;               // Enable/disable animation for image
-    public float imageAnimationDuration = 0.3f;         // Duration of fade & slide
+    public bool animateClueImage = true;
+    public float imageAnimationDuration = 0.3f;
     public AnimationCurve imageAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public SlideDirection imageSlideDirection = SlideDirection.Up;   // Where to slide from
-    public float imageSlideDistance = 100f;             // Distance off‑screen to start
+    public SlideDirection imageSlideDirection = SlideDirection.Up;
+    public float imageSlideDistance = 100f;
 
     [Header("Clue Text Animation")]
-    public bool animateClueText = true;                 // Enable/disable animation for text
-    public float textAnimationDuration = 0.3f;          // Duration of fade & slide
+    public bool animateClueText = true;
+    public float textAnimationDuration = 0.3f;
     public AnimationCurve textAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public SlideDirection textSlideDirection = SlideDirection.Up;     // Where to slide from
-    public float textSlideDistance = 100f;               // Distance off‑screen to start
+    public SlideDirection textSlideDirection = SlideDirection.Up;
+    public float textSlideDistance = 100f;
+
+    [Header("Letter Hurdle Settings")]
+    public GameObject letterPrefab;
+    public Transform letterSpawnParent;
+    public float letterSpacing = 1f;
+    public TMP_Text letterHurdleFeedbackText;
+    public TMP_Text letterHurdleScoreText;
+    public EventTimingManager bossManager;
+    public PlayerFunctions playerFunctions;
+    public ObstacleSpawner obstacleSpawner;
 
     // Current question state
     public string correctAnswer;
@@ -72,6 +106,15 @@ public class QuestionRandomizer : MonoBehaviour
     private RectTransform textRect;
     private Vector2 originalTextPos;
     private Coroutine textAnimationCoroutine;
+
+    // Letter Hurdle variables
+    private string[] wordList;
+    private string currentTargetWord;
+    private List<string> shuffledWords;
+    private int currentWordIndex = 0;
+    private string previousCollectedText = "";
+    private List<GameObject> spawnedLetters = new List<GameObject>();
+    private Dictionary<string, Sprite> wordToImageMap = new Dictionary<string, Sprite>();
 
     // ─────────────────────────────────────────────────────────────────────────────
     // DIFFICULTY BANKS – each row has 4 columns: clue + correct + wrong1 + wrong2
@@ -156,34 +199,32 @@ public class QuestionRandomizer : MonoBehaviour
 /*-- 73 --*/ { "small rodent", /*-- 73 --*/ "mouse"/*-- 73 --*/, "mawz", "mous" }, /*-- 73 --*/ 
 /*-- 74 --*/ { "air in motion", /*-- 74 --*/ "wind"/*-- 74 --*/, "windz", "wynd" }, /*-- 74 --*/ 
 
-
-//forgoten words
-
-/*-- 75 --*/ { "an animal that lives in water", /*-- 75 --*/ "fish"/*-- 75 --*/, "fesh", "fosh" }, /*-- 75 --*/ 
-/*-- 76 --*/ { "tool used for writing with ink", /*-- 76 --*/ "pen"/*-- 76 --*/, "pin", "pan" }, /*-- 76 --*/ 
-/*-- 77 --*/ { "grows on your head", /*-- 77 --*/ "hair"/*-- 77 --*/, "hare", "heir" }, /*-- 77 --*/ 
-/*-- 78 --*/ { "used to bite and chew", /*-- 78 --*/ "tooth"/*-- 78 --*/, "toot", "toth" }, /*-- 78 --*/ 
-/*-- 79 --*/ { "move fast on foot", /*-- 79 --*/ "run"/*-- 79 --*/, "ran", "ron" }, /*-- 79 --*/ 
-/*-- 80 --*/ { "rest on your bottom", /*-- 80 --*/ "sit"/*-- 80 --*/, "set", "sat" }, /*-- 80 --*/ 
-/*-- 81 --*/ { "bright object in the night sky", /*-- 81 --*/ "star"/*-- 81 --*/, "stor", "stir" }, /*-- 81 --*/ 
-/*-- 82 --*/ { "color of grass", /*-- 82 --*/ "green"/*-- 82 --*/, "grean", "gren" }, /*-- 82 --*/ 
-/*-- 83 --*/ { "refers to the speaker", /*-- 83 --*/ "me"/*-- 83 --*/, "mi", "meh" }, /*-- 83 --*/ 
-/*-- 84 --*/ { "color of the sun", /*-- 84 --*/ "yellow"/*-- 84 --*/, "yelow", "yello" }, /*-- 84 --*/ 
-/*-- 85 --*/ { "look at words and understand", /*-- 85 --*/ "read"/*-- 85 --*/, "reed", "red" }, /*-- 85 --*/ 
-/*-- 86 --*/ { "refers to a female person", /*-- 86 --*/ "her"/*-- 86 --*/, "hur", "hir" }, /*-- 86 --*/ 
-/*-- 87 --*/ { "color like chocolate", /*-- 87 --*/ "brown"/*-- 87 --*/, "brawn", "bron" }, /*-- 87 --*/ 
-/*-- 88 --*/ { "seen in the sky, made of vapor", /*-- 88 --*/ "cloud"/*-- 88 --*/, "clod", "clowd" }, /*-- 88 --*/ 
-/*-- 89 --*/ { "liquid food eaten hot", /*-- 89 --*/ "soup"/*-- 89 --*/, "soop", "sup" }, /*-- 89 --*/ 
-/*-- 90 --*/ { "clear liquid you drink", /*-- 90 --*/ "water"/*-- 90 --*/, "watar", "woter" }, /*-- 90 --*/ 
-/*-- 91 --*/ { "color between black and white", /*-- 91 --*/ "gray"/*-- 91 --*/, "grey", "grai" }, /*-- 91 --*/ 
-/*-- 92 --*/ { "hard natural stone", /*-- 92 --*/ "rock"/*-- 92 --*/, "rok", "ruck" }, /*-- 92 --*/ 
-/*-- 93 --*/ { "having low temperature", /*-- 93 --*/ "cold"/*-- 93 --*/, "kold", "cald" }, /*-- 93 --*/ 
-/*-- 94 --*/ { "color between red and yellow", /*-- 94 --*/ "orange"/*-- 94 --*/, "oranj", "ornge" }, /*-- 94 --*/ 
-/*-- 95 --*/ { "organ used for seeing", /*-- 95 --*/ "eye"/*-- 95 --*/, "aye", "eie" }, /*-- 95 --*/ 
-/*-- 96 --*/ { "large in size", /*-- 96 --*/ "big"/*-- 96 --*/, "beg", "bug" }, /*-- 96 --*/ 
-/*-- 97 --*/ { "round object used in games", /*-- 97 --*/ "ball"/*-- 97 --*/, "bol", "bawl" }, /*-- 97 --*/ 
-/*-- 98 --*/ { "adult male human", /*-- 98 --*/ "man"/*-- 98 --*/, "men", "mun" }, /*-- 98 --*/ 
-/*-- 99 --*/ { "not large in size", /*-- 99 --*/ "small"/*-- 99 --*/, "smol", "smel" }, /*-- 99 --*/ 
+//forgotten words
+/*-- 75 --*/ { "round object used in games", /*-- 75 --*/ "ball"/*-- 75 --*/, "bol", "bawl" },  
+/*-- 76 --*/ { "large in size", /*-- 76 --*/ "big"/*-- 76 --*/, "beg", "bug" },  
+/*-- 77 --*/ { "color like chocolate", /*-- 77 --*/ "brown"/*-- 77 --*/, "brawn", "bron" },  
+/*-- 78 --*/ { "having low temperature", /*-- 78 --*/ "cold"/*-- 78 --*/, "kold", "cald" },  
+/*-- 79 --*/ { "seen in the sky, made of vapor", /*-- 79 --*/ "cloud"/*-- 79 --*/, "clod", "clowd" },  
+/*-- 80 --*/ { "an animal that lives in water", /*-- 80 --*/ "fish"/*-- 80 --*/, "fesh", "fosh" },  
+/*-- 81 --*/ { "grows on your head", /*-- 81 --*/ "hair"/*-- 81 --*/, "hare", "heir" },  
+/*-- 82 --*/ { "refers to a female person", /*-- 82 --*/ "her"/*-- 82 --*/, "hur", "hir" },  
+/*-- 83 --*/ { "color of grass", /*-- 83 --*/ "green"/*-- 83 --*/, "grean", "gren" },  
+/*-- 84 --*/ { "organ used for seeing", /*-- 84 --*/ "eye"/*-- 84 --*/, "aye", "eie" },  
+/*-- 85 --*/ { "adult male human", /*-- 85 --*/ "man"/*-- 85 --*/, "men", "mun" },  
+/*-- 86 --*/ { "refers to the speaker", /*-- 86 --*/ "me"/*-- 86 --*/, "mi", "meh" },  
+/*-- 87 --*/ { "color between red and yellow", /*-- 87 --*/ "orange"/*-- 87 --*/, "oranj", "ornge" },  
+/*-- 88 --*/ { "tool used for writing with ink", /*-- 88 --*/ "pen"/*-- 88 --*/, "pin", "pan" },  
+/*-- 89 --*/ { "look at words and understand", /*-- 89 --*/ "read"/*-- 89 --*/, "reed", "red" },  
+/*-- 90 --*/ { "move fast on foot", /*-- 90 --*/ "run"/*-- 90 --*/, "ran", "ron" },  
+/*-- 91 --*/ { "rest on your bottom", /*-- 91 --*/ "sit"/*-- 91 --*/, "set", "sat" },  
+/*-- 92 --*/ { "not large in size", /*-- 92 --*/ "small"/*-- 92 --*/, "smol", "smel" },  
+/*-- 93 --*/ { "bright object in the night sky", /*-- 93 --*/ "star"/*-- 93 --*/, "stor", "stir" },  
+/*-- 94 --*/ { "liquid food eaten hot", /*-- 94 --*/ "soup"/*-- 94 --*/, "soop", "sup" },  
+/*-- 95 --*/ { "color between black and white", /*-- 95 --*/ "gray"/*-- 95 --*/, "grey", "grai" },  
+/*-- 96 --*/ { "hard natural stone", /*-- 96 --*/ "rock"/*-- 96 --*/, "rok", "ruck" },  
+/*-- 97 --*/ { "used to bite and chew", /*-- 97 --*/ "tooth"/*-- 97 --*/, "toot", "toth" },  
+/*-- 98 --*/ { "clear liquid you drink", /*-- 98 --*/ "water"/*-- 98 --*/, "watar", "woter" },  
+/*-- 99 --*/ { "color of the sun", /*-- 99 --*/ "yellow"/*-- 99 --*/, "yelow", "yello" },  
     };
 
     public static string[,] easySentencePairs = new string[,]
@@ -371,6 +412,7 @@ public class QuestionRandomizer : MonoBehaviour
     };
     #endregion
 
+    #region Question logic
     // ─────────────────────────────────────────────────────────────────────────────
     // CORE LOGIC
     // ─────────────────────────────────────────────────────────────────────────────
@@ -382,24 +424,36 @@ public class QuestionRandomizer : MonoBehaviour
         {
             activeSpellingPairs = easySpellingPairs;
             activeSentencePairs = easySentencePairs;
+            currentClueImages = easyClueImages;
+            currentPronunciationSounds = easyPronunciationSounds;
+            CurrentSpellingBeforeSentence = easySpellingBeforeSentence;
             Debug.Log("Difficulty: EASY MODE activated");
         }
         else if (sceneName == "GAMEMODE 1")
         {
             activeSpellingPairs = mediumSpellingPairs;
             activeSentencePairs = mediumSentencePairs;
+            currentClueImages = mediumClueImages;
+            currentPronunciationSounds = mediumPronunciationSounds;
+            CurrentSpellingBeforeSentence = mediumSpellingBeforeSentence;
             Debug.Log("Difficulty: MEDIUM MODE activated");
         }
         else if (sceneName == "GAMEMODE 2")
         {
             activeSpellingPairs = hardSpellingPairs;
             activeSentencePairs = hardSentencePairs;
+            currentClueImages = hardClueImages;
+            currentPronunciationSounds = hardPronunciationSounds;
+            CurrentSpellingBeforeSentence = hardSpellingBeforeSentence;
             Debug.Log("Difficulty: HARD MODE activated");
         }
         else
         {
             activeSpellingPairs = easySpellingPairs;
             activeSentencePairs = easySentencePairs;
+            currentClueImages = easyClueImages;
+            currentPronunciationSounds = easyPronunciationSounds;
+            CurrentSpellingBeforeSentence = easySpellingBeforeSentence;
             Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE.");
         }
     }
@@ -412,6 +466,7 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (clueTextObject != null) clueTextObject.SetActive(false);
         if (clueImageObject != null) clueImageObject.SetActive(false);
+        if (letterHurdleClueImage != null) letterHurdleClueImage.gameObject.SetActive(false);
 
         // Prepare for clue image animation
         if (clueImageObject != null)
@@ -437,10 +492,304 @@ public class QuestionRandomizer : MonoBehaviour
                 originalTextPos = textRect.anchoredPosition;
         }
 
+        // Auto-find references for Letter Hurdle
+        if (playerFunctions == null)
+            playerFunctions = FindObjectOfType<PlayerFunctions>();
+
+        if (obstacleSpawner == null)
+            obstacleSpawner = FindObjectOfType<ObstacleSpawner>();
+
+        InitializeLetterHurdle();
+
         if (!TryLoadDailyTaskQuestion())
         {
             SetRandomQuestion();
         }
+    }
+
+    void Update()
+    {
+        // Letter Hurdle update logic
+        if (collectedText != null)
+        {
+            string currentCollected = collectedText.text.ToLower().Trim();
+            if (currentCollected != previousCollectedText)
+            {
+                CheckSpellingFast(currentCollected);
+                previousCollectedText = currentCollected;
+            }
+        }
+    }
+
+    void InitializeLetterHurdle()
+    {
+        // Build word list from spelling pairs
+        List<string> words = new List<string>();
+        for (int i = 0; i < activeSpellingPairs.GetLength(0); i++)
+        {
+            words.Add(activeSpellingPairs[i, 1].ToLower());
+        }
+        wordList = words.ToArray();
+        
+        // Build word to image map using the clue images
+        BuildWordToImageMap();
+
+        shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+
+        if (letterHurdleFeedbackText != null)
+            letterHurdleFeedbackText.text = "";
+
+        UpdateScoreText();
+
+        SetNewTargetWord();
+    }
+
+    void BuildWordToImageMap()
+    {
+        wordToImageMap.Clear();
+        
+        if (currentClueImages == null || currentClueImages.Length == 0)
+        {
+            Debug.LogWarning("No clue images assigned for current difficulty");
+            return;
+        }
+
+        int count = Mathf.Min(wordList.Length, currentClueImages.Length);
+        for (int i = 0; i < count; i++)
+        {
+            string word = wordList[i].ToLower();
+            if (!wordToImageMap.ContainsKey(word) && currentClueImages[i] != null)
+            {
+                wordToImageMap.Add(word, currentClueImages[i]);
+            }
+        }
+        
+        Debug.Log($"Word to image map built: {wordToImageMap.Count} words mapped");
+    }
+
+    void SetNewTargetWord()
+    {
+        foreach (var letter in spawnedLetters)
+            Destroy(letter);
+        spawnedLetters.Clear();
+
+        if (currentWordIndex >= shuffledWords.Count)
+        {
+            shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+            currentWordIndex = 0;
+        }
+
+        currentTargetWord = shuffledWords[currentWordIndex];
+
+        if (targetWordText != null)
+            targetWordText.text = "Spell: " + currentTargetWord.ToLower();
+
+        SpawnLetters(currentTargetWord);
+
+        if (collectedText != null)
+            collectedText.text = "";
+
+        previousCollectedText = "";
+
+        if (letterHurdleFeedbackText != null)
+            letterHurdleFeedbackText.text = "";
+
+        // Update clue image for the new word
+        UpdateLetterHurdleClueImage();
+    }
+
+    void UpdateLetterHurdleClueImage()
+    {
+        if (letterHurdleClueImage == null) return;
+
+        string targetWord = currentTargetWord.ToLower();
+        
+        if (wordToImageMap.TryGetValue(targetWord, out Sprite clueSprite))
+        {
+            letterHurdleClueImage.sprite = clueSprite;
+            letterHurdleClueImage.gameObject.SetActive(true);
+            Debug.Log($"Showing clue image for word: {currentTargetWord}");
+        }
+        else
+        {
+            // Try case-insensitive fallback
+            var match = wordToImageMap.FirstOrDefault(x => 
+                string.Equals(x.Key, targetWord, System.StringComparison.OrdinalIgnoreCase));
+            
+            if (match.Value != null)
+            {
+                letterHurdleClueImage.sprite = match.Value;
+                letterHurdleClueImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                letterHurdleClueImage.gameObject.SetActive(false);
+                Debug.LogWarning($"No clue image found for word: {currentTargetWord}");
+            }
+        }
+    }
+
+    void SpawnLetters(string word)
+    {
+        if (letterPrefab == null || letterSpawnParent == null) return;
+
+        for (int i = 0; i < word.Length; i++)
+        {
+            GameObject letterObj = Instantiate(letterPrefab, letterSpawnParent);
+            letterObj.transform.localPosition = new Vector3(i * letterSpacing, 0, 0);
+            TMP_Text letterText = letterObj.GetComponent<TMP_Text>();
+            if (letterText != null)
+                letterText.text = word[i].ToString().ToUpper();
+
+            spawnedLetters.Add(letterObj);
+        }
+    }
+
+    void CheckSpellingFast(string collected)
+    {
+        if (string.IsNullOrEmpty(collected)) return;
+
+        string target = currentTargetWord.ToLower();
+
+        if (collected == target)
+        {
+            if (letterHurdleFeedbackText != null)
+            {
+                letterHurdleFeedbackText.text = "Correct!";
+                letterHurdleFeedbackText.color = Color.green;
+            }
+
+            if (playerFunctions != null)
+            {
+                string scene = SceneManager.GetActiveScene().name;
+                int coinReward = scene switch
+                {
+                    "GAMEMODE 2" => 200,
+                    "GAMEMODE 1" => 100,
+                    _            => 25
+                };
+                playerFunctions.AddCoins(coinReward);
+            }
+
+            // Notify ObstacleSpawner that word was completed
+            if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+            {
+                obstacleSpawner.OnLetterHurdleSuccess();
+                Debug.Log("✅ Word completed! Notified ObstacleSpawner.");
+                
+                // Hide clue image when event ends
+                if (letterHurdleClueImage != null)
+                    letterHurdleClueImage.gameObject.SetActive(false);
+            }
+
+            // Call boss manager if it exists
+            if (bossManager != null)
+                bossManager.FinishBoss();
+
+            currentWordIndex++;
+            SetNewTargetWord();
+            return;
+        }
+
+        int minLength = Mathf.Min(collected.Length, target.Length);
+        for (int i = 0; i < minLength; i++)
+        {
+            if (collected[i] != target[i])
+            {
+                if (letterHurdleFeedbackText != null)
+                {
+                    letterHurdleFeedbackText.text = "Wrong Letter!";
+                    letterHurdleFeedbackText.color = Color.red;
+                }
+
+                // Notify ObstacleSpawner of failure
+                if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+                {
+                    obstacleSpawner.OnLetterHurdleFailed();
+                }
+
+                if (playerFunctions != null)
+                    playerFunctions.TakeDamageFromWrongLetter();
+
+                collectedText.text = collected.Substring(0, i);
+                previousCollectedText = collectedText.text;
+
+                if (letterHurdleFeedbackText != null)
+                    Invoke("ClearLetterHurdleFeedback", 1f);
+
+                return;
+            }
+        }
+
+        if (letterHurdleFeedbackText != null)
+            letterHurdleFeedbackText.text = "";
+    }
+
+    void ClearLetterHurdleFeedback()
+    {
+        if (letterHurdleFeedbackText != null)
+            letterHurdleFeedbackText.text = "";
+    }
+
+    void UpdateScoreText()
+    {
+        if (letterHurdleScoreText != null && playerFunctions != null)
+            letterHurdleScoreText.text = "Score: " + playerFunctions.score;
+    }
+
+    public void ClearCollectedLetters()
+    {
+        if (collectedText != null)
+            collectedText.text = "";
+
+        previousCollectedText = "";
+
+        if (letterHurdleFeedbackText != null)
+            letterHurdleFeedbackText.text = "";
+    }
+
+    public void SkipWord()
+    {
+        currentWordIndex++;
+        SetNewTargetWord();
+    }
+
+    public string GetCurrentWord()
+    {
+        return currentTargetWord;
+    }
+
+    public void CheckBossSpell()
+    {
+        if (collectedText == null) return;
+
+        string typed = collectedText.text.ToLower().Trim();
+        string target = currentTargetWord.ToLower().Trim();
+
+        if (typed == target)
+        {
+            // Notify ObstacleSpawner first
+            if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
+            {
+                obstacleSpawner.OnLetterHurdleSuccess();
+                Debug.Log("✅ CheckBossSpell: Word completed! Ending letter event.");
+                
+                // Hide clue image when event ends
+                if (letterHurdleClueImage != null)
+                    letterHurdleClueImage.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ShowLetterHurdleClueImage(bool show)
+    {
+        if (letterHurdleClueImage != null)
+            letterHurdleClueImage.gameObject.SetActive(show);
+    }
+
+    public void RefreshLetterHurdleClueImage()
+    {
+        UpdateLetterHurdleClueImage();
     }
 
     public bool TryLoadDailyTaskQuestion()
@@ -586,9 +935,10 @@ public class QuestionRandomizer : MonoBehaviour
         }
         else
         {
-            if (pronunciationSounds != null && currentQuestionIndex < pronunciationSounds.Length && pronunciationSounds[currentQuestionIndex] != null)
+            // Use the difficulty‑specific pronunciation array
+            if (currentPronunciationSounds != null && currentQuestionIndex < currentPronunciationSounds.Length && currentPronunciationSounds[currentQuestionIndex] != null)
             {
-                audioSource.PlayOneShot(pronunciationSounds[currentQuestionIndex]);
+                audioSource.PlayOneShot(currentPronunciationSounds[currentQuestionIndex]);
                 audioPlayed = true;
             }
         }
@@ -639,8 +989,8 @@ public class QuestionRandomizer : MonoBehaviour
         {
             if (HasClueImage())
             {
-                if (cluePic != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length)
-                    cluePic.sprite = clueImages[currentQuestionIndex];
+                if (cluePic != null && currentQuestionIndex >= 0 && currentQuestionIndex < currentClueImages.Length)
+                    cluePic.sprite = currentClueImages[currentQuestionIndex];
 
                 if (animateClueImage && clueImageObject != null)
                     AnimateClueImageIn();
@@ -818,15 +1168,15 @@ public class QuestionRandomizer : MonoBehaviour
 
     public Sprite GetCurrentClueImage()
     {
-        if (clueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length)
-            return clueImages[currentQuestionIndex];
+        if (currentClueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < currentClueImages.Length)
+            return currentClueImages[currentQuestionIndex];
         return null;
     }
 
     public bool HasClueImage()
     {
-        return clueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < clueImages.Length && clueImages[currentQuestionIndex] != null;
+        return currentClueImages != null && currentQuestionIndex >= 0 && currentQuestionIndex < currentClueImages.Length && currentClueImages[currentQuestionIndex] != null;
     }
+    #endregion
 }
-
-//working animation
+//merged letter hurdle and word hurdle

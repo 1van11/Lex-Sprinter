@@ -523,40 +523,40 @@ public class PlayerFunctions : MonoBehaviour
         Debug.Log("📚 All unlocked words saved for Dictionary");
     }
 
-    void TakeDamage(int damage)
+public void TakeDamage(int damage)
+{
+    if (isDead || alwaysInvincible) return;
+
+    DebugIFrameStatus();
+
+    if (hasShield && shieldHitsRemaining > 0)
     {
-        if (isDead || alwaysInvincible) return;
+        shieldHitsRemaining -= damage;
+        Debug.Log($"🛡️ Shield absorbed damage! Remaining hits: {shieldHitsRemaining}/{shieldMaxHits}");
 
-        DebugIFrameStatus();
-
-        if (hasShield && shieldHitsRemaining > 0)
+        if (shieldHitsRemaining <= 0)
         {
-            shieldHitsRemaining -= damage;
-            Debug.Log($"🛡️ Shield absorbed damage! Remaining hits: {shieldHitsRemaining}/{shieldMaxHits}");
-
-            if (shieldHitsRemaining <= 0)
-            {
-                hasShield = false;
-                if (shieldVisual != null) shieldVisual.SetActive(false);
-                Debug.Log("🛡️ Shield fully depleted and deactivated");
-            }
-            return;
+            hasShield = false;
+            if (shieldVisual != null) shieldVisual.SetActive(false);
+            Debug.Log("🛡️ Shield fully depleted and deactivated");
         }
-
-        currentHealth -= damage;
-        currentHealth = Mathf.Max(0, currentHealth);
-        Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
-        UpdateHealthUI();
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
-        }
+        return;
     }
+
+    currentHealth -= damage;
+    currentHealth = Mathf.Max(0, currentHealth);
+    Debug.Log($"💔 Health: {currentHealth}/{maxHealth}");
+    UpdateHealthUI();
+
+    if (currentHealth <= 0)
+    {
+        Die();
+    }
+    else
+    {
+        StartCoroutine(TriggerIFrames(iFrameDuration, flashInterval));
+    }
+}
 
     public void TakeDamageFromWrongLetter()
     {

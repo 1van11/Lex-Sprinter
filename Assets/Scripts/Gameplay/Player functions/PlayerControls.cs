@@ -13,8 +13,14 @@ public class PlayerControls : MonoBehaviour
     public bool enableJump = true;                // Can the player jump?
     public float groundCheckDistance = 0.1f;      // How far to check for ground
 
+    [Header("Jump Apex Gravity")]
+    public bool enableApexGravityReduction = true;   // Enable/disable the effect
+    public float apexGravityMultiplier = 0.5f;       // Gravity multiplier at apex (0.5 = half gravity)
+    public float apexThreshold = 0.1f;                // Vertical speed threshold to consider "at apex"
+
     private float jumpForce;                     // Calculated from height & time
     private float gravity;                        // Calculated from height & time
+    private bool isAtApex = false;                 // Track if we're at jump apex
 
     [Header("Fast Descent (Swipe Down)")]
     public float fastDescentForce = 15f;
@@ -393,7 +399,10 @@ public class PlayerControls : MonoBehaviour
         isGrounded = Physics.Raycast(transform.position, Vector3.down, dist);
 
         if (isGrounded)
+        {
             isFastDescending = false;
+            isAtApex = false; // Reset apex when grounded
+        }
     }
 
     void MoveHorizontally()
@@ -468,9 +477,31 @@ public class PlayerControls : MonoBehaviour
     {
         if (!isGrounded)
         {
-            float g = isFastDescending
-                ? gravity * fastDescentGravityMultiplier
-                : gravity;
+            // Check if we're at the apex of a jump
+            if (enableApexGravityReduction)
+            {
+                // Apex is when vertical velocity is near zero and we're not fast descending
+                if (Mathf.Abs(rb.velocity.y) < apexThreshold && !isFastDescending)
+                {
+                    if (!isAtApex)
+                    {
+                        isAtApex = true;   // Enter apex state
+                    }
+                }
+                else
+                {
+                    isAtApex = false;      // Exit apex state
+                }
+            }
+
+            // Determine gravity multiplier
+            float gravityMultiplier = 1f;
+            if (isFastDescending)
+                gravityMultiplier = fastDescentGravityMultiplier;
+            else if (isAtApex)
+                gravityMultiplier = apexGravityMultiplier;
+
+            float g = gravity * gravityMultiplier;
 
             rb.AddForce(Vector3.down * g, ForceMode.Acceleration);
         }
@@ -497,6 +528,7 @@ public class PlayerControls : MonoBehaviour
     {
         if (!isGrounded || !enableJump) return;
 
+        isAtApex = false; // Reset apex state for new jump
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
     }
 
@@ -521,6 +553,7 @@ public class PlayerControls : MonoBehaviour
         anim.SetBool("isFastDescending", isFastDescending);
         anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.1f);
         anim.SetBool("isChangingLane", isChangingLane);
+        anim.SetBool("isAtApex", isAtApex); // Optional: add to animator for special apex animations
     }
 
     #endregion
@@ -552,6 +585,7 @@ public class PlayerControls : MonoBehaviour
     public bool IsChangingLane => isChangingLane;
     public int CurrentLane => currentLaneIndex;
     public int TargetLane => targetLaneIndex;
+    public bool IsAtApex => isAtApex;
 
     #endregion
 }

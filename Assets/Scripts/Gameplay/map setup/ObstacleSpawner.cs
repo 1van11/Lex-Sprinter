@@ -51,10 +51,6 @@ public class ObstacleSpawner : MonoBehaviour
     [Tooltip("Spacing between pattern elements")]
     public float patternSpacing = 15f;
 
-    [Header("Question Pattern")]
-    [Tooltip("Number of spelling questions before a sentence question")]
-    public int spellingBeforeSentence = 3;
-
     [Header("Coin Settings")]
     public Vector3 coinPositionOffset = Vector3.zero;
     public Vector3 coinScale = Vector3.one;
@@ -178,6 +174,13 @@ public class ObstacleSpawner : MonoBehaviour
     [Tooltip("Ground Y position for defeated letters")]
     public float letterHurdleGroundY = -2f;
 
+    // NEW: Timeout settings
+    [Tooltip("Time in seconds before an unsolved letter hurdle damages the player.")]
+    public float letterHurdleTimeLimit = 5f;
+
+    [Tooltip("Damage dealt when a letter hurdle times out.")]
+    public int letterHurdleTimeoutDamage = 2;
+
     [Header("Letter Prefab Transform")]
     public bool letterUsePrefabTransform = true;
     public Vector3 letterSpawnRotationEuler = Vector3.zero;
@@ -185,7 +188,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     [Header("Letter Pooling Settings")]
     public int letterPoolSize = 50;
-    public float letterDespawnTime = 5f;
+    public float letterDespawnTime = 5f;          // no longer used for auto-despawn, kept for reference
 
     [Header("Letter Event Damage")]
     public int letterHurdleDamage = 1;
@@ -261,7 +264,10 @@ public class ObstacleSpawner : MonoBehaviour
     private System.Random rng;
 
     private Queue<GameObject> letterPool = new Queue<GameObject>();
-    private List<LetterSpawnedInfo> activeLetterObjects = new List<LetterSpawnedInfo>();
+    // NEW: Replace LetterSpawnedInfo with simple list and timeout dictionary
+    private List<GameObject> activeLetterObjects = new List<GameObject>();
+    private Dictionary<GameObject, Coroutine> letterTimeoutCoroutines = new Dictionary<GameObject, Coroutine>();
+
     private Dictionary<GameObject, Coroutine> letterAnimations = new Dictionary<GameObject, Coroutine>();
     private Dictionary<GameObject, Coroutine> powerUpRotations = new Dictionary<GameObject, Coroutine>();
     private bool allowRegularLetterSpawning = false;
@@ -295,11 +301,7 @@ public class ObstacleSpawner : MonoBehaviour
         [Range(0, 100)] public int chance;
     }
 
-    class LetterSpawnedInfo
-    {
-        public GameObject obj;
-        public float timer;
-    }
+    // LetterSpawnedInfo class removed; we use simple list now
 
     private Transform ObstacleParentTransform => obstacleParent != null ? obstacleParent : transform;
     private Transform PlatformParentTransform => platformParent != null ? platformParent : transform;
@@ -393,15 +395,8 @@ public class ObstacleSpawner : MonoBehaviour
             nextLetterSpawnZ += letterSpawnInterval;
         }
 
-        for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
-        {
-            activeLetterObjects[i].timer += Time.deltaTime;
-            if (activeLetterObjects[i].timer >= letterDespawnTime)
-            {
-                ReturnLetterToPool(activeLetterObjects[i].obj);
-                activeLetterObjects.RemoveAt(i);
-            }
-        }
+        // REMOVED: Old despawn timer loop for activeLetterObjects.
+        // Timeout is now handled per hurdle via coroutine.
     }
 
     // =========================================================================
@@ -734,6 +729,12 @@ public class ObstacleSpawner : MonoBehaviour
             if (letterAnimations[obj] != null) StopCoroutine(letterAnimations[obj]);
             letterAnimations.Remove(obj);
         }
+        // NEW: Stop and remove timeout coroutine if present
+        if (letterTimeoutCoroutines.ContainsKey(obj))
+        {
+            if (letterTimeoutCoroutines[obj] != null) StopCoroutine(letterTimeoutCoroutines[obj]);
+            letterTimeoutCoroutines.Remove(obj);
+        }
         obj.SetActive(false);
         letterPool.Enqueue(obj);
     }
@@ -757,9 +758,12 @@ public class ObstacleSpawner : MonoBehaviour
         go.transform.SetPositionAndRotation(startPos, rot);
         go.transform.localScale = scale;
 
-        activeLetterObjects.Add(new LetterSpawnedInfo() { obj = go, timer = 0f });
+        // NEW: Add to active list and start timeout
+        activeLetterObjects.Add(go);
         Coroutine animCoroutine = StartCoroutine(AnimateLetterDrop(go, startPos, pos));
         letterAnimations[go] = animCoroutine;
+        Coroutine timeoutCoroutine = StartCoroutine(LetterHurdleTimeout(go));
+        letterTimeoutCoroutines[go] = timeoutCoroutine;
     }
 
     IEnumerator AnimateLetterDrop(GameObject letter, Vector3 startPos, Vector3 targetPos)
@@ -809,16 +813,79 @@ public class ObstacleSpawner : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         if (letter != null && letter.activeInHierarchy)
         {
-            for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
-            {
-                if (activeLetterObjects[i].obj == letter)
-                {
-                    activeLetterObjects.RemoveAt(i);
-                    break;
-                }
-            }
+            activeLetterObjects.Remove(letter);
             ReturnLetterToPool(letter);
         }
+    }
+
+    // NEW: Timeout coroutine
+    IEnumerator LetterHurdleTimeout(GameObject hurdle)
+    {
+        yield return new WaitForSeconds(letterHurdleTimeLimit);
+
+        if (hurdle != null && activeLetterObjects.Contains(hurdle))
+        {
+            HandleLetterTimeout(hurdle);
+        }
+    }
+
+    // NEW: Handle timeout damage and cleanup
+    void HandleLetterTimeout(GameObject hurdle)
+    {
+        if (letterTimeoutCoroutines.ContainsKey(hurdle))
+        {
+            letterTimeoutCoroutines.Remove(hurdle);
+        }
+        activeLetterObjects.Remove(hurdle);
+
+        if (PlayerFunctions != null)
+        {
+            PlayerFunctions.TakeDamage(letterHurdleTimeoutDamage);
+            Debug.Log($"⏰ Letter hurdle timed out! Player took {letterHurdleTimeoutDamage} damage.");
+        }
+
+        if (letterAnimations.ContainsKey(hurdle))
+        {
+            StopCoroutine(letterAnimations[hurdle]);
+            letterAnimations.Remove(hurdle);
+        }
+        ReturnLetterToPool(hurdle);
+    }
+
+    // NEW: Public method to resolve a hurdle by player action
+    public void ResolveLetterHurdle(GameObject hurdle, bool wasCorrect)
+    {
+        if (hurdle == null || !activeLetterObjects.Contains(hurdle))
+            return;
+
+        // Stop timeout
+        if (letterTimeoutCoroutines.TryGetValue(hurdle, out Coroutine timeout))
+        {
+            StopCoroutine(timeout);
+            letterTimeoutCoroutines.Remove(hurdle);
+        }
+
+        activeLetterObjects.Remove(hurdle);
+
+        if (letterAnimations.ContainsKey(hurdle))
+        {
+            StopCoroutine(letterAnimations[hurdle]);
+            letterAnimations.Remove(hurdle);
+        }
+
+        if (wasCorrect)
+        {
+            OnLetterHurdleSuccess();          // increments word count, may end event
+            Debug.Log("✅ Letter hurdle solved correctly.");
+        }
+        else
+        {
+            if (PlayerFunctions != null)
+                PlayerFunctions.TakeDamageFromWrongLetter();   // deals 1 damage (existing)
+            Debug.Log("❌ Letter hurdle solved incorrectly.");
+        }
+
+        ReturnLetterToPool(hurdle);
     }
 
     void SpawnEventLetterHurdlesAtZ(float z)
@@ -993,13 +1060,13 @@ public class ObstacleSpawner : MonoBehaviour
     IEnumerator AnimateLetterHurdlesEnd()
     {
         // Stop any existing animations on these hurdles
-        foreach (var info in activeLetterObjects)
+        foreach (var obj in activeLetterObjects)
         {
-            if (letterAnimations.ContainsKey(info.obj))
+            if (letterAnimations.ContainsKey(obj))
             {
-                if (letterAnimations[info.obj] != null)
-                    StopCoroutine(letterAnimations[info.obj]);
-                letterAnimations.Remove(info.obj);
+                if (letterAnimations[obj] != null)
+                    StopCoroutine(letterAnimations[obj]);
+                letterAnimations.Remove(obj);
             }
         }
 
@@ -1007,7 +1074,7 @@ public class ObstacleSpawner : MonoBehaviour
         float rotTime = 0f;
         Quaternion[] startRots = new Quaternion[activeLetterObjects.Count];
         for (int i = 0; i < activeLetterObjects.Count; i++)
-            startRots[i] = activeLetterObjects[i].obj.transform.rotation;
+            startRots[i] = activeLetterObjects[i].transform.rotation;
 
         while (rotTime < hurdleRotationDuration)
         {
@@ -1017,7 +1084,7 @@ public class ObstacleSpawner : MonoBehaviour
 
             for (int i = 0; i < activeLetterObjects.Count; i++)
             {
-                if (activeLetterObjects[i].obj != null)
+                if (activeLetterObjects[i] != null)
                 {
                     Vector3 axis = Vector3.up; // default Y
                     switch (hurdleRotationAxis)
@@ -1026,7 +1093,7 @@ public class ObstacleSpawner : MonoBehaviour
                         case RotationAxis.Y: axis = Vector3.up; break;
                         case RotationAxis.Z: axis = Vector3.forward; break;
                     }
-                    activeLetterObjects[i].obj.transform.rotation = startRots[i] * Quaternion.AngleAxis(angle, axis);
+                    activeLetterObjects[i].transform.rotation = startRots[i] * Quaternion.AngleAxis(angle, axis);
                 }
             }
             rotTime += Time.deltaTime;
@@ -1040,9 +1107,9 @@ public class ObstacleSpawner : MonoBehaviour
 
         for (int i = 0; i < activeLetterObjects.Count; i++)
         {
-            if (activeLetterObjects[i].obj != null)
+            if (activeLetterObjects[i] != null)
             {
-                startPositions[i] = activeLetterObjects[i].obj.transform.position;
+                startPositions[i] = activeLetterObjects[i].transform.position;
                 targetPositions[i] = new Vector3(startPositions[i].x, slideY, startPositions[i].z);
             }
         }
@@ -1055,9 +1122,9 @@ public class ObstacleSpawner : MonoBehaviour
 
             for (int i = 0; i < activeLetterObjects.Count; i++)
             {
-                if (activeLetterObjects[i].obj != null)
+                if (activeLetterObjects[i] != null)
                 {
-                    activeLetterObjects[i].obj.transform.position = Vector3.Lerp(startPositions[i], targetPositions[i], curveT);
+                    activeLetterObjects[i].transform.position = Vector3.Lerp(startPositions[i], targetPositions[i], curveT);
                 }
             }
             slideTime += Time.deltaTime;
@@ -1067,16 +1134,16 @@ public class ObstacleSpawner : MonoBehaviour
         // Ensure final positions
         for (int i = 0; i < activeLetterObjects.Count; i++)
         {
-            if (activeLetterObjects[i].obj != null)
-                activeLetterObjects[i].obj.transform.position = targetPositions[i];
+            if (activeLetterObjects[i] != null)
+                activeLetterObjects[i].transform.position = targetPositions[i];
         }
 
         // Despawn after short delay
         yield return new WaitForSeconds(0.5f);
         for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
         {
-            if (activeLetterObjects[i].obj != null)
-                ReturnLetterToPool(activeLetterObjects[i].obj);
+            if (activeLetterObjects[i] != null)
+                ReturnLetterToPool(activeLetterObjects[i]);
         }
         activeLetterObjects.Clear();
     }
@@ -1136,7 +1203,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnSingleQuestion(float zOffset)
     {
-        bool spawnSentence = (spellingCounter >= spellingBeforeSentence);
+        // Use the static value from QuestionRandomizer
+        bool spawnSentence = (spellingCounter >= QuestionRandomizer.CurrentSpellingBeforeSentence);
         float questionHeight = spawnSentence ? sentenceQuestionHeight : spellingQuestionHeight;
 
         Vector3 spawnPos = new Vector3(0f, questionHeight, PlayerFunctions.transform.position.z + zOffset);
@@ -1159,9 +1227,9 @@ public class ObstacleSpawner : MonoBehaviour
             {
                 int randomIndex = rng.Next(0, 55);
                 randomizer.SetSpellingQuestion(randomIndex);
-                Debug.Log($"✅ Spawned SPELLING question at Z: {spawnPos.z}, index: {randomIndex}, Counter: {spellingCounter}/{spellingBeforeSentence}");
+                Debug.Log($"✅ Spawned SPELLING question at Z: {spawnPos.z}, index: {randomIndex}, Counter: {spellingCounter}/{QuestionRandomizer.CurrentSpellingBeforeSentence}");
                 spellingCounter++;
-                Debug.Log($"📊 Counter incremented to {spellingCounter}/{spellingBeforeSentence}");
+                Debug.Log($"📊 Counter incremented to {spellingCounter}/{QuestionRandomizer.CurrentSpellingBeforeSentence}");
             }
         }
         else
