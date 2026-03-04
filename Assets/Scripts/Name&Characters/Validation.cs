@@ -66,79 +66,77 @@ public class Validation : MonoBehaviour
     }
 
     void ValidateInput(string input)
-{
-    if (string.IsNullOrEmpty(input))
     {
-        feedbackText.text = "⚠ Name cannot be empty.";
-        feedbackText.color = Color.red;
-        hasNameInput = false;
-        CheckConfirmButton();
-        return;
-    }
-
-    if (!char.IsLetter(input[0]))
-    {
-        feedbackText.text = "⚠ First character must be a letter.";
-        feedbackText.color = Color.red;
-        hasNameInput = false;
-        CheckConfirmButton();
-        return;
-    }
-
-    // Allow only letters and numbers
-    foreach (char c in input)
-    {
-        if (!char.IsLetterOrDigit(c))
+        if (string.IsNullOrEmpty(input))
         {
-            feedbackText.text = "⚠ Only letters and numbers allowed.";
+            feedbackText.text = "⚠ Name cannot be empty.";
             feedbackText.color = Color.red;
             hasNameInput = false;
             CheckConfirmButton();
             return;
         }
-    }
 
-    if (input.Length > 10)
-    {
-        feedbackText.text = "⚠ Name cannot exceed 10 characters.";
-        feedbackText.color = Color.red;
-        hasNameInput = false;
-        CheckConfirmButton();
-        return;
-    }
-
-    // 🔥 Normalize text to detect leetspeak
-    string normalized = input.ToLower();
-
-    normalized = normalized
-        .Replace("0", "o")
-        .Replace("1", "i")
-        .Replace("3", "e")
-        .Replace("4", "a")
-        .Replace("5", "s")
-        .Replace("7", "t");
-
-    // Check banned words
-    foreach (string word in bannedWords)
-    {
-        if (normalized.Contains(word))
+        if (!char.IsLetter(input[0]))
         {
-            feedbackText.text = "⚠ Name contains inappropriate content.";
+            feedbackText.text = "⚠ First character must be a letter.";
             feedbackText.color = Color.red;
             hasNameInput = false;
             CheckConfirmButton();
             return;
         }
+
+        // Allow only letters and numbers
+        foreach (char c in input)
+        {
+            if (!char.IsLetterOrDigit(c))
+            {
+                feedbackText.text = "⚠ Only letters and numbers allowed.";
+                feedbackText.color = Color.red;
+                hasNameInput = false;
+                CheckConfirmButton();
+                return;
+            }
+        }
+
+        if (input.Length > 10)
+        {
+            feedbackText.text = "⚠ Name cannot exceed 10 characters.";
+            feedbackText.color = Color.red;
+            hasNameInput = false;
+            CheckConfirmButton();
+            return;
+        }
+
+        // 🔥 Normalize text to detect leetspeak
+        string normalized = input.ToLower();
+
+        normalized = normalized
+            .Replace("0", "o")
+            .Replace("1", "i")
+            .Replace("3", "e")
+            .Replace("4", "a")
+            .Replace("5", "s")
+            .Replace("7", "t");
+
+        // Check banned words
+        foreach (string word in bannedWords)
+        {
+            if (normalized.Contains(word))
+            {
+                feedbackText.text = "⚠ Name contains inappropriate content.";
+                feedbackText.color = Color.red;
+                hasNameInput = false;
+                CheckConfirmButton();
+                return;
+            }
+        }
+
+        // ✅ Valid
+        feedbackText.text = "✔ Name looks good!";
+        feedbackText.color = Color.green;
+        hasNameInput = true;
+        CheckConfirmButton();
     }
-
-    // ✅ Valid
-    feedbackText.text = "✔ Name looks good!";
-    feedbackText.color = Color.green;
-    hasNameInput = true;
-    CheckConfirmButton();
-}
-
-
 
     void CheckConfirmButton()
     {
@@ -147,14 +145,20 @@ public class Validation : MonoBehaviour
 
     void SaveAndLoadHomeScreen()
     {
+        // Save player name
         PlayerPrefs.SetString(PlayerNameKey, nameInputField.text);
-
+        
+        // 🔧 FIX: Calculate selected character from lights
         int selectedCharacter = directionalLight1.enabled ? 1 : 2;
         PlayerPrefs.SetInt(SelectedCharacterKey, selectedCharacter);
-
+        
+        // Mark setup as complete
         PlayerPrefs.SetInt(HasCompletedSetupKey, 1);
         PlayerPrefs.Save();
-
+        
+        Debug.Log($"✅ Setup complete! Name: {nameInputField.text}, Character: {selectedCharacter}");
+        
+        // Load HomeScreen
         SceneManager.LoadScene("HomeScreen");
     }
 
