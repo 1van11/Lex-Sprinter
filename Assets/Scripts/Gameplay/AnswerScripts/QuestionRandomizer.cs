@@ -123,108 +123,106 @@ public class QuestionRandomizer : MonoBehaviour
     #region Easy
     public static string[,] easySpellingPairs = new string[,]
     {
-/*-- 0 --*/  { "a common pet that barks", /*-- 0 --*/ "dog"/*-- 0 --*/, "dag", "dug" }, /*-- 0 --*/ 
-/*-- 1 --*/  { "something you wear on your head", /*-- 1 --*/ "hat"/*-- 1 --*/, "hoat", "hut" }, /*-- 1 --*/ 
-/*-- 2 --*/  { "a color between red and white", /*-- 2 --*/ "pink"/*-- 2 --*/, "ponk", "pank" }, /*-- 2 --*/ 
-/*-- 3 --*/  { "the star in the sky during daytime", /*-- 3 --*/ "sun"/*-- 3 --*/, "san", "son" }, /*-- 3 --*/ 
-/*-- 4 --*/  { "body part used for walking", /*-- 4 --*/ "leg"/*-- 4 --*/, "log", "lig" }, /*-- 4 --*/ 
-/*-- 5 --*/  { "food from animals, often eaten cooked", /*-- 5 --*/ "meat"/*-- 5 --*/, "met", "mait" }, /*-- 5 --*/ 
-/*-- 6 --*/  { "a small container for drinking", /*-- 6 --*/ "cup"/*-- 6 --*/, "cawp", "cop" }, /*-- 6 --*/ 
-/*-- 7 --*/  { "you listen with this", /*-- 7 --*/ "ear"/*-- 7 --*/, "eer", "eur" }, /*-- 7 --*/ 
-/*-- 8 --*/  { "a plant with leaves and branches", /*-- 8 --*/ "tree"/*-- 8 --*/, "tri", "trea" }, /*-- 8 --*/ 
-/*-- 9 --*/  { "opposite of white", /*-- 9 --*/ "black"/*-- 9 --*/, "bolck", "blak" }, /*-- 9 --*/ 
-/*-- 10 --*/ { "moving quickly", /*-- 10 --*/ "fast"/*-- 10 --*/, "fest", "fust" }, /*-- 10 --*/ 
-/*-- 11 --*/ { "activity in water", /*-- 11 --*/ "swim"/*-- 11 --*/, "swom", "swam" }, /*-- 11 --*/ 
-/*-- 12 --*/ { "refers to the person being addressed", /*-- 12 --*/ "you"/*-- 12 --*/, "yoo", "yu" }, /*-- 12 --*/ 
-/*-- 13 --*/ { "where you sleep at night", /*-- 13 --*/ "bed"/*-- 13 --*/, "ved", "bad" }, /*-- 13 --*/ 
-/*-- 14 --*/ { "part of your body used to hold things", /*-- 14 --*/ "hand"/*-- 14 --*/, "henk", "hend" }, /*-- 14 --*/ 
-/*-- 15 --*/ { "a flying animal with feathers", /*-- 15 --*/ "bird"/*-- 15 --*/, "burd", "berd" }, /*-- 15 --*/ 
-/*-- 16 --*/ { "white drink from cows", /*-- 16 --*/ "milk"/*-- 16 --*/, "milx", "melk" }, /*-- 16 --*/ 
-/*-- 17 --*/ { "to leap into the air", /*-- 17 --*/ "jump"/*-- 17 --*/, "jomp", "jamp" }, /*-- 17 --*/ 
-/*-- 18 --*/ { "baked food made from flour", /*-- 18 --*/ "bread"/*-- 18 --*/, "bredd", "bred" }, /*-- 18 --*/ 
-/*-- 19 --*/ { "sweet dessert", /*-- 19 --*/ "cake"/*-- 19 --*/, "cak", "caek" }, /*-- 19 --*/ 
-/*-- 20 --*/ { "used for walking or running", /*-- 20 --*/ "foot"/*-- 20 --*/, "fut", "fot" }, /*-- 20 --*/ 
-/*-- 21 --*/ { "female child", /*-- 21 --*/ "girl"/*-- 21 --*/, "gurl", "gerl" }, /*-- 21 --*/ 
-/*-- 22 --*/ { "part of your face used to smell", /*-- 22 --*/ "nose"/*-- 22 --*/, "nosh", "noze" }, /*-- 22 --*/ 
-/*-- 23 --*/ { "color of the sky on a clear day", /*-- 23 --*/ "blue"/*-- 23 --*/, "blu", "blew" }, /*-- 23 --*/ 
-/*-- 24 --*/ { "vehicle with wheels", /*-- 24 --*/ "car"/*-- 24 --*/, "cor", "kar" }, /*-- 24 --*/ 
-/*-- 25 --*/ { "yellow vegetable", /*-- 25 --*/ "corn"/*-- 25 --*/, "curn", "korn" }, /*-- 25 --*/ 
-/*-- 26 --*/ { "mother's sister", /*-- 26 --*/ "aunt"/*-- 26 --*/, "ant", "awnt" }, /*-- 26 --*/ 
-/*-- 27 --*/ { "farm animal that gives milk", /*-- 27 --*/ "cow"/*-- 27 --*/, "coe", "kow" }, /*-- 27 --*/ 
-/*-- 28 --*/ { "feeling of joy", /*-- 28 --*/ "happy"/*-- 28 --*/, "hoppy", "hapi" }, /*-- 28 --*/ 
-/*-- 29 --*/ { "color of an apple", /*-- 29 --*/ "red"/*-- 29 --*/, "rad", "reed" }, /*-- 29 --*/ 
-/*-- 30 --*/ { "limb attached to shoulder", /*-- 30 --*/ "arm"/*-- 30 --*/, "arum", "erm" }, /*-- 30 --*/ 
-/*-- 31 --*/ { "a companion", /*-- 31 --*/ "friend"/*-- 31 --*/, "frend", "freind" }, /*-- 31 --*/ 
-/*-- 32 --*/ { "container with sides", /*-- 32 --*/ "box"/*-- 32 --*/, "bocs", "boks" }, /*-- 32 --*/ 
-/*-- 33 --*/ { "used to carry things", /*-- 33 --*/ "bag"/*-- 33 --*/, "bog", "beg" }, /*-- 33 --*/ 
-/*-- 34 --*/ { "furniture to sit on", /*-- 34 --*/ "chair"/*-- 34 --*/, "chare", "chear" }, /*-- 34 --*/ 
-/*-- 35 --*/ { "jump on one foot", /*-- 35 --*/ "hop"/*-- 35 --*/, "hut", "hap" }, /*-- 35 --*/ 
-/*-- 36 --*/ { "a male parent", /*-- 36 --*/ "dad"/*-- 36 --*/, "did", "dod" }, /*-- 36 --*/ 
-/*-- 37 --*/ { "a young child", /*-- 37 --*/ "kid"/*-- 37 --*/, "kod", "ked" }, /*-- 37 --*/ 
-/*-- 38 --*/ { "female chicken", /*-- 38 --*/ "hen"/*-- 38 --*/, "han", "hin" }, /*-- 38 --*/ 
-/*-- 39 --*/ { "staple food, often eaten with dishes", /*-- 39 --*/ "rice"/*-- 39 --*/, "rais", "ryce" }, /*-- 39 --*/ 
-/*-- 40 --*/ { "opposite of fast", /*-- 40 --*/ "slow"/*-- 40 --*/, "slew", "sloe" }, /*-- 40 --*/ 
-/*-- 41 --*/ { "reading material", /*-- 41 --*/ "book"/*-- 41 --*/, "buck", "boke" }, /*-- 41 --*/ 
-/*-- 42 --*/ { "farm animal that oinks", /*-- 42 --*/ "pig"/*-- 42 --*/, "peg", "pog" }, /*-- 42 --*/ 
-/*-- 43 --*/ { "very young human", /*-- 43 --*/ "baby"/*-- 43 --*/, "bebe", "beby" }, /*-- 43 --*/ 
-/*-- 44 --*/ { "refers to a male person", /*-- 44 --*/ "him"/*-- 44 --*/, "hem", "hym" }, /*-- 44 --*/ 
-/*-- 45 --*/ { "makes ringing sound", /*-- 45 --*/ "bell"/*-- 45 --*/, "vel", "bel" }, /*-- 45 --*/ 
-/*-- 46 --*/ { "plaything for children", /*-- 46 --*/ "toy"/*-- 46 --*/, "toi", "tay" }, /*-- 46 --*/ 
-/*-- 47 --*/ { "female parent", /*-- 47 --*/ "mom"/*-- 47 --*/, "mum", "mam" }, /*-- 47 --*/ 
-/*-- 48 --*/ { "feeling of sadness", /*-- 48 --*/ "sad"/*-- 48 --*/, "sed", "sod" }, /*-- 48 --*/ 
-/*-- 49 --*/ { "part of a tree or plant", /*-- 49 --*/ "leaf"/*-- 49 --*/, "loaf", "leef" }, /*-- 49 --*/ 
-/*-- 50 --*/ { "to form letters on paper", /*-- 50 --*/ "write"/*-- 50 --*/, "rite", "writ" }, /*-- 50 --*/ 
-/*-- 51 --*/ { "color opposite of black", /*-- 51 --*/ "white"/*-- 51 --*/, "whyte", "wite" }, /*-- 51 --*/ 
-/*-- 52 --*/ { "small furry pet that meows", /*-- 52 --*/ "cat"/*-- 52 --*/, "gat", "kat" }, /*-- 52 --*/ 
-/*-- 53 --*/ { "farm animal with horns", /*-- 53 --*/ "goat"/*-- 53 --*/, "got", "gote" }, /*-- 53 --*/ 
-/*-- 54 --*/ { "furniture for working", /*-- 54 --*/ "desk"/*-- 54 --*/, "deks", "dask" }, /*-- 54 --*/ 
-/*-- 55 --*/ { "a celestial object at night", /*-- 55 --*/ "moon"/*-- 55 --*/, "mun", "mune" }, /*-- 55 --*/ 
-/*-- 56 --*/ { "falling water from clouds", /*-- 56 --*/ "rain"/*-- 56 --*/, "rein", "rayn" }, /*-- 56 --*/ 
-/*-- 57 --*/ { "frozen precipitation", /*-- 57 --*/ "snow"/*-- 57 --*/, "snou", "snoe" }, /*-- 57 --*/ 
-/*-- 58 --*/ { "part of the face used for speaking", /*-- 58 --*/ "lip"/*-- 58 --*/, "lap", "lep" }, /*-- 58 --*/ 
-/*-- 59 --*/ { "sweet spread for bread", /*-- 59 --*/ "jam"/*-- 59 --*/, "jem", "jom" }, /*-- 59 --*/ 
-/*-- 60 --*/ { "young male child", /*-- 60 --*/ "boy"/*-- 60 --*/, "boi", "bouy" }, /*-- 60 --*/ 
-/*-- 61 --*/ { "brother of your parent", /*-- 61 --*/ "uncle"/*-- 61 --*/, "unkl", "uncal" }, /*-- 61 --*/ 
-/*-- 62 --*/ { "good or desirable", /*-- 62 --*/ "good"/*-- 62 --*/, "gud", "goud" }, /*-- 62 --*/ 
-/*-- 63 --*/ { "opposite of good", /*-- 63 --*/ "bad"/*-- 63 --*/, "badd", "bod" }, /*-- 63 --*/ 
-/*-- 64 --*/ { "to move on feet at a moderate pace", /*-- 64 --*/ "walk"/*-- 64 --*/, "wok", "wolk" }, /*-- 64 --*/ 
-/*-- 65 --*/ { "to be upright on feet", /*-- 65 --*/ "stand"/*-- 65 --*/, "stend", "stond" }, /*-- 65 --*/ 
-/*-- 66 --*/ { "to make music with voice", /*-- 66 --*/ "sing"/*-- 66 --*/, "sung", "seng" }, /*-- 66 --*/ 
-/*-- 67 --*/ { "transport by road", /*-- 67 --*/ "bus"/*-- 67 --*/, "bos", "bas" }, /*-- 67 --*/ 
-/*-- 68 --*/ { "passage to enter or exit", /*-- 68 --*/ "door"/*-- 68 --*/, "dor", "doer" }, /*-- 68 --*/ 
-/*-- 69 --*/ { "something that shows location", /*-- 69 --*/ "map"/*-- 69 --*/, "mop", "mep" }, /*-- 69 --*/ 
-/*-- 70 --*/ { "oval farm product from birds", /*-- 70 --*/ "egg"/*-- 70 --*/, "egh", "eg" }, /*-- 70 --*/ 
-/*-- 71 --*/ { "edible fruit shaped like a bulb", /*-- 71 --*/ "pear"/*-- 71 --*/, "per", "pare" }, /*-- 71 --*/ 
-/*-- 72 --*/ { "small swimming waterbird", /*-- 72 --*/ "duck"/*-- 72 --*/, "duc", "duk" }, /*-- 72 --*/ 
-/*-- 73 --*/ { "small rodent", /*-- 73 --*/ "mouse"/*-- 73 --*/, "mawz", "mous" }, /*-- 73 --*/ 
-/*-- 74 --*/ { "air in motion", /*-- 74 --*/ "wind"/*-- 74 --*/, "windz", "wynd" }, /*-- 74 --*/ 
-
-//forgotten words
-/*-- 75 --*/ { "round object used in games", /*-- 75 --*/ "ball"/*-- 75 --*/, "bol", "bawl" },  
-/*-- 76 --*/ { "large in size", /*-- 76 --*/ "big"/*-- 76 --*/, "beg", "bug" },  
-/*-- 77 --*/ { "color like chocolate", /*-- 77 --*/ "brown"/*-- 77 --*/, "brawn", "bron" },  
-/*-- 78 --*/ { "having low temperature", /*-- 78 --*/ "cold"/*-- 78 --*/, "kold", "cald" },  
-/*-- 79 --*/ { "seen in the sky, made of vapor", /*-- 79 --*/ "cloud"/*-- 79 --*/, "clod", "clowd" },  
-/*-- 80 --*/ { "an animal that lives in water", /*-- 80 --*/ "fish"/*-- 80 --*/, "fesh", "fosh" },  
-/*-- 81 --*/ { "grows on your head", /*-- 81 --*/ "hair"/*-- 81 --*/, "hare", "heir" },  
-/*-- 82 --*/ { "refers to a female person", /*-- 82 --*/ "her"/*-- 82 --*/, "hur", "hir" },  
-/*-- 83 --*/ { "color of grass", /*-- 83 --*/ "green"/*-- 83 --*/, "grean", "gren" },  
-/*-- 84 --*/ { "organ used for seeing", /*-- 84 --*/ "eye"/*-- 84 --*/, "aye", "eie" },  
-/*-- 85 --*/ { "adult male human", /*-- 85 --*/ "man"/*-- 85 --*/, "men", "mun" },  
-/*-- 86 --*/ { "refers to the speaker", /*-- 86 --*/ "me"/*-- 86 --*/, "mi", "meh" },  
-/*-- 87 --*/ { "color between red and yellow", /*-- 87 --*/ "orange"/*-- 87 --*/, "oranj", "ornge" },  
-/*-- 88 --*/ { "tool used for writing with ink", /*-- 88 --*/ "pen"/*-- 88 --*/, "pin", "pan" },  
-/*-- 89 --*/ { "look at words and understand", /*-- 89 --*/ "read"/*-- 89 --*/, "reed", "red" },  
-/*-- 90 --*/ { "move fast on foot", /*-- 90 --*/ "run"/*-- 90 --*/, "ran", "ron" },  
-/*-- 91 --*/ { "rest on your bottom", /*-- 91 --*/ "sit"/*-- 91 --*/, "set", "sat" },  
-/*-- 92 --*/ { "not large in size", /*-- 92 --*/ "small"/*-- 92 --*/, "smol", "smel" },  
-/*-- 93 --*/ { "bright object in the night sky", /*-- 93 --*/ "star"/*-- 93 --*/, "stor", "stir" },  
-/*-- 94 --*/ { "liquid food eaten hot", /*-- 94 --*/ "soup"/*-- 94 --*/, "soop", "sup" },  
-/*-- 95 --*/ { "color between black and white", /*-- 95 --*/ "gray"/*-- 95 --*/, "grey", "grai" },  
-/*-- 96 --*/ { "hard natural stone", /*-- 96 --*/ "rock"/*-- 96 --*/, "rok", "ruck" },  
-/*-- 97 --*/ { "used to bite and chew", /*-- 97 --*/ "tooth"/*-- 97 --*/, "toot", "toth" },  
-/*-- 98 --*/ { "clear liquid you drink", /*-- 98 --*/ "water"/*-- 98 --*/, "watar", "woter" },  
-/*-- 99 --*/ { "color of the sun", /*-- 99 --*/ "yellow"/*-- 99 --*/, "yelow", "yello" },  
+/*-- 0 --*/  { "a common pet that barks",                       /*-- 0 --*/ "dog"/*-- 0 --*/,        "dag",        "dug"        }, /*-- 0 --*/
+/*-- 1 --*/  { "something you wear on your head",              /*-- 1 --*/ "hat"/*-- 1 --*/,        "hoat",       "hut"        }, /*-- 1 --*/
+/*-- 2 --*/  { "a color between red and white",                /*-- 2 --*/ "pink"/*-- 2 --*/,       "ponk",       "pank"       }, /*-- 2 --*/
+/*-- 3 --*/  { "the star in the sky during daytime",           /*-- 3 --*/ "sun"/*-- 3 --*/,        "san",        "son"        }, /*-- 3 --*/
+/*-- 4 --*/  { "body part used for walking",                   /*-- 4 --*/ "leg"/*-- 4 --*/,        "log",        "lig"        }, /*-- 4 --*/
+/*-- 5 --*/  { "food from animals, often eaten cooked",        /*-- 5 --*/ "meat"/*-- 5 --*/,       "met",        "mait"       }, /*-- 5 --*/
+/*-- 6 --*/  { "a small container for drinking",               /*-- 6 --*/ "cup"/*-- 6 --*/,        "cawp",       "cop"        }, /*-- 6 --*/
+/*-- 7 --*/  { "you listen with this",                         /*-- 7 --*/ "ear"/*-- 7 --*/,        "eer",        "eur"        }, /*-- 7 --*/
+/*-- 8 --*/  { "a plant with leaves and branches",             /*-- 8 --*/ "tree"/*-- 8 --*/,       "tri",        "trea"       }, /*-- 8 --*/
+/*-- 9 --*/  { "opposite of white",                            /*-- 9 --*/ "black"/*-- 9 --*/,      "bolck",      "blak"       }, /*-- 9 --*/
+/*--10 --*/  { "moving quickly",                               /*--10 --*/ "fast"/*--10 --*/,       "fest",       "fust"       }, /*--10 --*/
+/*--11 --*/  { "activity in water",                            /*--11 --*/ "swim"/*--11 --*/,       "swom",       "swam"       }, /*--11 --*/
+/*--12 --*/  { "refers to the person being addressed",         /*--12 --*/ "you"/*--12 --*/,        "yoo",        "yu"         }, /*--12 --*/
+/*--13 --*/  { "where you sleep at night",                     /*--13 --*/ "bed"/*--13 --*/,        "ved",        "bad"        }, /*--13 --*/
+/*--14 --*/  { "part of your body used to hold things",        /*--14 --*/ "hand"/*--14 --*/,       "henk",       "hend"       }, /*--14 --*/
+/*--15 --*/  { "a flying animal with feathers",               /*--15 --*/ "bird"/*--15 --*/,       "burd",       "berd"       }, /*--15 --*/
+/*--16 --*/  { "white drink from cows",                        /*--16 --*/ "milk"/*--16 --*/,       "milx",       "melk"       }, /*--16 --*/
+/*--17 --*/  { "to leap into the air",                         /*--17 --*/ "jump"/*--17 --*/,       "jomp",       "jamp"       }, /*--17 --*/
+/*--18 --*/  { "baked food made from flour",                  /*--18 --*/ "bread"/*--18 --*/,      "bredd",      "bred"       }, /*--18 --*/
+/*--19 --*/  { "sweet dessert",                               /*--19 --*/ "cake"/*--19 --*/,       "cak",        "caek"       }, /*--19 --*/
+/*--20 --*/  { "used for walking or running",                /*--20 --*/ "foot"/*--20 --*/,       "fut",        "fot"        }, /*--20 --*/
+/*--21 --*/  { "female child",                               /*--21 --*/ "girl"/*--21 --*/,       "gurl",       "gerl"       }, /*--21 --*/
+/*--22 --*/  { "part of your face used to smell",            /*--22 --*/ "nose"/*--22 --*/,       "nosh",       "noze"       }, /*--22 --*/
+/*--23 --*/  { "color of the sky on a clear day",            /*--23 --*/ "blue"/*--23 --*/,       "blu",        "blew"       }, /*--23 --*/
+/*--24 --*/  { "vehicle with wheels",                        /*--24 --*/ "car"/*--24 --*/,        "cor",        "kar"        }, /*--24 --*/
+/*--25 --*/  { "yellow vegetable",                           /*--25 --*/ "corn"/*--25 --*/,       "curn",       "korn"       }, /*--25 --*/
+/*--26 --*/  { "mother's sister",                            /*--26 --*/ "aunt"/*--26 --*/,       "ant",        "awnt"       }, /*--26 --*/
+/*--27 --*/  { "farm animal that gives milk",               /*--27 --*/ "cow"/*--27 --*/,        "coe",        "kow"        }, /*--27 --*/
+/*--28 --*/  { "feeling of joy",                             /*--28 --*/ "happy"/*--28 --*/,      "hoppy",      "hapi"       }, /*--28 --*/
+/*--29 --*/  { "color of an apple",                          /*--29 --*/ "red"/*--29 --*/,        "rad",        "reed"       }, /*--29 --*/
+/*--30 --*/  { "limb attached to shoulder",                  /*--30 --*/ "arm"/*--30 --*/,        "arum",       "erm"        }, /*--30 --*/
+/*--31 --*/  { "a companion",                               /*--31 --*/ "friend"/*--31 --*/,     "frend",      "freind"     }, /*--31 --*/
+/*--32 --*/  { "container with sides",                      /*--32 --*/ "box"/*--32 --*/,        "bocs",       "boks"       }, /*--32 --*/
+/*--33 --*/  { "used to carry things",                      /*--33 --*/ "bag"/*--33 --*/,        "bog",        "beg"        }, /*--33 --*/
+/*--34 --*/  { "furniture to sit on",                       /*--34 --*/ "chair"/*--34 --*/,      "chare",      "chear"      }, /*--34 --*/
+/*--35 --*/  { "jump on one foot",                          /*--35 --*/ "hop"/*--35 --*/,        "hut",        "hap"        }, /*--35 --*/
+/*--36 --*/  { "a male parent",                             /*--36 --*/ "dad"/*--36 --*/,        "did",        "dod"        }, /*--36 --*/
+/*--37 --*/  { "a young child",                             /*--37 --*/ "kid"/*--37 --*/,        "kod",        "ked"        }, /*--37 --*/
+/*--38 --*/  { "female chicken",                            /*--38 --*/ "hen"/*--38 --*/,        "han",        "hin"        }, /*--38 --*/
+/*--39 --*/  { "staple food, often eaten with dishes",      /*--39 --*/ "rice"/*--39 --*/,       "rais",       "ryce"       }, /*--39 --*/
+/*--40 --*/  { "opposite of fast",                          /*--40 --*/ "slow"/*--40 --*/,       "slew",       "sloe"       }, /*--40 --*/
+/*--41 --*/  { "reading material",                          /*--41 --*/ "book"/*--41 --*/,       "buck",       "boke"       }, /*--41 --*/
+/*--42 --*/  { "farm animal that oinks",                   /*--42 --*/ "pig"/*--42 --*/,        "peg",        "pog"        }, /*--42 --*/
+/*--43 --*/  { "very young human",                          /*--43 --*/ "baby"/*--43 --*/,       "bebe",       "beby"       }, /*--43 --*/
+/*--44 --*/  { "refers to a male person",                  /*--44 --*/ "him"/*--44 --*/,        "hem",        "hym"        }, /*--44 --*/
+/*--45 --*/  { "makes ringing sound",                      /*--45 --*/ "bell"/*--45 --*/,       "vel",        "bel"        }, /*--45 --*/
+/*--46 --*/  { "plaything for children",                   /*--46 --*/ "toy"/*--46 --*/,        "toi",        "tay"        }, /*--46 --*/
+/*--47 --*/  { "female parent",                            /*--47 --*/ "mom"/*--47 --*/,        "mum",        "mam"        }, /*--47 --*/
+/*--48 --*/  { "feeling of sadness",                       /*--48 --*/ "sad"/*--48 --*/,        "sed",        "sod"        }, /*--48 --*/
+/*--49 --*/  { "part of a tree or plant",                  /*--49 --*/ "leaf"/*--49 --*/,       "loaf",       "leef"       }, /*--49 --*/
+/*--50 --*/  { "to form letters on paper",                 /*--50 --*/ "write"/*--50 --*/,      "rite",       "writ"       }, /*--50 --*/
+/*--51 --*/  { "color opposite of black",                 /*--51 --*/ "white"/*--51 --*/,      "whyte",      "wite"       }, /*--51 --*/
+/*--52 --*/  { "small furry pet that meows",              /*--52 --*/ "cat"/*--52 --*/,        "gat",        "kat"        }, /*--52 --*/
+/*--53 --*/  { "farm animal with horns",                  /*--53 --*/ "goat"/*--53 --*/,       "got",        "gote"       }, /*--53 --*/
+/*--54 --*/  { "furniture for working",                   /*--54 --*/ "desk"/*--54 --*/,       "deks",       "dask"       }, /*--54 --*/
+/*--55 --*/  { "a celestial object at night",             /*--55 --*/ "moon"/*--55 --*/,       "mun",        "mune"       }, /*--55 --*/
+/*--56 --*/  { "falling water from clouds",               /*--56 --*/ "rain"/*--56 --*/,       "rein",       "rayn"       }, /*--56 --*/
+/*--57 --*/  { "frozen precipitation",                   /*--57 --*/ "snow"/*--57 --*/,       "snou",       "snoe"       }, /*--57 --*/
+/*--58 --*/  { "part of the face used for speaking",      /*--58 --*/ "lip"/*--58 --*/,        "lap",        "lep"        }, /*--58 --*/
+/*--59 --*/  { "sweet spread for bread",                 /*--59 --*/ "jam"/*--59 --*/,        "jem",        "jom"        }, /*--59 --*/
+/*--60 --*/  { "young male child",                       /*--60 --*/ "boy"/*--60 --*/,        "boi",        "bouy"       }, /*--60 --*/
+/*--61 --*/  { "brother of your parent",                /*--61 --*/ "uncle"/*--61 --*/,      "unkl",       "uncal"      }, /*--61 --*/
+/*--62 --*/  { "good or desirable",                      /*--62 --*/ "good"/*--62 --*/,       "gud",        "goud"       }, /*--62 --*/
+/*--63 --*/  { "opposite of good",                       /*--63 --*/ "bad"/*--63 --*/,        "badd",       "bod"        }, /*--63 --*/
+/*--64 --*/  { "to move on feet at a moderate pace",     /*--64 --*/ "walk"/*--64 --*/,       "wok",        "wolk"       }, /*--64 --*/
+/*--65 --*/  { "to be upright on feet",                 /*--65 --*/ "stand"/*--65 --*/,      "stend",      "stond"      }, /*--65 --*/
+/*--66 --*/  { "to make music with voice",              /*--66 --*/ "sing"/*--66 --*/,       "sung",       "seng"       }, /*--66 --*/
+/*--67 --*/  { "transport by road",                     /*--67 --*/ "bus"/*--67 --*/,        "bos",        "bas"        }, /*--67 --*/
+/*--68 --*/  { "passage to enter or exit",              /*--68 --*/ "door"/*--68 --*/,       "dor",        "doer"       }, /*--68 --*/
+/*--69 --*/  { "something that shows location",        /*--69 --*/ "map"/*--69 --*/,        "mop",        "mep"        }, /*--69 --*/
+/*--70 --*/  { "oval farm product from birds",         /*--70 --*/ "egg"/*--70 --*/,        "egh",        "eg"         }, /*--70 --*/
+/*--71 --*/  { "edible fruit shaped like a bulb",      /*--71 --*/ "pear"/*--71 --*/,       "per",        "pare"       }, /*--71 --*/
+/*--72 --*/  { "small swimming waterbird",             /*--72 --*/ "duck"/*--72 --*/,       "duc",        "duk"        }, /*--72 --*/
+/*--73 --*/  { "small rodent",                          /*--73 --*/ "mouse"/*--73 --*/,      "mawz",       "mous"       }, /*--73 --*/
+/*--74 --*/  { "air in motion",                         /*--74 --*/ "wind"/*--74 --*/,       "windz",      "wynd"       }, /*--74 --*/
+/*--75 --*/  { "round object used in games",            /*--75 --*/ "ball"/*--75 --*/,       "bol",        "bawl"       }, /*--75 --*/
+/*--76 --*/  { "large in size",                         /*--76 --*/ "big"/*--76 --*/,        "beg",        "bug"        }, /*--76 --*/
+/*--77 --*/  { "color like chocolate",                  /*--77 --*/ "brown"/*--77 --*/,      "brawn",      "bron"       }, /*--77 --*/
+/*--78 --*/  { "having low temperature",                /*--78 --*/ "cold"/*--78 --*/,       "kold",       "cald"       }, /*--78 --*/
+/*--79 --*/  { "seen in the sky, made of vapor",        /*--79 --*/ "cloud"/*--79 --*/,      "clod",       "clowd"      }, /*--79 --*/
+/*--80 --*/  { "an animal that lives in water",         /*--80 --*/ "fish"/*--80 --*/,       "fesh",       "fosh"       }, /*--80 --*/
+/*--81 --*/  { "grows on your head",                    /*--81 --*/ "hair"/*--81 --*/,       "hare",       "heir"       }, /*--81 --*/
+/*--82 --*/  { "refers to a female person",             /*--82 --*/ "her"/*--82 --*/,        "hur",        "hir"        }, /*--82 --*/
+/*--83 --*/  { "color of grass",                        /*--83 --*/ "green"/*--83 --*/,      "grean",      "gren"       }, /*--83 --*/
+/*--84 --*/  { "organ used for seeing",                 /*--84 --*/ "eye"/*--84 --*/,        "aye",        "eie"        }, /*--84 --*/
+/*--85 --*/  { "adult male human",                      /*--85 --*/ "man"/*--85 --*/,        "men",        "mun"        }, /*--85 --*/
+/*--86 --*/  { "refers to the speaker",                 /*--86 --*/ "me"/*--86 --*/,         "mi",         "meh"        }, /*--86 --*/
+/*--87 --*/  { "color between red and yellow",          /*--87 --*/ "orange"/*--87 --*/,     "oranj",      "ornge"      }, /*--87 --*/
+/*--88 --*/  { "tool used for writing with ink",        /*--88 --*/ "pen"/*--88 --*/,        "pin",        "pan"        }, /*--88 --*/
+/*--89 --*/  { "look at words and understand",          /*--89 --*/ "read"/*--89 --*/,       "reed",       "red"        }, /*--89 --*/
+/*--90 --*/  { "move fast on foot",                     /*--90 --*/ "run"/*--90 --*/,        "ran",        "ron"        }, /*--90 --*/
+/*--91 --*/  { "rest on your bottom",                   /*--91 --*/ "sit"/*--91 --*/,        "set",        "sat"        }, /*--91 --*/
+/*--92 --*/  { "not large in size",                     /*--92 --*/ "small"/*--92 --*/,      "smol",       "smel"       }, /*--92 --*/
+/*--93 --*/  { "bright object in the night sky",        /*--93 --*/ "star"/*--93 --*/,       "stor",       "stir"       }, /*--93 --*/
+/*--94 --*/  { "liquid food eaten hot",                 /*--94 --*/ "soup"/*--94 --*/,       "soop",       "sup"        }, /*--94 --*/
+/*--95 --*/  { "color between black and white",         /*--95 --*/ "gray"/*--95 --*/,       "grey",       "grai"       }, /*--95 --*/
+/*--96 --*/  { "hard natural stone",                    /*--96 --*/ "rock"/*--96 --*/,       "rok",        "ruck"       }, /*--96 --*/
+/*--97 --*/  { "used to bite and chew",                 /*--97 --*/ "tooth"/*--97 --*/,      "toot",       "toth"       }, /*--97 --*/
+/*--98 --*/  { "clear liquid you drink",                /*--98 --*/ "water"/*--98 --*/,      "watar",      "woter"      }, /*--98 --*/
+/*--99 --*/  { "color of the sun",                      /*--99 --*/ "yellow"/*--99 --*/,     "yelow",      "yello"      }, /*--99 --*/
     };
 
     public static string[,] easySentencePairs = new string[,]
