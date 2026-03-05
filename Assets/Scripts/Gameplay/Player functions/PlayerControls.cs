@@ -26,6 +26,15 @@ public class PlayerControls : MonoBehaviour
     public float fastDescentForce = 15f;
     public float fastDescentGravityMultiplier = 2.5f;
 
+    // --- NEW: Jump Suspension (Floating) ---
+    [Header("Jump Suspension")]
+    public bool enableJumpSuspension = true;          // Enable/disable suspension
+    public float suspensionDuration = 2f;              // How long suspension lasts (seconds)
+    public float suspensionGravityMultiplier = 0.1f;   // Very low gravity while suspended
+
+    private bool isSuspended = false;                  // Currently suspended?
+    private float suspensionTimer = 0f;                 // Time left in suspension
+
     [Header("Swipe Settings")]
     public float minSwipeDistance = 50f;        // Minimum swipe length (pixels)
     public float swipeSensitivity = 0.1f;       // How much swipe distance affects movement (continuous mode)
@@ -146,6 +155,16 @@ public class PlayerControls : MonoBehaviour
         MoveHorizontally();
         ApplyRotation();          // Now handles both yaw and tilt
         UpdateAnimations();
+
+        // --- NEW: Update suspension timer ---
+        if (isSuspended)
+        {
+            suspensionTimer -= Time.deltaTime;
+            if (suspensionTimer <= 0f || isGrounded) // End when timer runs out or we land
+            {
+                isSuspended = false;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -387,6 +406,10 @@ public class PlayerControls : MonoBehaviour
 
         isFastDescending = true;
         rb.AddForce(Vector3.down * fastDescentForce, ForceMode.VelocityChange);
+
+        // --- NEW: Fast descent cancels suspension ---
+        if (isSuspended)
+            isSuspended = false;
     }
 
     #endregion
@@ -402,6 +425,9 @@ public class PlayerControls : MonoBehaviour
         {
             isFastDescending = false;
             isAtApex = false; // Reset apex when grounded
+            // --- NEW: Grounding cancels suspension ---
+            if (isSuspended)
+                isSuspended = false;
         }
     }
 
@@ -481,7 +507,7 @@ public class PlayerControls : MonoBehaviour
             if (enableApexGravityReduction)
             {
                 // Apex is when vertical velocity is near zero and we're not fast descending
-                if (Mathf.Abs(rb.velocity.y) < apexThreshold && !isFastDescending)
+                if (Mathf.Abs(rb.velocity.y) < apexThreshold && !isFastDescending && !isSuspended) // Suspended overrides apex
                 {
                     if (!isAtApex)
                     {
@@ -494,10 +520,12 @@ public class PlayerControls : MonoBehaviour
                 }
             }
 
-            // Determine gravity multiplier
+            // Determine gravity multiplier (order: fast descent > suspension > apex > normal)
             float gravityMultiplier = 1f;
             if (isFastDescending)
                 gravityMultiplier = fastDescentGravityMultiplier;
+            else if (isSuspended)
+                gravityMultiplier = suspensionGravityMultiplier;   // Very low gravity
             else if (isAtApex)
                 gravityMultiplier = apexGravityMultiplier;
 
@@ -530,6 +558,13 @@ public class PlayerControls : MonoBehaviour
 
         isAtApex = false; // Reset apex state for new jump
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+
+        // --- NEW: Activate suspension on jump ---
+        if (enableJumpSuspension)
+        {
+            isSuspended = true;
+            suspensionTimer = suspensionDuration;
+        }
     }
 
     #endregion
@@ -554,6 +589,8 @@ public class PlayerControls : MonoBehaviour
         anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.1f);
         anim.SetBool("isChangingLane", isChangingLane);
         anim.SetBool("isAtApex", isAtApex); // Optional: add to animator for special apex animations
+        // --- NEW: Suspension animation parameter ---
+        anim.SetBool("isSuspended", isSuspended);
     }
 
     #endregion
@@ -586,6 +623,8 @@ public class PlayerControls : MonoBehaviour
     public int CurrentLane => currentLaneIndex;
     public int TargetLane => targetLaneIndex;
     public bool IsAtApex => isAtApex;
+    // --- NEW: Public getter for suspension ---
+    public bool IsSuspended => isSuspended;
 
     #endregion
 }

@@ -1312,9 +1312,9 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 4
   m_wordSpacing: 0
@@ -1342,7 +1342,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 19.430107, y: 0, z: -32.881813, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1373,7 +1373,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10.911774, y: -66.83548}
+  m_AnchoredPosition: {x: 10.911774, y: -51}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &164821218 stripped
@@ -1556,7 +1556,7 @@ MonoBehaviour:
   displayText: {fileID: 907673992}
   collectedText: {fileID: 161897638}
   targetWordText: {fileID: 1767967936}
-  correctLetterChance: 0.3
+  correctLetterChance: 0.25
 --- !u!4 &168779161 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1a4681b14f43eda46b87cbd654536729, type: 3}
@@ -2340,6 +2340,9 @@ MonoBehaviour:
   apexThreshold: 0.1
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
+  enableJumpSuspension: 1
+  suspensionDuration: 2
+  suspensionGravityMultiplier: 0.1
   minSwipeDistance: 50
   swipeSensitivity: 1.5
   maxSwipeSpeed: 20
@@ -6251,10 +6254,10 @@ RectTransform:
   m_Father: {fileID: 721632767}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -333.4353, y: -790.93854}
-  m_SizeDelta: {x: 614.6349, y: 1231.3821}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -424, y: -790.9386}
+  m_SizeDelta: {x: 772.6349, y: 1383.3821}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1167089702
 MonoBehaviour:
@@ -6566,7 +6569,7 @@ MonoBehaviour:
   maxLaneDistance: 3
   forwardSpeed: 10
   jumpHeight: 7
-  jumpTimeToPeak: 0.4
+  jumpTimeToPeak: 0.5
   enableJump: 1
   groundCheckDistance: 0.1
   enableApexGravityReduction: 1
@@ -6574,6 +6577,9 @@ MonoBehaviour:
   apexThreshold: 0.01
   fastDescentForce: 15
   fastDescentGravityMultiplier: 2.5
+  enableJumpSuspension: 0
+  suspensionDuration: 10
+  suspensionGravityMultiplier: 0.0001
   minSwipeDistance: 50
   swipeSensitivity: 0.1
   maxSwipeSpeed: 20
@@ -6599,7 +6605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forwardSpeed: 10
-  speedIncreaseMultiplier: 1.125
+  speedIncreaseMultiplier: 1.2
   maxSpeedMultiplier: 1.8
   speedIncreaseDistance: 300
   alwaysInvincible: 0
