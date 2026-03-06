@@ -8490,7 +8490,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 8ad34ec087124144a95c471a609c2b6b, type: 3}
   - word: ball
     illustration: {fileID: 21300000, guid: 2012e172d1e57b4468aba20a5ee0a127, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 9ffa35f8be1420e4989fe0a5025f2a94, type: 3}
   - word: bed
     illustration: {fileID: 21300000, guid: 53f0ee056095a2f4c8c0bc666bcc2ae3, type: 3}
     audioClip: {fileID: 8300000, guid: edd853f766822794f9448cc26de9c63b, type: 3}
@@ -8499,7 +8499,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: eeb27157018b14d408686152993c540d, type: 3}
   - word: big
     illustration: {fileID: 21300000, guid: 6a142572a33bf9448b03f64e77abfdaa, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 4594bff27233e2d41950bcba80cfe417, type: 3}
   - word: bird
     illustration: {fileID: 0}
     audioClip: {fileID: 8300000, guid: e0b68a2124ee4a845b426136cb1871ea, type: 3}
@@ -8514,7 +8514,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 0e9abfccf2583544abafd0ea17d52d6d, type: 3}
   - word: box
     illustration: {fileID: 21300000, guid: 757a201e8e5462545ad904c5d4c552b7, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: abc42b8ca4732f743a57ace1e461fb79, type: 3}
   - word: boy
     illustration: {fileID: 21300000, guid: 0eba1f9406b7c9445ac0184c271402ed, type: 3}
     audioClip: {fileID: 8300000, guid: 4ae48f84cf099164794ab46552479fd5, type: 3}
@@ -8522,8 +8522,8 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 8059cae1c47c45746b56d42ff5973d22, type: 3}
     audioClip: {fileID: 8300000, guid: c0a5af2253130624291fc30675d14bdc, type: 3}
   - word: brown
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: ded4879cc86bdad44b2ea21f44d1b125, type: 3}
+    audioClip: {fileID: 8300000, guid: c3344a47cfc85b34e8970a1cf6781009, type: 3}
   - word: bus
     illustration: {fileID: 21300000, guid: 76831188b69ca8a488f49abcf1507c2e, type: 3}
     audioClip: {fileID: 8300000, guid: 14863998616ee3b4a80374fa289519cc, type: 3}
@@ -8540,11 +8540,11 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 2e2a5b6a6229d3846a6160fd66268dc3, type: 3}
     audioClip: {fileID: 8300000, guid: bb89230ef812ec0439f1af1631f817bf, type: 3}
   - word: cloud
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 6b99ad437de319040b300e18728afc5b, type: 3}
+    audioClip: {fileID: 8300000, guid: 7b1db5d48e5d4f64a83bcd28bc425f6d, type: 3}
   - word: cold
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 8f7938dc1529997438f5cbfc0df8c915, type: 3}
+    audioClip: {fileID: 8300000, guid: 162700f2fa912a246882ffe9ae22c84a, type: 3}
   - word: corn
     illustration: {fileID: 21300000, guid: 2226abed72b965f4aa4daceb88802db4, type: 3}
     audioClip: {fileID: 8300000, guid: 056ab86e041528d4ab75729f781c84cc, type: 3}
@@ -8568,13 +8568,13 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 3aeb0f7455835c34399f61cfb3965202, type: 3}
   - word: ear
     illustration: {fileID: 21300000, guid: 2380dbd0124844b4ba40dc58474b35c6, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: a5b971acf87841348b966d62658df7b6, type: 3}
   - word: egg
     illustration: {fileID: 21300000, guid: 7f3c04967246b684399726330d424725, type: 3}
     audioClip: {fileID: 8300000, guid: dc95d7e44756477429d4e2d91e71ba58, type: 3}
   - word: eye
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 15c2cd50a0d6dc548a039d87e1232a77, type: 3}
+    audioClip: {fileID: 8300000, guid: 00e4f127a42f99b4bbd544570a79b026, type: 3}
   - word: fast
     illustration: {fileID: 0}
     audioClip: {fileID: 8300000, guid: 20644c9a327bced4fbaadaed40f360f2, type: 3}
@@ -8594,7 +8594,7 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 557c352248b714b4ca5f4d9131a81289, type: 3}
     audioClip: {fileID: 8300000, guid: 29756e0ac3eff1648a6c5f5dbbe81501, type: 3}
   - word: green
-    illustration: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 28b4df59fd54b27479f0bd4fa3ef9ecf, type: 3}
     audioClip: {fileID: 8300000, guid: c1a76aaa892e3ac4e8bc20ff27f5ad71, type: 3}
   - word: hand
     illustration: {fileID: 21300000, guid: 7534cac2508ad584d8c1d89dd7e83fa0, type: 3}
@@ -8619,7 +8619,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 17e7890512aceb240be1a635302f9ba8, type: 3}
   - word: hot
     illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 4bd9ba0b619a6d148997fd7e2be5ac85, type: 3}
   - word: jam
     illustration: {fileID: 21300000, guid: 7568effe91afafa428893662eb7831ae, type: 3}
     audioClip: {fileID: 8300000, guid: 631d4fb2f6f07e2408d3f94eb12dc518, type: 3}
@@ -8666,8 +8666,8 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 806b097e321714b41937c7e063b2df1c, type: 3}
     audioClip: {fileID: 8300000, guid: 631ca467cc30d5546826dd44ebb2c658, type: 3}
   - word: orange
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 9758777235d5c0d46be7ff775a1a1056, type: 3}
+    audioClip: {fileID: 8300000, guid: 27ca0d6707c700d44a37171a88d2e4f7, type: 3}
   - word: pear
     illustration: {fileID: 21300000, guid: 96722f816f6dd744a97121318f413a67, type: 3}
     audioClip: {fileID: 8300000, guid: 4959092159ce1a440947cb09a0628f1b, type: 3}
@@ -8682,7 +8682,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2c307bc9d5f1c014cad0913663d36b94, type: 3}
   - word: read
     illustration: {fileID: 21300000, guid: 7793062db4bb0254ca7daf25a69874db, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 5ed75dc625a5e86418e26cd0105a6e68, type: 3}
   - word: red
     illustration: {fileID: 21300000, guid: 6dd38ea33aec6114ab14c5290ee2a2de, type: 3}
     audioClip: {fileID: 8300000, guid: 061c1178754405541953fbef1b335753, type: 3}
@@ -8690,8 +8690,8 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 9668f05f30edbcc4bb2a099feab4d680, type: 3}
     audioClip: {fileID: 8300000, guid: 7b2de45b56fb1434b90a7815c2c305da, type: 3}
   - word: rock
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 55ab13d4b945802479406663142f2fd1, type: 3}
+    audioClip: {fileID: 8300000, guid: 4ce73387d8d9ab0479b94c00a32dd324, type: 3}
   - word: run
     illustration: {fileID: 21300000, guid: dee758138d83e3d4f8e970ba1bd109a9, type: 3}
     audioClip: {fileID: 8300000, guid: 36953136c4e8dc046a478c6247a1ec27, type: 3}
@@ -8703,19 +8703,19 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 43edd46ed1fdb7249ad4ea60abf2a0ce, type: 3}
   - word: sit
     illustration: {fileID: 21300000, guid: 60158d8b0b6699448b9b8b67adeaec5d, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 64a205927f798a749a6f1d6bb8ef90c7, type: 3}
   - word: slow
     illustration: {fileID: 21300000, guid: 46dd92004e2b24448ba0da3806e3be8c, type: 3}
     audioClip: {fileID: 8300000, guid: 1c0fe47cd00e90240b492a8b567f112e, type: 3}
   - word: small
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: e85d435d37410254b869841216e5bbfc, type: 3}
+    audioClip: {fileID: 8300000, guid: b871bd0f3ab42a9408b1bc2579141878, type: 3}
   - word: snow
     illustration: {fileID: 21300000, guid: ba4245e0ab6c6b442b4e5482b4acfdb7, type: 3}
     audioClip: {fileID: 8300000, guid: 991be6bc2ba558949ba47102d1752fad, type: 3}
   - word: soup
     illustration: {fileID: 21300000, guid: 8a03b4f1798e3f943a234e344dbe94bd, type: 3}
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 9485fa2d3dc932842ae6ac8616f9b290, type: 3}
   - word: stand
     illustration: {fileID: 0}
     audioClip: {fileID: 8300000, guid: d35839c0485a79c43bd89c3720df19b2, type: 3}
@@ -8741,8 +8741,8 @@ MonoBehaviour:
     illustration: {fileID: 0}
     audioClip: {fileID: 8300000, guid: 8a76f24aa24197d4998ae2a756a8a377, type: 3}
   - word: water
-    illustration: {fileID: 0}
-    audioClip: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 1c36bdf627627bd4e83ea3de4b97da34, type: 3}
+    audioClip: {fileID: 8300000, guid: cfbb24f040b480f42aeb71a60fc2c507, type: 3}
   - word: white
     illustration: {fileID: 21300000, guid: bc25a414690fbf8429f52459ac7fbae9, type: 3}
     audioClip: {fileID: 8300000, guid: 8de37fe853c1dc943966e4b6e8edc4a1, type: 3}
@@ -8753,7 +8753,7 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 3d3b14258c2eac5478532eefae1373a7, type: 3}
     audioClip: {fileID: 8300000, guid: c28bfe1b966ec4048bfba09157a340ad, type: 3}
   - word: yellow
-    illustration: {fileID: 0}
+    illustration: {fileID: 21300000, guid: 2268bcbc3557ec142b8c7916d8712455, type: 3}
     audioClip: {fileID: 8300000, guid: 08fa4162cf9bedb48b88b2799f1b2af9, type: 3}
   - word: you
     illustration: {fileID: 21300000, guid: 93209fdab8771f647a9c762c77141453, type: 3}
