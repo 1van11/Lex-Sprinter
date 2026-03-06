@@ -423,7 +423,7 @@ public class QuestionRandomizer : MonoBehaviour
     };
     #endregion
 
-    #region Question logic
+#region Question logic
     // ─────────────────────────────────────────────────────────────────────────────
     // CORE LOGIC
     // ─────────────────────────────────────────────────────────────────────────────
@@ -484,7 +484,6 @@ public class QuestionRandomizer : MonoBehaviour
         {
             imageCanvasGroup = clueImageObject.GetComponent<CanvasGroup>() ?? clueImageObject.AddComponent<CanvasGroup>();
             imageRect = clueImageObject.GetComponent<RectTransform>();
-            if (imageRect != null) originalImagePos = imageRect.anchoredPosition;
         }
 
         // Prepare clue text animation
@@ -492,8 +491,10 @@ public class QuestionRandomizer : MonoBehaviour
         {
             textCanvasGroup = clueTextObject.GetComponent<CanvasGroup>() ?? clueTextObject.AddComponent<CanvasGroup>();
             textRect = clueTextObject.GetComponent<RectTransform>();
-            if (textRect != null) originalTextPos = textRect.anchoredPosition;
         }
+
+        // Delay position capture by one frame so Unity layout is ready
+        StartCoroutine(CaptureOriginalPositions());
 
         // Auto-find references
         if (playerFunctions == null)  playerFunctions  = FindObjectOfType<PlayerFunctions>();
@@ -506,21 +507,27 @@ public class QuestionRandomizer : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
+    // FIX: Capture original rect positions after layout is resolved
+    // ─────────────────────────────────────────────────────────────────────────────
+    private IEnumerator CaptureOriginalPositions()
+    {
+        yield return null; // wait one frame for UI layout to settle
+        if (imageRect != null) originalImagePos = imageRect.anchoredPosition;
+        if (textRect  != null) originalTextPos  = textRect.anchoredPosition;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
     // UPDATE  –  detect new raw letters written by the letter-collector scripts
-    //            (they still write plain letters to collectedText.text; we extract
-    //             them from our formatted display by stripping spaces and underscores)
     // ─────────────────────────────────────────────────────────────────────────────
     void Update()
     {
         if (collectedText == null) return;
 
-        // Extract only alphabetic/numeric characters – ignore our " _ " formatting
         string rawNow = ExtractRawLetters(collectedText.text);
 
         if (rawNow != previousRawCollected)
         {
             CheckSpellingFast(rawNow);
-            // previousRawCollected is updated inside CheckSpellingFast
         }
     }
 
@@ -528,12 +535,6 @@ public class QuestionRandomizer : MonoBehaviour
     // LETTER HURDLE DISPLAY HELPERS
     // ─────────────────────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Strips spaces and underscores from a (possibly formatted) string,
-    /// returning only the raw letter characters in lower-case.
-    /// e.g.  "d o _"  →  "do"
-    /// e.g.  "dog"    →  "dog"
-    /// </summary>
     private string ExtractRawLetters(string text)
     {
         if (string.IsNullOrEmpty(text)) return "";
@@ -546,10 +547,6 @@ public class QuestionRandomizer : MonoBehaviour
         return sb.ToString();
     }
 
-    /// <summary>
-    /// Renders the "d _ _" style progress string into collectedText.
-    /// e.g. rawCollected="do", target="dog"  →  "d o _"
-    /// </summary>
     private void UpdateCollectedDisplay(string rawCollected)
     {
         if (collectedText == null || string.IsNullOrEmpty(currentTargetWord)) return;
@@ -559,12 +556,12 @@ public class QuestionRandomizer : MonoBehaviour
 
         for (int i = 0; i < target.Length; i++)
         {
-            if (i > 0) sb.Append(' ');           // space between each slot
+            if (i > 0) sb.Append(' ');
 
             if (i < rawCollected.Length)
-                sb.Append(rawCollected[i]);       // filled letter
+                sb.Append(rawCollected[i]);
             else
-                sb.Append('_');                   // empty slot
+                sb.Append('_');
         }
 
         collectedText.text = sb.ToString();
@@ -626,9 +623,8 @@ public class QuestionRandomizer : MonoBehaviour
 
         SpawnLetters(currentTargetWord);
 
-        // Reset raw tracker and show all-blank progress display
         previousRawCollected = "";
-        UpdateCollectedDisplay("");         // shows "_ _ _" etc.
+        UpdateCollectedDisplay("");
 
         if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
 
@@ -677,7 +673,7 @@ public class QuestionRandomizer : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
-    // SPELL CHECK  –  called with the raw letters extracted from the display
+    // SPELL CHECK
     // ─────────────────────────────────────────────────────────────────────────────
     void CheckSpellingFast(string collected)
     {
@@ -690,10 +686,8 @@ public class QuestionRandomizer : MonoBehaviour
 
         string target = currentTargetWord.ToLower();
 
-        // ── Correct! ─────────────────────────────────────────────────────────────
         if (collected == target)
         {
-            // Show fully-filled display momentarily before resetting
             UpdateCollectedDisplay(collected);
             previousRawCollected = collected;
 
@@ -730,7 +724,6 @@ public class QuestionRandomizer : MonoBehaviour
             return;
         }
 
-        // ── Wrong letter somewhere ────────────────────────────────────────────────
         int minLen = Mathf.Min(collected.Length, target.Length);
         for (int i = 0; i < minLen; i++)
         {
@@ -748,10 +741,9 @@ public class QuestionRandomizer : MonoBehaviour
                 if (playerFunctions != null)
                     playerFunctions.TakeDamageFromWrongLetter();
 
-                // Trim back to the last correct letter and refresh display
                 string trimmed = collected.Substring(0, i);
                 previousRawCollected = trimmed;
-                UpdateCollectedDisplay(trimmed);       // e.g. "d _ _" after removing bad letter
+                UpdateCollectedDisplay(trimmed);
 
                 if (letterHurdleFeedbackText != null)
                     Invoke("ClearLetterHurdleFeedback", 1f);
@@ -760,7 +752,6 @@ public class QuestionRandomizer : MonoBehaviour
             }
         }
 
-        // ── Partial correct so far – update the display ───────────────────────────
         previousRawCollected = collected;
         UpdateCollectedDisplay(collected);
 
@@ -778,13 +769,10 @@ public class QuestionRandomizer : MonoBehaviour
             letterHurdleScoreText.text = "Score: " + playerFunctions.score;
     }
 
-    /// <summary>
-    /// Clears collected letters and resets the progress display to all underscores.
-    /// </summary>
     public void ClearCollectedLetters()
     {
         previousRawCollected = "";
-        UpdateCollectedDisplay("");             // "_ _ _" etc.
+        UpdateCollectedDisplay("");
 
         if (letterHurdleFeedbackText != null)
             letterHurdleFeedbackText.text = "";
@@ -860,8 +848,8 @@ public class QuestionRandomizer : MonoBehaviour
         string wrong1  = activeSpellingPairs[index, 2];
         string wrong2  = activeSpellingPairs[index, 3];
 
-        clueText.text     = clue;
-        correctAnswer     = correct;
+        clueText.text        = clue;
+        correctAnswer        = correct;
         currentQuestionIndex = index;
         isSentenceQuestion   = false;
         audioPlayed          = false;
@@ -886,8 +874,8 @@ public class QuestionRandomizer : MonoBehaviour
         string wrong1   = activeSentencePairs[index, 2];
         string wrong2   = activeSentencePairs[index, 3];
 
-        clueText.text     = sentence;
-        correctAnswer     = correct;
+        clueText.text        = sentence;
+        correctAnswer        = correct;
         currentQuestionIndex = index;
         isSentenceQuestion   = true;
         audioPlayed          = false;
@@ -911,9 +899,9 @@ public class QuestionRandomizer : MonoBehaviour
 
         if (Random.value > 0.5f) { string t = wrongs[0]; wrongs[0] = wrongs[1]; wrongs[1] = t; }
 
-        options[correctPosition].text       = correct;
-        options[wrongIndices[0]].text       = wrongs[0];
-        options[wrongIndices[1]].text       = wrongs[1];
+        options[correctPosition].text  = correct;
+        options[wrongIndices[0]].text  = wrongs[0];
+        options[wrongIndices[1]].text  = wrongs[1];
     }
 
     public void SetRandomQuestion()
@@ -978,8 +966,11 @@ public class QuestionRandomizer : MonoBehaviour
         {
             if (clueTextObject != null)
             {
-                if (animateClueText) AnimateClueTextIn();
-                else                 clueTextObject.SetActive(true);
+                // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
+                if (animateClueText && textRect != null && textCanvasGroup != null)
+                    AnimateClueTextIn();
+                else
+                    clueTextObject.SetActive(true);
             }
             if (clueImageObject != null) clueImageObject.SetActive(false);
         }
@@ -990,8 +981,11 @@ public class QuestionRandomizer : MonoBehaviour
                 if (cluePic != null && currentQuestionIndex >= 0 && currentQuestionIndex < currentClueImages.Length)
                     cluePic.sprite = currentClueImages[currentQuestionIndex];
 
-                if (animateClueImage && clueImageObject != null) AnimateClueImageIn();
-                else if (clueImageObject != null)                clueImageObject.SetActive(true);
+                // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
+                if (animateClueImage && clueImageObject != null && imageRect != null && imageCanvasGroup != null)
+                    AnimateClueImageIn();
+                else if (clueImageObject != null)
+                    clueImageObject.SetActive(true);
 
                 if (clueTextObject != null) clueTextObject.SetActive(false);
             }
@@ -999,8 +993,11 @@ public class QuestionRandomizer : MonoBehaviour
             {
                 if (clueTextObject != null)
                 {
-                    if (animateClueText) AnimateClueTextIn();
-                    else                 clueTextObject.SetActive(true);
+                    // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
+                    if (animateClueText && textRect != null && textCanvasGroup != null)
+                        AnimateClueTextIn();
+                    else
+                        clueTextObject.SetActive(true);
                 }
                 if (clueImageObject != null) clueImageObject.SetActive(false);
             }
@@ -1035,10 +1032,10 @@ public class QuestionRandomizer : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < imageAnimationDuration)
         {
-            float t = elapsed / imageAnimationDuration;
+            float t  = elapsed / imageAnimationDuration;
             float cv = imageAnimationCurve.Evaluate(t);
-            imageCanvasGroup.alpha        = cv;
-            imageRect.anchoredPosition    = Vector2.Lerp(startPos, originalImagePos, cv);
+            imageCanvasGroup.alpha     = cv;
+            imageRect.anchoredPosition = Vector2.Lerp(startPos, originalImagePos, cv);
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -1072,10 +1069,10 @@ public class QuestionRandomizer : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < textAnimationDuration)
         {
-            float t = elapsed / textAnimationDuration;
+            float t  = elapsed / textAnimationDuration;
             float cv = textAnimationCurve.Evaluate(t);
-            textCanvasGroup.alpha      = cv;
-            textRect.anchoredPosition  = Vector2.Lerp(startPos, originalTextPos, cv);
+            textCanvasGroup.alpha     = cv;
+            textRect.anchoredPosition = Vector2.Lerp(startPos, originalTextPos, cv);
             elapsed += Time.deltaTime;
             yield return null;
         }
