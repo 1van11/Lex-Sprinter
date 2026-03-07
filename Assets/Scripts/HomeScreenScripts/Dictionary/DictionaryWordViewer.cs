@@ -10,26 +10,21 @@ using System.Collections.Generic;
 /// Attach this to the DICTIONARY PANEL root object.
 ///
 /// Features:
-///   • Click any word button (locked, unlocked, or clicked sprite) → shows the
-///     Dictionary Panel at the bottom with that word's image + definition.
+///   • Click any word button → shows the Dictionary Panel with image + definition.
 ///   • BtnPlay_Pause toggles Play/Pause sprite and plays/stops the word audio.
 ///   • Sprite for the word illustration changes per word.
 ///   • BACK BTN hides the panel.
 ///   • Definition text uses a typewriter effect when the panel opens.
+///   • Supports Easy Words (100), Medium Words (50), and Hard Words (50).
 ///
-/// FIX (device compatibility):
-///   • Typewriter coroutine now waits one frame after the panel is activated
-///     before starting — prevents silent coroutine failure on real Android devices.
-///   • Illustrations and AudioClips are keyed by word string via WordEntry[],
-///     so there is no index mismatch with WordUnlockManager.
-/// ─────────────────────────────────────────────────────────────────────────────
 /// HOW TO SET UP IN INSPECTOR
 /// ─────────────────────────────────────────────────────────────────────────────
 ///   1. Add this script to the DICTIONARY PANEL.
 ///   2. Assign all [Header] fields.
-///   3. Word Entries[] — set the size to however many words you have.
-///      For each element, type the word (e.g. "arm") and drag its sprite + clip.
-///      Order does NOT matter.
+///   3. Easy Words[]   — 100 easy words  (word + illustration + audio).
+///   4. Medium Words[] — 50 medium words (word + illustration + audio).
+///   5. Hard Words[]   — 50 hard words   (word + illustration + audio).
+///      Order does NOT matter for any list.
 /// </summary>
 public class DictionaryWordViewer : MonoBehaviour
 {
@@ -61,10 +56,7 @@ public class DictionaryWordViewer : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
 
-    // ─── Word Entries ─────────────────────────────────────────────────────────
-    [Header("Word Entries (word + illustration + audio — order doesn't matter)")]
-    public WordEntry[] wordEntries;
-
+    // ─── Word Entry class ─────────────────────────────────────────────────────
     [System.Serializable]
     public class WordEntry
     {
@@ -72,6 +64,18 @@ public class DictionaryWordViewer : MonoBehaviour
         public Sprite illustration;
         public AudioClip audioClip;
     }
+
+    // ─── Easy Words (100 words) ───────────────────────────────────────────────
+    [Header("Easy Words (100 words — word + illustration + audio)")]
+    public WordEntry[] easyWords;
+
+    // ─── Medium Words (50 words) ──────────────────────────────────────────────
+    [Header("Medium Words (50 words — word + illustration + audio)")]
+    public WordEntry[] mediumWords;
+
+    // ─── Hard Words (50 words) ────────────────────────────────────────────────
+    [Header("Hard Words (50 words — word + illustration + audio)")]
+    public WordEntry[] hardWords;
 
     // ─── Panel Slide Animation ────────────────────────────────────────────────
     [Header("Panel Slide Animation")]
@@ -91,18 +95,19 @@ public class DictionaryWordViewer : MonoBehaviour
     private Coroutine typewriterCoroutine;
     private bool isPlaying = false;
     private string currentWord = "";
-    private string pendingDefinition = "";   // stored until panel is active
+    private string pendingDefinition = "";
 
-    // Runtime lookups built from wordEntries[]
+    // Combined runtime lookup: word → sprite / audio (all difficulties merged)
     private Dictionary<string, Sprite> illustrationMap = new Dictionary<string, Sprite>(System.StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, AudioClip> audioMap = new Dictionary<string, AudioClip>(System.StringComparer.OrdinalIgnoreCase);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // DEFINITIONS
+    // DEFINITIONS  (Easy 100 + Medium 50 + Hard 50 = 200 words)
     // ─────────────────────────────────────────────────────────────────────────
     private static readonly Dictionary<string, string> definitions =
         new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
     {
+        // ══ EASY (100) ════════════════════════════════════════════════════════
         { "arm",     "A human upper limb, especially the part between the shoulder and the wrist." },
         { "aunt",    "The sister of one's father or mother (or the wife of one's uncle)." },
         { "baby",    "An extremely young child or infant." },
@@ -129,6 +134,7 @@ public class DictionaryWordViewer : MonoBehaviour
         { "cold",    "A low or relatively low temperature." },
         { "corn",    "A cereal plant with yellow seeds that people and animals eat." },
         { "cow",     "The adult female of cattle that is kept on a farm to produce milk or meat." },
+        { "cup",     "An open usually bowl-shaped drinking vessel." },
         { "dad",     "A male parent." },
         { "desk",    "A type of table, often with drawers and a flat surface, used for writing or working." },
         { "dog",     "A carnivorous mammal (Canis familiaris) domesticated as a pet and sometimes trained for work." },
@@ -138,12 +144,15 @@ public class DictionaryWordViewer : MonoBehaviour
         { "egg",     "The round or oval reproductive body produced by female birds and other animals, often eaten as food." },
         { "eye",     "One of the two organs in your face that are used for seeing." },
         { "fast",    "Moving or capable of moving at high speed." },
+        { "fish",    "An aquatic animal, usually a cold-blooded vertebrate that lives in water and has fins and gills." },
         { "foot",    "The part of the body at the bottom of the leg on which a person stands." },
         { "friend",  "Someone you know well and like and usually trust." },
         { "girl",    "A female person who has not yet reached adulthood." },
         { "goat",    "An animal related to sheep, usually with horns, kept on farms for its milk, meat, or wool." },
         { "good",    "A favorable character or quality." },
+        { "gray",    "A neutral color between black and white." },
         { "green",   "Having the colour of grass or the leaves of most plants and trees." },
+        { "hair",    "The mass of thin thread-like structures on the head of a person." },
         { "hand",    "The part of the body at the end of the arm that is used for holding, moving, touching, and feeling things." },
         { "happy",   "Enjoying or showing well-being, contentment, or pleasure." },
         { "hat",     "A covering for the head usually having a shaped crown and brim." },
@@ -169,6 +178,7 @@ public class DictionaryWordViewer : MonoBehaviour
         { "nose",    "The part of the face that contains the nostrils and organs of smell." },
         { "orange",  "A color between red and yellow (like the fruit)." },
         { "pear",    "The sweet, edible fruit of a tree with a rounded bottom and a narrower top." },
+        { "pen",     "An instrument for writing with ink." },
         { "pig",     "A large pink, brown, or black farm animal with short legs and a curved tail, kept for its meat." },
         { "pink",    "A pale red color." },
         { "rain",    "Water that falls in drops from clouds in the sky." },
@@ -188,6 +198,7 @@ public class DictionaryWordViewer : MonoBehaviour
         { "star",    "A very large ball of burning gas in space that shines with its own light." },
         { "sun",     "The star at the center of our solar system that gives light and warmth to the Earth." },
         { "swim",    "To move through water by moving your arms and legs." },
+        { "tooth",   "One of the hard, bony structures in the mouth used especially for biting and chewing." },
         { "toy",     "Something for a child to play with." },
         { "tree",    "A woody plant that lives for many years, usually with a single tall main stem and branches." },
         { "uncle",   "The brother of one's father or mother (or the husband of one's auntie)." },
@@ -198,6 +209,110 @@ public class DictionaryWordViewer : MonoBehaviour
         { "write",   "To make marks that represent letters or words on a surface (like paper) to record information or ideas." },
         { "yellow",  "A color like that of ripe lemons or sunflowers." },
         { "you",     "Used to refer to the person or people being spoken or written to." },
+
+        // ══ MEDIUM (50) ═══════════════════════════════════════════════════════
+        { "alligator",   "A large reptile with powerful jaws, found in wetlands of the Americas and China." },
+        { "anchor",      "A heavy object dropped from a ship to keep it in place." },
+        { "armor",       "Metal protective clothing worn in battle." },
+        { "banana",      "A long curved yellow fruit." },
+        { "basket",      "A container for carrying things, often woven from straw or wire." },
+        { "blanket",     "A warm covering for a bed." },
+        { "blizzard",    "A severe snow storm with strong winds." },
+        { "bottle",      "A container for liquids, usually made of glass or plastic." },
+        { "bridge",      "A structure built to cross water or another obstacle." },
+        { "cactus",      "A desert plant with spines instead of leaves." },
+        { "castle",      "A large fortified building, typically from the Middle Ages." },
+        { "cheese",      "A dairy food made from milk, available in many varieties." },
+        { "chocolate",   "Sweet brown food made from cocoa beans." },
+        { "compass",     "A tool that shows north, south, east, and west." },
+        { "cookie",      "A small sweet baked treat." },
+        { "crown",       "A royal head decoration, often made of gold and jewels." },
+        { "desert",      "A dry barren area with little rain." },
+        { "eagle",       "A large bird of prey with a hooked beak and sharp talons." },
+        { "forest",      "A large area covered with trees." },
+        { "garden",      "An area for growing plants, flowers, or vegetables." },
+        { "giraffe",     "A tall African animal with a very long neck." },
+        { "glacier",     "A huge slow-moving river of ice." },
+        { "helmet",      "Protective headgear worn for safety." },
+        { "hurricane",   "A powerful tropical cyclone with very strong winds." },
+        { "instrument",  "A tool used to create music." },
+        { "jewelry",     "Decorative items worn on the body, such as rings or necklaces." },
+        { "ladder",      "A set of steps or rungs used for climbing up or down." },
+        { "lantern",     "A portable light source with a protective case." },
+        { "lighthouse",  "A tower with a bright light to guide ships safely." },
+        { "magnet",      "A metal object that attracts iron and other magnetic materials." },
+        { "market",      "A public place where goods are sold." },
+        { "melon",       "A large sweet juicy fruit with a hard rind." },
+        { "microscope",  "A tool used to see very small things magnified." },
+        { "monkey",      "A tree-climbing primate with a long tail." },
+        { "octopus",     "A sea creature with eight arms and a soft body." },
+        { "panther",     "A large black big cat, often a melanistic leopard or jaguar." },
+        { "penguin",     "A flightless bird from cold regions that swims expertly." },
+        { "pillow",      "A soft support for the head during sleep." },
+        { "rabbit",      "A small burrowing mammal with long ears." },
+        { "school",      "A place for learning and education." },
+        { "scissors",    "A cutting tool with two sharp blades joined together." },
+        { "spaghetti",   "A long Italian noodle dish served with sauce." },
+        { "statue",      "A carved or cast figure of a person or animal." },
+        { "street",      "A public road in a town or city." },
+        { "telescope",   "An optical tool used to see distant objects more clearly." },
+        { "tiger",       "A large striped big cat native to Asia." },
+        { "tomato",      "A red juicy fruit often used in sauces and salads." },
+        { "volcano",     "A mountain that erupts with lava and ash." },
+        { "windmill",    "A building with large blades that turn in the wind to generate power or grind grain." },
+        { "zebra",       "An African striped animal related to the horse." },
+
+        // ══ HARD (50) ═════════════════════════════════════════════════════════
+        { "aardvark",      "A nocturnal African mammal with a long snout that feeds on ants and termites." },
+        { "amphitheater",  "An open-air venue with a central stage surrounded by rising tiers of seats for spectators." },
+        { "armadillo",     "A small mammal with leathery armor-like plates covering its body that can roll into a ball for protection." },
+        { "astrolabe",     "An ancient astronomical instrument used by mariners to tell time and determine latitude by measuring the altitude of stars." },
+        { "axolotl",       "A rare aquatic salamander native to Mexico that keeps its larval form throughout its adult life and can regenerate lost limbs." },
+        { "ballista",      "An ancient missile weapon shaped like a giant crossbow that launches heavy bolts or stones with great power." },
+        { "battlement",    "A defensive parapet at the top of a castle wall with alternating high sections and gaps for soldiers to shoot through." },
+        { "carousel",      "A rotating circular platform with seats, often shaped like horses, that people ride for amusement." },
+        { "catapult",      "A medieval device used to hurl heavy stones or projectiles over long distances during battles." },
+        { "centaur",       "A mythical creature from Greek folklore with the upper body of a human and the lower body of a horse." },
+        { "chameleon",     "A lizard famous for its ability to change color and move its eyes independently." },
+        { "chandelier",    "A decorative hanging light fixture with multiple arms and ornate crystals." },
+        { "chrysalis",     "The hard-shelled protective stage of a caterpillar's life cycle during which it transforms into a butterfly." },
+        { "cockatoo",      "A colorful parrot with a prominent feathered crest on its head and a highly social personality." },
+        { "colosseum",     "A massive oval amphitheater in ancient Rome famous for hosting gladiator battles and public spectacles." },
+        { "drawbridge",    "A movable bridge over a castle's moat that can be raised to prevent entry or lowered to allow crossing." },
+        { "gargoyle",      "A carved stone figure shaped like a grotesque creature, designed to act as a decorative rain spout on buildings." },
+        { "gladiator",     "A professional fighter in ancient Rome who battled other warriors or wild animals in public arenas." },
+        { "guillotine",    "A device designed for executions by a heavy falling blade that quickly severs the head." },
+        { "harpoon",       "A long spear-like weapon with a barbed head, traditionally used for hunting whales or large fish." },
+        { "hieroglyph",    "A stylized picture or symbol used as a character in ancient Egyptian writing." },
+        { "kaleidoscope",  "An optical toy with mirrors and colorful pieces that creates beautiful symmetrical patterns when rotated." },
+        { "labyrinth",     "A complex network of intricate paths and passages designed as a confusing maze." },
+        { "marquee",       "A large tent or a brightly lit sign over a building entrance used to display its name or current features." },
+        { "menagerie",     "A collection of diverse or exotic wild animals kept in captivity for exhibition." },
+        { "minotaur",      "A powerful mythical creature from Greek mythology with the head of a bull and the body of a man." },
+        { "monolith",      "A large single upright block of stone, often shaped into a pillar or monument by ancient people." },
+        { "narwhal",       "A medium-sized whale found in Arctic waters with a long spiral tusk, often called the unicorn of the sea." },
+        { "obelisk",       "A tall four-sided stone pillar that tapers to a pyramid-like point at the top." },
+        { "obsidian",      "A naturally occurring volcanic glass formed when lava cools rapidly." },
+        { "oubliette",     "A secret dungeon in a castle where prisoners were thrown and forgotten, accessible only through a ceiling opening." },
+        { "parthenon",     "An ancient Greek temple on the Acropolis in Athens dedicated to the goddess Athena." },
+        { "periscope",     "An optical instrument using mirrors or prisms to allow viewing of objects outside the direct line of sight." },
+        { "pharaoh",       "A powerful ruler of ancient Egypt who was viewed as both a political leader and a living god." },
+        { "platypus",      "A unique egg-laying mammal from Australia with a duck-like bill, beaver-like tail, and otter-like feet." },
+        { "portcullis",    "A heavy vertically-sliding gate of wood or iron used to seal the entrance of a medieval castle during attack." },
+        { "pyramid",       "A massive stone structure with a square base and four triangular sides meeting at a point, built as royal tombs in ancient Egypt." },
+        { "quokka",        "A small furry marsupial from Australia famous for its round face and friendly smiling expression." },
+        { "samurai",       "A highly skilled warrior of pre-modern Japan who followed a strict code of honor known as Bushido." },
+        { "sarcophagus",   "An ornate stone coffin decorated with carvings, used for burying royalty in ancient civilizations." },
+        { "scorpion",      "A predatory arachnid with eight legs, grasping pincers, and a venomous stinger at the end of its curved tail." },
+        { "sextant",       "A precision navigational instrument used to measure the angle between a celestial object and the horizon." },
+        { "sphinx",        "A mythical creature with the body of a lion and the head of a human, famous in both Egyptian and Greek traditions." },
+        { "spyglass",      "A small portable telescope used to see distant objects more clearly." },
+        { "tarantula",     "A large hairy spider found in warm regions, known for its impressive size and generally docile nature." },
+        { "trebuchet",     "A powerful medieval siege engine that uses a heavy counterweight to hurl large projectiles over great distances." },
+        { "trident",       "A three-pronged spear traditionally used for fishing and as the weapon of the sea god Poseidon." },
+        { "viking",        "A seafaring warrior and explorer from Scandinavia who traveled across Europe between the 8th and 11th centuries." },
+        { "xylophone",     "A percussion instrument made of wooden bars that produce musical notes when struck with mallets." },
+        { "ziggurat",      "A massive terraced step pyramid built in ancient Mesopotamia as a towering temple platform to honor the gods." },
     };
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -206,17 +321,10 @@ public class DictionaryWordViewer : MonoBehaviour
 
     void Awake()
     {
-        // Build word → sprite/audio lookup from wordEntries[]
-        if (wordEntries != null)
-        {
-            foreach (var entry in wordEntries)
-            {
-                if (string.IsNullOrEmpty(entry.word)) continue;
-                string key = entry.word.ToLower().Trim();
-                if (entry.illustration != null) illustrationMap[key] = entry.illustration;
-                if (entry.audioClip != null) audioMap[key] = entry.audioClip;
-            }
-        }
+        // Build combined word → sprite/audio lookup from all three entry arrays
+        RegisterWordEntries(easyWords);
+        RegisterWordEntries(mediumWords);
+        RegisterWordEntries(hardWords);
 
         if (dictionaryPanel != null)
             panelRect = dictionaryPanel.GetComponent<RectTransform>();
@@ -227,6 +335,21 @@ public class DictionaryWordViewer : MonoBehaviour
                 panelRect.anchoredPosition = hiddenAnchoredPos;
             else
                 dictionaryPanel.SetActive(false);
+        }
+    }
+
+    /// <summary>Registers all entries from a WordEntry array into the runtime lookup maps.</summary>
+    private void RegisterWordEntries(WordEntry[] entries)
+    {
+        if (entries == null) return;
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrEmpty(entry.word)) continue;
+            string key = entry.word.ToLower().Trim();
+            if (entry.illustration != null && !illustrationMap.ContainsKey(key))
+                illustrationMap[key] = entry.illustration;
+            if (entry.audioClip != null && !audioMap.ContainsKey(key))
+                audioMap[key] = entry.audioClip;
         }
     }
 
@@ -251,16 +374,15 @@ public class DictionaryWordViewer : MonoBehaviour
             wordTitleText.text = word.ToUpper();
 
         // ── Store definition — typewriter starts AFTER panel is active ──
-        if (definitions.TryGetValue(word, out string def))
-            pendingDefinition = def;
-        else
-            pendingDefinition = "No definition available.";
+        pendingDefinition = definitions.TryGetValue(word, out string def)
+            ? def
+            : "No definition available.";
 
         // Clear text immediately so old text doesn't flash
         if (definitionText != null)
             definitionText.text = "";
 
-        // ── Illustration (by word key, NOT index) ──
+        // ── Illustration (by word key) ──
         if (wordIllustrationImage != null)
         {
             if (illustrationMap.TryGetValue(word, out Sprite sprite))
@@ -290,7 +412,6 @@ public class DictionaryWordViewer : MonoBehaviour
     {
         if (dictionaryPanel == null) return;
 
-        // Always activate the GameObject first
         dictionaryPanel.SetActive(true);
 
         if (animatePanel && panelRect != null)
@@ -299,7 +420,6 @@ public class DictionaryWordViewer : MonoBehaviour
             slideCoroutine = StartCoroutine(SlidePanel(panelRect.anchoredPosition, shownAnchoredPos));
         }
 
-        // Start typewriter AFTER one frame so the panel is guaranteed active
         if (typewriterCoroutine != null) StopCoroutine(typewriterCoroutine);
         typewriterCoroutine = StartCoroutine(TypewriterAfterFrame());
     }
@@ -349,30 +469,23 @@ public class DictionaryWordViewer : MonoBehaviour
 
     /// <summary>
     /// Waits one frame to ensure the panel GameObject is fully active on device,
-    /// then starts the typewriter. This fixes the silent coroutine failure on
-    /// real Android devices (e.g. Infinix Note 50).
+    /// then starts the typewriter. Fixes silent coroutine failure on real Android devices.
     /// </summary>
     private IEnumerator TypewriterAfterFrame()
     {
-        // Wait one frame — guarantees panel is active and layout is ready
         yield return null;
-
-        // Extra safety: if definition text component is missing, bail out
         if (definitionText == null) yield break;
-
         yield return StartCoroutine(TypewriterEffect(pendingDefinition));
     }
 
     private IEnumerator TypewriterEffect(string fullText)
     {
         definitionText.text = "";
-
         foreach (char c in fullText)
         {
             definitionText.text += c;
             yield return new WaitForSeconds(typewriterSpeed);
         }
-
         typewriterCoroutine = null;
     }
 
@@ -438,6 +551,7 @@ public class DictionaryWordViewer : MonoBehaviour
     // HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
+    /// <summary>Returns all words (Easy + Medium + Hard) sorted alphabetically.</summary>
     public static string[] GetWordList()
     {
         var keys = new List<string>(definitions.Keys);
