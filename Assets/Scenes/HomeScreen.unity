@@ -8472,7 +8472,7 @@ MonoBehaviour:
   playSprite: {fileID: 21300000, guid: e81138c38059ecc40b6b8399711faff3, type: 3}
   pauseSprite: {fileID: 21300000, guid: 7489ac38855211f4b9bf555e4e3472bf, type: 3}
   audioSource: {fileID: 497226981}
-  wordEntries:
+  easyWords:
   - word: arm
     illustration: {fileID: 21300000, guid: 533d22316a7d9914c8b3264d48d0f1b2, type: 3}
     audioClip: {fileID: 8300000, guid: 4198003f95b1f9947a8e2bc6ec4b489f, type: 3}
@@ -8516,7 +8516,7 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 757a201e8e5462545ad904c5d4c552b7, type: 3}
     audioClip: {fileID: 8300000, guid: abc42b8ca4732f743a57ace1e461fb79, type: 3}
   - word: boy
-    illustration: {fileID: 21300000, guid: 0eba1f9406b7c9445ac0184c271402ed, type: 3}
+    illustration: {fileID: 21300000, guid: 472238584298d7d42883ad80e562b697, type: 3}
     audioClip: {fileID: 8300000, guid: 4ae48f84cf099164794ab46552479fd5, type: 3}
   - word: bread
     illustration: {fileID: 21300000, guid: 8059cae1c47c45746b56d42ff5973d22, type: 3}
@@ -8551,8 +8551,11 @@ MonoBehaviour:
   - word: cow
     illustration: {fileID: 21300000, guid: 6d3be6085193f1e499b6fc0da4c2ac88, type: 3}
     audioClip: {fileID: 8300000, guid: c081b1d23df9ea74890a76077b374806, type: 3}
+  - word: cup
+    illustration: {fileID: 21300000, guid: 786f8d49714f2cd4e9713008bb43f6a2, type: 3}
+    audioClip: {fileID: 8300000, guid: 38b89b0d7dd65c74a922817280c85492, type: 3}
   - word: dad
-    illustration: {fileID: 21300000, guid: 707fabbe1868b3742be4407fe65be9e6, type: 3}
+    illustration: {fileID: 21300000, guid: 432f424a50bd4064fa044c1114828bb2, type: 3}
     audioClip: {fileID: 8300000, guid: 3efbb710cc3d2414caa14de3cc57893f, type: 3}
   - word: desk
     illustration: {fileID: 21300000, guid: b51dccb0490a12345b85fb3fbb488c6e, type: 3}
@@ -8578,6 +8581,9 @@ MonoBehaviour:
   - word: fast
     illustration: {fileID: 0}
     audioClip: {fileID: 8300000, guid: 20644c9a327bced4fbaadaed40f360f2, type: 3}
+  - word: fish
+    illustration: {fileID: 21300000, guid: 69a83173d58c9974f974a8bcdcbd45de, type: 3}
+    audioClip: {fileID: 8300000, guid: 175b9ee3e87532f4aab92a3a6bde6414, type: 3}
   - word: foot
     illustration: {fileID: 21300000, guid: a6b6b919876433c43b53a081818afdeb, type: 3}
     audioClip: {fileID: 8300000, guid: 721bfa8351e6d094c95c7a9c2a997b41, type: 3}
@@ -8585,7 +8591,7 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 63eda7949c700af4d96e1e78ffc1b10c, type: 3}
     audioClip: {fileID: 8300000, guid: 9c289a4a987324a4cbe0acc420b9a55e, type: 3}
   - word: girl
-    illustration: {fileID: 21300000, guid: 1e5b9a71b4bafe445bbb6764245ff55a, type: 3}
+    illustration: {fileID: 21300000, guid: e78748d3441c4bf45b9593d3fb362d76, type: 3}
     audioClip: {fileID: 8300000, guid: a38429a44179c1346a44d7b7addfb339, type: 3}
   - word: goat
     illustration: {fileID: 21300000, guid: 52afd392ee3d01c488864cbd350c32d3, type: 3}
@@ -8593,9 +8599,15 @@ MonoBehaviour:
   - word: good
     illustration: {fileID: 21300000, guid: 557c352248b714b4ca5f4d9131a81289, type: 3}
     audioClip: {fileID: 8300000, guid: 29756e0ac3eff1648a6c5f5dbbe81501, type: 3}
+  - word: gray
+    illustration: {fileID: 21300000, guid: d8f24db111c46414bae77add8e1f9332, type: 3}
+    audioClip: {fileID: 8300000, guid: 09b7b4bdeac0b7c4f9a11ba6c0866865, type: 3}
   - word: green
     illustration: {fileID: 21300000, guid: 28b4df59fd54b27479f0bd4fa3ef9ecf, type: 3}
     audioClip: {fileID: 8300000, guid: c1a76aaa892e3ac4e8bc20ff27f5ad71, type: 3}
+  - word: hair
+    illustration: {fileID: 21300000, guid: 4d15f9e8d4891004c8ad847e37cafba7, type: 3}
+    audioClip: {fileID: 8300000, guid: f1fae3180ade7e24ab7d6bc4e3c601fe, type: 3}
   - word: hand
     illustration: {fileID: 21300000, guid: 7534cac2508ad584d8c1d89dd7e83fa0, type: 3}
     audioClip: {fileID: 8300000, guid: 17b10315ce1c051449cbbf45f552f60d, type: 3}
@@ -8645,7 +8657,7 @@ MonoBehaviour:
     illustration: {fileID: 21300000, guid: 12bcccf411968564aa2f694909dd0b65, type: 3}
     audioClip: {fileID: 8300000, guid: c92f4a38822fc7f41bca3e33ce6fc48d, type: 3}
   - word: me
-    illustration: {fileID: 21300000, guid: 870bdcba53680484d961c62276340c35, type: 3}
+    illustration: {fileID: 21300000, guid: efc626544e9cd6d43a8356dc48bf49f0, type: 3}
     audioClip: {fileID: 8300000, guid: 31fc56ece5da38f49ae3703d43885a2d, type: 3}
   - word: meat
     illustration: {fileID: 21300000, guid: 86ee1458da4c2e14bb7ad0aba86c665e, type: 3}
@@ -8671,6 +8683,9 @@ MonoBehaviour:
   - word: pear
     illustration: {fileID: 21300000, guid: 96722f816f6dd744a97121318f413a67, type: 3}
     audioClip: {fileID: 8300000, guid: 4959092159ce1a440947cb09a0628f1b, type: 3}
+  - word: pen
+    illustration: {fileID: 21300000, guid: 4f02f6ce65e036244997ac5f3f040672, type: 3}
+    audioClip: {fileID: 8300000, guid: 01b24870e1d32074ba6a74766e1186df, type: 3}
   - word: pig
     illustration: {fileID: 21300000, guid: fc615a9faa1680d4aa039bfde044e0e8, type: 3}
     audioClip: {fileID: 8300000, guid: 18703b5b5490b6441a0e32b0c027daaa, type: 3}
@@ -8728,6 +8743,9 @@ MonoBehaviour:
   - word: swim
     illustration: {fileID: 21300000, guid: 5735aa2d68d1807468b3d81078f1e52a, type: 3}
     audioClip: {fileID: 8300000, guid: 93af48f744392d441be424ddd639dada, type: 3}
+  - word: tooth
+    illustration: {fileID: 21300000, guid: ed66bae5c40f8234a98504235d6317de, type: 3}
+    audioClip: {fileID: 8300000, guid: e1d14297f70e29b4a82409f39b4f77f4, type: 3}
   - word: toy
     illustration: {fileID: 21300000, guid: 67ca437cddac08e4ba1bcf20eb6472fe, type: 3}
     audioClip: {fileID: 8300000, guid: f44d3c2c2036af54cadec446d2c61243, type: 3}
@@ -8758,6 +8776,293 @@ MonoBehaviour:
   - word: you
     illustration: {fileID: 21300000, guid: 93209fdab8771f647a9c762c77141453, type: 3}
     audioClip: {fileID: 8300000, guid: dc3490652db807f41ab670208ad72787, type: 3}
+  mediumWords:
+  - word: alligator
+    illustration: {fileID: 21300000, guid: f1b8ab66c9cc515418f8aadc17f5d55e, type: 3}
+    audioClip: {fileID: 8300000, guid: 33f82bd373d2fd64aa780dfed1a343dc, type: 3}
+  - word: anchor
+    illustration: {fileID: 21300000, guid: d138862dab71b2e43a288ae4cd9637f5, type: 3}
+    audioClip: {fileID: 8300000, guid: 77439b44705ed3148bb15b69c8832428, type: 3}
+  - word: armor
+    illustration: {fileID: 21300000, guid: f3ea0609721146b4b9c68c2844cbec85, type: 3}
+    audioClip: {fileID: 8300000, guid: c6a127563407a664a956620ac0ec051c, type: 3}
+  - word: banana
+    illustration: {fileID: 21300000, guid: 3430ca18dea8ef4458e9c565039c50a8, type: 3}
+    audioClip: {fileID: 8300000, guid: 5f5f34cb7d6497e4da1ca1017e0e31fc, type: 3}
+  - word: basket
+    illustration: {fileID: 21300000, guid: 4c9147defea2de34dbafc0545b960004, type: 3}
+    audioClip: {fileID: 8300000, guid: 5a66365461d4132458f72f156bd3bbd0, type: 3}
+  - word: blanket
+    illustration: {fileID: 21300000, guid: 063dcc855b2b7c846b5ebc84b0462740, type: 3}
+    audioClip: {fileID: 8300000, guid: 3786713f3ad7eda41b1fefda69022a4a, type: 3}
+  - word: blizzard
+    illustration: {fileID: 21300000, guid: 8a51efc9e47b7f84f8679dd0c0a51d7b, type: 3}
+    audioClip: {fileID: 8300000, guid: 7001fedcfe6f41b43b07d21f3633af49, type: 3}
+  - word: bottle
+    illustration: {fileID: 21300000, guid: 20397b66187bb51478009727e4bfe10d, type: 3}
+    audioClip: {fileID: 8300000, guid: bb505bcc7e90c0a4b915ee81ba2a40af, type: 3}
+  - word: bridge
+    illustration: {fileID: 21300000, guid: 772f9ed5c5b0c61409e5a403f503ffcd, type: 3}
+    audioClip: {fileID: 8300000, guid: 59a647198677c184e802355d5c0762e1, type: 3}
+  - word: cactus
+    illustration: {fileID: 21300000, guid: b3a5741553f8a1e4399a60aab424254f, type: 3}
+    audioClip: {fileID: 8300000, guid: a9ba255e73e490f4bb1cb3c7eec7a886, type: 3}
+  - word: castle
+    illustration: {fileID: 21300000, guid: 6dc9641bd4dfadf45ac087ea43a278fb, type: 3}
+    audioClip: {fileID: 8300000, guid: 8938d54685eab6d40bf143420112ad0f, type: 3}
+  - word: cheese
+    illustration: {fileID: 21300000, guid: 1780d3036ec276f4cb90f15c58d322f7, type: 3}
+    audioClip: {fileID: 8300000, guid: 2cf71828a7783194895c37ce0ca254c2, type: 3}
+  - word: chocolate
+    illustration: {fileID: 21300000, guid: e2f5ff91bb52cfe40b4012449b713d82, type: 3}
+    audioClip: {fileID: 8300000, guid: 0b2e8f3903cbaff4a9c39896536ec2d8, type: 3}
+  - word: compass
+    illustration: {fileID: 21300000, guid: 0ae211273fc56704e8c4c0a5307d4263, type: 3}
+    audioClip: {fileID: 8300000, guid: 442f06c4a3f44d44e98f90c8074faf6b, type: 3}
+  - word: cookie
+    illustration: {fileID: 21300000, guid: f737b0cb640565e409a3a790678bd1e7, type: 3}
+    audioClip: {fileID: 8300000, guid: 7e739c2723d7c374caa85d3bb8f87fe9, type: 3}
+  - word: crown
+    illustration: {fileID: 21300000, guid: 7e1b6bbba14c0a0408239c857de96931, type: 3}
+    audioClip: {fileID: 8300000, guid: 9654febee4ce9bc4290d409de84ae68f, type: 3}
+  - word: desert
+    illustration: {fileID: 21300000, guid: e2bae8560e263cf46976c10b9b14fc39, type: 3}
+    audioClip: {fileID: 8300000, guid: da18f88a43a2d0146821ca3e45a4dc5b, type: 3}
+  - word: eagle
+    illustration: {fileID: 21300000, guid: b7bba2c91ac8f544aa67d503b856ba8e, type: 3}
+    audioClip: {fileID: 8300000, guid: 7c2a99d5558e256439d537455b37a16a, type: 3}
+  - word: forest
+    illustration: {fileID: 21300000, guid: 69e0f0cb05af8af48b235077f104b570, type: 3}
+    audioClip: {fileID: 8300000, guid: b3a474b704f48a342b28ec9b307acc2f, type: 3}
+  - word: garden
+    illustration: {fileID: 21300000, guid: fb901d887c407524ba505aed8a45a87c, type: 3}
+    audioClip: {fileID: 8300000, guid: 25fc8a3a5562a5c4d844c6940b4efe9c, type: 3}
+  - word: giraffe
+    illustration: {fileID: 21300000, guid: f04a99f478462b44a82807f2e5f5c10a, type: 3}
+    audioClip: {fileID: 8300000, guid: ff1606edbcc5d1a41b0a118c9c723119, type: 3}
+  - word: glacier
+    illustration: {fileID: 21300000, guid: c03c0a840580fe44d8a469119eaff832, type: 3}
+    audioClip: {fileID: 8300000, guid: e1faba22438a73640bbc23b2f5034ad7, type: 3}
+  - word: helmet
+    illustration: {fileID: 21300000, guid: 2765f59b82cb7d849b6464a87a7a5156, type: 3}
+    audioClip: {fileID: 8300000, guid: 822beb68229b90e459791ff52aecad18, type: 3}
+  - word: hurricane
+    illustration: {fileID: 21300000, guid: c190ed172aca2be468ab70d868543d7e, type: 3}
+    audioClip: {fileID: 8300000, guid: 310e77d5cb60cb543ae4612ca6a695d9, type: 3}
+  - word: instrument
+    illustration: {fileID: 21300000, guid: 95ca14212b97b5d4ba95b48a941f1820, type: 3}
+    audioClip: {fileID: 8300000, guid: 7ce276b603c275049b9f26267f87457b, type: 3}
+  - word: jewelry
+    illustration: {fileID: 21300000, guid: b1892826d268de54ea43ae3031be52b2, type: 3}
+    audioClip: {fileID: 8300000, guid: 063688743bed3f541bbb6317c2f54d6d, type: 3}
+  - word: ladder
+    illustration: {fileID: 21300000, guid: 60641324b8eaf9343bcd3a78a79cfde2, type: 3}
+    audioClip: {fileID: 8300000, guid: b832fc009f3e6b644ba410045d257ace, type: 3}
+  - word: lantern
+    illustration: {fileID: 21300000, guid: 991355f3349091c4d9cbdb870d0c328b, type: 3}
+    audioClip: {fileID: 8300000, guid: ecf19664dc229a14eb0d7d2448bae281, type: 3}
+  - word: lighthouse
+    illustration: {fileID: 21300000, guid: 0a66f6c38880fa3459c3610b0cd00ec7, type: 3}
+    audioClip: {fileID: 8300000, guid: afe20952f94a92a448d6068a9e7f5bd1, type: 3}
+  - word: magnet
+    illustration: {fileID: 21300000, guid: 4fdcf6b450837304b81e3c57a6ccd0b8, type: 3}
+    audioClip: {fileID: 8300000, guid: 3b34da3b16d02c64aa40d56273fd5a66, type: 3}
+  - word: market
+    illustration: {fileID: 21300000, guid: efceec823e9329e409a25641adc170c9, type: 3}
+    audioClip: {fileID: 8300000, guid: e53c2d4a31d70c148b4b073dda83f975, type: 3}
+  - word: melon
+    illustration: {fileID: 21300000, guid: a2715ce9bbd4daf428b771324076ddd9, type: 3}
+    audioClip: {fileID: 8300000, guid: 2a773693816c6424bb3268ff1a79baf0, type: 3}
+  - word: microscope
+    illustration: {fileID: 21300000, guid: b50f7f5003d73734f9fa5c7cc0c49d48, type: 3}
+    audioClip: {fileID: 8300000, guid: 355b418493b1b81438d38289e13c3df2, type: 3}
+  - word: monkey
+    illustration: {fileID: 21300000, guid: 2aa05b1ba3245474fac979be0de0724f, type: 3}
+    audioClip: {fileID: 8300000, guid: c20ab609ec0b94f4998e02f77eaf0b1a, type: 3}
+  - word: octopus
+    illustration: {fileID: 21300000, guid: 7e3274e900b417742b3c655b2d6549b6, type: 3}
+    audioClip: {fileID: 8300000, guid: 1745acc74cdc5794692403c3ddf36c3c, type: 3}
+  - word: panther
+    illustration: {fileID: 21300000, guid: 781458323f2222340bca44bc00641c1a, type: 3}
+    audioClip: {fileID: 8300000, guid: 30b24d3be573f0f45b415a5df88fd130, type: 3}
+  - word: penguin
+    illustration: {fileID: 21300000, guid: 2177368f5806e02418d52bc1363412b6, type: 3}
+    audioClip: {fileID: 8300000, guid: ed71972f16f73fd45ae7df5845e3a143, type: 3}
+  - word: pillow
+    illustration: {fileID: 21300000, guid: 4cb17d90b90a87d4fafa7d864a5dbdca, type: 3}
+    audioClip: {fileID: 8300000, guid: 862b75674a8353d40843c9b14255ccb5, type: 3}
+  - word: rabbit
+    illustration: {fileID: 21300000, guid: 1fa1655bc4922a44e9670e13cff2bf11, type: 3}
+    audioClip: {fileID: 8300000, guid: bcd4dfd7fc583e04f8f51028c3ebbf4a, type: 3}
+  - word: school
+    illustration: {fileID: 21300000, guid: 40e4daf466191a44c8a2ebd4134dc740, type: 3}
+    audioClip: {fileID: 8300000, guid: 37b3e8a1339cccd48bdc03c10c2e7dd4, type: 3}
+  - word: scissors
+    illustration: {fileID: 21300000, guid: a0c4895d123047940be27d0a56c803c3, type: 3}
+    audioClip: {fileID: 8300000, guid: ae1ea1ac86686a946a23ac082e0a61fa, type: 3}
+  - word: spaghetti
+    illustration: {fileID: 21300000, guid: 93755e5e69ebb0d42a3a2820f59bd081, type: 3}
+    audioClip: {fileID: 8300000, guid: f440d1622c97b034ba9c8b5aa08cc2cd, type: 3}
+  - word: statue
+    illustration: {fileID: 21300000, guid: 078a20ec3c0d9884d9218309117c8986, type: 3}
+    audioClip: {fileID: 8300000, guid: 8859729d17905214eae67fb16f6760ec, type: 3}
+  - word: street
+    illustration: {fileID: 21300000, guid: f3fe29469db62954aae6f34d1b995938, type: 3}
+    audioClip: {fileID: 8300000, guid: 18d4e2e5458815f42b20f49fe8e96e49, type: 3}
+  - word: telescope
+    illustration: {fileID: 21300000, guid: 86b6a0d2acaeeba47b84add687d75b32, type: 3}
+    audioClip: {fileID: 8300000, guid: b8a8b9e687b774e419d6af64e250a4be, type: 3}
+  - word: tiger
+    illustration: {fileID: 21300000, guid: 08374eaa5a0c874449ac642cbea30012, type: 3}
+    audioClip: {fileID: 8300000, guid: e302cb499b309df46922527d0a95d101, type: 3}
+  - word: tomato
+    illustration: {fileID: 21300000, guid: e5c05f52a84c732429e986b35058bd2c, type: 3}
+    audioClip: {fileID: 8300000, guid: d5993da0abaade846aaa0cc93af9a971, type: 3}
+  - word: volcano
+    illustration: {fileID: 21300000, guid: c713e70947a24ce4ca57af1d9a2f0dc3, type: 3}
+    audioClip: {fileID: 8300000, guid: 6e701546abe077f4998483063ce9f00e, type: 3}
+  - word: windmill
+    illustration: {fileID: 21300000, guid: 0001e050f804cb540a884e7c01649bf5, type: 3}
+    audioClip: {fileID: 8300000, guid: c3ad512b43fc9a343a826cd01eec396f, type: 3}
+  - word: zebra
+    illustration: {fileID: 21300000, guid: 3163ac445bf990a4881dcf1e4746839e, type: 3}
+    audioClip: {fileID: 8300000, guid: a2e7a91020c3f664f93aeda689ca8501, type: 3}
+  hardWords:
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
+  - word: 
+    illustration: {fileID: 0}
+    audioClip: {fileID: 0}
   - word: 
     illustration: {fileID: 0}
     audioClip: {fileID: 0}
