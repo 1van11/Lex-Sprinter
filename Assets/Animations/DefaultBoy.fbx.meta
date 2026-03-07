@@ -1,29 +1,9 @@
 fileFormatVersion: 2
-guid: 78c964ae97f294646a77124c7d1a4373
+guid: 2b23af3641840d740afd8e187691a1f0
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Untitled389_20260304205722
-    second: {fileID: 2800000, guid: 4afd977298d9af3459bc6f5453125eca, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Untitled389_20260304211549
-    second: {fileID: 2800000, guid: 0c409eec98a6f9749a457aea3f209093, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Untitled405_20260304211640
-    second: {fileID: 2800000, guid: 57c6fc1202e8d1d46bd5325b465a0b86, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Untitled406_20260304231213
-    second: {fileID: 2800000, guid: b936ce82295a1034f8082466bebb6eaf, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -33,7 +13,7 @@ ModelImporter:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
     resampleCurves: 1
-    optimizeGameObjects: 0
+    optimizeGameObjects: 1
     removeConstantScaleCurves: 1
     motionNodeName: 
     rigImportErrors: 
