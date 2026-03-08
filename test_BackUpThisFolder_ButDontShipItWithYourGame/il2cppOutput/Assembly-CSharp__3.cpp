@@ -248,6 +248,8 @@ struct DisabledBTN_t1E485AA5BE2F54D0A0B7E4D0E65D94C201346963;
 struct Event_tEBC6F24B56CE22B9C9AD1AC6C24A6B83BC3860CB;
 // EventTimingManager
 struct EventTimingManager_t0F8AB112CFC4B9378D7961AE193C8C908290B7F4;
+// ExitGame
+struct ExitGame_t7535BD4AC5611EBE2045397500E11C4CF600C05F;
 // FeedbackManager
 struct FeedbackManager_t1DE7A591BCA792B6C7056417E0E2D14BE7D99FBC;
 // UnityEngine.UI.FontData
@@ -422,14 +424,14 @@ struct WaitForSecondsRealtime_tA8CE0AAB4B0C872B843E7973637037D17682BA01;
 struct WordUnlockManager_tF3169B16DF46A6B98C929D80DC915748050B1C29;
 // UnityEngine.UI.Button/ButtonClickedEvent
 struct ButtonClickedEvent_t8EA72E90B3BD1392FB3B3EF167D5121C23569E4C;
-// DictionaryWordViewer/<SlidePanel>d__31
-struct U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3;
-// DictionaryWordViewer/<TypewriterAfterFrame>d__32
-struct U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4;
-// DictionaryWordViewer/<TypewriterEffect>d__33
-struct U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2;
-// DictionaryWordViewer/<WaitForAudioEnd>d__37
-struct U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2;
+// DictionaryWordViewer/<SlidePanel>d__34
+struct U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269;
+// DictionaryWordViewer/<TypewriterAfterFrame>d__35
+struct U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D;
+// DictionaryWordViewer/<TypewriterEffect>d__36
+struct U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5;
+// DictionaryWordViewer/<WaitForAudioEnd>d__40
+struct U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51;
 // DictionaryWordViewer/WordEntry
 struct WordEntry_t9C48EA20808D1FF47C870F81F797F031B16AAD89;
 // LoadingSplash/<LoadGame>d__2
@@ -579,6 +581,7 @@ IL2CPP_EXTERN_C String_t* _stringLiteral60BAA9784516764EE9E8F69757A87FEB5A326A6E
 IL2CPP_EXTERN_C String_t* _stringLiteral61F90018B365686D68D54E49BC59378EB2EDF6E3;
 IL2CPP_EXTERN_C String_t* _stringLiteral648137E8EE321154706DA8842813309FA188FAED;
 IL2CPP_EXTERN_C String_t* _stringLiteral651D68E9E82D2F64E07CE539CE3B7395A466FF23;
+IL2CPP_EXTERN_C String_t* _stringLiteral671D11A61F7D20D9B8210A515BDE08F9B2AE11E5;
 IL2CPP_EXTERN_C String_t* _stringLiteral6A868A501E973AFB612ECBAA3B8DC13060DFDC6E;
 IL2CPP_EXTERN_C String_t* _stringLiteral6B866DCFF4A3EC3D3C30879F029D88106601B1B2;
 IL2CPP_EXTERN_C String_t* _stringLiteral6C066B34F4DB79023C0642AFBC43B25A5327F710;
@@ -723,13 +726,13 @@ IL2CPP_EXTERN_C const RuntimeMethod* U3CPulseGlowU3Ed__13_System_Collections_IEn
 IL2CPP_EXTERN_C const RuntimeMethod* U3CPulseGlowU3Ed__30_System_Collections_IEnumerator_Reset_m9D07C896628186EF0A153B826E0538039FAB4031_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* U3CRechargeRoutineU3Ed__10_System_Collections_IEnumerator_Reset_mED3B0B2349334D0FBC421FEDBDAEF7719B1E56DC_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* U3CShakeButtonU3Ed__26_System_Collections_IEnumerator_Reset_mFA914FAD06216365DD2640B443875B8EA31140C3_RuntimeMethod_var;
-IL2CPP_EXTERN_C const RuntimeMethod* U3CSlidePanelU3Ed__31_System_Collections_IEnumerator_Reset_mAF6C4C941CAA23126E92B04F55F9989BB92CFCF6_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* U3CSlidePanelU3Ed__34_System_Collections_IEnumerator_Reset_m27A71271375FDCFF0DAAA284B0C9EBE928EA54A2_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* U3CStartU3Ed__23_System_Collections_IEnumerator_Reset_m010F2BC30388F6A3F5F85F35516AE20A6B880706_RuntimeMethod_var;
-IL2CPP_EXTERN_C const RuntimeMethod* U3CTypewriterAfterFrameU3Ed__32_System_Collections_IEnumerator_Reset_mD4DCAD0EE8AFB4721222EDAFF509D51F2BBBABB0_RuntimeMethod_var;
-IL2CPP_EXTERN_C const RuntimeMethod* U3CTypewriterEffectU3Ed__33_System_Collections_IEnumerator_Reset_m0F094CB5F680870FC880E685861D534036774DA6_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* U3CTypewriterAfterFrameU3Ed__35_System_Collections_IEnumerator_Reset_m578A384AC2F6F6BF82E60A4768A70F1DB5D1A3F2_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* U3CTypewriterEffectU3Ed__36_System_Collections_IEnumerator_Reset_m23D5EE95DBF8F3C4D2C5206CA1A3B5E821E1BFEC_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* U3CU3Ec__DisplayClass16_0_U3CGenerateWordButtonsU3Eb__0_m5CAAC7EC58C985FED4C5875FBBAE11A4C8C702F7_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* U3CU3Ec__DisplayClass2_0_U3CStartU3Eb__0_mB4280D4ECC93943874514E7C99237EAA0D2C68BE_RuntimeMethod_var;
-IL2CPP_EXTERN_C const RuntimeMethod* U3CWaitForAudioEndU3Ed__37_System_Collections_IEnumerator_Reset_mA7C8CD2D20F97BDC86C68C017F2B08D103C611AF_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* U3CWaitForAudioEndU3Ed__40_System_Collections_IEnumerator_Reset_mF0C17F7D9B09188904046A167D7721A3C63704C9_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* UnityEvent_1_AddListener_m44E396BC4484BD75427FDD8CBE0B533CCAD8C1EC_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* UnityEvent_1_AddListener_mEC384A8CFC5D4D41B62B08248A738CF61B82172F_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* Validation_SaveAndLoadHomeScreen_mFC73077CC984562EBB44B194CB3CE2E892DF496C_RuntimeMethod_var;
@@ -925,44 +928,44 @@ struct YieldInstruction_tFCE35FD0907950EFEE9BC2890AC664E41C53728D_marshaled_com
 {
 };
 
-// DictionaryWordViewer/<TypewriterAfterFrame>d__32
-struct U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4  : public RuntimeObject
+// DictionaryWordViewer/<TypewriterAfterFrame>d__35
+struct U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D  : public RuntimeObject
 {
-	// System.Int32 DictionaryWordViewer/<TypewriterAfterFrame>d__32::<>1__state
+	// System.Int32 DictionaryWordViewer/<TypewriterAfterFrame>d__35::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__32::<>2__current
+	// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__35::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// DictionaryWordViewer DictionaryWordViewer/<TypewriterAfterFrame>d__32::<>4__this
+	// DictionaryWordViewer DictionaryWordViewer/<TypewriterAfterFrame>d__35::<>4__this
 	DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* ___U3CU3E4__this_2;
 };
 
-// DictionaryWordViewer/<TypewriterEffect>d__33
-struct U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2  : public RuntimeObject
+// DictionaryWordViewer/<TypewriterEffect>d__36
+struct U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5  : public RuntimeObject
 {
-	// System.Int32 DictionaryWordViewer/<TypewriterEffect>d__33::<>1__state
+	// System.Int32 DictionaryWordViewer/<TypewriterEffect>d__36::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object DictionaryWordViewer/<TypewriterEffect>d__33::<>2__current
+	// System.Object DictionaryWordViewer/<TypewriterEffect>d__36::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// DictionaryWordViewer DictionaryWordViewer/<TypewriterEffect>d__33::<>4__this
+	// DictionaryWordViewer DictionaryWordViewer/<TypewriterEffect>d__36::<>4__this
 	DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* ___U3CU3E4__this_2;
-	// System.String DictionaryWordViewer/<TypewriterEffect>d__33::fullText
+	// System.String DictionaryWordViewer/<TypewriterEffect>d__36::fullText
 	String_t* ___fullText_3;
-	// System.String DictionaryWordViewer/<TypewriterEffect>d__33::<>7__wrap1
+	// System.String DictionaryWordViewer/<TypewriterEffect>d__36::<>7__wrap1
 	String_t* ___U3CU3E7__wrap1_4;
-	// System.Int32 DictionaryWordViewer/<TypewriterEffect>d__33::<>7__wrap2
+	// System.Int32 DictionaryWordViewer/<TypewriterEffect>d__36::<>7__wrap2
 	int32_t ___U3CU3E7__wrap2_5;
 };
 
-// DictionaryWordViewer/<WaitForAudioEnd>d__37
-struct U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2  : public RuntimeObject
+// DictionaryWordViewer/<WaitForAudioEnd>d__40
+struct U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51  : public RuntimeObject
 {
-	// System.Int32 DictionaryWordViewer/<WaitForAudioEnd>d__37::<>1__state
+	// System.Int32 DictionaryWordViewer/<WaitForAudioEnd>d__40::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__37::<>2__current
+	// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__40::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// System.Single DictionaryWordViewer/<WaitForAudioEnd>d__37::duration
+	// System.Single DictionaryWordViewer/<WaitForAudioEnd>d__40::duration
 	float ___duration_2;
-	// DictionaryWordViewer DictionaryWordViewer/<WaitForAudioEnd>d__37::<>4__this
+	// DictionaryWordViewer DictionaryWordViewer/<WaitForAudioEnd>d__40::<>4__this
 	DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* ___U3CU3E4__this_3;
 };
 
@@ -2160,22 +2163,22 @@ struct ButtonClickedEvent_t8EA72E90B3BD1392FB3B3EF167D5121C23569E4C  : public Un
 {
 };
 
-// DictionaryWordViewer/<SlidePanel>d__31
-struct U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3  : public RuntimeObject
+// DictionaryWordViewer/<SlidePanel>d__34
+struct U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269  : public RuntimeObject
 {
-	// System.Int32 DictionaryWordViewer/<SlidePanel>d__31::<>1__state
+	// System.Int32 DictionaryWordViewer/<SlidePanel>d__34::<>1__state
 	int32_t ___U3CU3E1__state_0;
-	// System.Object DictionaryWordViewer/<SlidePanel>d__31::<>2__current
+	// System.Object DictionaryWordViewer/<SlidePanel>d__34::<>2__current
 	RuntimeObject* ___U3CU3E2__current_1;
-	// DictionaryWordViewer DictionaryWordViewer/<SlidePanel>d__31::<>4__this
+	// DictionaryWordViewer DictionaryWordViewer/<SlidePanel>d__34::<>4__this
 	DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* ___U3CU3E4__this_2;
-	// UnityEngine.Vector2 DictionaryWordViewer/<SlidePanel>d__31::from
+	// UnityEngine.Vector2 DictionaryWordViewer/<SlidePanel>d__34::from
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___from_3;
-	// UnityEngine.Vector2 DictionaryWordViewer/<SlidePanel>d__31::to
+	// UnityEngine.Vector2 DictionaryWordViewer/<SlidePanel>d__34::to
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___to_4;
-	// System.Action DictionaryWordViewer/<SlidePanel>d__31::onComplete
+	// System.Action DictionaryWordViewer/<SlidePanel>d__34::onComplete
 	Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* ___onComplete_5;
-	// System.Single DictionaryWordViewer/<SlidePanel>d__31::<elapsed>5__2
+	// System.Single DictionaryWordViewer/<SlidePanel>d__34::<elapsed>5__2
 	float ___U3CelapsedU3E5__2_6;
 };
 
@@ -2963,34 +2966,38 @@ struct DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849  : public 
 	Sprite_tAFF74BC83CD68037494CB0B4F28CBDF8971CAB99* ___pauseSprite_12;
 	// UnityEngine.AudioSource DictionaryWordViewer::audioSource
 	AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* ___audioSource_13;
-	// DictionaryWordViewer/WordEntry[] DictionaryWordViewer::wordEntries
-	WordEntryU5BU5D_t4ADECF09897925FC97EB4DC90BAB59BF915C7BDD* ___wordEntries_14;
+	// DictionaryWordViewer/WordEntry[] DictionaryWordViewer::easyWords
+	WordEntryU5BU5D_t4ADECF09897925FC97EB4DC90BAB59BF915C7BDD* ___easyWords_14;
+	// DictionaryWordViewer/WordEntry[] DictionaryWordViewer::mediumWords
+	WordEntryU5BU5D_t4ADECF09897925FC97EB4DC90BAB59BF915C7BDD* ___mediumWords_15;
+	// DictionaryWordViewer/WordEntry[] DictionaryWordViewer::hardWords
+	WordEntryU5BU5D_t4ADECF09897925FC97EB4DC90BAB59BF915C7BDD* ___hardWords_16;
 	// System.Boolean DictionaryWordViewer::animatePanel
-	bool ___animatePanel_15;
+	bool ___animatePanel_17;
 	// System.Single DictionaryWordViewer::slideDuration
-	float ___slideDuration_16;
+	float ___slideDuration_18;
 	// UnityEngine.Vector2 DictionaryWordViewer::hiddenAnchoredPos
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___hiddenAnchoredPos_17;
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___hiddenAnchoredPos_19;
 	// UnityEngine.Vector2 DictionaryWordViewer::shownAnchoredPos
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___shownAnchoredPos_18;
+	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___shownAnchoredPos_20;
 	// System.Single DictionaryWordViewer::typewriterSpeed
-	float ___typewriterSpeed_19;
+	float ___typewriterSpeed_21;
 	// UnityEngine.RectTransform DictionaryWordViewer::panelRect
-	RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___panelRect_20;
+	RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___panelRect_22;
 	// UnityEngine.Coroutine DictionaryWordViewer::slideCoroutine
-	Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* ___slideCoroutine_21;
+	Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* ___slideCoroutine_23;
 	// UnityEngine.Coroutine DictionaryWordViewer::typewriterCoroutine
-	Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* ___typewriterCoroutine_22;
+	Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* ___typewriterCoroutine_24;
 	// System.Boolean DictionaryWordViewer::isPlaying
-	bool ___isPlaying_23;
+	bool ___isPlaying_25;
 	// System.String DictionaryWordViewer::currentWord
-	String_t* ___currentWord_24;
+	String_t* ___currentWord_26;
 	// System.String DictionaryWordViewer::pendingDefinition
-	String_t* ___pendingDefinition_25;
+	String_t* ___pendingDefinition_27;
 	// System.Collections.Generic.Dictionary`2<System.String,UnityEngine.Sprite> DictionaryWordViewer::illustrationMap
-	Dictionary_2_tC7B9BD0CA755DD1E643DB18A74765E15DC3D9516* ___illustrationMap_26;
+	Dictionary_2_tC7B9BD0CA755DD1E643DB18A74765E15DC3D9516* ___illustrationMap_28;
 	// System.Collections.Generic.Dictionary`2<System.String,UnityEngine.AudioClip> DictionaryWordViewer::audioMap
-	Dictionary_2_t3F562E9148A8E8AA20BC15F94541BEA78590DD24* ___audioMap_27;
+	Dictionary_2_t3F562E9148A8E8AA20BC15F94541BEA78590DD24* ___audioMap_29;
 };
 
 // DisabledBTN
@@ -3000,6 +3007,11 @@ struct DisabledBTN_t1E485AA5BE2F54D0A0B7E4D0E65D94C201346963  : public MonoBehav
 	Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* ___targetButton_4;
 	// TMPro.TMP_Text DisabledBTN::buttonText
 	TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* ___buttonText_5;
+};
+
+// ExitGame
+struct ExitGame_t7535BD4AC5611EBE2045397500E11C4CF600C05F  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
+{
 };
 
 // FeedbackManager
@@ -3247,8 +3259,8 @@ struct QuestionRandomizer_t8B83E40A74879342BDB16F8D92E0B0193F2B9C01  : public Mo
 	List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* ___shuffledWords_64;
 	// System.Int32 QuestionRandomizer::currentWordIndex
 	int32_t ___currentWordIndex_65;
-	// System.String QuestionRandomizer::previousCollectedText
-	String_t* ___previousCollectedText_66;
+	// System.String QuestionRandomizer::previousRawCollected
+	String_t* ___previousRawCollected_66;
 	// System.Collections.Generic.List`1<UnityEngine.GameObject> QuestionRandomizer::spawnedLetters
 	List_1_tB951CE80B58D1BF9650862451D8DAD8C231F207B* ___spawnedLetters_67;
 	// System.Collections.Generic.Dictionary`2<System.String,UnityEngine.Sprite> QuestionRandomizer::wordToImageMap
@@ -4482,17 +4494,17 @@ struct String_t_StaticFields
 
 // System.String
 
-// DictionaryWordViewer/<TypewriterAfterFrame>d__32
+// DictionaryWordViewer/<TypewriterAfterFrame>d__35
 
-// DictionaryWordViewer/<TypewriterAfterFrame>d__32
+// DictionaryWordViewer/<TypewriterAfterFrame>d__35
 
-// DictionaryWordViewer/<TypewriterEffect>d__33
+// DictionaryWordViewer/<TypewriterEffect>d__36
 
-// DictionaryWordViewer/<TypewriterEffect>d__33
+// DictionaryWordViewer/<TypewriterEffect>d__36
 
-// DictionaryWordViewer/<WaitForAudioEnd>d__37
+// DictionaryWordViewer/<WaitForAudioEnd>d__40
 
-// DictionaryWordViewer/<WaitForAudioEnd>d__37
+// DictionaryWordViewer/<WaitForAudioEnd>d__40
 
 // DictionaryWordViewer/WordEntry
 
@@ -4769,9 +4781,9 @@ struct Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_StaticFields
 
 // UnityEngine.UI.Button/ButtonClickedEvent
 
-// DictionaryWordViewer/<SlidePanel>d__31
+// DictionaryWordViewer/<SlidePanel>d__34
 
-// DictionaryWordViewer/<SlidePanel>d__31
+// DictionaryWordViewer/<SlidePanel>d__34
 
 // UnityEngine.UI.Slider/SliderEvent
 
@@ -4912,7 +4924,7 @@ struct CoinsDisplay_t4075D46E0F3185E992EB45665771A2109DE9484E_StaticFields
 struct DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849_StaticFields
 {
 	// System.Collections.Generic.Dictionary`2<System.String,System.String> DictionaryWordViewer::definitions
-	Dictionary_2_t46B2DB028096FA2B828359E52F37F3105A83AD83* ___definitions_28;
+	Dictionary_2_t46B2DB028096FA2B828359E52F37F3105A83AD83* ___definitions_30;
 };
 
 // DictionaryWordViewer
@@ -4920,6 +4932,10 @@ struct DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849_StaticFiel
 // DisabledBTN
 
 // DisabledBTN
+
+// ExitGame
+
+// ExitGame
 
 // FeedbackManager
 struct FeedbackManager_t1DE7A591BCA792B6C7056417E0E2D14BE7D99FBC_StaticFields
@@ -6448,6 +6464,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Behaviour_get_enabled_mAAC9F15E9EBF55221
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CClearInvalidInputU3Ed__19__ctor_m941E71744D9F48A12FE1DFE649098F3742E16059 (U3CClearInvalidInputU3Ed__19_t4B66C8293695BB3DD51DAE5B3EB2E760B4C8D008* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) ;
 // System.Void UnityEngine.Events.UnityEvent::RemoveListener(UnityEngine.Events.UnityAction)
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityEvent_RemoveListener_m0E138F5575CB4363019D3DA570E98FAD502B812C (UnityEvent_tDC2C3548799DBC91D1E3F3DE60083A66F4751977* __this, UnityAction_t11A1F3B953B365C072A5DCC32677EE1796A962A7* ___0_call, const RuntimeMethod* method) ;
+// System.Void UnityEngine.Application::Quit()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Application_Quit_mE304382DB9A6455C2A474C8F364C7387F37E9281 (const RuntimeMethod* method) ;
 // System.Void UnityEngine.Object::DontDestroyOnLoad(UnityEngine.Object)
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Object_DontDestroyOnLoad_m4B70C3AEF886C176543D1295507B6455C9DCAEA7 (Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C* ___0_target, const RuntimeMethod* method) ;
 // System.Void UnityEngine.Handheld::Vibrate()
@@ -6542,8 +6560,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WordEntry__ctor_mE4870CD1691D9DAFE8161EF
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// System.Void DictionaryWordViewer/<SlidePanel>d__31::.ctor(System.Int32)
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__31__ctor_m3F0BFCC4009DBC3566D10F4C67F8EEDEA2228382 (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<SlidePanel>d__34::.ctor(System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__34__ctor_m63441CB188FCA0D02D3E13B372B781B9BAA1DFE2 (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
@@ -6552,15 +6570,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__31__ctor_m3F0BFCC4009
 		return;
 	}
 }
-// System.Void DictionaryWordViewer/<SlidePanel>d__31::System.IDisposable.Dispose()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__31_System_IDisposable_Dispose_mA15D358F87E1D70A937498ED700A47B1FA1BE5EF (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<SlidePanel>d__34::System.IDisposable.Dispose()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__34_System_IDisposable_Dispose_mFF550DC60725918B2A53725DFD07FF9E91F2BD1A (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// System.Boolean DictionaryWordViewer/<SlidePanel>d__31::MoveNext()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CSlidePanelU3Ed__31_MoveNext_m1E86825D77F511A80C7AF95792487054CA384E32 (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, const RuntimeMethod* method) 
+// System.Boolean DictionaryWordViewer/<SlidePanel>d__34::MoveNext()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CSlidePanelU3Ed__34_MoveNext_m6D59BB157361BD65795386478C9A15AA5DD28BEE (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* V_1 = NULL;
@@ -6608,14 +6626,14 @@ IL_002b:
 		float L_6 = __this->___U3CelapsedU3E5__2_6;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_7 = V_1;
 		NullCheck(L_7);
-		float L_8 = L_7->___slideDuration_16;
+		float L_8 = L_7->___slideDuration_18;
 		float L_9;
 		L_9 = Mathf_SmoothStep_mEFDC738EB0AA162D71013BDBBDD157B080A8E524_inline((0.0f), (1.0f), ((float)(L_6/L_8)), NULL);
 		V_2 = L_9;
 		// panelRect.anchoredPosition = Vector2.Lerp(from, to, t);
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_10 = V_1;
 		NullCheck(L_10);
-		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_11 = L_10->___panelRect_20;
+		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_11 = L_10->___panelRect_22;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_12 = __this->___from_3;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_13 = __this->___to_4;
 		float L_14 = V_2;
@@ -6641,7 +6659,7 @@ IL_008e:
 		float L_16 = __this->___U3CelapsedU3E5__2_6;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_17 = V_1;
 		NullCheck(L_17);
-		float L_18 = L_17->___slideDuration_16;
+		float L_18 = L_17->___slideDuration_18;
 		if ((((float)L_16) < ((float)L_18)))
 		{
 			goto IL_002b;
@@ -6651,7 +6669,7 @@ IL_008e:
 		// panelRect.anchoredPosition = to;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_19 = V_1;
 		NullCheck(L_19);
-		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_20 = L_19->___panelRect_20;
+		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_20 = L_19->___panelRect_22;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_21 = __this->___to_4;
 		NullCheck(L_20);
 		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_20, L_21, NULL);
@@ -6681,26 +6699,26 @@ IL_00be:
 		return (bool)0;
 	}
 }
-// System.Object DictionaryWordViewer/<SlidePanel>d__31::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CSlidePanelU3Ed__31_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_m182FE71E5B1402D1785E50B2E1AE72E79095581C (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<SlidePanel>d__34::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CSlidePanelU3Ed__34_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_mE790463DAE826F96789A83F9F0422C8CFC2E2519 (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
 		return L_0;
 	}
 }
-// System.Void DictionaryWordViewer/<SlidePanel>d__31::System.Collections.IEnumerator.Reset()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__31_System_Collections_IEnumerator_Reset_mAF6C4C941CAA23126E92B04F55F9989BB92CFCF6 (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<SlidePanel>d__34::System.Collections.IEnumerator.Reset()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CSlidePanelU3Ed__34_System_Collections_IEnumerator_Reset_m27A71271375FDCFF0DAAA284B0C9EBE928EA54A2 (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, const RuntimeMethod* method) 
 {
 	{
 		NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A* L_0 = (NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A_il2cpp_TypeInfo_var)));
 		NullCheck(L_0);
 		NotSupportedException__ctor_m1398D0CDE19B36AA3DE9392879738C1EA2439CDF(L_0, NULL);
-		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CSlidePanelU3Ed__31_System_Collections_IEnumerator_Reset_mAF6C4C941CAA23126E92B04F55F9989BB92CFCF6_RuntimeMethod_var)));
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CSlidePanelU3Ed__34_System_Collections_IEnumerator_Reset_m27A71271375FDCFF0DAAA284B0C9EBE928EA54A2_RuntimeMethod_var)));
 	}
 }
-// System.Object DictionaryWordViewer/<SlidePanel>d__31::System.Collections.IEnumerator.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CSlidePanelU3Ed__31_System_Collections_IEnumerator_get_Current_m270CA8CD24C1F6618A3EB3DADFF60EA3E26AC6B8 (U3CSlidePanelU3Ed__31_tE995F810FBEE1C33D835B5A048C2243BEFBFF8E3* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<SlidePanel>d__34::System.Collections.IEnumerator.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CSlidePanelU3Ed__34_System_Collections_IEnumerator_get_Current_mA5994B22ED1E33187AF9006308541259C7939B9E (U3CSlidePanelU3Ed__34_t300B57E5A136708314B7F230E9B8C592EA1BD269* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
@@ -6715,8 +6733,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CSlidePanelU3Ed__31_System_C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__32::.ctor(System.Int32)
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__32__ctor_m2C80E4C40DC4437B9B1C604EDDDE29938B7C08EA (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__35::.ctor(System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__35__ctor_mA28087EDEEF74066064E141774C7BF1E0DD3D8BE (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
@@ -6725,15 +6743,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__32__ctor_m2
 		return;
 	}
 }
-// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__32::System.IDisposable.Dispose()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__32_System_IDisposable_Dispose_m925366D263D1304ABC01ADD6DE04E9D4D4372BF7 (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__35::System.IDisposable.Dispose()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__35_System_IDisposable_Dispose_m8A67C0843239CF9ABEFCDA301365BB5BB10206B3 (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// System.Boolean DictionaryWordViewer/<TypewriterAfterFrame>d__32::MoveNext()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypewriterAfterFrameU3Ed__32_MoveNext_m3FFE5F8F1BB59BDBA3EAEEA75DDA5146D5D960DF (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, const RuntimeMethod* method) 
+// System.Boolean DictionaryWordViewer/<TypewriterAfterFrame>d__35::MoveNext()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypewriterAfterFrameU3Ed__35_MoveNext_m9575CF5D0723C10CB847DC437928A3F3265B9DF2 (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
@@ -6806,7 +6824,7 @@ IL_0050:
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_7 = V_1;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_8 = V_1;
 		NullCheck(L_8);
-		String_t* L_9 = L_8->___pendingDefinition_25;
+		String_t* L_9 = L_8->___pendingDefinition_27;
 		NullCheck(L_7);
 		RuntimeObject* L_10;
 		L_10 = DictionaryWordViewer_TypewriterEffect_mFA028ED79A8D478ED696FCAAA042667B984F78DD(L_7, L_9, NULL);
@@ -6826,26 +6844,26 @@ IL_0071:
 		return (bool)0;
 	}
 }
-// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__32::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterAfterFrameU3Ed__32_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_mF29AEB5E8F78B31367D3E08A96A655426FD1884D (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__35::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterAfterFrameU3Ed__35_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_m69B7B930D33CD76AA7C9C2267C8560033E1BDB6A (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
 		return L_0;
 	}
 }
-// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__32::System.Collections.IEnumerator.Reset()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__32_System_Collections_IEnumerator_Reset_mD4DCAD0EE8AFB4721222EDAFF509D51F2BBBABB0 (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterAfterFrame>d__35::System.Collections.IEnumerator.Reset()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterAfterFrameU3Ed__35_System_Collections_IEnumerator_Reset_m578A384AC2F6F6BF82E60A4768A70F1DB5D1A3F2 (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, const RuntimeMethod* method) 
 {
 	{
 		NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A* L_0 = (NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A_il2cpp_TypeInfo_var)));
 		NullCheck(L_0);
 		NotSupportedException__ctor_m1398D0CDE19B36AA3DE9392879738C1EA2439CDF(L_0, NULL);
-		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CTypewriterAfterFrameU3Ed__32_System_Collections_IEnumerator_Reset_mD4DCAD0EE8AFB4721222EDAFF509D51F2BBBABB0_RuntimeMethod_var)));
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CTypewriterAfterFrameU3Ed__35_System_Collections_IEnumerator_Reset_m578A384AC2F6F6BF82E60A4768A70F1DB5D1A3F2_RuntimeMethod_var)));
 	}
 }
-// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__32::System.Collections.IEnumerator.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterAfterFrameU3Ed__32_System_Collections_IEnumerator_get_Current_mF706C3208F56BD9D39B8C465A60A37E165F7BCE3 (U3CTypewriterAfterFrameU3Ed__32_t30665AD38CDE16C6B9EDA2EC4AC0E0581D067AE4* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<TypewriterAfterFrame>d__35::System.Collections.IEnumerator.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterAfterFrameU3Ed__35_System_Collections_IEnumerator_get_Current_mEB975A83FD96BB75504915454813A3273B036448 (U3CTypewriterAfterFrameU3Ed__35_t1F506E9DF4BE49FB6A52F75B054F7721EF3C8C7D* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
@@ -6860,8 +6878,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterAfterFrameU3Ed__3
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// System.Void DictionaryWordViewer/<TypewriterEffect>d__33::.ctor(System.Int32)
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__33__ctor_mEE03C623A451087283322A05EDE1B20BF3EAF2C3 (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterEffect>d__36::.ctor(System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__36__ctor_m7203DDAF2AFA4C5BE1CA8468074A7169A775BE0E (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
@@ -6870,15 +6888,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__33__ctor_mEE03C
 		return;
 	}
 }
-// System.Void DictionaryWordViewer/<TypewriterEffect>d__33::System.IDisposable.Dispose()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__33_System_IDisposable_Dispose_m9CAD37BC3516450B23B28979CA3C6F78B12C9587 (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterEffect>d__36::System.IDisposable.Dispose()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__36_System_IDisposable_Dispose_m3ECD1E89FD624A78620E578C8E666B6DD0CD3E88 (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// System.Boolean DictionaryWordViewer/<TypewriterEffect>d__33::MoveNext()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypewriterEffectU3Ed__33_MoveNext_m3215713FC2E42C8BEB4791B8F30B6312F5489807 (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, const RuntimeMethod* method) 
+// System.Boolean DictionaryWordViewer/<TypewriterEffect>d__36::MoveNext()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CTypewriterEffectU3Ed__36_MoveNext_mF1E79C9231C76980D2E5B58A7E753273B9F0ACFD (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
@@ -6957,7 +6975,7 @@ IL_0043:
 		// yield return new WaitForSeconds(typewriterSpeed);
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_16 = V_1;
 		NullCheck(L_16);
-		float L_17 = L_16->___typewriterSpeed_19;
+		float L_17 = L_16->___typewriterSpeed_21;
 		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_18 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
 		NullCheck(L_18);
 		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_18, L_17, NULL);
@@ -6993,32 +7011,32 @@ IL_00a1:
 		// typewriterCoroutine = null;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_23 = V_1;
 		NullCheck(L_23);
-		L_23->___typewriterCoroutine_22 = (Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B*)NULL;
-		Il2CppCodeGenWriteBarrier((void**)(&L_23->___typewriterCoroutine_22), (void*)(Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B*)NULL);
+		L_23->___typewriterCoroutine_24 = (Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B*)NULL;
+		Il2CppCodeGenWriteBarrier((void**)(&L_23->___typewriterCoroutine_24), (void*)(Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B*)NULL);
 		// }
 		return (bool)0;
 	}
 }
-// System.Object DictionaryWordViewer/<TypewriterEffect>d__33::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterEffectU3Ed__33_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_m761B969CD5E811A3246D23F0A450AEBA56667354 (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<TypewriterEffect>d__36::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterEffectU3Ed__36_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_mDF17C64B1402968723BB2AC8307E8AEC452466E9 (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
 		return L_0;
 	}
 }
-// System.Void DictionaryWordViewer/<TypewriterEffect>d__33::System.Collections.IEnumerator.Reset()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__33_System_Collections_IEnumerator_Reset_m0F094CB5F680870FC880E685861D534036774DA6 (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<TypewriterEffect>d__36::System.Collections.IEnumerator.Reset()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CTypewriterEffectU3Ed__36_System_Collections_IEnumerator_Reset_m23D5EE95DBF8F3C4D2C5206CA1A3B5E821E1BFEC (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, const RuntimeMethod* method) 
 {
 	{
 		NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A* L_0 = (NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A_il2cpp_TypeInfo_var)));
 		NullCheck(L_0);
 		NotSupportedException__ctor_m1398D0CDE19B36AA3DE9392879738C1EA2439CDF(L_0, NULL);
-		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CTypewriterEffectU3Ed__33_System_Collections_IEnumerator_Reset_m0F094CB5F680870FC880E685861D534036774DA6_RuntimeMethod_var)));
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CTypewriterEffectU3Ed__36_System_Collections_IEnumerator_Reset_m23D5EE95DBF8F3C4D2C5206CA1A3B5E821E1BFEC_RuntimeMethod_var)));
 	}
 }
-// System.Object DictionaryWordViewer/<TypewriterEffect>d__33::System.Collections.IEnumerator.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterEffectU3Ed__33_System_Collections_IEnumerator_get_Current_mFDD305D00D3E6EB0911F483652035ECAB12F6AFA (U3CTypewriterEffectU3Ed__33_t23A7E28BC4047788E316E878EFB1AE2CDA80AEA2* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<TypewriterEffect>d__36::System.Collections.IEnumerator.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterEffectU3Ed__36_System_Collections_IEnumerator_get_Current_mB12F0644D17840728F16064589E76CC300A7A799 (U3CTypewriterEffectU3Ed__36_t138D64B8AFC8903F97A6257C0BAFB9D0EECB1AF5* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
@@ -7033,8 +7051,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CTypewriterEffectU3Ed__33_Sy
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__37::.ctor(System.Int32)
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__37__ctor_m4DDABE040890F068D9E2842ABC68DEFD328BED4B (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__40::.ctor(System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__40__ctor_m9D8E4AF9884BF95F282DC52F5A68C8592CFBAE70 (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
@@ -7043,15 +7061,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__37__ctor_m4DDABE
 		return;
 	}
 }
-// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__37::System.IDisposable.Dispose()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__37_System_IDisposable_Dispose_mF549EF1403795C855B9CFD8FF3DB5C96A452ED67 (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__40::System.IDisposable.Dispose()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__40_System_IDisposable_Dispose_m083EF8DBDD994F09AE9DDBE0EBEA585A681EBC74 (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// System.Boolean DictionaryWordViewer/<WaitForAudioEnd>d__37::MoveNext()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CWaitForAudioEndU3Ed__37_MoveNext_m1BD61EEF9C030206FC117FB944BF35AEF0ED94B5 (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, const RuntimeMethod* method) 
+// System.Boolean DictionaryWordViewer/<WaitForAudioEnd>d__40::MoveNext()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CWaitForAudioEndU3Ed__40_MoveNext_m38F0BF2BD11B9A72EBCAC76173FDDF5BF1608093 (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
@@ -7103,7 +7121,7 @@ IL_0038:
 		// if (isPlaying)
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_6 = V_1;
 		NullCheck(L_6);
-		bool L_7 = L_6->___isPlaying_23;
+		bool L_7 = L_6->___isPlaying_25;
 		if (!L_7)
 		{
 			goto IL_0054;
@@ -7113,7 +7131,7 @@ IL_0038:
 		// isPlaying = false;
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_8 = V_1;
 		NullCheck(L_8);
-		L_8->___isPlaying_23 = (bool)0;
+		L_8->___isPlaying_25 = (bool)0;
 		// SetPlayIcon();
 		DictionaryWordViewer_t073DE2E9D1BBA45B9BAAF0606715458B792BD849* L_9 = V_1;
 		NullCheck(L_9);
@@ -7126,26 +7144,26 @@ IL_0054:
 		return (bool)0;
 	}
 }
-// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__37::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CWaitForAudioEndU3Ed__37_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_m14BAA9D9973D2BE1E9599509ECBB1D50FF26C9E8 (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__40::System.Collections.Generic.IEnumerator<System.Object>.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CWaitForAudioEndU3Ed__40_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_m5D5BEF55CC00E17183966E6CAF360F1726C6FE85 (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
 		return L_0;
 	}
 }
-// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__37::System.Collections.IEnumerator.Reset()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__37_System_Collections_IEnumerator_Reset_mA7C8CD2D20F97BDC86C68C017F2B08D103C611AF (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, const RuntimeMethod* method) 
+// System.Void DictionaryWordViewer/<WaitForAudioEnd>d__40::System.Collections.IEnumerator.Reset()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CWaitForAudioEndU3Ed__40_System_Collections_IEnumerator_Reset_mF0C17F7D9B09188904046A167D7721A3C63704C9 (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, const RuntimeMethod* method) 
 {
 	{
 		NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A* L_0 = (NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotSupportedException_t1429765983D409BD2986508963C98D214E4EBF4A_il2cpp_TypeInfo_var)));
 		NullCheck(L_0);
 		NotSupportedException__ctor_m1398D0CDE19B36AA3DE9392879738C1EA2439CDF(L_0, NULL);
-		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CWaitForAudioEndU3Ed__37_System_Collections_IEnumerator_Reset_mA7C8CD2D20F97BDC86C68C017F2B08D103C611AF_RuntimeMethod_var)));
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CWaitForAudioEndU3Ed__40_System_Collections_IEnumerator_Reset_mF0C17F7D9B09188904046A167D7721A3C63704C9_RuntimeMethod_var)));
 	}
 }
-// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__37::System.Collections.IEnumerator.get_Current()
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CWaitForAudioEndU3Ed__37_System_Collections_IEnumerator_get_Current_mF0764276B06BC9AD66CD1A03009BF03EAF1FE87C (U3CWaitForAudioEndU3Ed__37_t1A4565D2013897025B34344D0637F250346D9CF2* __this, const RuntimeMethod* method) 
+// System.Object DictionaryWordViewer/<WaitForAudioEnd>d__40::System.Collections.IEnumerator.get_Current()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CWaitForAudioEndU3Ed__40_System_Collections_IEnumerator_get_Current_m1431188BC8F0DFA9E59098FA5C2C7D17F944794F (U3CWaitForAudioEndU3Ed__40_tDCD6A5F238C83F92F4230ACFDF8B839B0EF2EE51* __this, const RuntimeMethod* method) 
 {
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
@@ -16348,6 +16366,42 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CClearInvalidInputU3Ed__19_S
 	{
 		RuntimeObject* L_0 = __this->___U3CU3E2__current_1;
 		return L_0;
+	}
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+// System.Void ExitGame::ExitApplication()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ExitGame_ExitApplication_m3C331526184BF9817CDAA3F4C9B90178276EF860 (ExitGame_t7535BD4AC5611EBE2045397500E11C4CF600C05F* __this, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral671D11A61F7D20D9B8210A515BDE08F9B2AE11E5);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		// Debug.Log("Game is exiting...");
+		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
+		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral671D11A61F7D20D9B8210A515BDE08F9B2AE11E5, NULL);
+		// Application.Quit();
+		Application_Quit_mE304382DB9A6455C2A474C8F364C7387F37E9281(NULL);
+		// }
+		return;
+	}
+}
+// System.Void ExitGame::.ctor()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ExitGame__ctor_mF031F846CC7DE286155C56931B1D99E3B60E9151 (ExitGame_t7535BD4AC5611EBE2045397500E11C4CF600C05F* __this, const RuntimeMethod* method) 
+{
+	{
+		MonoBehaviour__ctor_m592DB0105CA0BC97AA1C5F4AD27B12D68A3B7C1E(__this, NULL);
+		return;
 	}
 }
 #ifdef __clang__
