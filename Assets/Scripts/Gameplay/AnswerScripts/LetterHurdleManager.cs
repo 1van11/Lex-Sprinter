@@ -1,44 +1,26 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LetterHurdleManager : MonoBehaviour
 {
-    public TMP_Text collectedText;
+    [Header("UI References")]
+    public TMP_Text collectedText;          // Shows "d _ _" progress
     public TMP_Text targetWordText;
-    public TMP_Text feedbackText;
-    public TMP_Text scoreText;
+    public Image letterHurdleClueImage;      // Uses difficulty‑based clue images
+    public TMP_Text letterHurdleFeedbackText;
+    public TMP_Text letterHurdleScoreText;
 
-    [Header("Boss Reference")]
-    public EventTimingManager bossManager;
-
-    [Header("Player Reference")]
-    public PlayerFunctions playerFunctions;
-
-    [Header("Obstacle Spawner Reference")]
-    public ObstacleSpawner obstacleSpawner;
-
-    [Header("Letter Prefab & Spawn")]
-    public GameObject letterPrefab;
-    public Transform spawnParent;
-    public float letterSpacing = 1f;
-
-    [Header("Clue Images - Per Difficulty")]
+    [Header("Clue Images (Difficulty Based)")]
     public Sprite[] easyClueImages;
     public Sprite[] mediumClueImages;
     public Sprite[] hardClueImages;
-    
-    [Header("Clue Display")]
-    public Image clueDisplayImage;  // Direct reference to the UI Image component
-    public bool showClueOnEventActive = true;
-
     private Sprite[] currentClueImages;
-    private Dictionary<string, Sprite> wordToImageMap = new Dictionary<string, Sprite>();
 
-    [Header("Word Lists")]
+    [Header("Word Lists (Difficulty Based)")]
     private string[] easyWordList = {
         "dog","hat","pink","sun","leg","meat","cup","pair","tree","black",
         "fast","swim","you","bed","hand","bird","milk","jump","bread","cake",
@@ -66,107 +48,116 @@ public class LetterHurdleManager : MonoBehaviour
         "Oubliette", "Parthenon", "Periscope", "Pharaoh", "Platypus", "Portcullis", "Pyramid", "Quokka", "Samurai", "Sarcophagus",
         "Scorpion", "Sextant", "Sphinx", "Spyglass", "Tarantula", "Trebuchet", "Trident", "Viking", "Xylophone", "Ziggurat",
     };
+    private string[] currentWordList;
 
-    private string[] wordList;
-    private string currentTargetWord;
+    [Header("References")]
+    public PlayerFunctions playerFunctions;
+    public ObstacleSpawner obstacleSpawner;
+    public EventTimingManager bossManager;   // optional
+
+    [Header("Letter Prefab")]
+    public GameObject letterPrefab;
+    public Transform letterSpawnParent;
+    public float letterSpacing = 1f;
+
+    // Private state
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
-    private string previousCollectedText = "";
+    private string currentTargetWord;
+    private string previousRawCollected = "";
 
+    private Dictionary<string, Sprite> wordToImageMap = new Dictionary<string, Sprite>();
     private List<GameObject> spawnedLetters = new List<GameObject>();
 
-    void Start()
+    void Awake()
     {
-        string scene = SceneManager.GetActiveScene().name;
-
-        if (scene == "GAMEMODE 2")
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName == "GAMEMODE")
         {
-            wordList = hardWordList;
-            currentClueImages = hardClueImages;
-            Debug.Log("LetterHurdleManager: Hard mode word list loaded");
+            currentWordList = easyWordList;
+            currentClueImages = easyClueImages;
         }
-        else if (scene == "GAMEMODE 1")
+        else if (sceneName == "GAMEMODE 1")
         {
-            wordList = mediumWordList;
+            currentWordList = mediumWordList;
             currentClueImages = mediumClueImages;
-            Debug.Log("LetterHurdleManager: Medium mode word list loaded");
+        }
+        else if (sceneName == "GAMEMODE 2")
+        {
+            currentWordList = hardWordList;
+            currentClueImages = hardClueImages;
         }
         else
         {
-            wordList = easyWordList;
+            currentWordList = easyWordList;
             currentClueImages = easyClueImages;
-            Debug.Log("LetterHurdleManager: Easy mode (default) word list loaded");
+            Debug.LogWarning("Unknown scene name. Defaulting to EASY MODE for letter hurdle.");
         }
+    }
 
-        // Build word-to-image dictionary
+    void Start()
+    {
+        if (letterHurdleClueImage != null)
+            letterHurdleClueImage.gameObject.SetActive(false);
+
+        InitializeLetterHurdle();
+    }
+
+    void Update()
+    {
+        if (collectedText == null) return;
+
+        string rawNow = ExtractRawLetters(collectedText.text);
+        if (rawNow != previousRawCollected)
+        {
+            CheckSpellingFast(rawNow);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Initialization
+    // ------------------------------------------------------------------
+    void InitializeLetterHurdle()
+    {
+        // Convert word list to lower case for consistency
+        currentWordList = currentWordList.Select(w => w.ToLower()).ToArray();
+
         BuildWordToImageMap();
 
-        shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+        shuffledWords = currentWordList.OrderBy(x => Random.value).ToList();
 
-        // Hide clue image at start
-        if (clueDisplayImage != null)
-            clueDisplayImage.gameObject.SetActive(false);
-
-        SetNewTargetWord();
-
-        if (feedbackText != null)
-            feedbackText.text = "";
-
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
         UpdateScoreText();
-
-        if (playerFunctions == null)
-            playerFunctions = FindObjectOfType<PlayerFunctions>();
-
-        // Auto-find ObstacleSpawner if not assigned
-        if (obstacleSpawner == null)
-            obstacleSpawner = FindObjectOfType<ObstacleSpawner>();
+        SetNewTargetWord();
     }
 
     void BuildWordToImageMap()
     {
         wordToImageMap.Clear();
-        
         if (currentClueImages == null || currentClueImages.Length == 0)
         {
             Debug.LogWarning("No clue images assigned for current difficulty");
             return;
         }
 
-        int count = Mathf.Min(wordList.Length, currentClueImages.Length);
+        int count = Mathf.Min(currentWordList.Length, currentClueImages.Length);
         for (int i = 0; i < count; i++)
         {
-            string word = wordList[i].ToLower();
+            string word = currentWordList[i];
             if (!wordToImageMap.ContainsKey(word) && currentClueImages[i] != null)
-            {
                 wordToImageMap.Add(word, currentClueImages[i]);
-            }
         }
-        
-        Debug.Log($"Word to image map built: {wordToImageMap.Count} words mapped");
-    }
-
-    void Update()
-    {
-        if (collectedText != null)
-        {
-            string currentCollected = collectedText.text.ToLower().Trim();
-            if (currentCollected != previousCollectedText)
-            {
-                CheckSpellingFast(currentCollected);
-                previousCollectedText = currentCollected;
-            }
-        }
+        Debug.Log($"Word-to-image map built: {wordToImageMap.Count} words mapped");
     }
 
     void SetNewTargetWord()
     {
-        foreach (var letter in spawnedLetters)
-            Destroy(letter);
+        foreach (var letter in spawnedLetters) Destroy(letter);
         spawnedLetters.Clear();
 
         if (currentWordIndex >= shuffledWords.Count)
         {
-            shuffledWords = wordList.OrderBy(x => Random.value).ToList();
+            shuffledWords = currentWordList.OrderBy(x => Random.value).ToList();
             currentWordIndex = 0;
         }
 
@@ -177,86 +168,103 @@ public class LetterHurdleManager : MonoBehaviour
 
         SpawnLetters(currentTargetWord);
 
-        if (collectedText != null)
-            collectedText.text = "";
+        previousRawCollected = "";
+        UpdateCollectedDisplay("");
 
-        previousCollectedText = "";
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
 
-        if (feedbackText != null)
-            feedbackText.text = "";
-
-        // Update clue image for the new word
         UpdateClueImage();
-    }
-
-    void UpdateClueImage()
-    {
-        if (clueDisplayImage == null) return;
-
-        // Only show clue if event is active and setting is enabled
-        if (showClueOnEventActive && obstacleSpawner != null && !obstacleSpawner.IsLetterEventActive)
-        {
-            clueDisplayImage.gameObject.SetActive(false);
-            return;
-        }
-
-        string targetWord = currentTargetWord.ToLower();
-        
-        if (wordToImageMap.TryGetValue(targetWord, out Sprite clueSprite))
-        {
-            clueDisplayImage.sprite = clueSprite;
-            clueDisplayImage.gameObject.SetActive(true);
-            Debug.Log($"Showing clue image for word: {currentTargetWord}");
-        }
-        else
-        {
-            // Try case-insensitive fallback
-            var match = wordToImageMap.FirstOrDefault(x => 
-                string.Equals(x.Key, targetWord, System.StringComparison.OrdinalIgnoreCase));
-            
-            if (match.Value != null)
-            {
-                clueDisplayImage.sprite = match.Value;
-                clueDisplayImage.gameObject.SetActive(true);
-            }
-            else
-            {
-                clueDisplayImage.gameObject.SetActive(false);
-                Debug.LogWarning($"No clue image found for word: {currentTargetWord}");
-            }
-        }
     }
 
     void SpawnLetters(string word)
     {
-        if (letterPrefab == null || spawnParent == null) return;
+        if (letterPrefab == null || letterSpawnParent == null) return;
 
         for (int i = 0; i < word.Length; i++)
         {
-            GameObject letterObj = Instantiate(letterPrefab, spawnParent);
+            GameObject letterObj = Instantiate(letterPrefab, letterSpawnParent);
             letterObj.transform.localPosition = new Vector3(i * letterSpacing, 0, 0);
-            TMP_Text letterText = letterObj.GetComponent<TMP_Text>();
-            if (letterText != null)
-                letterText.text = word[i].ToString().ToUpper();
-
+            TMP_Text lt = letterObj.GetComponent<TMP_Text>();
+            if (lt != null) lt.text = word[i].ToString().ToUpper();
             spawnedLetters.Add(letterObj);
         }
     }
 
-    void CheckSpellingFast(string collected)
+    void UpdateClueImage()
     {
-        if (string.IsNullOrEmpty(collected)) return;
+        if (letterHurdleClueImage == null) return;
+
+        string targetWord = currentTargetWord.ToLower();
+        if (wordToImageMap.TryGetValue(targetWord, out Sprite sprite) && sprite != null)
+        {
+            letterHurdleClueImage.sprite = sprite;
+            letterHurdleClueImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            letterHurdleClueImage.gameObject.SetActive(false);
+            Debug.LogWarning($"No clue image found for word: {currentTargetWord}");
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Spelling Check
+    // ------------------------------------------------------------------
+    private string ExtractRawLetters(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach (char c in text)
+        {
+            if (c != '_' && c != ' ')
+                sb.Append(char.ToLower(c));
+        }
+        return sb.ToString();
+    }
+
+    private void UpdateCollectedDisplay(string rawCollected)
+    {
+        if (collectedText == null || string.IsNullOrEmpty(currentTargetWord)) return;
+
+        string target = currentTargetWord.ToLower();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        for (int i = 0; i < target.Length; i++)
+        {
+            if (i > 0) sb.Append(' ');
+
+            if (i < rawCollected.Length)
+                sb.Append(rawCollected[i]);
+            else
+                sb.Append('_');
+        }
+
+        collectedText.text = sb.ToString();
+    }
+
+    private void CheckSpellingFast(string collected)
+    {
+        if (string.IsNullOrEmpty(collected))
+        {
+            previousRawCollected = "";
+            UpdateCollectedDisplay("");
+            return;
+        }
 
         string target = currentTargetWord.ToLower();
 
         if (collected == target)
         {
-            if (feedbackText != null)
+            UpdateCollectedDisplay(collected);
+            previousRawCollected = collected;
+
+            if (letterHurdleFeedbackText != null)
             {
-                feedbackText.text = "Correct!";
-                feedbackText.color = Color.green;
+                letterHurdleFeedbackText.text = "Correct!";
+                letterHurdleFeedbackText.color = Color.green;
             }
 
+            // Reward coins based on difficulty
             if (playerFunctions != null)
             {
                 string scene = SceneManager.GetActiveScene().name;
@@ -269,81 +277,73 @@ public class LetterHurdleManager : MonoBehaviour
                 playerFunctions.AddCoins(coinReward);
             }
 
-            // Notify ObstacleSpawner that word was completed
+            // Notify obstacle spawner about success
             if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
-                Debug.Log("✅ Word completed! Notified ObstacleSpawner.");
-                
-                // Hide clue image when event ends
-                if (clueDisplayImage != null)
-                    clueDisplayImage.gameObject.SetActive(false);
+                if (letterHurdleClueImage != null)
+                    letterHurdleClueImage.gameObject.SetActive(false);
             }
 
-            // Call boss manager if it exists
-            if (bossManager != null)
-                bossManager.FinishBoss();
+            // Optional boss finish
+            if (bossManager != null) bossManager.FinishBoss();
 
+            // Move to next word
             currentWordIndex++;
             SetNewTargetWord();
             return;
         }
 
-        int minLength = Mathf.Min(collected.Length, target.Length);
-        for (int i = 0; i < minLength; i++)
+        int minLen = Mathf.Min(collected.Length, target.Length);
+        for (int i = 0; i < minLen; i++)
         {
             if (collected[i] != target[i])
             {
-                if (feedbackText != null)
+                if (letterHurdleFeedbackText != null)
                 {
-                    feedbackText.text = "Wrong Letter!";
-                    feedbackText.color = Color.red;
+                    letterHurdleFeedbackText.text = "Wrong Letter!";
+                    letterHurdleFeedbackText.color = Color.red;
                 }
 
-                // Notify ObstacleSpawner of failure
                 if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
-                {
                     obstacleSpawner.OnLetterHurdleFailed();
-                }
 
                 if (playerFunctions != null)
                     playerFunctions.TakeDamageFromWrongLetter();
 
-                collectedText.text = collected.Substring(0, i);
-                previousCollectedText = collectedText.text;
+                string trimmed = collected.Substring(0, i);
+                previousRawCollected = trimmed;
+                UpdateCollectedDisplay(trimmed);
 
-                if (feedbackText != null)
-                    Invoke("ClearFeedback", 1f);
+                if (letterHurdleFeedbackText != null)
+                    Invoke(nameof(ClearFeedback), 1f);
 
                 return;
             }
         }
 
-        if (feedbackText != null)
-            feedbackText.text = "";
+        // All characters matched so far – continue
+        previousRawCollected = collected;
+        UpdateCollectedDisplay(collected);
+
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
     }
 
-    void ClearFeedback()
+    private void ClearFeedback()
     {
-        if (feedbackText != null)
-            feedbackText.text = "";
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
     }
 
-    void UpdateScoreText()
-    {
-        if (scoreText != null && playerFunctions != null)
-            scoreText.text = "Score: " + playerFunctions.score;
-    }
+    // ------------------------------------------------------------------
+    // Public Methods (called by other scripts, e.g. LetterCollectible)
+    // ------------------------------------------------------------------
+    public string GetCurrentWord() => currentTargetWord;
 
     public void ClearCollectedLetters()
     {
-        if (collectedText != null)
-            collectedText.text = "";
-
-        previousCollectedText = "";
-
-        if (feedbackText != null)
-            feedbackText.text = "";
+        previousRawCollected = "";
+        UpdateCollectedDisplay("");
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
     }
 
     public void SkipWord()
@@ -352,43 +352,33 @@ public class LetterHurdleManager : MonoBehaviour
         SetNewTargetWord();
     }
 
-    public string GetCurrentWord()
-    {
-        return currentTargetWord;
-    }
-
     public void CheckBossSpell()
     {
         if (collectedText == null) return;
 
-        string typed = collectedText.text.ToLower().Trim();
-        string target = currentTargetWord.ToLower().Trim();
-
-        if (typed == target)
+        string typed = ExtractRawLetters(collectedText.text);
+        if (typed == currentTargetWord.ToLower())
         {
-            // Notify ObstacleSpawner first
             if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
-                Debug.Log("✅ CheckBossSpell: Word completed! Ending letter event.");
-                
-                // Hide clue image when event ends
-                if (clueDisplayImage != null)
-                    clueDisplayImage.gameObject.SetActive(false);
+                if (letterHurdleClueImage != null)
+                    letterHurdleClueImage.gameObject.SetActive(false);
             }
         }
     }
 
-    // Public method to manually show/hide clue image
     public void ShowClueImage(bool show)
     {
-        if (clueDisplayImage != null)
-            clueDisplayImage.gameObject.SetActive(show && showClueOnEventActive);
+        if (letterHurdleClueImage != null)
+            letterHurdleClueImage.gameObject.SetActive(show);
     }
 
-    // Public method to refresh clue image (useful when event state changes)
-    public void RefreshClueImage()
+    public void RefreshClueImage() => UpdateClueImage();
+
+    private void UpdateScoreText()
     {
-        UpdateClueImage();
+        if (letterHurdleScoreText != null && playerFunctions != null)
+            letterHurdleScoreText.text = "Score: " + playerFunctions.score;
     }
 }
