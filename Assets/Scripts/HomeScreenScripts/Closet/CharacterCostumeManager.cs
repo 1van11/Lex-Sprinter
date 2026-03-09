@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterCostumeManager : MonoBehaviour
 {
@@ -8,12 +9,20 @@ public class CharacterCostumeManager : MonoBehaviour
     [Header("Boy Costumes")]
     public GameObject[] boyCostumeModels;   // DefaultBoy, RainyBoy, ChristmasBoy
 
+    [Header("Closet UI Images")]
+    public Image[] outfitSlots;             // Drag your 3 lock/outfit UI images here
+
+    [Header("Girl Outfit Sprites")]
+    public Sprite[] girlSprites;            // 3 girl outfit sprites
+
+    [Header("Boy Outfit Sprites")]
+    public Sprite[] boySprites;             // 3 boy outfit sprites
+
     int lastCostumeIndex = -1;
     bool isGirl;
 
     void Start()
     {
-        // Read which character was selected
         int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
         isGirl = (selected == 2);
     }
@@ -22,6 +31,9 @@ public class CharacterCostumeManager : MonoBehaviour
     {
         int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
         isGirl = (selected == 2);
+
+        // Swap UI images when panel opens
+        UpdateClosetUI();
         ApplySavedCostume();
     }
 
@@ -52,17 +64,26 @@ public class CharacterCostumeManager : MonoBehaviour
 
     void UpdateCostume(int index)
     {
-        // Pick the correct array based on gender
-        GameObject[] activeSet  = isGirl ? girlCostumeModels : boyCostumeModels;
+        GameObject[] activeSet   = isGirl ? girlCostumeModels : boyCostumeModels;
         GameObject[] inactiveSet = isGirl ? boyCostumeModels : girlCostumeModels;
 
-        // Hide ALL of the opposite gender
         foreach (var obj in inactiveSet)
             if (obj != null) obj.SetActive(false);
 
-        // Show only selected costume of current gender
         for (int i = 0; i < activeSet.Length; i++)
             if (activeSet[i] != null)
                 activeSet[i].SetActive(i == index);
+    }
+
+    // NEW: swaps the UI images based on gender
+    void UpdateClosetUI()
+    {
+        Sprite[] sprites = isGirl ? girlSprites : boySprites;
+
+        for (int i = 0; i < outfitSlots.Length; i++)
+        {
+            if (outfitSlots[i] != null && i < sprites.Length)
+                outfitSlots[i].sprite = sprites[i];
+        }
     }
 }
