@@ -11643,6 +11643,11 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: b2b79ed2f28966c4ea21362323d6e0b4, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8caf764f6411d1b40820c34011cdacb6, type: 3}
+--- !u!1 &653138454 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 8caf764f6411d1b40820c34011cdacb6, type: 3}
+  m_PrefabInstance: {fileID: 653138453}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &676114505
 GameObject:
   m_ObjectHideFlags: 0
@@ -23177,10 +23182,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25bb3662aa7c8354faf493e4513cde85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  costumeModels:
+  girlCostumeModels:
   - {fileID: 2062927159}
   - {fileID: 1947139493}
   - {fileID: 387130874}
+  boyCostumeModels:
+  - {fileID: 1034792937}
+  - {fileID: 653138454}
+  - {fileID: 1746936807}
 --- !u!114 &1530713993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23193,8 +23202,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835cf7ba032c08343aa586bb863ad7c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boyCharacter: {fileID: 1034792937}
-  girlCharacter: {fileID: 2062927159}
+  defaultGirl: {fileID: 2062927159}
+  rainyGirl: {fileID: 1947139493}
+  christmasGirl: {fileID: 387130874}
+  defaultBoy: {fileID: 1034792937}
+  rainyBoy: {fileID: 653138454}
+  christmasBoy: {fileID: 1746936807}
 --- !u!1 &1536588628
 GameObject:
   m_ObjectHideFlags: 0
@@ -26726,6 +26739,11 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: b2b79ed2f28966c4ea21362323d6e0b4, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd866df720911784f8bcbfe060f95493, type: 3}
+--- !u!1 &1746936807 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fd866df720911784f8bcbfe060f95493, type: 3}
+  m_PrefabInstance: {fileID: 1746936806}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1748051477
 GameObject:
   m_ObjectHideFlags: 0

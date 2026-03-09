@@ -2,18 +2,31 @@ using UnityEngine;
 
 public class CharacterCostumeManager : MonoBehaviour
 {
-    public GameObject[] costumeModels;
+    [Header("Girl Costumes")]
+    public GameObject[] girlCostumeModels;  // DefaultGirl, RainyGirl, ChristmasGirl
+
+    [Header("Boy Costumes")]
+    public GameObject[] boyCostumeModels;   // DefaultBoy, RainyBoy, ChristmasBoy
 
     int lastCostumeIndex = -1;
+    bool isGirl;
+
+    void Start()
+    {
+        // Read which character was selected
+        int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
+        isGirl = (selected == 2);
+    }
 
     void OnEnable()
     {
+        int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
+        isGirl = (selected == 2);
         ApplySavedCostume();
     }
 
     void Update()
     {
-        // Detect change and update instantly
         int currentIndex = PlayerPrefs.GetInt("EquippedCostume", 0);
         if (currentIndex != lastCostumeIndex)
         {
@@ -26,7 +39,6 @@ public class CharacterCostumeManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("EquippedCostume", index);
         PlayerPrefs.Save();
-
         UpdateCostume(index);
         lastCostumeIndex = index;
     }
@@ -40,10 +52,17 @@ public class CharacterCostumeManager : MonoBehaviour
 
     void UpdateCostume(int index)
     {
-        for (int i = 0; i < costumeModels.Length; i++)
-        {
-            if (costumeModels[i] != null)
-                costumeModels[i].SetActive(i == index);
-        }
+        // Pick the correct array based on gender
+        GameObject[] activeSet  = isGirl ? girlCostumeModels : boyCostumeModels;
+        GameObject[] inactiveSet = isGirl ? boyCostumeModels : girlCostumeModels;
+
+        // Hide ALL of the opposite gender
+        foreach (var obj in inactiveSet)
+            if (obj != null) obj.SetActive(false);
+
+        // Show only selected costume of current gender
+        for (int i = 0; i < activeSet.Length; i++)
+            if (activeSet[i] != null)
+                activeSet[i].SetActive(i == index);
     }
 }

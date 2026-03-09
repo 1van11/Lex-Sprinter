@@ -2,14 +2,35 @@ using UnityEngine;
 
 public class CharacterDisplay : MonoBehaviour
 {
-    public GameObject boyCharacter;   // drag "Idle0 Lexigirl" BOY object here
-    public GameObject girlCharacter;  // drag "Idle1 SummerDress" GIRL object here
+    [Header("Girl Costumes")]
+    public GameObject defaultGirl;
+    public GameObject rainyGirl;
+    public GameObject christmasGirl;
+
+    [Header("Boy Costumes")]
+    public GameObject defaultBoy;
+    public GameObject rainyBoy;
+    public GameObject christmasBoy;
+
+    public static bool isGirl; // other scripts can read this
 
     void Start()
     {
         int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
+        isGirl = (selected == 2);
 
-        boyCharacter.SetActive(selected == 1);   // Light1 = 1 = Boy
-        girlCharacter.SetActive(selected == 2);  // Light2 = 2 = Girl
+        // Hide ALL first
+        defaultGirl.SetActive(false);
+        rainyGirl.SetActive(false);
+        christmasGirl.SetActive(false);
+        defaultBoy.SetActive(false);
+        rainyBoy.SetActive(false);
+        christmasBoy.SetActive(false);
+
+        // Show correct DEFAULT based on selection
+        if (isGirl)
+            defaultGirl.SetActive(true);
+        else
+            defaultBoy.SetActive(true);
     }
 }
