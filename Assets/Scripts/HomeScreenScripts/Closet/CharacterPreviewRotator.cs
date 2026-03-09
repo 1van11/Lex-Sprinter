@@ -1,112 +1,112 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
 public class CharacterPreviewRotator : MonoBehaviour
 {
     [Header("Rotation Settings")]
-    public bool autoRotate = false; // Changed to false by default
+    public bool autoRotate = false;
     public float autoRotateSpeed = 20f;
-    
+
     [Header("Manual Rotation (Touch/Mouse)")]
     public bool enableManualRotation = true;
     public float manualRotationSpeed = 0.3f;
-    
+
+    [Header("Default Position")]
+    public float defaultRotationY = 0f; // Set this in Inspector to any angle you want!
+
     [Header("Rotation Area (Optional)")]
-    public RectTransform rotationArea; // Drag a UI panel here to limit rotation area
-    
+    public RectTransform rotationArea;
+
     private bool isDragging = false;
     private float lastMouseX;
     private float currentRotation = 0f;
-    
+
+    void Awake()
+    {
+        // Listen for scene changes
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        // Always unsubscribe to avoid memory leaks
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // Fires every time a new scene loads
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResetToDefault();
+    }
+
+    // Fires every time this GameObject/Panel is enabled
+    void OnEnable()
+    {
+        ResetToDefault();
+    }
+
+    void ResetToDefault()
+    {
+        currentRotation = defaultRotationY;
+        transform.rotation = Quaternion.Euler(0, defaultRotationY, 0);
+    }
+
     void Update()
     {
-        // Auto rotation when not being dragged
         if (autoRotate && !isDragging)
         {
             currentRotation += autoRotateSpeed * Time.deltaTime;
             transform.rotation = Quaternion.Euler(0, currentRotation, 0);
         }
-        
-        // Manual rotation with mouse/touch
+
         if (enableManualRotation)
         {
             HandleManualRotation();
         }
     }
-    
+
     void HandleManualRotation()
     {
-        // Check if we should handle input
         bool canRotate = true;
-        
-        // If rotation area is set, check if pointer is inside it
+
         if (rotationArea != null)
         {
             canRotate = RectTransformUtility.RectangleContainsScreenPoint(
-                rotationArea, 
-                Input.mousePosition, 
+                rotationArea,
+                Input.mousePosition,
                 null
             );
         }
-        
-        if (!canRotate)
-            return;
-        
-        // Mouse/Touch down
+
+        if (!canRotate) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             isDragging = true;
             lastMouseX = Input.mousePosition.x;
-            autoRotate = false; // Stop auto rotation when user starts dragging
+            autoRotate = false;
         }
-        
-        // Mouse/Touch drag
+
         if (Input.GetMouseButton(0) && isDragging)
         {
             float currentMouseX = Input.mousePosition.x;
             float deltaX = currentMouseX - lastMouseX;
-            
-            // Rotate based on horizontal drag
             currentRotation += deltaX * manualRotationSpeed;
             transform.rotation = Quaternion.Euler(0, currentRotation, 0);
-            
             lastMouseX = currentMouseX;
         }
-        
-        // Mouse/Touch up
+
         if (Input.GetMouseButtonUp(0))
         {
             isDragging = false;
-            // Auto rotation removed - character stays at user's chosen angle
         }
     }
-    
-    void ResumeAutoRotation()
-    {
-        // This function is no longer called, but kept for manual use if needed
-        autoRotate = true;
-    }
-    
-    // Reset rotation to default
-    public void ResetRotation()
-    {
-        currentRotation = 0f;
-        transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-    
-    // Stop auto rotation
-    public void StopAutoRotation()
-    {
-        autoRotate = false;
-    }
-    
-    // Start auto rotation
-    public void StartAutoRotation()
-    {
-        autoRotate = true;
-    }
-    
-    // Set rotation to specific angle
+
+    public void ResetRotation() => ResetToDefault();
+    public void StopAutoRotation() => autoRotate = false;
+    public void StartAutoRotation() => autoRotate = true;
+
     public void SetRotation(float angle)
     {
         currentRotation = angle;

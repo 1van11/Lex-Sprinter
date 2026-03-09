@@ -78,8 +78,7 @@ public class ShopItemBuyer : MonoBehaviour
     {
         if (isPurchased)
         {
-            // Already owned - equip it
-            EquipItem();
+            Debug.Log("Already owned! Equip from the Closet.");
         }
         else
         {
@@ -131,7 +130,6 @@ public class ShopItemBuyer : MonoBehaviour
                 }
 
                 // Equip the item
-                EquipItem();
                 RefreshAllItemsUI();
 
                 // Show SUCCESS popup with AUTO-CLOSE! 🎉
