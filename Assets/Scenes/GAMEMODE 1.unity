@@ -2303,6 +2303,7 @@ MonoBehaviour:
   maxSwipeSpeed: 20
   returnToCenterSpeed: 5
   swipeDirectionThreshold: 0.5
+  swipeCooldown: 0
   tiltAngle: 20
   maxYawAngle: 30
   rotationSpeed: 10
@@ -3323,6 +3324,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 2
+  letterHurdleCompletionPronunciationDelay: 0.3
+  letterHurdleNextWordDelay: 2
   correctAnswer: 
 --- !u!1 &529262464
 GameObject:
@@ -3609,6 +3613,7 @@ MonoBehaviour:
   warningDisplayTime: 10
   letterEventCompleteUI: {fileID: 0}
   completionUIDisplayTime: 5
+  clueUIHideDelayOnCompletion: 2
   wordsToSolvePerEvent: 1
   animateLetterUI: 1
   letterUIAnimationDuration: 0.2
@@ -4201,6 +4206,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 15
+  letterHurdleCompletionPronunciationDelay: 0
+  letterHurdleNextWordDelay: 5
   correctAnswer: 
 --- !u!1 &562469606 stripped
 GameObject:
@@ -7114,6 +7122,7 @@ MonoBehaviour:
   maxSwipeSpeed: 20
   returnToCenterSpeed: 5
   swipeDirectionThreshold: 0.5
+  swipeCooldown: 0
   tiltAngle: 20
   maxYawAngle: 67
   rotationSpeed: 10
@@ -8326,6 +8335,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 2
+  letterHurdleCompletionPronunciationDelay: 0.3
+  letterHurdleNextWordDelay: 2
   correctAnswer: 
 --- !u!4 &1372272558
 Transform:
@@ -9899,6 +9911,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 2
+  letterHurdleCompletionPronunciationDelay: 0.3
+  letterHurdleNextWordDelay: 2
   correctAnswer: 
 --- !u!65 &1660453008
 BoxCollider:
@@ -10104,6 +10119,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 2
+  letterHurdleCompletionPronunciationDelay: 0.3
+  letterHurdleNextWordDelay: 2
   correctAnswer: 
 --- !u!4 &1677724545
 Transform:
@@ -10818,6 +10836,9 @@ MonoBehaviour:
   bossManager: {fileID: 0}
   playerFunctions: {fileID: 0}
   obstacleSpawner: {fileID: 0}
+  letterHurdlePronunciationDelay: 2
+  letterHurdleCompletionPronunciationDelay: 0.3
+  letterHurdleNextWordDelay: 2
   correctAnswer: 
 --- !u!65 &1688170024
 BoxCollider:

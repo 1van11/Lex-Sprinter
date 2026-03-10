@@ -41,6 +41,7 @@ public class PlayerControls : MonoBehaviour
     public float maxSwipeSpeed = 20f;            // Maximum speed from swiping
     public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
     public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
+    public float swipeCooldown = 0f;              // <<< CHANGE THIS VALUE TO ADJUST COOLDOWN (0 = no cooldown)
 
     [Header("Visual Tilt & Yaw")]
     public float tiltAngle = 20f;                // Max roll angle when moving sideways
@@ -82,7 +83,6 @@ public class PlayerControls : MonoBehaviour
     private bool gestureLocked = false;          // Locks whether this is horizontal or vertical swipe
     private bool isHorizontalSwipe = false;      // Which direction is locked
     private float lastSwipeTime;
-    private float swipeCooldown = 0;
 
     void Awake()
     {

@@ -17,6 +17,10 @@ public enum SlideDirection
 
 public class QuestionRandomizer : MonoBehaviour
 {
+    // ─────────────────────────────────────────────────────────────────────────────
+    // INSPECTOR HEADERS
+    // ─────────────────────────────────────────────────────────────────────────────
+
     [Header("UI")]
     public TMP_Text jumpText;
     public TMP_Text slideText;
@@ -47,12 +51,12 @@ public class QuestionRandomizer : MonoBehaviour
     public AudioClip[] sentencePronunciations;   // may be extended later
 
     [Header("Spelling vs Sentence Frequency")]
-    public int easySpellingBeforeSentence = 3;   // after 3 spelling, spawn a sentence
+    public int easySpellingBeforeSentence = 3;
     public int mediumSpellingBeforeSentence = 4;
     public int hardSpellingBeforeSentence = 5;
 
     // Static so other scripts (like ObstacleSpawner) can read the current difficulty's value
-    public static int CurrentSpellingBeforeSentence = 3; // default
+    public static int CurrentSpellingBeforeSentence = 3;
 
     [Header("Audio")]
     public AudioSource audioSource;
@@ -84,14 +88,29 @@ public class QuestionRandomizer : MonoBehaviour
     public PlayerFunctions playerFunctions;
     public ObstacleSpawner obstacleSpawner;
 
-    // Current question state
+    [Header("Letter Hurdle – Timing")]
+    [Tooltip("Delay in seconds before the word is pronounced when a new letter hurdle word appears (entrance).")]
+    public float letterHurdlePronunciationDelay = 2f;
+
+    [Tooltip("Delay in seconds after correct spelling before the completion (outro) pronunciation plays. " +
+             "Must be less than or equal to Letter Hurdle Next Word Delay.")]
+    public float letterHurdleCompletionPronunciationDelay = 0.5f;
+
+    [Tooltip("How long (seconds) the completed word's image stays visible before the next word appears. " +
+             "The image is actively kept on screen for this entire duration. " +
+             "Set this to at least 2–4 seconds so the player can read it comfortably.")]
+    public float letterHurdleNextWordDelay = 4f;
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // PRIVATE STATE
+    // ─────────────────────────────────────────────────────────────────────────────
+
     public string correctAnswer;
     private int currentQuestionIndex = -1;
     private bool isSentenceQuestion = false;
     private bool audioPlayed = false;
     private bool playerInTrigger = false;
 
-    // Active sets based on scene
     private string[,] activeSpellingPairs;
     private string[,] activeSentencePairs;
 
@@ -113,10 +132,6 @@ public class QuestionRandomizer : MonoBehaviour
     private List<string> shuffledWords;
     private int currentWordIndex = 0;
 
-    // ── Raw collected letters (what the player has correctly typed so far).
-    // collectedText.text is now used ONLY for the formatted "d _ _" display.
-    // External letter-collector scripts may still append raw characters to
-    // collectedText.text; we extract real letters via ExtractRawLetters().
     private string previousRawCollected = "";
 
     // Keep the old field name alive as an alias so any leftover references compile
@@ -129,11 +144,17 @@ public class QuestionRandomizer : MonoBehaviour
     private List<GameObject> spawnedLetters = new List<GameObject>();
     private Dictionary<string, Sprite> wordToImageMap = new Dictionary<string, Sprite>();
 
+    // pronunciationCoroutine  — delayed ENTRANCE sound for a newly shown word
+    // wordTransitionCoroutine — completion flow: keeps image alive + outro + next word
+    private Coroutine pronunciationCoroutine;
+    private Coroutine wordTransitionCoroutine;
+
     // ─────────────────────────────────────────────────────────────────────────────
-    // DIFFICULTY BANKS – each row has 4 columns: clue + correct + wrong1 + wrong2
+    // DATA BANKS
     // ─────────────────────────────────────────────────────────────────────────────
 
-    #region Easy
+    #region Easy Data Banks
+
     public static string[,] easySpellingPairs = new string[,]
     {
 /*-- 0 --*/  { "a common pet that barks",                       "dog",        "dag",        "dug"        },
@@ -261,9 +282,11 @@ public class QuestionRandomizer : MonoBehaviour
         { "The waiter ____ food to the customers.",                 "served",       "swam",         "cooked"     },
         { "The swimmer ____ laps in the pool.",                     "swam",         "cooked",       "taught"     }
     };
+
     #endregion
 
-    #region Medium
+    #region Medium Data Banks
+
     public static string[,] mediumSpellingPairs = new string[,]
     {
 /*-- 0 --*/  { "large reptile with powerful jaws",                          "alligator",     "aligater",      "alligater"     },
@@ -341,9 +364,11 @@ public class QuestionRandomizer : MonoBehaviour
         { "The reporter ____ the event for the evening news.",          "covered",      "announced",    "filmed"     },
         { "The professor ____ the topic in great detail.",              "explained",    "mentioned",    "discussed"  }
     };
+
     #endregion
 
-    #region Hard
+    #region Hard Data Banks
+
     public static string[,] hardSpellingPairs = new string[,]
     {
 /*-- 0 --*/  { "a burrowing African mammal with a long nose",                  "aardvark",      "aardvarko",     "ardvark"       },
@@ -421,12 +446,14 @@ public class QuestionRandomizer : MonoBehaviour
         { "The pilot navigated through the dangerous ____.",                "hurricane",     "mountain",      "storm"         },
         { "She used a ____ to examine the tiny crystals.",                  "microscope",    "telescope",     "magnifier"     },
     };
+
     #endregion
 
-#region Question logic
     // ─────────────────────────────────────────────────────────────────────────────
-    // CORE LOGIC
+    // CORE
     // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Core
 
     void Awake()
     {
@@ -479,24 +506,20 @@ public class QuestionRandomizer : MonoBehaviour
         if (clueImageObject != null)  clueImageObject.SetActive(false);
         if (letterHurdleClueImage != null) letterHurdleClueImage.gameObject.SetActive(false);
 
-        // Prepare clue image animation
         if (clueImageObject != null)
         {
             imageCanvasGroup = clueImageObject.GetComponent<CanvasGroup>() ?? clueImageObject.AddComponent<CanvasGroup>();
             imageRect = clueImageObject.GetComponent<RectTransform>();
         }
 
-        // Prepare clue text animation
         if (clueTextObject != null)
         {
             textCanvasGroup = clueTextObject.GetComponent<CanvasGroup>() ?? clueTextObject.AddComponent<CanvasGroup>();
             textRect = clueTextObject.GetComponent<RectTransform>();
         }
 
-        // Delay position capture by one frame so Unity layout is ready
         StartCoroutine(CaptureOriginalPositions());
 
-        // Auto-find references
         if (playerFunctions == null)  playerFunctions  = FindObjectOfType<PlayerFunctions>();
         if (obstacleSpawner == null)  obstacleSpawner  = FindObjectOfType<ObstacleSpawner>();
 
@@ -506,70 +529,154 @@ public class QuestionRandomizer : MonoBehaviour
             SetRandomQuestion();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // FIX: Capture original rect positions after layout is resolved
-    // ─────────────────────────────────────────────────────────────────────────────
     private IEnumerator CaptureOriginalPositions()
     {
-        yield return null; // wait one frame for UI layout to settle
+        yield return null;
         if (imageRect != null) originalImagePos = imageRect.anchoredPosition;
         if (textRect  != null) originalTextPos  = textRect.anchoredPosition;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // UPDATE  –  detect new raw letters written by the letter-collector scripts
-    // ─────────────────────────────────────────────────────────────────────────────
     void Update()
     {
         if (collectedText == null) return;
-
         string rawNow = ExtractRawLetters(collectedText.text);
-
         if (rawNow != previousRawCollected)
-        {
             CheckSpellingFast(rawNow);
-        }
     }
 
+    #endregion
+
     // ─────────────────────────────────────────────────────────────────────────────
-    // LETTER HURDLE DISPLAY HELPERS
+    // WORD HURDLE  –  Spelling Questions  (jump / slide / option3 UI)
     // ─────────────────────────────────────────────────────────────────────────────
 
-    private string ExtractRawLetters(string text)
+    #region Word Hurdle – Spelling Questions
+
+    public void SetSpellingQuestion(int index)
     {
-        if (string.IsNullOrEmpty(text)) return "";
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        foreach (char c in text)
+        if (index < 0 || index >= activeSpellingPairs.GetLength(0))
         {
-            if (c != '_' && c != ' ')
-                sb.Append(char.ToLower(c));
+            Debug.LogError($"Invalid spelling question index: {index}");
+            return;
         }
-        return sb.ToString();
+
+        string clue    = activeSpellingPairs[index, 0];
+        string correct = activeSpellingPairs[index, 1];
+        string wrong1  = activeSpellingPairs[index, 2];
+        string wrong2  = activeSpellingPairs[index, 3];
+
+        clueText.text        = clue;
+        correctAnswer        = correct;
+        currentQuestionIndex = index;
+        isSentenceQuestion   = false;
+        audioPlayed          = false;
+
+        int correctPosition = Random.Range(0, 3);
+        AssignOptions(correct, wrong1, wrong2, correctPosition);
+        UpdateClueVisibility();
+
+        Debug.Log($"Spelling Q: {clue} | Correct: {correct} @ pos {correctPosition}");
     }
 
-    private void UpdateCollectedDisplay(string rawCollected)
+    public int GetSpellingQuestionCount() => activeSpellingPairs?.GetLength(0) ?? 0;
+
+    #endregion
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // SENTENCE HURDLE  –  Sentence Completion Questions  (jump / slide / option3 UI)
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Sentence Hurdle – Sentence Questions
+
+    public void SetSentenceQuestion(int index)
     {
-        if (collectedText == null || string.IsNullOrEmpty(currentTargetWord)) return;
-
-        string target = currentTargetWord.ToLower();
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-        for (int i = 0; i < target.Length; i++)
+        if (index < 0 || index >= activeSentencePairs.GetLength(0))
         {
-            if (i > 0) sb.Append(' ');
-
-            if (i < rawCollected.Length)
-                sb.Append(rawCollected[i]);
-            else
-                sb.Append('_');
+            Debug.LogError($"Invalid sentence question index: {index}");
+            return;
         }
 
-        collectedText.text = sb.ToString();
+        string sentence = activeSentencePairs[index, 0];
+        string correct  = activeSentencePairs[index, 1];
+        string wrong1   = activeSentencePairs[index, 2];
+        string wrong2   = activeSentencePairs[index, 3];
+
+        clueText.text        = sentence;
+        correctAnswer        = correct;
+        currentQuestionIndex = index;
+        isSentenceQuestion   = true;
+        audioPlayed          = false;
+
+        int correctPosition = Random.Range(0, 3);
+        AssignOptions(correct, wrong1, wrong2, correctPosition);
+        UpdateClueVisibility();
+
+        Debug.Log($"Sentence Q: {sentence} | Correct: {correct} @ pos {correctPosition}");
     }
 
+    public int GetSentenceQuestionCount() => activeSentencePairs?.GetLength(0) ?? 0;
+
+    #endregion
+
     // ─────────────────────────────────────────────────────────────────────────────
-    // LETTER HURDLE INIT
+    // SHARED QUESTION LOGIC  –  used by both Word Hurdle and Sentence Hurdle
     // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Shared Question Logic
+
+    private void AssignOptions(string correct, string wrong1, string wrong2, int correctPosition)
+    {
+        TMP_Text[] options = new TMP_Text[] { jumpText, slideText, option3Text };
+        string[]   wrongs  = new string[]   { wrong1, wrong2 };
+
+        int[] wrongIndices = new int[2];
+        int idx = 0;
+        for (int i = 0; i < 3; i++)
+            if (i != correctPosition) wrongIndices[idx++] = i;
+
+        if (Random.value > 0.5f) { string t = wrongs[0]; wrongs[0] = wrongs[1]; wrongs[1] = t; }
+
+        options[correctPosition].text  = correct;
+        options[wrongIndices[0]].text  = wrongs[0];
+        options[wrongIndices[1]].text  = wrongs[1];
+    }
+
+    public void SetRandomQuestion()
+    {
+        if (Random.value > 0.5f)
+            SetSpellingQuestion(Random.Range(0, activeSpellingPairs.GetLength(0)));
+        else
+            SetSentenceQuestion(Random.Range(0, activeSentencePairs.GetLength(0)));
+    }
+
+    public bool TryLoadDailyTaskQuestion()
+    {
+        if (!PlayerPrefs.HasKey("CurrentTaskID")) return false;
+
+        int taskID        = PlayerPrefs.GetInt("CurrentTaskID", -1);
+        int questionIndex = PlayerPrefs.GetInt("CurrentTaskQuestionIndex", -1);
+        bool isSpelling   = PlayerPrefs.GetInt("CurrentTaskIsSpelling", 1) == 1;
+
+        if (taskID == -1 || questionIndex == -1) return false;
+
+        Debug.Log($"📋 Loading Daily Task: Question #{questionIndex} ({(isSpelling ? "Spelling" : "Sentence")})");
+        if (isSpelling) SetSpellingQuestion(questionIndex);
+        else            SetSentenceQuestion(questionIndex);
+        return true;
+    }
+
+    public bool IsSentenceQuestion() => isSentenceQuestion;
+
+    #endregion
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // LETTER HURDLE  –  Letter-by-letter Spelling Game
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Letter Hurdle – Letter Collection Game
+
+    // ── Init ──────────────────────────────────────────────────────────────────────
+
     void InitializeLetterHurdle()
     {
         List<string> words = new List<string>();
@@ -607,6 +714,13 @@ public class QuestionRandomizer : MonoBehaviour
 
     void SetNewTargetWord()
     {
+        // Cancel any stale entrance pronunciation
+        if (pronunciationCoroutine != null)
+        {
+            StopCoroutine(pronunciationCoroutine);
+            pronunciationCoroutine = null;
+        }
+
         foreach (var letter in spawnedLetters) Destroy(letter);
         spawnedLetters.Clear();
 
@@ -629,6 +743,9 @@ public class QuestionRandomizer : MonoBehaviour
         if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
 
         UpdateLetterHurdleClueImage();
+
+        pronunciationCoroutine = StartCoroutine(PlayLetterHurdlePronunciationDelayed(letterHurdlePronunciationDelay));
+        Debug.Log($"🔊 Entrance pronunciation scheduled in {letterHurdlePronunciationDelay}s for: {currentTargetWord}");
     }
 
     void UpdateLetterHurdleClueImage()
@@ -672,9 +789,41 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // SPELL CHECK
-    // ─────────────────────────────────────────────────────────────────────────────
+    // ── Display helpers ────────────────────────────────────────────────────────────
+
+    private string ExtractRawLetters(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach (char c in text)
+        {
+            if (c != '_' && c != ' ')
+                sb.Append(char.ToLower(c));
+        }
+        return sb.ToString();
+    }
+
+    private void UpdateCollectedDisplay(string rawCollected)
+    {
+        if (collectedText == null || string.IsNullOrEmpty(currentTargetWord)) return;
+
+        string target = currentTargetWord.ToLower();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        for (int i = 0; i < target.Length; i++)
+        {
+            if (i > 0) sb.Append(' ');
+            if (i < rawCollected.Length)
+                sb.Append(rawCollected[i]);
+            else
+                sb.Append('_');
+        }
+
+        collectedText.text = sb.ToString();
+    }
+
+    // ── Spell check ───────────────────────────────────────────────────────────────
+
     void CheckSpellingFast(string collected)
     {
         if (string.IsNullOrEmpty(collected))
@@ -709,18 +858,31 @@ public class QuestionRandomizer : MonoBehaviour
                 playerFunctions.AddCoins(coinReward);
             }
 
+            // Notify systems — do NOT hide letterHurdleClueImage here.
+            // WordCompletionFlow actively keeps it alive for the full delay.
             if (obstacleSpawner != null && obstacleSpawner.IsLetterEventActive)
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
                 Debug.Log("✅ Word completed! Notified ObstacleSpawner.");
-                if (letterHurdleClueImage != null)
-                    letterHurdleClueImage.gameObject.SetActive(false);
             }
 
             if (bossManager != null) bossManager.FinishBoss();
 
+            // Cancel entrance pronunciation — completion flow owns audio now
+            if (pronunciationCoroutine != null)
+            {
+                StopCoroutine(pronunciationCoroutine);
+                pronunciationCoroutine = null;
+            }
+
+            if (wordTransitionCoroutine != null)
+            {
+                StopCoroutine(wordTransitionCoroutine);
+                wordTransitionCoroutine = null;
+            }
+
             currentWordIndex++;
-            SetNewTargetWord();
+            wordTransitionCoroutine = StartCoroutine(WordCompletionFlow());
             return;
         }
 
@@ -758,6 +920,71 @@ public class QuestionRandomizer : MonoBehaviour
         if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
     }
 
+    // ── Completion flow ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Runs every frame for the full letterHurdleNextWordDelay duration.
+    ///
+    /// WHY per-frame instead of a single yield:
+    /// ObstacleSpawner.EndLetterEvent() hides letterEventClueUI, which may be the
+    /// same panel or a parent of letterHurdleClueImage. By re-asserting the sprite
+    /// and SetActive(true) each frame we guarantee the image stays visible no matter
+    /// what else in the scene tries to hide it during the delay window.
+    ///
+    /// Timeline:
+    ///   0s                            → image kept on screen
+    ///   letterHurdleCompletionPronunciationDelay → outro sound plays
+    ///   letterHurdleNextWordDelay     → SetNewTargetWord() swaps to next word
+    /// </summary>
+    private IEnumerator WordCompletionFlow()
+    {
+        string completedWord = shuffledWords[Mathf.Clamp(currentWordIndex - 1, 0, shuffledWords.Count - 1)];
+
+        // Snapshot the completed word's sprite immediately so we can restore it
+        // even if something externally clears the Image component's sprite.
+        Sprite completedSprite = null;
+        if (letterHurdleClueImage != null)
+            completedSprite = letterHurdleClueImage.sprite;
+
+        bool outroPlayed = false;
+        float elapsed    = 0f;
+
+        while (elapsed < letterHurdleNextWordDelay)
+        {
+            // ── Force image visible every frame ───────────────────────────────
+            // This is the key fix: whatever external code hides the image panel
+            // (ObstacleSpawner.EndLetterEvent, trigger exits, etc.), we override
+            // it on the very next frame so the player always sees the completed word.
+            if (letterHurdleClueImage != null && completedSprite != null)
+            {
+                if (!letterHurdleClueImage.gameObject.activeSelf)
+                    letterHurdleClueImage.gameObject.SetActive(true);
+
+                // Restore sprite in case it was swapped out
+                if (letterHurdleClueImage.sprite != completedSprite)
+                    letterHurdleClueImage.sprite = completedSprite;
+            }
+            // ─────────────────────────────────────────────────────────────────
+
+            // Play outro sound at the configured offset
+            if (!outroPlayed && elapsed >= letterHurdleCompletionPronunciationDelay)
+            {
+                PlayLetterHurdlePronunciationForWord(completedWord);
+                Debug.Log($"🔊 Outro pronunciation played for: {completedWord}");
+                outroPlayed = true;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Delay fully elapsed — advance to the next word.
+        // SetNewTargetWord() will call UpdateLetterHurdleClueImage() which swaps
+        // the sprite to the next word (or hides the image if no sprite exists).
+        wordTransitionCoroutine = null;
+        SetNewTargetWord();
+    }
+
     void ClearLetterHurdleFeedback()
     {
         if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
@@ -769,17 +996,67 @@ public class QuestionRandomizer : MonoBehaviour
             letterHurdleScoreText.text = "Score: " + playerFunctions.score;
     }
 
+    // ── Pronunciation ─────────────────────────────────────────────────────────────
+
+    /// <summary>Plays the pronunciation for the current target word immediately.</summary>
+    public void PlayLetterHurdlePronunciation()
+    {
+        PlayLetterHurdlePronunciationForWord(currentTargetWord);
+    }
+
+    /// <summary>
+    /// Plays pronunciation by word string. Safe to call with the completed word
+    /// after currentTargetWord has already advanced.
+    /// </summary>
+    private void PlayLetterHurdlePronunciationForWord(string word)
+    {
+        if (audioSource == null || wordList == null || string.IsNullOrEmpty(word)) return;
+
+        int wordIndex = System.Array.FindIndex(wordList, w =>
+            string.Equals(w, word, System.StringComparison.OrdinalIgnoreCase));
+
+        if (wordIndex >= 0
+            && currentPronunciationSounds != null
+            && wordIndex < currentPronunciationSounds.Length
+            && currentPronunciationSounds[wordIndex] != null)
+        {
+            audioSource.PlayOneShot(currentPronunciationSounds[wordIndex]);
+            Debug.Log($"🔊 Playing pronunciation for: {word}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ No pronunciation clip found for: {word} (index {wordIndex})");
+        }
+    }
+
+    private IEnumerator PlayLetterHurdlePronunciationDelayed(float delay)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        PlayLetterHurdlePronunciation();
+        pronunciationCoroutine = null;
+    }
+
+    // ── Public API ────────────────────────────────────────────────────────────────
+
     public void ClearCollectedLetters()
     {
         previousRawCollected = "";
         UpdateCollectedDisplay("");
-
-        if (letterHurdleFeedbackText != null)
-            letterHurdleFeedbackText.text = "";
+        if (letterHurdleFeedbackText != null) letterHurdleFeedbackText.text = "";
     }
 
     public void SkipWord()
     {
+        if (wordTransitionCoroutine != null)
+        {
+            StopCoroutine(wordTransitionCoroutine);
+            wordTransitionCoroutine = null;
+        }
+        if (pronunciationCoroutine != null)
+        {
+            StopCoroutine(pronunciationCoroutine);
+            pronunciationCoroutine = null;
+        }
         currentWordIndex++;
         SetNewTargetWord();
     }
@@ -799,8 +1076,6 @@ public class QuestionRandomizer : MonoBehaviour
             {
                 obstacleSpawner.OnLetterHurdleSuccess();
                 Debug.Log("✅ CheckBossSpell: Word completed! Ending letter event.");
-                if (letterHurdleClueImage != null)
-                    letterHurdleClueImage.gameObject.SetActive(false);
             }
         }
     }
@@ -813,108 +1088,14 @@ public class QuestionRandomizer : MonoBehaviour
 
     public void RefreshLetterHurdleClueImage() => UpdateLetterHurdleClueImage();
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // DAILY TASK LOADING
-    // ─────────────────────────────────────────────────────────────────────────────
-    public bool TryLoadDailyTaskQuestion()
-    {
-        if (!PlayerPrefs.HasKey("CurrentTaskID")) return false;
-
-        int taskID        = PlayerPrefs.GetInt("CurrentTaskID", -1);
-        int questionIndex = PlayerPrefs.GetInt("CurrentTaskQuestionIndex", -1);
-        bool isSpelling   = PlayerPrefs.GetInt("CurrentTaskIsSpelling", 1) == 1;
-
-        if (taskID == -1 || questionIndex == -1) return false;
-
-        Debug.Log($"📋 Loading Daily Task: Question #{questionIndex} ({(isSpelling ? "Spelling" : "Sentence")})");
-        if (isSpelling) SetSpellingQuestion(questionIndex);
-        else            SetSentenceQuestion(questionIndex);
-        return true;
-    }
+    #endregion
 
     // ─────────────────────────────────────────────────────────────────────────────
-    // QUESTION SETTERS
+    // AUDIO  –  Word Hurdle / Sentence Hurdle question audio
     // ─────────────────────────────────────────────────────────────────────────────
-    public void SetSpellingQuestion(int index)
-    {
-        if (index < 0 || index >= activeSpellingPairs.GetLength(0))
-        {
-            Debug.LogError($"Invalid spelling question index: {index}");
-            return;
-        }
 
-        string clue    = activeSpellingPairs[index, 0];
-        string correct = activeSpellingPairs[index, 1];
-        string wrong1  = activeSpellingPairs[index, 2];
-        string wrong2  = activeSpellingPairs[index, 3];
+    #region Audio
 
-        clueText.text        = clue;
-        correctAnswer        = correct;
-        currentQuestionIndex = index;
-        isSentenceQuestion   = false;
-        audioPlayed          = false;
-
-        int correctPosition = Random.Range(0, 3);
-        AssignOptions(correct, wrong1, wrong2, correctPosition);
-        UpdateClueVisibility();
-
-        Debug.Log($"Spelling Q: {clue} | Correct: {correct} @ pos {correctPosition}");
-    }
-
-    public void SetSentenceQuestion(int index)
-    {
-        if (index < 0 || index >= activeSentencePairs.GetLength(0))
-        {
-            Debug.LogError($"Invalid sentence question index: {index}");
-            return;
-        }
-
-        string sentence = activeSentencePairs[index, 0];
-        string correct  = activeSentencePairs[index, 1];
-        string wrong1   = activeSentencePairs[index, 2];
-        string wrong2   = activeSentencePairs[index, 3];
-
-        clueText.text        = sentence;
-        correctAnswer        = correct;
-        currentQuestionIndex = index;
-        isSentenceQuestion   = true;
-        audioPlayed          = false;
-
-        int correctPosition = Random.Range(0, 3);
-        AssignOptions(correct, wrong1, wrong2, correctPosition);
-        UpdateClueVisibility();
-
-        Debug.Log($"Sentence Q: {sentence} | Correct: {correct} @ pos {correctPosition}");
-    }
-
-    private void AssignOptions(string correct, string wrong1, string wrong2, int correctPosition)
-    {
-        TMP_Text[] options = new TMP_Text[] { jumpText, slideText, option3Text };
-        string[]   wrongs  = new string[]   { wrong1, wrong2 };
-
-        int[] wrongIndices = new int[2];
-        int idx = 0;
-        for (int i = 0; i < 3; i++)
-            if (i != correctPosition) wrongIndices[idx++] = i;
-
-        if (Random.value > 0.5f) { string t = wrongs[0]; wrongs[0] = wrongs[1]; wrongs[1] = t; }
-
-        options[correctPosition].text  = correct;
-        options[wrongIndices[0]].text  = wrongs[0];
-        options[wrongIndices[1]].text  = wrongs[1];
-    }
-
-    public void SetRandomQuestion()
-    {
-        if (Random.value > 0.5f)
-            SetSpellingQuestion(Random.Range(0, activeSpellingPairs.GetLength(0)));
-        else
-            SetSentenceQuestion(Random.Range(0, activeSentencePairs.GetLength(0)));
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────────
-    // AUDIO
-    // ─────────────────────────────────────────────────────────────────────────────
     public void PlayQuestionAudio()
     {
         if (audioSource == null || audioPlayed) return;
@@ -939,9 +1120,16 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
+    public void TriggerQuestionAudio() => PlayQuestionAudio();
+
+    #endregion
+
     // ─────────────────────────────────────────────────────────────────────────────
     // TRIGGER & UI
     // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Trigger and UI
+
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
@@ -966,7 +1154,6 @@ public class QuestionRandomizer : MonoBehaviour
         {
             if (clueTextObject != null)
             {
-                // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
                 if (animateClueText && textRect != null && textCanvasGroup != null)
                     AnimateClueTextIn();
                 else
@@ -981,7 +1168,6 @@ public class QuestionRandomizer : MonoBehaviour
                 if (cluePic != null && currentQuestionIndex >= 0 && currentQuestionIndex < currentClueImages.Length)
                     cluePic.sprite = currentClueImages[currentQuestionIndex];
 
-                // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
                 if (animateClueImage && clueImageObject != null && imageRect != null && imageCanvasGroup != null)
                     AnimateClueImageIn();
                 else if (clueImageObject != null)
@@ -993,7 +1179,6 @@ public class QuestionRandomizer : MonoBehaviour
             {
                 if (clueTextObject != null)
                 {
-                    // FIX: only animate if both rect and canvasGroup are valid, otherwise plain show
                     if (animateClueText && textRect != null && textCanvasGroup != null)
                         AnimateClueTextIn();
                     else
@@ -1004,9 +1189,25 @@ public class QuestionRandomizer : MonoBehaviour
         }
     }
 
+    public void ShowClueText()
+    {
+        if (playerInTrigger) UpdateClueVisibility();
+    }
+
+    public void HideClueText()
+    {
+        if (clueTextObject  != null) clueTextObject.SetActive(false);
+        if (clueImageObject != null) clueImageObject.SetActive(false);
+    }
+
+    #endregion
+
     // ─────────────────────────────────────────────────────────────────────────────
-    // ANIMATION COROUTINES
+    // ANIMATION
     // ─────────────────────────────────────────────────────────────────────────────
+
+    #region Animation
+
     private void AnimateClueImageIn()
     {
         if (clueImageObject == null || imageRect == null || imageCanvasGroup == null) return;
@@ -1081,21 +1282,13 @@ public class QuestionRandomizer : MonoBehaviour
         textAnimationCoroutine    = null;
     }
 
+    #endregion
+
     // ─────────────────────────────────────────────────────────────────────────────
     // PUBLIC UTILITIES
     // ─────────────────────────────────────────────────────────────────────────────
-    public void TriggerQuestionAudio() => PlayQuestionAudio();
 
-    public void ShowClueText()
-    {
-        if (playerInTrigger) UpdateClueVisibility();
-    }
-
-    public void HideClueText()
-    {
-        if (clueTextObject  != null) clueTextObject.SetActive(false);
-        if (clueImageObject != null) clueImageObject.SetActive(false);
-    }
+    #region Public Utilities
 
     public void AddWordCount()
     {
@@ -1105,10 +1298,7 @@ public class QuestionRandomizer : MonoBehaviour
         Debug.Log("Total Words: " + currentWords);
     }
 
-    public string GetCurrentDifficulty()     => SceneManager.GetActiveScene().name;
-    public int    GetSpellingQuestionCount() => activeSpellingPairs?.GetLength(0) ?? 0;
-    public int    GetSentenceQuestionCount() => activeSentencePairs?.GetLength(0) ?? 0;
-    public bool   IsSentenceQuestion()       => isSentenceQuestion;
+    public string GetCurrentDifficulty() => SceneManager.GetActiveScene().name;
 
     public Sprite GetCurrentClueImage()
     {
@@ -1124,7 +1314,13 @@ public class QuestionRandomizer : MonoBehaviour
             && currentQuestionIndex < currentClueImages.Length
             && currentClueImages[currentQuestionIndex] != null;
     }
+
     #endregion
 }
-// merged letter hurdle and word hurdle
-// collectedText now shows "_ _ _" blanks filled in as correct letters are collected
+// ─── CHANGE LOG ──────────────────────────────────────────────────────────────
+// WordCompletionFlow now runs a per-frame loop instead of yield WaitForSeconds.
+// Each frame it re-asserts letterHurdleClueImage.SetActive(true) and restores
+// the completed word's sprite. This overrides any external hide (ObstacleSpawner
+// hiding letterEventClueUI, trigger exits, etc.) every single frame until the
+// full letterHurdleNextWordDelay has elapsed, guaranteeing the image stays on
+// screen. Default delay raised to 4 seconds.
