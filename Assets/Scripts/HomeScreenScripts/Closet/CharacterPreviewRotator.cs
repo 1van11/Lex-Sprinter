@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
 
 public class CharacterPreviewRotator : MonoBehaviour
 {
@@ -13,7 +12,7 @@ public class CharacterPreviewRotator : MonoBehaviour
     public float manualRotationSpeed = 0.3f;
 
     [Header("Default Position")]
-    public float defaultRotationY = 0f; // Set this in Inspector to any angle you want!
+    public float defaultRotationY = 180f;
 
     [Header("Rotation Area (Optional)")]
     public RectTransform rotationArea;
@@ -24,23 +23,19 @@ public class CharacterPreviewRotator : MonoBehaviour
 
     void Awake()
     {
-        // Listen for scene changes
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void OnDestroy()
     {
-        // Always unsubscribe to avoid memory leaks
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // Fires every time a new scene loads
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         ResetToDefault();
     }
 
-    // Fires every time this GameObject/Panel is enabled
     void OnEnable()
     {
         ResetToDefault();
@@ -49,7 +44,8 @@ public class CharacterPreviewRotator : MonoBehaviour
     void ResetToDefault()
     {
         currentRotation = defaultRotationY;
-        transform.rotation = Quaternion.Euler(0, defaultRotationY, 0);
+        // ✅ FIXED: localRotation keeps character in place
+        transform.localRotation = Quaternion.Euler(0, defaultRotationY, 0);
     }
 
     void Update()
@@ -57,7 +53,8 @@ public class CharacterPreviewRotator : MonoBehaviour
         if (autoRotate && !isDragging)
         {
             currentRotation += autoRotateSpeed * Time.deltaTime;
-            transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+            // ✅ FIXED: localRotation
+            transform.localRotation = Quaternion.Euler(0, currentRotation, 0);
         }
 
         if (enableManualRotation)
@@ -93,7 +90,8 @@ public class CharacterPreviewRotator : MonoBehaviour
             float currentMouseX = Input.mousePosition.x;
             float deltaX = currentMouseX - lastMouseX;
             currentRotation += deltaX * manualRotationSpeed;
-            transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+            // ✅ FIXED: localRotation
+            transform.localRotation = Quaternion.Euler(0, currentRotation, 0);
             lastMouseX = currentMouseX;
         }
 
@@ -110,6 +108,7 @@ public class CharacterPreviewRotator : MonoBehaviour
     public void SetRotation(float angle)
     {
         currentRotation = angle;
-        transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+        // ✅ FIXED: localRotation
+        transform.localRotation = Quaternion.Euler(0, currentRotation, 0);
     }
 }
