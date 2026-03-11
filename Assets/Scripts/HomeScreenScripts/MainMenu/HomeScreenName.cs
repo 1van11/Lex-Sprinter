@@ -29,7 +29,7 @@ public class HomeScreenName : MonoBehaviour
         // Optional: Display welcome message
         if (welcomeText != null)
         {
-            welcomeText.text = $"Welcome, {playerName}!";
+            welcomeText.text = $"Hi, I'm {playerName}!";
         }
 
         // Optional: Get selected character if you need it

@@ -9,10 +9,10 @@ public class PowerManager : MonoBehaviour
     public Image[] letterImages;
 
     [Header("Full Sprites for each letter")]
-    public Sprite[] fullPowerSprites; // full P, O, W, E, R
+    public Sprite[] fullPowerSprites;
 
     [Header("Used Sprites for each letter")]
-    public Sprite[] usedPowerSprites; // gray P, O, W, E, R
+    public Sprite[] usedPowerSprites;
 
     [Header("Recharge Settings")]
     public float rechargeTimeMinutes = 15f;
@@ -24,12 +24,18 @@ public class PowerManager : MonoBehaviour
     private int maxPower;
     private int currentPower;
 
+    // EVENT for UI updates
+    public event Action<int, int> OnPowerChanged;
+
     void Start()
     {
         maxPower = letterImages.Length;
         nextRechargeTimes = new DateTime[maxPower];
+
         LoadData();
         UpdatePlayButtonState();
+        NotifyPowerChanged();
+
         StartCoroutine(RechargeRoutine());
     }
 
@@ -48,10 +54,13 @@ public class PowerManager : MonoBehaviour
 
         letterImages[index].sprite = usedPowerSprites[index];
         nextRechargeTimes[index] = DateTime.Now.AddMinutes(rechargeTimeMinutes);
+
         currentPower--;
 
         SaveData();
         UpdatePlayButtonState();
+        NotifyPowerChanged();
+
         return true;
     }
 
@@ -65,11 +74,15 @@ public class PowerManager : MonoBehaviour
                 {
                     letterImages[i].sprite = fullPowerSprites[i];
                     currentPower++;
+
                     SaveData();
                     UpdatePlayButtonState();
+                    NotifyPowerChanged();
+
                     break;
                 }
             }
+
             yield return new WaitForSeconds(10f);
         }
     }
@@ -81,20 +94,24 @@ public class PowerManager : MonoBehaviour
             if (letterImages[i].sprite == usedPowerSprites[i])
             {
                 TimeSpan remaining = nextRechargeTimes[i] - DateTime.Now;
+
                 if (remaining.TotalSeconds > 0)
                     return $"Recharge Energy in {Mathf.CeilToInt((float)remaining.TotalMinutes)} mins.";
             }
         }
+
         return "All energy full!";
     }
 
     private void SaveData()
     {
         PlayerPrefs.SetInt("currentPower", currentPower);
+
         for (int i = 0; i < maxPower; i++)
         {
             PlayerPrefs.SetString($"rechargeTime_{i}", nextRechargeTimes[i].ToBinary().ToString());
         }
+
         PlayerPrefs.Save();
     }
 
@@ -105,6 +122,7 @@ public class PowerManager : MonoBehaviour
         for (int i = 0; i < maxPower; i++)
         {
             string saved = PlayerPrefs.GetString($"rechargeTime_{i}", "");
+
             if (!string.IsNullOrEmpty(saved))
             {
                 nextRechargeTimes[i] = DateTime.FromBinary(Convert.ToInt64(saved));
@@ -120,8 +138,9 @@ public class PowerManager : MonoBehaviour
             }
         }
 
-        // Count full energy
+        // Recalculate current power
         currentPower = 0;
+
         for (int i = 0; i < maxPower; i++)
         {
             if (letterImages[i].sprite == fullPowerSprites[i])
@@ -132,21 +151,37 @@ public class PowerManager : MonoBehaviour
     private void UpdatePlayButtonState()
     {
         if (playButton != null)
-        {
             playButton.interactable = currentPower > 0;
-        }
+    }
+
+    private void NotifyPowerChanged()
+    {
+        OnPowerChanged?.Invoke(currentPower, maxPower);
+    }
+
+    // Optional getters (useful for other systems)
+    public int GetCurrentPower()
+    {
+        return currentPower;
+    }
+
+    public int GetMaxPower()
+    {
+        return maxPower;
     }
 
     private void OnApplicationQuit()
     {
 #if UNITY_EDITOR
-        // Reset all when exiting Play Mode
         Debug.Log("Resetting PowerManager after stopping play mode in Unity Editor...");
+
         PlayerPrefs.DeleteKey("currentPower");
+
         for (int i = 0; i < maxPower; i++)
         {
             PlayerPrefs.DeleteKey($"rechargeTime_{i}");
         }
+
         PlayerPrefs.Save();
 #endif
     }
