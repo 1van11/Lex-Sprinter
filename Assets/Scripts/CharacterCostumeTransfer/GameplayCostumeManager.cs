@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameplayCostumeManager : MonoBehaviour
@@ -12,11 +10,27 @@ public class GameplayCostumeManager : MonoBehaviour
     }
 
     [Header("Settings")]
-    public bool replaceOnStart = true;
-    public bool useSavedIndex = true;
+    public bool replaceOnStart = true;        // Instantiate on Start? (should be true)
 
     [Header("Character Type")]
-    public bool useGirlCostumes = true; // true = girl, false = boy
+    [SerializeField] private bool _useGirlCostumes = true;
+    public bool useGirlCostumes
+    {
+        get => _useGirlCostumes;
+        set
+        {
+            if (_useGirlCostumes == value) return;
+            _useGirlCostumes = value;
+            // Update activeModels immediately when gender changes
+            activeModels = _useGirlCostumes ? girlModels : boyModels;
+            // If we already have a valid index, refresh the model
+            if (activeModels != null && activeModels.Length > 0 && currentIndex >= 0 && currentIndex < activeModels.Length)
+            {
+                currentIndex = Mathf.Clamp(currentIndex, 0, activeModels.Length - 1);
+                ReplaceModel(activeModels[currentIndex].modelPrefab);
+            }
+        }
+    }
 
     [Header("Girl Costumes")]
     public ModelOption[] girlModels;
@@ -30,37 +44,39 @@ public class GameplayCostumeManager : MonoBehaviour
     private GameObject currentModel;
     private int currentIndex = 0;
     private int lastIndex = -1;
-
     private ModelOption[] activeModels;
 
     void Start()
     {
-        if (!replaceOnStart)
+        if (!replaceOnStart) return;
+
+        // ----- READ FROM PLAYER PREFS -----
+        int selectedCharacter = PlayerPrefs.GetInt("SelectedCharacter", 1); // default 1 = boy
+        int costumeIndex = PlayerPrefs.GetInt("EquippedCostume", 0);
+
+        // Set gender based on saved character
+        _useGirlCostumes = (selectedCharacter == 2);
+        // ---------------------------------
+
+        // Select the correct array
+        activeModels = _useGirlCostumes ? girlModels : boyModels;
+
+        if (activeModels == null || activeModels.Length == 0)
+        {
+            Debug.LogWarning("No models assigned for the selected gender.");
             return;
+        }
 
-        // Select which costume array to use
-        activeModels = useGirlCostumes ? girlModels : boyModels;
-
-        if (activeModels.Length == 0)
-            return;
-
-        currentIndex = useSavedIndex
-            ? PlayerPrefs.GetInt("EquippedCostume", 0)
-            : 0;
-
-        currentIndex = Mathf.Clamp(currentIndex, 0, activeModels.Length - 1);
-
+        // Clamp and use the saved costume index
+        currentIndex = Mathf.Clamp(costumeIndex, 0, activeModels.Length - 1);
         ReplaceModel(activeModels[currentIndex].modelPrefab);
         lastIndex = currentIndex;
     }
 
     void Update()
     {
-        if (activeModels == null || activeModels.Length == 0)
-            return;
-
-        if (currentIndex == lastIndex)
-            return;
+        if (activeModels == null || activeModels.Length == 0) return;
+        if (currentIndex == lastIndex) return;
 
         currentIndex = Mathf.Clamp(currentIndex, 0, activeModels.Length - 1);
         ReplaceModel(activeModels[currentIndex].modelPrefab);
@@ -69,13 +85,10 @@ public class GameplayCostumeManager : MonoBehaviour
 
     public void ReplaceModel(GameObject prefab)
     {
-        if (prefab == null || modelParent == null)
-            return;
+        if (prefab == null || modelParent == null) return;
 
         foreach (Transform child in modelParent)
-        {
             Destroy(child.gameObject);
-        }
 
         currentModel = Instantiate(prefab, modelParent);
         currentModel.transform.localPosition = Vector3.zero;
@@ -83,14 +96,10 @@ public class GameplayCostumeManager : MonoBehaviour
 
         Animator newAnimator = currentModel.GetComponent<Animator>();
         Animator parentAnimator = modelParent.GetComponent<Animator>();
-
         if (newAnimator != null && parentAnimator != null)
         {
-            parentAnimator.runtimeAnimatorController =
-                newAnimator.runtimeAnimatorController;
-
-            parentAnimator.applyRootMotion =
-                newAnimator.applyRootMotion;
+            parentAnimator.runtimeAnimatorController = newAnimator.runtimeAnimatorController;
+            parentAnimator.applyRootMotion = newAnimator.applyRootMotion;
         }
     }
 
@@ -99,17 +108,20 @@ public class GameplayCostumeManager : MonoBehaviour
         currentIndex = index;
     }
 
+    /// <summary>
+    /// Call this from CharacterDisplay if both scripts are in the same scene.
+    /// </summary>
+    public void SetCharacter(bool isGirl, int index)
+    {
+        useGirlCostumes = isGirl;  // updates activeModels and refreshes
+        currentIndex = index;       // in case the setter already refreshed
+    }
+
     public void TriggerModel(int index)
     {
-        if (activeModels == null)
-            return;
-
-        if (index < 0 || index >= activeModels.Length)
-            return;
-
-        if (!activeModels[index].useTrigger)
-            return;
-
+        if (activeModels == null) return;
+        if (index < 0 || index >= activeModels.Length) return;
+        if (!activeModels[index].useTrigger) return;
         SetCostumeByIndex(index);
     }
 }

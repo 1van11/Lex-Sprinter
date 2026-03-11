@@ -13,7 +13,7 @@ public class CharacterDisplay : MonoBehaviour
     public GameObject christmasBoy;
 
     [Header("Reference")]
-    public GameplayCostumeManager costumeManager;
+    public GameplayCostumeManager costumeManager; // may be null if in different scene
 
     public static bool isGirl;
 
@@ -24,11 +24,14 @@ public class CharacterDisplay : MonoBehaviour
 
         isGirl = (selectedCharacter == 2);
 
-        // send gender to costume manager
+        // If the manager is in the same scene, update it directly
         if (costumeManager != null)
-            costumeManager.useGirlCostumes = isGirl;
+        {
+            costumeManager.SetCharacter(isGirl, costumeIndex);
+        }
+        // Otherwise, we rely on PlayerPrefs – already saved, so nothing else needed
 
-        // Hide all
+        // Hide all display models
         defaultGirl.SetActive(false);
         rainyGirl.SetActive(false);
         christmasGirl.SetActive(false);
@@ -36,22 +39,18 @@ public class CharacterDisplay : MonoBehaviour
         rainyBoy.SetActive(false);
         christmasBoy.SetActive(false);
 
-        // Activate correct model based on index
+        // Activate correct display model
         if (isGirl)
         {
             if (costumeIndex == 0) defaultGirl.SetActive(true);
-            if (costumeIndex == 1) rainyGirl.SetActive(true);
-            if (costumeIndex == 2) christmasGirl.SetActive(true);
+            else if (costumeIndex == 1) rainyGirl.SetActive(true);
+            else if (costumeIndex == 2) christmasGirl.SetActive(true);
         }
         else
         {
             if (costumeIndex == 0) defaultBoy.SetActive(true);
-            if (costumeIndex == 1) rainyBoy.SetActive(true);
-            if (costumeIndex == 2) christmasBoy.SetActive(true);
+            else if (costumeIndex == 1) rainyBoy.SetActive(true);
+            else if (costumeIndex == 2) christmasBoy.SetActive(true);
         }
-
-        // also tell gameplay manager which costume index to use
-        if (costumeManager != null)
-            costumeManager.SetCostumeByIndex(costumeIndex);
     }
 }
