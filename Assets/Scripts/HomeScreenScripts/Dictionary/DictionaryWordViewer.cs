@@ -358,6 +358,13 @@ public class DictionaryWordViewer : MonoBehaviour
         if (backButton != null) backButton.onClick.AddListener(HidePanel);
         if (btnPlayPause != null) btnPlayPause.onClick.AddListener(TogglePlayPause);
         SetPlayIcon();
+
+        foreach (var s in illustrationMap.Values)
+        {
+            if (s != null)
+                s.texture.width.ToString();
+        }
+
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -389,6 +396,8 @@ public class DictionaryWordViewer : MonoBehaviour
             {
                 wordIllustrationImage.sprite = sprite;
                 wordIllustrationImage.enabled = true;
+
+                Canvas.ForceUpdateCanvases();
             }
             else
             {
