@@ -15,8 +15,14 @@ public class GameplayCostumeManager : MonoBehaviour
     public bool replaceOnStart = true;
     public bool useSavedIndex = true;
 
-    [Header("Model Options")]
-    public ModelOption[] models;
+    [Header("Character Type")]
+    public bool useGirlCostumes = true; // true = girl, false = boy
+
+    [Header("Girl Costumes")]
+    public ModelOption[] girlModels;
+
+    [Header("Boy Costumes")]
+    public ModelOption[] boyModels;
 
     [Header("Model Parent")]
     public Transform modelParent;
@@ -25,29 +31,39 @@ public class GameplayCostumeManager : MonoBehaviour
     private int currentIndex = 0;
     private int lastIndex = -1;
 
+    private ModelOption[] activeModels;
+
     void Start()
     {
-        if (!replaceOnStart || models.Length == 0)
+        if (!replaceOnStart)
             return;
 
-        // CHANGED: Read from "EquippedCostume" instead of "SelectedCostume"
+        // Select which costume array to use
+        activeModels = useGirlCostumes ? girlModels : boyModels;
+
+        if (activeModels.Length == 0)
+            return;
+
         currentIndex = useSavedIndex
             ? PlayerPrefs.GetInt("EquippedCostume", 0)
             : 0;
 
-        currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
+        currentIndex = Mathf.Clamp(currentIndex, 0, activeModels.Length - 1);
 
-        ReplaceModel(models[currentIndex].modelPrefab);
+        ReplaceModel(activeModels[currentIndex].modelPrefab);
         lastIndex = currentIndex;
     }
 
     void Update()
     {
+        if (activeModels == null || activeModels.Length == 0)
+            return;
+
         if (currentIndex == lastIndex)
             return;
 
-        currentIndex = Mathf.Clamp(currentIndex, 0, models.Length - 1);
-        ReplaceModel(models[currentIndex].modelPrefab);
+        currentIndex = Mathf.Clamp(currentIndex, 0, activeModels.Length - 1);
+        ReplaceModel(activeModels[currentIndex].modelPrefab);
         lastIndex = currentIndex;
     }
 
@@ -56,18 +72,15 @@ public class GameplayCostumeManager : MonoBehaviour
         if (prefab == null || modelParent == null)
             return;
 
-        // Remove existing model
         foreach (Transform child in modelParent)
         {
             Destroy(child.gameObject);
         }
 
-        // Spawn new model
         currentModel = Instantiate(prefab, modelParent);
         currentModel.transform.localPosition = Vector3.zero;
         currentModel.transform.localRotation = Quaternion.identity;
 
-        // Sync animator if present
         Animator newAnimator = currentModel.GetComponent<Animator>();
         Animator parentAnimator = modelParent.GetComponent<Animator>();
 
@@ -88,10 +101,13 @@ public class GameplayCostumeManager : MonoBehaviour
 
     public void TriggerModel(int index)
     {
-        if (index < 0 || index >= models.Length)
+        if (activeModels == null)
             return;
 
-        if (!models[index].useTrigger)
+        if (index < 0 || index >= activeModels.Length)
+            return;
+
+        if (!activeModels[index].useTrigger)
             return;
 
         SetCostumeByIndex(index);
