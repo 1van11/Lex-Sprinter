@@ -32,7 +32,8 @@ public class ShopItemBuyer : MonoBehaviour
     public Image priceBackground;
     
     [Header("Popup References")]
-    public GameObject buyPopup;
+    public GameObject buyPopupGirl;
+    public GameObject buyPopupBoy;
     public GameObject successPopup;
     public Text successMessageText;
     public Button successOkButton;
@@ -97,9 +98,9 @@ public class ShopItemBuyer : MonoBehaviour
             itemName = girlItemName;
         else if (!isGirl && !string.IsNullOrEmpty(boyItemName))
             itemName = boyItemName;
-            // ✅ ADD THIS → update the separate name Text
-    if (nameText != null)
-        nameText.text = itemName;
+
+        if (nameText != null)
+            nameText.text = itemName;
     }
     
     void LoadItemState()
@@ -126,10 +127,14 @@ public class ShopItemBuyer : MonoBehaviour
         }
         else
         {
-            if (buyPopup != null)
-                buyPopup.SetActive(true);
+            if (isGirl)
+            {
+                if (buyPopupGirl != null) buyPopupGirl.SetActive(true);
+            }
             else
-                TryPurchase();
+            {
+                if (buyPopupBoy != null) buyPopupBoy.SetActive(true);
+            }
         }
     }
     
@@ -157,8 +162,9 @@ public class ShopItemBuyer : MonoBehaviour
                 PlayerPrefs.SetInt("Item_" + itemID + "_Purchased", 1);
                 PlayerPrefs.Save();
 
-                if (buyPopup != null)
-                    buyPopup.SetActive(false);
+                // ✅ FIXED: Close correct gender popup
+                if (buyPopupGirl != null) buyPopupGirl.SetActive(false);
+                if (buyPopupBoy  != null) buyPopupBoy.SetActive(false);
 
                 RefreshAllItemsUI();
                 ShowSuccessPopup();
@@ -207,9 +213,12 @@ public class ShopItemBuyer : MonoBehaviour
             autoCloseCoroutine = null;
         }
         
-        if (buyPopup != null)     buyPopup.SetActive(false);
+        // ✅ FIXED: Close both gender popups
+        if (buyPopupGirl != null) buyPopupGirl.SetActive(false);
+        if (buyPopupBoy  != null) buyPopupBoy.SetActive(false);
+
         if (successPopup != null) successPopup.SetActive(false);
-        if (shopPanel != null)    shopPanel.SetActive(true);
+        if (shopPanel    != null) shopPanel.SetActive(true);
         
         Debug.Log("✅ All popups closed - Back to shop!");
     }
