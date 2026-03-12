@@ -744,8 +744,15 @@ public class QuestionRandomizer : MonoBehaviour
 
         UpdateLetterHurdleClueImage();
 
-        pronunciationCoroutine = StartCoroutine(PlayLetterHurdlePronunciationDelayed(letterHurdlePronunciationDelay));
-        Debug.Log($"🔊 Entrance pronunciation scheduled in {letterHurdlePronunciationDelay}s for: {currentTargetWord}");
+        if (obstacleSpawner == null || obstacleSpawner.IsLetterEventActive)
+        {
+            pronunciationCoroutine = StartCoroutine(PlayLetterHurdlePronunciationDelayed(letterHurdlePronunciationDelay));
+            Debug.Log($"🔊 Entrance pronunciation scheduled in {letterHurdlePronunciationDelay}s for: {currentTargetWord}");
+        }
+        else
+        {
+            Debug.Log($"⏭️ Skipping entrance pronunciation for '{currentTargetWord}' — letter event no longer active.");
+        }
     }
 
     void UpdateLetterHurdleClueImage()
