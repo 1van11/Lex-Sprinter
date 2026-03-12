@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Text.RegularExpressions;
 
 public class Validation : MonoBehaviour
 {
@@ -27,10 +26,20 @@ public class Validation : MonoBehaviour
     private const string PlayerNameKey = "PlayerName";
     private const string SelectedCharacterKey = "SelectedCharacter";
 
-    // Stronger banned list
+    // ✅ FIXED: All commas are correct now
     private string[] bannedWords = {
-        "sex","porn","xxx","fuck","shit",
-        "bitch","ass","dick","pussy","nude"
+        "sex", "porn", "xxx", "fuck", "shit",
+        "bitch", "ass", "dick", "pussy", "nude",
+        "fuk", "fck", "sht", "btch",
+        "arse", "damn", "dman", "crap", "piss",
+        "bastard", "dik", "cock", "cok", "cunt",
+        "whore", "slut", "sx", "prn", "naked",
+        "boob", "penis", "vagina", "hate",
+        "kill", "die", "dead", "negro", "nigga",
+        "nigger", "faggot", "retard", "drug",
+        "weed", "cocaine", "heroin", "meth", "murder",
+        "suicide", "rape", "stab", "shoot",
+        "admin", "moderator", "official", "support"
     };
 
     void Start()
@@ -85,7 +94,6 @@ public class Validation : MonoBehaviour
             return;
         }
 
-        // Allow only letters and numbers
         foreach (char c in input)
         {
             if (!char.IsLetterOrDigit(c))
@@ -107,16 +115,22 @@ public class Validation : MonoBehaviour
             return;
         }
 
-        // 🔥 Normalize text to detect leetspeak
-        string normalized = input.ToLower();
-
-        normalized = normalized
+        // Normalize to detect leetspeak
+        string normalized = input.ToLower()
             .Replace("0", "o")
             .Replace("1", "i")
             .Replace("3", "e")
             .Replace("4", "a")
             .Replace("5", "s")
-            .Replace("7", "t");
+            .Replace("6", "g")
+            .Replace("7", "t")
+            .Replace("8", "b")
+            .Replace("9", "g")
+            .Replace("@", "a")
+            .Replace("$", "s")
+            .Replace("!", "i")
+            .Replace("+", "t")
+            .Replace("ph", "f");
 
         // Check banned words
         foreach (string word in bannedWords)
@@ -131,7 +145,6 @@ public class Validation : MonoBehaviour
             }
         }
 
-        // ✅ Valid
         feedbackText.text = "✔ Name looks good!";
         feedbackText.color = Color.green;
         hasNameInput = true;
@@ -145,21 +158,17 @@ public class Validation : MonoBehaviour
 
     void SaveAndLoadHomeScreen()
     {
-        // Save player name
         PlayerPrefs.SetString(PlayerNameKey, nameInputField.text);
-        
-        // 🔧 FIX: Calculate selected character from lights
+
         int selectedCharacter = directionalLight1.enabled ? 1 : 2;
         PlayerPrefs.SetInt(SelectedCharacterKey, selectedCharacter);
-        
-        // Mark setup as complete
+
         PlayerPrefs.SetInt(HasCompletedSetupKey, 1);
         PlayerPrefs.Save();
-        
+
         Debug.Log($"✅ Setup complete! Name: {nameInputField.text}, Character: {selectedCharacter}");
-        
-        // Load HomeScreen
-        SceneManager.LoadScene("HomeScreen");
+
+            SceneManager.LoadScene("HomeScreen");
     }
 
     IEnumerator ClearInvalidInput()
