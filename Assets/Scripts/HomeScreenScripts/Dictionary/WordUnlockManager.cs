@@ -36,6 +36,10 @@ public class WordUnlockManager : MonoBehaviour
     private HashSet<string> clickedWords = new HashSet<string>();
     private Dictionary<string, Button> wordButtonDict = new Dictionary<string, Button>();
 
+    bool isFiltering = false;
+
+
+
     // ─────────────────────────────────────────────────────────────────────────
     void Awake()
     {
@@ -94,7 +98,9 @@ public class WordUnlockManager : MonoBehaviour
         if (searchInput != null)
         {
             searchInput.characterLimit = 10;
+            searchInput.onValueChanged.RemoveAllListeners();
             searchInput.onValueChanged.AddListener(OnSearchValueChanged);
+            
         }
 
         LoadUnlockedWords();
@@ -303,22 +309,35 @@ public class WordUnlockManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     public void OnSearchValueChanged(string input)
     {
-        // Strip non-letters
+        if (isFiltering) return;
+
+        isFiltering = true;
+
+        // Remove non-letter characters
         string filtered = "";
         foreach (char c in input)
-            if (char.IsLetter(c)) filtered += c;
+        {
+            if (char.IsLetter(c))
+                filtered += c;
+        }
 
+        // Update field ONLY if changed
         if (filtered != input)
-            searchInput.text = filtered;
+        {
+            searchInput.SetTextWithoutNotify(filtered);
+        }
 
-        string searchTerm = filtered.ToLower();
+        string searchTerm = filtered.ToLower().Trim();
 
         foreach (var kvp in wordButtonDict)
         {
-            string word = kvp.Key;
-            bool matches = string.IsNullOrEmpty(searchTerm) || word.Contains(searchTerm);
+            string word = kvp.Key.ToLower();
+            bool matches = string.IsNullOrEmpty(searchTerm) || word.StartsWith(searchTerm);
+
             kvp.Value.gameObject.SetActive(matches);
         }
+
+        isFiltering = false;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
