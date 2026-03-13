@@ -96,7 +96,12 @@ public class PowerManager : MonoBehaviour
                 TimeSpan remaining = nextRechargeTimes[i] - DateTime.Now;
 
                 if (remaining.TotalSeconds > 0)
-                    return $"Recharge Energy in {Mathf.CeilToInt((float)remaining.TotalMinutes)} mins.";
+                {
+                    int minutes = remaining.Minutes;
+                    int seconds = remaining.Seconds;
+
+                    return $"Recharge Energy in {minutes}m {seconds}s.";
+                }
             }
         }
 

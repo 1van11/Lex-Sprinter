@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class PowerTooltip : MonoBehaviour
 {
     public PowerManager powerManager;
-    public Text infoText;
+    public TMP_Text infoText;
 
     public void OnPowerClicked()
     {
