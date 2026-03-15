@@ -189,6 +189,7 @@ public class ObstacleSpawner : MonoBehaviour
     [Header("Letter Event UI")]
     public GameObject letterEventClueUI;
     public float clueTextDelay = 2f;
+    public TMPro.TextMeshProUGUI letterHurdleTimerText;
 
     [Header("Letter Event Start/End UI")]
     [Tooltip("UI to display when letter event is about to start")]
@@ -260,6 +261,9 @@ public class ObstacleSpawner : MonoBehaviour
     private int patternIndex = 0;
     private int spellingCounter = 0;
     private System.Random rng;
+
+    private Coroutine hurdleTimerCoroutine;
+    private float hurdleTimerElapsed = 0f;
 
     private Queue<GameObject> letterPool = new Queue<GameObject>();
     private List<GameObject> activeLetterObjects = new List<GameObject>();
@@ -666,510 +670,577 @@ public class ObstacleSpawner : MonoBehaviour
 
     #endregion
 
-    // =========================================================================
-    // LETTER CONTAINER SYSTEM
-    // =========================================================================
-    #region Letter Container System
+// =========================================================================
+// LETTER CONTAINER SYSTEM
+// =========================================================================
+#region Letter Container System
 
-    void CreateLetterPool()
+void CreateLetterPool()
+{
+    if (letterContainerPrefab == null) return;
+    for (int i = 0; i < letterPoolSize; i++)
     {
-        if (letterContainerPrefab == null) return;
-        for (int i = 0; i < letterPoolSize; i++)
+        GameObject o = Instantiate(letterContainerPrefab, Vector3.zero, Quaternion.identity, LetterSpawnParentTransform);
+        o.SetActive(false);
+        letterPool.Enqueue(o);
+    }
+}
+
+GameObject GetLetterFromPool()
+{
+    if (letterPool.Count > 0) return letterPool.Dequeue();
+    return Instantiate(letterContainerPrefab, Vector3.zero, Quaternion.identity, LetterSpawnParentTransform);
+}
+
+void ReturnLetterToPool(GameObject obj)
+{
+    if (letterAnimations.ContainsKey(obj))
+    {
+        if (letterAnimations[obj] != null) StopCoroutine(letterAnimations[obj]);
+        letterAnimations.Remove(obj);
+    }
+    if (letterTimeoutCoroutines.ContainsKey(obj))
+    {
+        if (letterTimeoutCoroutines[obj] != null) StopCoroutine(letterTimeoutCoroutines[obj]);
+        letterTimeoutCoroutines.Remove(obj);
+    }
+    obj.SetActive(false);
+    letterPool.Enqueue(obj);
+
+    // Hide timer if no hurdles remain active
+    if (activeLetterObjects.Count == 0)
+        StopHurdleTimer();
+}
+
+void SpawnRandomLetterLaneAtZ(float z)
+{
+    int lane = Random.Range(-1, 2);
+    float x = lane * laneDistance;
+    SpawnLetterFromPool(new Vector3(x, letterSpawnHeight, z) + letterSpawnPositionOffset + letterSpawnerOffset);
+}
+
+void SpawnLetterFromPool(Vector3 pos)
+{
+    GameObject go = GetLetterFromPool();
+    go.SetActive(true);
+
+    Quaternion rot = letterUsePrefabTransform ? letterContainerPrefab.transform.rotation : Quaternion.Euler(letterSpawnRotationEuler);
+    Vector3 scale  = letterUsePrefabTransform ? letterContainerPrefab.transform.localScale : letterSpawnScale;
+
+    Vector3 startPos = new Vector3(pos.x, pos.y + letterHurdleSpawnHeightOffset, pos.z);
+    go.transform.SetPositionAndRotation(startPos, rot);
+    go.transform.localScale = scale;
+
+    activeLetterObjects.Add(go);
+    Coroutine animCoroutine = StartCoroutine(AnimateLetterDrop(go, startPos, pos));
+    letterAnimations[go] = animCoroutine;
+    Coroutine timeoutCoroutine = StartCoroutine(LetterHurdleTimeout(go));
+    letterTimeoutCoroutines[go] = timeoutCoroutine;
+
+    // Start or restart the visible hurdle timer
+    StartHurdleTimer();
+}
+
+// ── Timer helpers ─────────────────────────────────────────────────────────
+
+/// <summary>
+/// Starts (or restarts) the countdown timer UI for the active letter hurdle.
+/// Resets elapsed time so each new hurdle gets a fresh countdown.
+/// </summary>
+void StartHurdleTimer()
+{
+    // If already counting down, don't reset — let it continue
+    if (hurdleTimerCoroutine != null) return;
+
+    hurdleTimerElapsed = 0f;
+
+    if (letterHurdleTimerText != null)
+    {
+        letterHurdleTimerText.gameObject.SetActive(true);
+        letterHurdleTimerText.text = letterHurdleTimeLimit.ToString("F1");
+    }
+
+    hurdleTimerCoroutine = StartCoroutine(RunHurdleTimer());
+}
+
+/// <summary>
+/// Stops the countdown timer and hides the UI.
+/// </summary>
+void StopHurdleTimer()
+{
+    if (hurdleTimerCoroutine != null)
+    {
+        StopCoroutine(hurdleTimerCoroutine);
+        hurdleTimerCoroutine = null;
+    }
+
+    hurdleTimerElapsed = 0f;
+
+    if (letterHurdleTimerText != null)
+        letterHurdleTimerText.gameObject.SetActive(false);
+}
+
+/// <summary>
+/// Counts down from letterHurdleTimeLimit and updates the TextMeshPro each frame.
+/// Automatically hides itself when the limit is reached.
+/// </summary>
+IEnumerator RunHurdleTimer()
+{
+    while (hurdleTimerElapsed < letterHurdleTimeLimit)
+    {
+        hurdleTimerElapsed += Time.deltaTime;
+        float remaining = Mathf.Max(0f, letterHurdleTimeLimit - hurdleTimerElapsed);
+
+        if (letterHurdleTimerText != null)
+            letterHurdleTimerText.text = remaining.ToString("F1");
+
+        yield return null;
+    }
+
+    // Timer expired — hide the UI (timeout damage is handled by LetterHurdleTimeout)
+    if (letterHurdleTimerText != null)
+    {
+        letterHurdleTimerText.text = "0.0";
+        letterHurdleTimerText.gameObject.SetActive(false);
+    }
+
+    hurdleTimerCoroutine = null;
+}
+
+// ── Existing letter hurdle methods (unchanged) ────────────────────────────
+
+IEnumerator AnimateLetterDrop(GameObject letter, Vector3 startPos, Vector3 targetPos)
+{
+    float time = 0f;
+    while (time < letterHurdleDropAnimationTime)
+    {
+        if (letter == null || !letter.activeInHierarchy) yield break;
+        float t = time / letterHurdleDropAnimationTime;
+        float easedT = 1 - Mathf.Pow(1 - t, 3);
+        letter.transform.position = Vector3.Lerp(startPos, targetPos, easedT);
+        time += Time.deltaTime;
+        yield return null;
+    }
+    if (letter != null && letter.activeInHierarchy) letter.transform.position = targetPos;
+    if (letterAnimations.ContainsKey(letter)) letterAnimations.Remove(letter);
+}
+
+public void AnimateLetterDefeat(GameObject letter)
+{
+    if (letter == null) return;
+    if (letterAnimations.ContainsKey(letter))
+    {
+        if (letterAnimations[letter] != null) StopCoroutine(letterAnimations[letter]);
+        letterAnimations.Remove(letter);
+    }
+    Coroutine fallCoroutine = StartCoroutine(AnimateLetterFallToGround(letter));
+    letterAnimations[letter] = fallCoroutine;
+}
+
+IEnumerator AnimateLetterFallToGround(GameObject letter)
+{
+    if (letter == null) yield break;
+    Vector3 startPos = letter.transform.position;
+    Vector3 groundPos = new Vector3(startPos.x, letterHurdleGroundY, startPos.z);
+    float time = 0f;
+    while (time < letterHurdleFallAnimationTime)
+    {
+        if (letter == null || !letter.activeInHierarchy) yield break;
+        letter.transform.position = Vector3.Lerp(startPos, groundPos, time / letterHurdleFallAnimationTime);
+        time += Time.deltaTime;
+        yield return null;
+    }
+    if (letter != null && letter.activeInHierarchy) letter.transform.position = groundPos;
+    if (letterAnimations.ContainsKey(letter)) letterAnimations.Remove(letter);
+
+    yield return new WaitForSeconds(0.5f);
+    if (letter != null && letter.activeInHierarchy)
+    {
+        activeLetterObjects.Remove(letter);
+        ReturnLetterToPool(letter);
+    }
+}
+
+IEnumerator LetterHurdleTimeout(GameObject hurdle)
+{
+    yield return new WaitForSeconds(letterHurdleTimeLimit);
+    if (hurdle != null && activeLetterObjects.Contains(hurdle))
+        HandleLetterTimeout(hurdle);
+}
+
+void HandleLetterTimeout(GameObject hurdle)
+{
+    if (letterTimeoutCoroutines.ContainsKey(hurdle))
+        letterTimeoutCoroutines.Remove(hurdle);
+    activeLetterObjects.Remove(hurdle);
+
+    if (PlayerFunctions != null)
+    {
+        PlayerFunctions.TakeDamage(letterHurdleTimeoutDamage);
+        Debug.Log($"⏰ Letter hurdle timed out! Player took {letterHurdleTimeoutDamage} damage.");
+    }
+
+    if (letterAnimations.ContainsKey(hurdle))
+    {
+        StopCoroutine(letterAnimations[hurdle]);
+        letterAnimations.Remove(hurdle);
+    }
+    ReturnLetterToPool(hurdle);
+}
+
+public void ResolveLetterHurdle(GameObject hurdle, bool wasCorrect)
+{
+    if (hurdle == null || !activeLetterObjects.Contains(hurdle)) return;
+
+    if (letterTimeoutCoroutines.TryGetValue(hurdle, out Coroutine timeout))
+    {
+        StopCoroutine(timeout);
+        letterTimeoutCoroutines.Remove(hurdle);
+    }
+
+    activeLetterObjects.Remove(hurdle);
+
+    if (letterAnimations.ContainsKey(hurdle))
+    {
+        StopCoroutine(letterAnimations[hurdle]);
+        letterAnimations.Remove(hurdle);
+    }
+
+    if (wasCorrect)
+    {
+        OnLetterHurdleSuccess();
+        Debug.Log("✅ Letter hurdle solved correctly.");
+    }
+    else
+    {
+        if (PlayerFunctions != null)
+            PlayerFunctions.TakeDamageFromWrongLetter();
+        Debug.Log("❌ Letter hurdle solved incorrectly.");
+    }
+
+    ReturnLetterToPool(hurdle);
+}
+
+void SpawnEventLetterHurdlesAtZ(float z)
+{
+    int count = Random.Range(1, 3);
+    List<int> lanes = new List<int>() { -1, 0, 1 };
+    for (int i = 0; i < count; i++)
+    {
+        int idx = Random.Range(0, lanes.Count);
+        int lane = lanes[idx];
+        lanes.RemoveAt(idx);
+        float x = lane * laneDistance;
+        SpawnLetterFromPool(new Vector3(x, letterSpawnHeight, z) + letterSpawnPositionOffset + letterSpawnerOffset);
+    }
+    Debug.Log($"📦 Spawned {count} letter hurdles at Z: {z}");
+}
+
+void SpawnLetterIndicatorAtZ(float z)
+{
+    if (spawnerIndicatorPrefab == null)
+    {
+        Debug.LogWarning("⚠️ Spawner Indicator Prefab is missing!");
+        StartCoroutine(DelayedLetterHurdleSpawn(z));
+        return;
+    }
+    float startY = letterSpawnHeight + letterIndicatorStartHeightOffset;
+    Vector3 pos = new Vector3(0f, startY, z) + letterSpawnPositionOffset + letterSpawnerOffset;
+    currentEventIndicator = Instantiate(spawnerIndicatorPrefab, pos, Quaternion.identity, LetterSpawnParentTransform);
+    Debug.Log($"🎯 Spawned indicator at Z: {z} (Player Z: {PlayerFunctions.transform.position.z})");
+    StartCoroutine(AnimateLetterIndicator(currentEventIndicator, z));
+}
+
+IEnumerator DelayedLetterHurdleSpawn(float z)
+{
+    yield return new WaitForSeconds(letterHurdleSpawnDelay);
+    SpawnEventLetterHurdlesAtZ(z);
+}
+
+IEnumerator AnimateLetterIndicator(GameObject indicator, float z)
+{
+    Vector3 startPos = indicator.transform.position;
+    Vector3 downPos = new Vector3(startPos.x, letterSpawnHeight, startPos.z);
+    float time = 0f;
+    while (time < letterIndicatorAnimationTime)
+    {
+        if (indicator == null) yield break;
+        indicator.transform.position = Vector3.Lerp(startPos, downPos, time / letterIndicatorAnimationTime);
+        time += Time.deltaTime;
+        yield return null;
+    }
+    if (indicator != null) indicator.transform.position = downPos;
+    yield return new WaitForSeconds(letterHurdleSpawnDelay);
+    SpawnEventLetterHurdlesAtZ(z);
+    yield return new WaitForSeconds(letterIndicatorStayTime);
+    if (indicator == null) yield break;
+    Vector3 upPos = startPos;
+    time = 0f;
+    while (time < letterIndicatorAnimationTime)
+    {
+        if (indicator == null) yield break;
+        indicator.transform.position = Vector3.Lerp(downPos, upPos, time / letterIndicatorAnimationTime);
+        time += Time.deltaTime;
+        yield return null;
+    }
+    if (indicator != null) { Destroy(indicator); currentEventIndicator = null; }
+}
+
+IEnumerator LetterEventSpawner()
+{
+    yield return new WaitForSeconds(letterEventInitialDelay);
+    while (true)
+    {
+        float timeUntilEvent = letterEventFrequency - warningDisplayTime;
+        if (timeUntilEvent > 0) yield return new WaitForSeconds(timeUntilEvent);
+
+        if (letterEventStartWarningUI != null)
         {
-            GameObject o = Instantiate(letterContainerPrefab, Vector3.zero, Quaternion.identity, LetterSpawnParentTransform);
-            o.SetActive(false);
-            letterPool.Enqueue(o);
+            ShowUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
+            Debug.Log($"⚠️ Letter Event Warning displayed! Event starts in {warningDisplayTime} seconds");
+        }
+
+        if (timeUntilEvent > 0) yield return new WaitForSeconds(warningDisplayTime);
+        else                    yield return new WaitForSeconds(letterEventFrequency);
+
+        if (letterEventStartWarningUI != null)
+            HideUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
+
+        isLetterEventActive = true;
+        wordsCompletedInCurrentEvent = 0;
+        allowRegularLetterSpawning = false;
+
+        Debug.Log($"🔤 Letter Event Started - Player at Z: {PlayerFunctions.transform.position.z}");
+
+        float z = CalculateFarAheadSpawnPosition();
+        Debug.Log($"📍 Indicator will spawn at Z: {z} (Distance ahead: {z - PlayerFunctions.transform.position.z})");
+
+        yield return new WaitForSeconds(letterEventIndicatorDelay);
+        SpawnLetterIndicatorAtZ(z);
+
+        if (letterEventClueUI != null)
+        {
+            yield return new WaitForSeconds(clueTextDelay);
+            if (isLetterEventActive)
+                ShowUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
+        }
+
+        yield return new WaitForSeconds(letterInitialSpawnDelaySeconds);
+
+        if (isLetterEventActive)
+        {
+            allowRegularLetterSpawning = true;
+            nextLetterSpawnZ = PlayerFunctions.transform.position.z + letterSpawnDistanceAhead;
+            Debug.Log($"✅ Regular letter spawning enabled at Z: {nextLetterSpawnZ}");
+        }
+
+        yield return new WaitForSeconds(letterEventDuration - letterEventIndicatorDelay - letterInitialSpawnDelaySeconds);
+
+        if (isLetterEventActive) EndLetterEvent(false);
+    }
+}
+
+float CalculateFarAheadSpawnPosition()
+{
+    if (PlayerFunctions == null) return letterIndicatorMinimumSpawnAhead;
+    float currentPlayerZ = PlayerFunctions.transform.position.z;
+    float calculatedDistance = Mathf.Max(letterEventSpawnDistanceAhead, letterIndicatorSpawnDistanceAhead, letterIndicatorMinimumSpawnAhead);
+    float finalSpawnZ = currentPlayerZ + calculatedDistance;
+    Debug.Log($"🎯 Spawn calculation: PlayerZ={currentPlayerZ:F1}, Distance={calculatedDistance:F1}, FinalZ={finalSpawnZ:F1}");
+    return finalSpawnZ;
+}
+
+public void EndLetterEvent(bool wasCompleted = false)
+{
+    isLetterEventActive = false;
+    allowRegularLetterSpawning = false;
+
+    // Stop the hurdle timer whenever the event ends
+    StopHurdleTimer();
+
+    if (wasCompleted)
+    {
+        Debug.Log("✅ Letter Event Completed Successfully!");
+        if (animateHurdlesOnEventEnd)
+            StartCoroutine(AnimateLetterHurdlesEnd());
+
+        if (letterEventCompleteUI != null)
+            StartCoroutine(ShowCompletionUIWithAnimation());
+    }
+    else
+    {
+        Debug.Log("⏱️ Letter Event Ended (Time Expired) - Normal spawning resumes");
+    }
+
+    if (letterEventClueUI != null)
+    {
+        if (clueUIHideCoroutine != null)
+        {
+            StopCoroutine(clueUIHideCoroutine);
+            clueUIHideCoroutine = null;
+        }
+
+        if (wasCompleted && clueUIHideDelayOnCompletion > 0f)
+        {
+            clueUIHideCoroutine = StartCoroutine(HideClueUIDelayed(clueUIHideDelayOnCompletion));
+            Debug.Log($"🕐 Clue UI will hide in {clueUIHideDelayOnCompletion}s (completion delay)");
+        }
+        else
+        {
+            HideUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
         }
     }
 
-    GameObject GetLetterFromPool()
-    {
-        if (letterPool.Count > 0) return letterPool.Dequeue();
-        return Instantiate(letterContainerPrefab, Vector3.zero, Quaternion.identity, LetterSpawnParentTransform);
-    }
+    wordsCompletedInCurrentEvent = 0;
 
-    void ReturnLetterToPool(GameObject obj)
+    if (letterEventCoroutine != null) StopCoroutine(letterEventCoroutine);
+    letterEventCoroutine = StartCoroutine(LetterEventSpawner());
+}
+
+private IEnumerator HideClueUIDelayed(float delay)
+{
+    yield return new WaitForSeconds(delay);
+    if (letterEventClueUI != null)
+        HideUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
+    clueUIHideCoroutine = null;
+}
+
+IEnumerator ShowCompletionUIWithAnimation()
+{
+    if (letterEventCompleteUI != null)
+    {
+        ShowUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
+        Debug.Log($"🎉 Letter Event Complete UI displayed for {completionUIDisplayTime} seconds");
+        yield return new WaitForSeconds(completionUIDisplayTime);
+        HideUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
+    }
+}
+
+IEnumerator AnimateLetterHurdlesEnd()
+{
+    foreach (var obj in activeLetterObjects)
     {
         if (letterAnimations.ContainsKey(obj))
         {
             if (letterAnimations[obj] != null) StopCoroutine(letterAnimations[obj]);
             letterAnimations.Remove(obj);
         }
-        if (letterTimeoutCoroutines.ContainsKey(obj))
-        {
-            if (letterTimeoutCoroutines[obj] != null) StopCoroutine(letterTimeoutCoroutines[obj]);
-            letterTimeoutCoroutines.Remove(obj);
-        }
-        obj.SetActive(false);
-        letterPool.Enqueue(obj);
     }
 
-    void SpawnRandomLetterLaneAtZ(float z)
+    float rotTime = 0f;
+    Quaternion[] startRots = new Quaternion[activeLetterObjects.Count];
+    for (int i = 0; i < activeLetterObjects.Count; i++)
+        startRots[i] = activeLetterObjects[i].transform.rotation;
+
+    while (rotTime < hurdleRotationDuration)
     {
-        int lane = Random.Range(-1, 2);
-        float x = lane * laneDistance;
-        SpawnLetterFromPool(new Vector3(x, letterSpawnHeight, z) + letterSpawnPositionOffset + letterSpawnerOffset);
-    }
-
-    void SpawnLetterFromPool(Vector3 pos)
-    {
-        GameObject go = GetLetterFromPool();
-        go.SetActive(true);
-
-        Quaternion rot = letterUsePrefabTransform ? letterContainerPrefab.transform.rotation : Quaternion.Euler(letterSpawnRotationEuler);
-        Vector3 scale  = letterUsePrefabTransform ? letterContainerPrefab.transform.localScale : letterSpawnScale;
-
-        Vector3 startPos = new Vector3(pos.x, pos.y + letterHurdleSpawnHeightOffset, pos.z);
-        go.transform.SetPositionAndRotation(startPos, rot);
-        go.transform.localScale = scale;
-
-        activeLetterObjects.Add(go);
-        Coroutine animCoroutine = StartCoroutine(AnimateLetterDrop(go, startPos, pos));
-        letterAnimations[go] = animCoroutine;
-        Coroutine timeoutCoroutine = StartCoroutine(LetterHurdleTimeout(go));
-        letterTimeoutCoroutines[go] = timeoutCoroutine;
-    }
-
-    IEnumerator AnimateLetterDrop(GameObject letter, Vector3 startPos, Vector3 targetPos)
-    {
-        float time = 0f;
-        while (time < letterHurdleDropAnimationTime)
-        {
-            if (letter == null || !letter.activeInHierarchy) yield break;
-            float t = time / letterHurdleDropAnimationTime;
-            float easedT = 1 - Mathf.Pow(1 - t, 3);
-            letter.transform.position = Vector3.Lerp(startPos, targetPos, easedT);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (letter != null && letter.activeInHierarchy) letter.transform.position = targetPos;
-        if (letterAnimations.ContainsKey(letter)) letterAnimations.Remove(letter);
-    }
-
-    public void AnimateLetterDefeat(GameObject letter)
-    {
-        if (letter == null) return;
-        if (letterAnimations.ContainsKey(letter))
-        {
-            if (letterAnimations[letter] != null) StopCoroutine(letterAnimations[letter]);
-            letterAnimations.Remove(letter);
-        }
-        Coroutine fallCoroutine = StartCoroutine(AnimateLetterFallToGround(letter));
-        letterAnimations[letter] = fallCoroutine;
-    }
-
-    IEnumerator AnimateLetterFallToGround(GameObject letter)
-    {
-        if (letter == null) yield break;
-        Vector3 startPos = letter.transform.position;
-        Vector3 groundPos = new Vector3(startPos.x, letterHurdleGroundY, startPos.z);
-        float time = 0f;
-        while (time < letterHurdleFallAnimationTime)
-        {
-            if (letter == null || !letter.activeInHierarchy) yield break;
-            letter.transform.position = Vector3.Lerp(startPos, groundPos, time / letterHurdleFallAnimationTime);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (letter != null && letter.activeInHierarchy) letter.transform.position = groundPos;
-        if (letterAnimations.ContainsKey(letter)) letterAnimations.Remove(letter);
-
-        yield return new WaitForSeconds(0.5f);
-        if (letter != null && letter.activeInHierarchy)
-        {
-            activeLetterObjects.Remove(letter);
-            ReturnLetterToPool(letter);
-        }
-    }
-
-    IEnumerator LetterHurdleTimeout(GameObject hurdle)
-    {
-        yield return new WaitForSeconds(letterHurdleTimeLimit);
-        if (hurdle != null && activeLetterObjects.Contains(hurdle))
-            HandleLetterTimeout(hurdle);
-    }
-
-    void HandleLetterTimeout(GameObject hurdle)
-    {
-        if (letterTimeoutCoroutines.ContainsKey(hurdle))
-            letterTimeoutCoroutines.Remove(hurdle);
-        activeLetterObjects.Remove(hurdle);
-
-        if (PlayerFunctions != null)
-        {
-            PlayerFunctions.TakeDamage(letterHurdleTimeoutDamage);
-            Debug.Log($"⏰ Letter hurdle timed out! Player took {letterHurdleTimeoutDamage} damage.");
-        }
-
-        if (letterAnimations.ContainsKey(hurdle))
-        {
-            StopCoroutine(letterAnimations[hurdle]);
-            letterAnimations.Remove(hurdle);
-        }
-        ReturnLetterToPool(hurdle);
-    }
-
-    public void ResolveLetterHurdle(GameObject hurdle, bool wasCorrect)
-    {
-        if (hurdle == null || !activeLetterObjects.Contains(hurdle)) return;
-
-        if (letterTimeoutCoroutines.TryGetValue(hurdle, out Coroutine timeout))
-        {
-            StopCoroutine(timeout);
-            letterTimeoutCoroutines.Remove(hurdle);
-        }
-
-        activeLetterObjects.Remove(hurdle);
-
-        if (letterAnimations.ContainsKey(hurdle))
-        {
-            StopCoroutine(letterAnimations[hurdle]);
-            letterAnimations.Remove(hurdle);
-        }
-
-        if (wasCorrect)
-        {
-            OnLetterHurdleSuccess();
-            Debug.Log("✅ Letter hurdle solved correctly.");
-        }
-        else
-        {
-            if (PlayerFunctions != null)
-                PlayerFunctions.TakeDamageFromWrongLetter();
-            Debug.Log("❌ Letter hurdle solved incorrectly.");
-        }
-
-        ReturnLetterToPool(hurdle);
-    }
-
-    void SpawnEventLetterHurdlesAtZ(float z)
-    {
-        int count = Random.Range(1, 3);
-        List<int> lanes = new List<int>() { -1, 0, 1 };
-        for (int i = 0; i < count; i++)
-        {
-            int idx = Random.Range(0, lanes.Count);
-            int lane = lanes[idx];
-            lanes.RemoveAt(idx);
-            float x = lane * laneDistance;
-            SpawnLetterFromPool(new Vector3(x, letterSpawnHeight, z) + letterSpawnPositionOffset + letterSpawnerOffset);
-        }
-        Debug.Log($"📦 Spawned {count} letter hurdles at Z: {z}");
-    }
-
-    void SpawnLetterIndicatorAtZ(float z)
-    {
-        if (spawnerIndicatorPrefab == null)
-        {
-            Debug.LogWarning("⚠️ Spawner Indicator Prefab is missing!");
-            StartCoroutine(DelayedLetterHurdleSpawn(z));
-            return;
-        }
-        float startY = letterSpawnHeight + letterIndicatorStartHeightOffset;
-        Vector3 pos = new Vector3(0f, startY, z) + letterSpawnPositionOffset + letterSpawnerOffset;
-        currentEventIndicator = Instantiate(spawnerIndicatorPrefab, pos, Quaternion.identity, LetterSpawnParentTransform);
-        Debug.Log($"🎯 Spawned indicator at Z: {z} (Player Z: {PlayerFunctions.transform.position.z})");
-        StartCoroutine(AnimateLetterIndicator(currentEventIndicator, z));
-    }
-
-    IEnumerator DelayedLetterHurdleSpawn(float z)
-    {
-        yield return new WaitForSeconds(letterHurdleSpawnDelay);
-        SpawnEventLetterHurdlesAtZ(z);
-    }
-
-    IEnumerator AnimateLetterIndicator(GameObject indicator, float z)
-    {
-        Vector3 startPos = indicator.transform.position;
-        Vector3 downPos = new Vector3(startPos.x, letterSpawnHeight, startPos.z);
-        float time = 0f;
-        while (time < letterIndicatorAnimationTime)
-        {
-            if (indicator == null) yield break;
-            indicator.transform.position = Vector3.Lerp(startPos, downPos, time / letterIndicatorAnimationTime);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (indicator != null) indicator.transform.position = downPos;
-        yield return new WaitForSeconds(letterHurdleSpawnDelay);
-        SpawnEventLetterHurdlesAtZ(z);
-        yield return new WaitForSeconds(letterIndicatorStayTime);
-        if (indicator == null) yield break;
-        Vector3 upPos = startPos;
-        time = 0f;
-        while (time < letterIndicatorAnimationTime)
-        {
-            if (indicator == null) yield break;
-            indicator.transform.position = Vector3.Lerp(downPos, upPos, time / letterIndicatorAnimationTime);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (indicator != null) { Destroy(indicator); currentEventIndicator = null; }
-    }
-
-    IEnumerator LetterEventSpawner()
-    {
-        yield return new WaitForSeconds(letterEventInitialDelay);
-        while (true)
-        {
-            float timeUntilEvent = letterEventFrequency - warningDisplayTime;
-            if (timeUntilEvent > 0) yield return new WaitForSeconds(timeUntilEvent);
-
-            if (letterEventStartWarningUI != null)
-            {
-                ShowUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
-                Debug.Log($"⚠️ Letter Event Warning displayed! Event starts in {warningDisplayTime} seconds");
-            }
-
-            if (timeUntilEvent > 0) yield return new WaitForSeconds(warningDisplayTime);
-            else                    yield return new WaitForSeconds(letterEventFrequency);
-
-            if (letterEventStartWarningUI != null)
-                HideUIWithAnimation(letterEventStartWarningUI, warningUICanvasGroup, warningUIRect, originalWarningUIPos);
-
-            isLetterEventActive = true;
-            wordsCompletedInCurrentEvent = 0;
-            allowRegularLetterSpawning = false;
-
-            Debug.Log($"🔤 Letter Event Started - Player at Z: {PlayerFunctions.transform.position.z}");
-
-            float z = CalculateFarAheadSpawnPosition();
-            Debug.Log($"📍 Indicator will spawn at Z: {z} (Distance ahead: {z - PlayerFunctions.transform.position.z})");
-
-            yield return new WaitForSeconds(letterEventIndicatorDelay);
-            SpawnLetterIndicatorAtZ(z);
-
-            if (letterEventClueUI != null)
-            {
-                yield return new WaitForSeconds(clueTextDelay);
-                if (isLetterEventActive)
-                    ShowUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
-            }
-
-            yield return new WaitForSeconds(letterInitialSpawnDelaySeconds);
-
-            if (isLetterEventActive)
-            {
-                allowRegularLetterSpawning = true;
-                nextLetterSpawnZ = PlayerFunctions.transform.position.z + letterSpawnDistanceAhead;
-                Debug.Log($"✅ Regular letter spawning enabled at Z: {nextLetterSpawnZ}");
-            }
-
-            yield return new WaitForSeconds(letterEventDuration - letterEventIndicatorDelay - letterInitialSpawnDelaySeconds);
-
-            if (isLetterEventActive) EndLetterEvent(false);
-        }
-    }
-
-    float CalculateFarAheadSpawnPosition()
-    {
-        if (PlayerFunctions == null) return letterIndicatorMinimumSpawnAhead;
-        float currentPlayerZ = PlayerFunctions.transform.position.z;
-        float calculatedDistance = Mathf.Max(letterEventSpawnDistanceAhead, letterIndicatorSpawnDistanceAhead, letterIndicatorMinimumSpawnAhead);
-        float finalSpawnZ = currentPlayerZ + calculatedDistance;
-        Debug.Log($"🎯 Spawn calculation: PlayerZ={currentPlayerZ:F1}, Distance={calculatedDistance:F1}, FinalZ={finalSpawnZ:F1}");
-        return finalSpawnZ;
-    }
-
-    public void EndLetterEvent(bool wasCompleted = false)
-    {
-        isLetterEventActive = false;
-        allowRegularLetterSpawning = false;
-
-        if (wasCompleted)
-        {
-            Debug.Log("✅ Letter Event Completed Successfully!");
-            if (animateHurdlesOnEventEnd)
-                StartCoroutine(AnimateLetterHurdlesEnd());
-
-            if (letterEventCompleteUI != null)
-                StartCoroutine(ShowCompletionUIWithAnimation());
-        }
-        else
-        {
-            Debug.Log("⏱️ Letter Event Ended (Time Expired) - Normal spawning resumes");
-        }
-
-        // ── Hide the clue UI ──
-        // On completion: delay the hide so the player can read the word they just spelled.
-        // On time-expired: hide immediately.
-        if (letterEventClueUI != null)
-        {
-            // Cancel any previously queued hide for safety
-            if (clueUIHideCoroutine != null)
-            {
-                StopCoroutine(clueUIHideCoroutine);
-                clueUIHideCoroutine = null;
-            }
-
-            if (wasCompleted && clueUIHideDelayOnCompletion > 0f)
-            {
-                clueUIHideCoroutine = StartCoroutine(HideClueUIDelayed(clueUIHideDelayOnCompletion));
-                Debug.Log($"🕐 Clue UI will hide in {clueUIHideDelayOnCompletion}s (completion delay)");
-            }
-            else
-            {
-                HideUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
-            }
-        }
-
-        wordsCompletedInCurrentEvent = 0;
-
-        if (letterEventCoroutine != null) StopCoroutine(letterEventCoroutine);
-        letterEventCoroutine = StartCoroutine(LetterEventSpawner());
-    }
-
-    /// <summary>
-    /// Waits delay seconds, then hides the clue UI with its normal animation.
-    /// Used only on successful letter event completion so the player can see the word.
-    /// </summary>
-    private IEnumerator HideClueUIDelayed(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (letterEventClueUI != null)
-            HideUIWithAnimation(letterEventClueUI, clueUICanvasGroup, clueUIRect, originalClueUIPos);
-        clueUIHideCoroutine = null;
-    }
-
-    IEnumerator ShowCompletionUIWithAnimation()
-    {
-        if (letterEventCompleteUI != null)
-        {
-            ShowUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
-            Debug.Log($"🎉 Letter Event Complete UI displayed for {completionUIDisplayTime} seconds");
-            yield return new WaitForSeconds(completionUIDisplayTime);
-            HideUIWithAnimation(letterEventCompleteUI, completeUICanvasGroup, completeUIRect, originalCompleteUIPos);
-        }
-    }
-
-    IEnumerator AnimateLetterHurdlesEnd()
-    {
-        foreach (var obj in activeLetterObjects)
-        {
-            if (letterAnimations.ContainsKey(obj))
-            {
-                if (letterAnimations[obj] != null) StopCoroutine(letterAnimations[obj]);
-                letterAnimations.Remove(obj);
-            }
-        }
-
-        // Phase 1: Rotate
-        float rotTime = 0f;
-        Quaternion[] startRots = new Quaternion[activeLetterObjects.Count];
+        float angle = hurdleRotationSpeed * rotTime;
         for (int i = 0; i < activeLetterObjects.Count; i++)
-            startRots[i] = activeLetterObjects[i].transform.rotation;
-
-        while (rotTime < hurdleRotationDuration)
         {
-            float angle = hurdleRotationSpeed * rotTime;
-            for (int i = 0; i < activeLetterObjects.Count; i++)
+            if (activeLetterObjects[i] != null)
             {
-                if (activeLetterObjects[i] != null)
+                Vector3 axis = Vector3.up;
+                switch (hurdleRotationAxis)
                 {
-                    Vector3 axis = Vector3.up;
-                    switch (hurdleRotationAxis)
-                    {
-                        case RotationAxis.X: axis = Vector3.right; break;
-                        case RotationAxis.Y: axis = Vector3.up; break;
-                        case RotationAxis.Z: axis = Vector3.forward; break;
-                    }
-                    activeLetterObjects[i].transform.rotation = startRots[i] * Quaternion.AngleAxis(angle, axis);
+                    case RotationAxis.X: axis = Vector3.right; break;
+                    case RotationAxis.Y: axis = Vector3.up; break;
+                    case RotationAxis.Z: axis = Vector3.forward; break;
                 }
+                activeLetterObjects[i].transform.rotation = startRots[i] * Quaternion.AngleAxis(angle, axis);
             }
-            rotTime += Time.deltaTime;
-            yield return null;
         }
+        rotTime += Time.deltaTime;
+        yield return null;
+    }
 
-        // Phase 2: Slide down
-        Vector3[] startPositions = new Vector3[activeLetterObjects.Count];
-        Vector3[] targetPositions = new Vector3[activeLetterObjects.Count];
-        float slideY = hurdleSlideDownHeight != 0 ? hurdleSlideDownHeight : letterHurdleGroundY;
+    Vector3[] startPositions = new Vector3[activeLetterObjects.Count];
+    Vector3[] targetPositions = new Vector3[activeLetterObjects.Count];
+    float slideY = hurdleSlideDownHeight != 0 ? hurdleSlideDownHeight : letterHurdleGroundY;
 
+    for (int i = 0; i < activeLetterObjects.Count; i++)
+    {
+        if (activeLetterObjects[i] != null)
+        {
+            startPositions[i] = activeLetterObjects[i].transform.position;
+            targetPositions[i] = new Vector3(startPositions[i].x, slideY, startPositions[i].z);
+        }
+    }
+
+    float slideTime = 0f;
+    while (slideTime < hurdleSlideDownDuration)
+    {
+        float curveT = hurdleSlideCurve.Evaluate(slideTime / hurdleSlideDownDuration);
         for (int i = 0; i < activeLetterObjects.Count; i++)
         {
             if (activeLetterObjects[i] != null)
-            {
-                startPositions[i] = activeLetterObjects[i].transform.position;
-                targetPositions[i] = new Vector3(startPositions[i].x, slideY, startPositions[i].z);
-            }
+                activeLetterObjects[i].transform.position = Vector3.Lerp(startPositions[i], targetPositions[i], curveT);
         }
-
-        float slideTime = 0f;
-        while (slideTime < hurdleSlideDownDuration)
-        {
-            float curveT = hurdleSlideCurve.Evaluate(slideTime / hurdleSlideDownDuration);
-            for (int i = 0; i < activeLetterObjects.Count; i++)
-            {
-                if (activeLetterObjects[i] != null)
-                    activeLetterObjects[i].transform.position = Vector3.Lerp(startPositions[i], targetPositions[i], curveT);
-            }
-            slideTime += Time.deltaTime;
-            yield return null;
-        }
-
-        for (int i = 0; i < activeLetterObjects.Count; i++)
-        {
-            if (activeLetterObjects[i] != null)
-                activeLetterObjects[i].transform.position = targetPositions[i];
-        }
-
-        yield return new WaitForSeconds(0.5f);
-        for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
-        {
-            if (activeLetterObjects[i] != null)
-                ReturnLetterToPool(activeLetterObjects[i]);
-        }
-        activeLetterObjects.Clear();
+        slideTime += Time.deltaTime;
+        yield return null;
     }
 
-    public void OnLetterHurdleFailed()
+    for (int i = 0; i < activeLetterObjects.Count; i++)
     {
-        if (PlayerFunctions != null)
-        {
-            PlayerFunctions.TakeDamageFromWrongLetter();
-            Debug.Log($"❌ Letter hurdle failed! Player took damage");
-        }
+        if (activeLetterObjects[i] != null)
+            activeLetterObjects[i].transform.position = targetPositions[i];
     }
 
-    public void OnLetterHurdleSuccess()
+    yield return new WaitForSeconds(0.5f);
+    for (int i = activeLetterObjects.Count - 1; i >= 0; i--)
     {
-        wordsCompletedInCurrentEvent++;
-        Debug.Log($"✅ Letter hurdle success! Words completed: {wordsCompletedInCurrentEvent}/{wordsToSolvePerEvent}");
+        if (activeLetterObjects[i] != null)
+            ReturnLetterToPool(activeLetterObjects[i]);
+    }
+    activeLetterObjects.Clear();
+}
 
-        if (wordsCompletedInCurrentEvent >= wordsToSolvePerEvent)
+public void OnLetterHurdleFailed()
+{
+    if (PlayerFunctions != null)
+    {
+        PlayerFunctions.TakeDamageFromWrongLetter();
+        Debug.Log($"❌ Letter hurdle failed! Player took damage");
+    }
+}
+
+public void OnLetterHurdleSuccess()
+{
+    wordsCompletedInCurrentEvent++;
+    Debug.Log($"✅ Letter hurdle success! Words completed: {wordsCompletedInCurrentEvent}/{wordsToSolvePerEvent}");
+
+    if (wordsCompletedInCurrentEvent >= wordsToSolvePerEvent)
+    {
+        Debug.Log($"🎯 Target reached! Ending letter event after {wordsCompletedInCurrentEvent} word(s)");
+        EndLetterEvent(true);
+        if (currentEventIndicator != null)
         {
-            Debug.Log($"🎯 Target reached! Ending letter event after {wordsCompletedInCurrentEvent} word(s)");
-            EndLetterEvent(true);
-            if (currentEventIndicator != null)
-            {
-                StopAllCoroutines();
-                StartCoroutine(AnimateIndicatorUp(currentEventIndicator));
-            }
-        }
-        else
-        {
-            Debug.Log($"⏳ Continue event - {wordsToSolvePerEvent - wordsCompletedInCurrentEvent} word(s) remaining");
+            StopAllCoroutines();
+            StartCoroutine(AnimateIndicatorUp(currentEventIndicator));
         }
     }
+    else
+    {
+        Debug.Log($"⏳ Continue event - {wordsToSolvePerEvent - wordsCompletedInCurrentEvent} word(s) remaining");
+    }
+}
 
-    IEnumerator AnimateIndicatorUp(GameObject indicator)
+IEnumerator AnimateIndicatorUp(GameObject indicator)
+{
+    if (indicator == null) yield break;
+    Vector3 startPos = indicator.transform.position;
+    Vector3 upPos = new Vector3(startPos.x, letterSpawnHeight + letterIndicatorStartHeightOffset, startPos.z);
+    float time = 0f;
+    while (time < letterIndicatorAnimationTime)
     {
         if (indicator == null) yield break;
-        Vector3 startPos = indicator.transform.position;
-        Vector3 upPos = new Vector3(startPos.x, letterSpawnHeight + letterIndicatorStartHeightOffset, startPos.z);
-        float time = 0f;
-        while (time < letterIndicatorAnimationTime)
-        {
-            if (indicator == null) yield break;
-            indicator.transform.position = Vector3.Lerp(startPos, upPos, time / letterIndicatorAnimationTime);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        if (indicator != null) { Destroy(indicator); currentEventIndicator = null; }
+        indicator.transform.position = Vector3.Lerp(startPos, upPos, time / letterIndicatorAnimationTime);
+        time += Time.deltaTime;
+        yield return null;
     }
+    if (indicator != null) { Destroy(indicator); currentEventIndicator = null; }
+}
 
-    #endregion
-
+#endregion
     // =========================================================================
     // QUESTION SPAWNING SYSTEM
     // =========================================================================
