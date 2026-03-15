@@ -1,25 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ClosetManager : MonoBehaviour
 {
     [Header("Preview UI")]
     public Image previewImage;
-    public Text outfitNameText;
-    public Text statusText;
+    public TMP_Text outfitNameText;
+    public TMP_Text statusText;
     public Button equipButton;
-    public Text equipButtonText;
+    public TMP_Text equipButtonText;
 
     [Header("Panel")]
     public GameObject closetPanel;
 
-    // ✅ NEW: Girl character preview sprites
     [Header("Girl Preview Sprites")]
     public Sprite girlDefaultSprite;
     public Sprite girlRainySprite;
     public Sprite girlChristmasSprite;
 
-    // ✅ NEW: Boy character preview sprites
     [Header("Boy Preview Sprites")]
     public Sprite boyDefaultSprite;
     public Sprite boyRainySprite;
@@ -35,7 +34,6 @@ public class ClosetManager : MonoBehaviour
 
     void Start()
     {
-        // ✅ NEW: Read gender once
         int selected = PlayerPrefs.GetInt("SelectedCharacter", 1);
         isGirl = (selected == 2);
 
@@ -45,7 +43,6 @@ public class ClosetManager : MonoBehaviour
         ClearPreview();
     }
 
-    // ✅ NEW: Get correct sprite based on gender and costume index
     Sprite GetCharacterSprite(int costumeIndex)
     {
         if (isGirl)
@@ -73,25 +70,23 @@ public class ClosetManager : MonoBehaviour
     {
         if (outfitID == "bundle_1") isPurchased = true;
 
-        selectedOutfitID      = outfitID;
-        selectedCostumeIndex  = costumeIndex;
-        selectedSprite        = outfitSprite;
-        selectedOutfitName    = outfitName;
-        selectedIsPurchased   = isPurchased;
+        selectedOutfitID = outfitID;
+        selectedCostumeIndex = costumeIndex;
+        selectedSprite = outfitSprite;
+        selectedOutfitName = outfitName;
+        selectedIsPurchased = isPurchased;
 
-        // ✅ NEW: Show gender-specific character sprite instead of outfit sprite
         if (previewImage != null)
         {
             Sprite characterSprite = GetCharacterSprite(costumeIndex);
             if (characterSprite != null)
             {
-                previewImage.sprite  = characterSprite;
+                previewImage.sprite = characterSprite;
                 previewImage.enabled = true;
             }
             else if (outfitSprite != null)
             {
-                // fallback to outfit sprite if no character sprite set
-                previewImage.sprite  = outfitSprite;
+                previewImage.sprite = outfitSprite;
                 previewImage.enabled = true;
             }
         }
@@ -100,23 +95,23 @@ public class ClosetManager : MonoBehaviour
             outfitNameText.text = outfitName;
 
         string equippedID = PlayerPrefs.GetString("EquippedOutfitID", "");
-        bool isEquipped   = equippedID == outfitID;
+        bool isEquipped = equippedID == outfitID;
 
         if (statusText != null)
         {
             if (!isPurchased)
             {
-                statusText.text  = "LOCKED - Buy in shop!";
+                statusText.text = "LOCKED - Buy in shop!";
                 statusText.color = new Color(0.96f, 0.26f, 0.21f);
             }
             else if (isEquipped)
             {
-                statusText.text  = "EQUIPPED";
+                statusText.text = "EQUIPPED";
                 statusText.color = new Color(1f, 0.84f, 0f);
             }
             else
             {
-                statusText.text  = "OWNED";
+                statusText.text = "OWNED";
                 statusText.color = new Color(0.3f, 0.69f, 0.31f);
             }
         }
@@ -129,17 +124,17 @@ public class ClosetManager : MonoBehaviour
         if (!isPurchased)
         {
             equipButton.interactable = false;
-            equipButtonText.text     = "LOCKED";
+            equipButtonText.text = "LOCKED";
         }
         else if (isEquipped)
         {
             equipButton.interactable = false;
-            equipButtonText.text     = "EQUIPPED";
+            equipButtonText.text = "EQUIPPED";
         }
         else
         {
             equipButton.interactable = true;
-            equipButtonText.text     = "EQUIP";
+            equipButtonText.text = "EQUIP";
         }
     }
 
@@ -179,15 +174,14 @@ public class ClosetManager : MonoBehaviour
         if (equipButton != null)
         {
             equipButton.interactable = false;
-            ColorBlock colors        = equipButton.colors;
-            colors.disabledColor     = new Color(0.5f, 0.5f, 0.5f, 1f);
-            equipButton.colors       = colors;
+            ColorBlock colors = equipButton.colors;
+            colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+            equipButton.colors = colors;
         }
 
         if (equipButtonText != null)
         {
-            equipButtonText.text  = "LOCKED";
-            equipButtonText.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+            equipButtonText.text = "LOCKED";
         }
     }
 

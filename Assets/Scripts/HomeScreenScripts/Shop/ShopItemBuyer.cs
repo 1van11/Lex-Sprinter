@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using System.Collections;
 
 public class ShopItemBuyer : MonoBehaviour
@@ -10,7 +11,7 @@ public class ShopItemBuyer : MonoBehaviour
     public int itemPrice = 2500;
     public int costumeIndex = 0;
     public bool isFreeItem = false;
-    public Text nameText;   
+    public TMP_Text nameText;
 
     public enum CharacterGender { Both, GirlOnly, BoyOnly }
 
@@ -25,9 +26,9 @@ public class ShopItemBuyer : MonoBehaviour
     public Image bundleImage;
 
     [Header("UI References - Assign These!")]
-    public Text priceText;
+    public TMP_Text priceText;
     public Button buyButton;
-    public Text buttonText;
+    public TMP_Text buttonText;
     public GameObject lockIcon;
     public Image priceBackground;
     
@@ -35,7 +36,7 @@ public class ShopItemBuyer : MonoBehaviour
     public GameObject buyPopupGirl;
     public GameObject buyPopupBoy;
     public GameObject successPopup;
-    public Text successMessageText;
+    public TMP_Text successMessageText;
     public Button successOkButton;
     public GameObject shopPanel;
     
@@ -162,7 +163,6 @@ public class ShopItemBuyer : MonoBehaviour
                 PlayerPrefs.SetInt("Item_" + itemID + "_Purchased", 1);
                 PlayerPrefs.Save();
 
-                // ✅ FIXED: Close correct gender popup
                 if (buyPopupGirl != null) buyPopupGirl.SetActive(false);
                 if (buyPopupBoy  != null) buyPopupBoy.SetActive(false);
 
@@ -213,7 +213,6 @@ public class ShopItemBuyer : MonoBehaviour
             autoCloseCoroutine = null;
         }
         
-        // ✅ FIXED: Close both gender popups
         if (buyPopupGirl != null) buyPopupGirl.SetActive(false);
         if (buyPopupBoy  != null) buyPopupBoy.SetActive(false);
 
@@ -223,27 +222,6 @@ public class ShopItemBuyer : MonoBehaviour
         Debug.Log("✅ All popups closed - Back to shop!");
     }
 
-    void EquipItem()
-    {
-        if (!isPurchased)
-        {
-            Debug.LogWarning("Cannot equip unpurchased item!");
-            return;
-        }
-
-        ShopItemBuyer[] allItems = FindObjectsOfType<ShopItemBuyer>();
-        foreach (ShopItemBuyer item in allItems)
-            item.isEquipped = false;
-
-        isEquipped = true;
-        PlayerPrefs.SetInt("EquippedCostume", costumeIndex);
-        PlayerPrefs.Save();
-
-        RefreshAllItemsUI();
-
-        Debug.Log($"👕 Equipped {itemName}!");
-    }
-    
     void UpdateUI()
     {
         if (isPurchased) UpdateUIForOwnedItem();
@@ -313,9 +291,6 @@ public class ShopItemBuyer : MonoBehaviour
             buyButton.colors = colors;
         }
     }
-    
-    public bool IsPurchased() { return isPurchased; }
-    public bool IsEquipped()  { return isEquipped; }
     
     void RefreshAllItemsUI()
     {
