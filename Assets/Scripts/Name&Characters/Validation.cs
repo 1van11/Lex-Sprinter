@@ -30,7 +30,7 @@ public class Validation : MonoBehaviour
     private string[] bannedWords = {
         "sex", "porn", "xxx", "fuck", "shit",
         "bitch", "ass", "dick", "pussy", "nude",
-        "fuk", "fck", "sht", "btch",
+        "fuk", "fck", "sht", "btch","bold",
         "arse", "damn", "dman", "crap", "piss",
         "bastard", "dik", "cock", "cok", "cunt",
         "whore", "slut", "sx", "prn", "naked",
@@ -39,7 +39,20 @@ public class Validation : MonoBehaviour
         "nigger", "faggot", "retard", "drug",
         "weed", "cocaine", "heroin", "meth", "murder",
         "suicide", "rape", "stab", "shoot",
-        "admin", "moderator", "official", "support"
+        "admin", "moderator", "official", "support",
+        "sexy", "hentai", "horny", "erotic", "fetish",
+        "orgasm", "ejaculate", "masturbate", "masturbation", "cumshot",
+        "cum", "anal", "blowjob", "handjob", "rimjob",
+        "dildo", "vibrator", "condom", "lube", "bondage",
+        "bdsm", "kinky", "threesome", "orgy", "incest",
+        "lust", "seductive", "sensual", "aroused", "naughty",
+        "milf", "gilf", "nsfw", "onlyfans", "stripper",
+        "escort", "prostitute", "hooker", "pedo", "pedophile",
+        "molest", "grope", "pervert", "perv", "exhibitionist",
+        "nudity", "topless", "bottomless", "genitals", "genital",
+        "testicle", "scrotum", "vulva", "clitoris", "butthole",
+        "anus", "nipple", "breast", "erection", "boner",
+        "hardon", "sexting", "nudes", "leaked", "explicit"
     };
 
     void Start()
