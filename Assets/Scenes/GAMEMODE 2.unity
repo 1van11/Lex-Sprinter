@@ -6565,14 +6565,13 @@ GameObject:
   - component: {fileID: 973499210}
   - component: {fileID: 973499209}
   - component: {fileID: 973499213}
-  - component: {fileID: 973499214}
   m_Layer: 5
   m_Name: Game Over
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &973499209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6644,7 +6643,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 973499207}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0140352744420eb49a7507c2641d8f97, type: 3}
   m_Name: 
@@ -6657,26 +6656,6 @@ MonoBehaviour:
   revivePanel: {fileID: 0}
   uiToDisable: []
   revivePriceText: {fileID: 821492037}
---- !u!114 &973499214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 973499207}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0140352744420eb49a7507c2641d8f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pauseMenu: {fileID: 430738671}
-  OtherThingsCanvas: {fileID: 0}
-  countdownText: {fileID: 1705583298}
-  freezeFrameDuration: 3
-  playerObject: {fileID: 0}
-  revivePanel: {fileID: 0}
-  uiToDisable: []
-  revivePriceText: {fileID: 0}
 --- !u!1 &1062179859
 GameObject:
   m_ObjectHideFlags: 0
@@ -7689,8 +7668,8 @@ MonoBehaviour:
   enableJumpSuspension: 0
   suspensionDuration: 10
   suspensionGravityMultiplier: 0.0001
-  minSwipeDistance: 50
-  swipeSensitivity: 0
+  minSwipeDistance: 20
+  swipeSensitivity: 100
   maxSwipeSpeed: 20
   returnToCenterSpeed: 5
   swipeDirectionThreshold: 1
