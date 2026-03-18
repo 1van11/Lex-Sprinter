@@ -282,13 +282,17 @@ public class WordUnlockManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     void SaveUnlockedWords()
     {
-        PlayerPrefs.SetString("UnlockedWords", string.Join(",", unlockedWords));
+        var lowered = new HashSet<string>();
+        foreach (string w in unlockedWords) lowered.Add(w.ToLower().Trim());
+        PlayerPrefs.SetString("UnlockedWords", string.Join(",", lowered));
         PlayerPrefs.Save();
     }
 
     void SaveClickedWords()
     {
-        PlayerPrefs.SetString("ClickedWords", string.Join(",", clickedWords));
+        var lowered = new HashSet<string>();
+        foreach (string w in clickedWords) lowered.Add(w.ToLower().Trim());
+        PlayerPrefs.SetString("ClickedWords", string.Join(",", lowered));
         PlayerPrefs.Save();
     }
 
@@ -296,11 +300,27 @@ public class WordUnlockManager : MonoBehaviour
     {
         string savedUnlocked = PlayerPrefs.GetString("UnlockedWords", "");
         if (!string.IsNullOrEmpty(savedUnlocked))
-            unlockedWords = new HashSet<string>(savedUnlocked.Split(','));
+        {
+            unlockedWords = new HashSet<string>();
+            foreach (string w in savedUnlocked.Split(','))
+            {
+                string trimmed = w.Trim().ToLower();
+                if (!string.IsNullOrEmpty(trimmed))
+                    unlockedWords.Add(trimmed);
+            }
+        }
 
         string savedClicked = PlayerPrefs.GetString("ClickedWords", "");
         if (!string.IsNullOrEmpty(savedClicked))
-            clickedWords = new HashSet<string>(savedClicked.Split(','));
+        {
+            clickedWords = new HashSet<string>();
+            foreach (string w in savedClicked.Split(','))
+            {
+                string trimmed = w.Trim().ToLower();
+                if (!string.IsNullOrEmpty(trimmed))
+                    clickedWords.Add(trimmed);
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

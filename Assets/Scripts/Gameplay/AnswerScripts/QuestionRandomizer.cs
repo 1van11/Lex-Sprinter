@@ -856,12 +856,10 @@ public class QuestionRandomizer : MonoBehaviour
             if (playerFunctions != null)
             {
                 string scene = SceneManager.GetActiveScene().name;
-                int coinReward = scene switch
-                {
-                    "GAMEMODE 2" => 200,
-                    "GAMEMODE 1" => 100,
-                    _            => 25
-                };
+                int coinReward;
+                if (scene == "GAMEMODE 2") coinReward = 200;
+                else if (scene == "GAMEMODE 1") coinReward = 100;
+                else coinReward = 25;
                 playerFunctions.AddCoins(coinReward);
             }
 
