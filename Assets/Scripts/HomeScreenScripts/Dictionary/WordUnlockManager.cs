@@ -51,29 +51,28 @@ public class WordUnlockManager : MonoBehaviour
         if (sceneName == "HomeScreen" || sceneName == "MainMenu")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
+            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.hardSpellingPairs));
+
         }
         else if (sceneName == "EasyMode" || sceneName == "GAMEMODE")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
+            
         }
         else if (sceneName == "MediumMode" || sceneName == "GAMEMODE 1")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.mediumSentencePairs));
+            
         }
         else if (sceneName == "GAMEMODE 2")
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.hardSpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.hardSentencePairs));
+            
         }
         else
         {
             allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySpellingPairs));
-            allWords.AddRange(GetWordsFromPairs(QuestionRandomizer.easySentencePairs));
             Debug.LogWarning("Unknown scene. Defaulting to EASY MODE words.");
         }
 
