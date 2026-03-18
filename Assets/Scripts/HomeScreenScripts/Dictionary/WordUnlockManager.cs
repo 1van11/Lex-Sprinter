@@ -36,6 +36,8 @@ public class WordUnlockManager : MonoBehaviour
     private HashSet<string> clickedWords = new HashSet<string>();
     private Dictionary<string, Button> wordButtonDict = new Dictionary<string, Button>();
 
+    public static WordUnlockManager Instance { get; private set; }
+
     bool isFiltering = false;
 
 
@@ -43,6 +45,7 @@ public class WordUnlockManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     void Awake()
     {
+        Instance = this;
         Debug.Log("🔍 WordUnlockManager Awake() called");
 
         string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
@@ -90,6 +93,31 @@ public class WordUnlockManager : MonoBehaviour
             words.Add(pairs[i, 1].ToLower());
         return words;
     }
+
+    public bool AreAllWordsUnlocked()
+    {
+        foreach (string word in allWords)
+            if (!unlockedWords.Contains(word)) return false;
+        return true;
+    }
+
+    public bool IsWordUnlocked(string word)
+    {
+        return unlockedWords.Contains(word.ToLower().Trim());
+    }
+
+
+    public void ResetUnlockedWords()
+    {
+        unlockedWords.Clear();
+        clickedWords.Clear();
+        PlayerPrefs.DeleteKey("UnlockedWords");
+        PlayerPrefs.DeleteKey("ClickedWords");
+        PlayerPrefs.Save();
+        GenerateWordButtons();
+        Debug.Log("🔄 All words reset — pool refreshed!");
+    }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     void Start()

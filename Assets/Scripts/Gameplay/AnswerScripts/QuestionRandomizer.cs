@@ -680,8 +680,34 @@ public class QuestionRandomizer : MonoBehaviour
     void InitializeLetterHurdle()
     {
         List<string> words = new List<string>();
+
+        WordUnlockManager unlockManager = WordUnlockManager.Instance;
+
+        // Check if all words are already unlocked — if so, reset and show all again
+        bool allUnlocked = unlockManager != null && unlockManager.AreAllWordsUnlocked();
+        if (allUnlocked && unlockManager != null)
+        {
+            unlockManager.ResetUnlockedWords();
+            Debug.Log("🎉 All words completed! Resetting pool for this difficulty.");
+        }
+
         for (int i = 0; i < activeSpellingPairs.GetLength(0); i++)
-            words.Add(activeSpellingPairs[i, 1].ToLower());
+        {
+            string word = activeSpellingPairs[i, 1].ToLower();
+
+            // Skip words already unlocked in the dictionary
+            if (unlockManager != null && unlockManager.IsWordUnlocked(word))
+                continue;
+
+            words.Add(word);
+        }
+
+        // Safety: if somehow all filtered out, use full list
+        if (words.Count == 0)
+        {
+            for (int i = 0; i < activeSpellingPairs.GetLength(0); i++)
+                words.Add(activeSpellingPairs[i, 1].ToLower());
+        }
 
         wordList = words.ToArray();
         BuildWordToImageMap();
@@ -702,10 +728,12 @@ public class QuestionRandomizer : MonoBehaviour
             return;
         }
 
-        int count = Mathf.Min(wordList.Length, currentClueImages.Length);
+        // Use full spelling pairs for correct index-to-image mapping
+        // regardless of how wordList was filtered
+        int count = Mathf.Min(activeSpellingPairs.GetLength(0), currentClueImages.Length);
         for (int i = 0; i < count; i++)
         {
-            string word = wordList[i].ToLower();
+            string word = activeSpellingPairs[i, 1].ToLower();
             if (!wordToImageMap.ContainsKey(word) && currentClueImages[i] != null)
                 wordToImageMap.Add(word, currentClueImages[i]);
         }
