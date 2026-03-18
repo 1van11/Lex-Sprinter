@@ -108,8 +108,8 @@ public class DailyTaskManager : MonoBehaviour
             newTask.questionIndex = randomIndex;
             newTask.correctAnswer = correctAnswer;
             newTask.difficulty = diff;
-            newTask.taskDescription = "Get the word: \"" + correctAnswer + "\"";
-
+            string diffLabel = diff == "easy" ? "Easy" : diff == "medium" ? "Medium" : "Hard";
+            newTask.taskDescription = "(" + diffLabel + ") Get the word: \"" + correctAnswer + "\"";
             dailyTasks.Add(newTask);
         }
 
