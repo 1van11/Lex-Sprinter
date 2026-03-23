@@ -8902,9 +8902,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9f263524d21c0df4fb7badd64494055d, type: 3}
   - {fileID: 8300000, guid: a955a3e0c96243a40951516ece865847, type: 3}
   sentencePronunciations: []
-  easySpellingBeforeSentence: 3
-  mediumSpellingBeforeSentence: 3
-  hardSpellingBeforeSentence: 3
+  easySpellingBeforeSentence: 2
+  mediumSpellingBeforeSentence: 2
+  hardSpellingBeforeSentence: 2
   audioSource: {fileID: 334565211}
   playAudioOnTrigger: 1
   animateClueImage: 1
@@ -9122,7 +9122,7 @@ MonoBehaviour:
   suspensionGravityMultiplier: 0.0001
   minSwipeDistance: 10
   swipeSensitivity: 100
-  maxSwipeSpeed: 40
+  maxSwipeSpeed: 20
   returnToCenterSpeed: 5
   swipeDirectionThreshold: 1
   swipeCooldown: 0
