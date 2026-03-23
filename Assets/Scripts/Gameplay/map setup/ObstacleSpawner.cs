@@ -480,130 +480,141 @@ public class ObstacleSpawner : MonoBehaviour
     // =========================================================================
     #region Platform Spawner System
 
-    void SpawnPlatformRow(float zOffset)
+void SpawnPlatformRow(float zOffset)
+{
+    if (platformPrefabs == null || platformPrefabs.Length == 0)
     {
-        if (platformPrefabs == null || platformPrefabs.Length == 0)
-        {
-            Debug.LogWarning("⚠️ No platform prefabs assigned! Falling back to obstacle row.");
-            SpawnSingleObstacleRow(zOffset);
-            return;
-        }
+        Debug.LogWarning("⚠️ No platform prefabs assigned! Falling back to obstacle row.");
+        SpawnSingleObstacleRow(zOffset);
+        return;
+    }
 
-        float baseZ = PlayerFunctions.transform.position.z + zOffset;
+    float baseZ = PlayerFunctions.transform.position.z + zOffset;
 
-        bool isDoublePlatformRow = Random.Range(0, 100) < platformDoubleLaneChance;
+    bool isDoublePlatformRow = Random.Range(0, 100) < platformDoubleLaneChance;
 
-        List<int> platformLanes = new List<int>();
-        if (isDoublePlatformRow)
-        {
-            int startLane = Random.Range(0, 2);
-            platformLanes.Add(startLane);
-            platformLanes.Add(startLane + 1);
-        }
-        else
-        {
-            platformLanes.Add(Random.Range(0, 3));
-        }
-
-        List<GameObject> spawnedPlatforms = new List<GameObject>();
-
-        foreach (int lane in platformLanes)
-        {
-            int prefabIdx = Random.Range(0, platformPrefabs.Length);
-            GameObject prefab = platformPrefabs[prefabIdx];
-
-            float laneX = (lane - 1) * laneDistance;
-            float platformY = platformUsePrefabHeight ? prefab.transform.position.y : platformSpawnHeight;
-
-            Vector3 spawnPos = new Vector3(
-                laneX + platformPositionOffset.x,
-                platformY + platformPositionOffset.y,
-                baseZ + platformPositionOffset.z);
-
-            GameObject platform = Instantiate(
-                prefab, spawnPos, prefab.transform.rotation, PlatformParentTransform);
-            platform.transform.localScale = prefab.transform.localScale;
-
-            activePlatforms.Add(platform);
-            spawnedPlatforms.Add(platform);
-            StartCoroutine(AutoDespawnPlatform(platform, maxObstacleLifetime));
-
-            Debug.Log($"🟩 Spawned platform at lane {lane}, Z: {baseZ}");
-        }
-
-        if (coinPrefab != null && Random.Range(0, 100) < platformCoinChance)
-        {
-            foreach (GameObject platform in spawnedPlatforms)
-                SpawnCoinsOnSinglePlatform(platform, baseZ);
-        }
-
-        if (hasPassedFirstPowerUpDistance && Random.Range(0, 100) < platformPowerUpChance && spawnedPlatforms.Count > 0)
-        {
-            GameObject chosenPlatform = spawnedPlatforms[Random.Range(0, spawnedPlatforms.Count)];
-            SpawnPowerUpOnSinglePlatform(chosenPlatform, baseZ);
-        }
-
+    List<int> platformLanes = new List<int>();
+    if (isDoublePlatformRow)
+    {
+        // Get all possible lane combinations (0,1,2)
         List<int> allLanes = new List<int> { 0, 1, 2 };
-        List<int> freeLanes = new List<int>();
-        foreach (int l in allLanes)
-            if (!platformLanes.Contains(l))
-                freeLanes.Add(l);
+        
+        // Pick first lane randomly
+        int firstLane = Random.Range(0, 3);
+        platformLanes.Add(firstLane);
+        allLanes.Remove(firstLane);
+        
+        // Pick second lane from remaining lanes (could be adjacent or non-adjacent)
+        int secondLane = allLanes[Random.Range(0, allLanes.Count)];
+        platformLanes.Add(secondLane);
+        
+        Debug.Log($"🟩 Double platform row - Lanes: {firstLane} and {secondLane} ({(Mathf.Abs(firstLane - secondLane) == 1 ? "adjacent" : "separated")})");
+    }
+    else
+    {
+        platformLanes.Add(Random.Range(0, 3));
+        Debug.Log($"🟩 Single platform row - Lane: {platformLanes[0]}");
+    }
 
-        int toSpawn = Mathf.Min(obstaclesAlongsidePlatform, freeLanes.Count);
-        for (int i = 0; i < toSpawn; i++)
+    List<GameObject> spawnedPlatforms = new List<GameObject>();
+
+    foreach (int lane in platformLanes)
+    {
+        int prefabIdx = Random.Range(0, platformPrefabs.Length);
+        GameObject prefab = platformPrefabs[prefabIdx];
+
+        float laneX = (lane - 1) * laneDistance;
+        float platformY = platformUsePrefabHeight ? prefab.transform.position.y : platformSpawnHeight;
+
+        Vector3 spawnPos = new Vector3(
+            laneX + platformPositionOffset.x,
+            platformY + platformPositionOffset.y,
+            baseZ + platformPositionOffset.z);
+
+        GameObject platform = Instantiate(
+            prefab, spawnPos, prefab.transform.rotation, PlatformParentTransform);
+        platform.transform.localScale = prefab.transform.localScale;
+
+        activePlatforms.Add(platform);
+        spawnedPlatforms.Add(platform);
+        StartCoroutine(AutoDespawnPlatform(platform, maxObstacleLifetime));
+
+        Debug.Log($"🟩 Spawned platform at lane {lane}, Z: {baseZ}");
+    }
+
+    if (coinPrefab != null && Random.Range(0, 100) < platformCoinChance)
+    {
+        foreach (GameObject platform in spawnedPlatforms)
+            SpawnCoinsOnSinglePlatform(platform, baseZ);
+    }
+
+    if (hasPassedFirstPowerUpDistance && Random.Range(0, 100) < platformPowerUpChance && spawnedPlatforms.Count > 0)
+    {
+        GameObject chosenPlatform = spawnedPlatforms[Random.Range(0, spawnedPlatforms.Count)];
+        SpawnPowerUpOnSinglePlatform(chosenPlatform, baseZ);
+    }
+
+    List<int> allLanesList = new List<int> { 0, 1, 2 };
+    List<int> freeLanes = new List<int>();
+    foreach (int l in allLanesList)
+        if (!platformLanes.Contains(l))
+            freeLanes.Add(l);
+
+    int toSpawn = Mathf.Min(obstaclesAlongsidePlatform, freeLanes.Count);
+    for (int i = 0; i < toSpawn; i++)
+    {
+        int idx = Random.Range(0, freeLanes.Count);
+        int lane = freeLanes[idx];
+        freeLanes.RemoveAt(idx);
+
+        float laneX = (lane - 1) * laneDistance;
+        Vector3 obsPos = new Vector3(laneX, spawnHeight, baseZ);
+
+        bool canSpawnPowerUpHere = hasPassedFirstPowerUpDistance;
+        bool doPowerUp = canSpawnPowerUpHere && Random.Range(0, 100) < powerUpSpawnChance;
+
+        if (doPowerUp)
         {
-            int idx = Random.Range(0, freeLanes.Count);
-            int lane = freeLanes[idx];
-            freeLanes.RemoveAt(idx);
-
-            float laneX = (lane - 1) * laneDistance;
-            Vector3 obsPos = new Vector3(laneX, spawnHeight, baseZ);
-
-            bool canSpawnPowerUpHere = hasPassedFirstPowerUpDistance;
-            bool doPowerUp = canSpawnPowerUpHere && Random.Range(0, 100) < powerUpSpawnChance;
-
-            if (doPowerUp)
-            {
-                SpawnPowerUpAtPosition(obsPos);
-            }
-            else if (obstaclePrefabs != null && obstaclePrefabs.Length > 0)
-            {
-                int rIdx = Random.Range(0, obstaclePrefabs.Length);
-                GameObject obsPrefab = obstaclePrefabs[rIdx];
-                obsPos.y = obsPrefab.transform.position.y;
-                GameObject obs = Instantiate(obsPrefab, obsPos, obsPrefab.transform.rotation, ObstacleParentTransform);
-                activeObstacles.Add(obs);
-                StartCoroutine(AutoDespawnObstacle(obs, maxObstacleLifetime));
-            }
+            SpawnPowerUpAtPosition(obsPos);
         }
-
-        if (coinPrefab != null)
+        else if (obstaclePrefabs != null && obstaclePrefabs.Length > 0)
         {
-            foreach (int emptyLane in freeLanes)
+            int rIdx = Random.Range(0, obstaclePrefabs.Length);
+            GameObject obsPrefab = obstaclePrefabs[rIdx];
+            obsPos.y = obsPrefab.transform.position.y;
+            GameObject obs = Instantiate(obsPrefab, obsPos, obsPrefab.transform.rotation, ObstacleParentTransform);
+            activeObstacles.Add(obs);
+            StartCoroutine(AutoDespawnObstacle(obs, maxObstacleLifetime));
+        }
+    }
+
+    if (coinPrefab != null)
+    {
+        foreach (int emptyLane in freeLanes)
+        {
+            float baseLaneX = (emptyLane - 1.3f) * laneDistance;
+            for (int c = 0; c < coinsPerLane; c++)
             {
-                float baseLaneX = (emptyLane - 1.3f) * laneDistance;
-                for (int c = 0; c < coinsPerLane; c++)
+                float zPos = baseZ;
+                if (coinsPerLane > 1)
                 {
-                    float zPos = baseZ;
-                    if (coinsPerLane > 1)
-                    {
-                        float totalSpacing = (coinsPerLane - 1) * coinSpacing;
-                        zPos += -(totalSpacing / 2f) + (c * coinSpacing);
-                    }
-
-                    Vector3 coinPos = new Vector3(
-                        baseLaneX + coinPositionOffset.x,
-                        spawnHeight + coinPositionOffset.y,
-                        zPos + coinPositionOffset.z);
-
-                    GameObject coin = Instantiate(coinPrefab, coinPos, coinPrefab.transform.rotation, ObstacleParentTransform);
-                    coin.transform.localScale = coinPrefab.transform.localScale;
-                    activeCoins.Add(coin);
-                    StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
+                    float totalSpacing = (coinsPerLane - 1) * coinSpacing;
+                    zPos += -(totalSpacing / 2f) + (c * coinSpacing);
                 }
+
+                Vector3 coinPos = new Vector3(
+                    baseLaneX + coinPositionOffset.x,
+                    spawnHeight + coinPositionOffset.y,
+                    zPos + coinPositionOffset.z);
+
+                GameObject coin = Instantiate(coinPrefab, coinPos, coinPrefab.transform.rotation, ObstacleParentTransform);
+                coin.transform.localScale = coinPrefab.transform.localScale;
+                activeCoins.Add(coin);
+                StartCoroutine(AutoDespawnCoin(coin, maxObstacleLifetime));
             }
         }
     }
+}
 
     void SpawnCoinsOnSinglePlatform(GameObject platform, float baseZ)
     {
