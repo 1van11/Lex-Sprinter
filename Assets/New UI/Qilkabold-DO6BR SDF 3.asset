@@ -57,11 +57,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: Qilkabold-DO6BR SDF 1
+  m_Name: Qilkabold-DO6BR SDF 3
   m_EditorClassIdentifier: 
-  hashCode: 1443527163
+  hashCode: 1443527161
   material: {fileID: 5749343262147335011}
-  materialHashCode: 125302907
+  materialHashCode: -689135687
   m_Version: 1.1.0
   m_SourceFontFileGUID: dcb0bdd403a839440ae1d42dc66451bb
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: dcb0bdd403a839440ae1d42dc66451bb, type: 3}
@@ -2694,7 +2694,7 @@ Material:
     - _OutlineSoftness: 0
     - _OutlineUVSpeedX: 0
     - _OutlineUVSpeedY: 0
-    - _OutlineWidth: 0
+    - _OutlineWidth: 0.113
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
     - _ScaleRatioA: 0.9
@@ -2712,7 +2712,7 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 512
     - _TextureWidth: 512
-    - _UnderlayDilate: 0.19
+    - _UnderlayDilate: 0.42
     - _UnderlayOffsetX: 0
     - _UnderlayOffsetY: -0.34
     - _UnderlaySoftness: 0
@@ -2730,5 +2730,5 @@ Material:
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0.60382754, g: 0.25415218, b: 0.015996292, a: 1}
+    - _UnderlayColor: {r: 0.027320892, g: 0.026241222, b: 0.03071345, a: 1}
   m_BuildTextureStacks: []
