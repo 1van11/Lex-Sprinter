@@ -808,7 +808,10 @@ IEnumerator RunHurdleTimer()
         yield return null;
     }
 
-    // Timer expired — hide the UI (timeout damage is handled by LetterHurdleTimeout)
+    // ✅ Deal damage exactly once here
+    if (PlayerFunctions != null)
+        PlayerFunctions.TakeDamage(letterHurdleTimeoutDamage);
+
     if (letterHurdleTimerText != null)
     {
         letterHurdleTimerText.text = "0.0";
@@ -885,11 +888,7 @@ void HandleLetterTimeout(GameObject hurdle)
         letterTimeoutCoroutines.Remove(hurdle);
     activeLetterObjects.Remove(hurdle);
 
-    if (PlayerFunctions != null)
-    {
-        PlayerFunctions.TakeDamage(letterHurdleTimeoutDamage);
-        Debug.Log($"⏰ Letter hurdle timed out! Player took {letterHurdleTimeoutDamage} damage.");
-    }
+    // ✅ No TakeDamage here anymore — RunHurdleTimer handles it once
 
     if (letterAnimations.ContainsKey(hurdle))
     {

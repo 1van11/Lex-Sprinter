@@ -8706,7 +8706,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e60041b4ea7f50247be4541dbc23dbb6, type: 3}
   - {fileID: 8300000, guid: 8ed49fe5f88ce474c9b24ea5cc8c206b, type: 3}
   - {fileID: 8300000, guid: 38b89b0d7dd65c74a922817280c85492, type: 3}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: a5b971acf87841348b966d62658df7b6, type: 3}
   - {fileID: 8300000, guid: 7d06b9878e09e8741917af72bd6396ed, type: 3}
   - {fileID: 8300000, guid: 512bba3d310adf74f8099da7989ab54f, type: 3}
   - {fileID: 8300000, guid: 20644c9a327bced4fbaadaed40f360f2, type: 3}
@@ -9120,12 +9120,6 @@ MonoBehaviour:
   enableJumpSuspension: 0
   suspensionDuration: 10
   suspensionGravityMultiplier: 0.0001
-  minSwipeDistance: 10
-  swipeSensitivity: 100
-  maxSwipeSpeed: 20
-  returnToCenterSpeed: 5
-  swipeDirectionThreshold: 1
-  swipeCooldown: 0
   tiltAngle: 20
   maxYawAngle: 67
   rotationSpeed: 10

@@ -3,64 +3,55 @@ using UnityEngine;
 public class PlayerControls : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 10f;             // Base speed of horizontal movement (continuous mode)
-    public float maxLaneDistance = 3f;         // Max distance from center
-    public float forwardSpeed = 10f;           // Forward speed (used externally)
+    public float moveSpeed = 10f;
+    public float maxLaneDistance = 3f;
+    public float forwardSpeed = 10f;
 
     [Header("Jump")]
-    public float jumpHeight = 5f;               // Desired max height of the jump
-    public float jumpTimeToPeak = 0.5f;          // Time to reach the peak (smaller = faster jump)
-    public bool enableJump = true;                // Can the player jump?
-    public float groundCheckDistance = 0.1f;      // How far to check for ground
+    public float jumpHeight = 5f;
+    public float jumpTimeToPeak = 0.5f;
+    public bool enableJump = true;
+    public float groundCheckDistance = 0.1f;
 
     [Header("Jump Apex Gravity")]
-    public bool enableApexGravityReduction = true;   // Enable/disable the effect
-    public float apexGravityMultiplier = 0.5f;       // Gravity multiplier at apex (0.5 = half gravity)
-    public float apexThreshold = 0.1f;                // Vertical speed threshold to consider "at apex"
+    public bool enableApexGravityReduction = true;
+    public float apexGravityMultiplier = 0.5f;
+    public float apexThreshold = 0.1f;
 
-    private float jumpForce;                     // Calculated from height & time
-    private float gravity;                        // Calculated from height & time
-    private bool isAtApex = false;                 // Track if we're at jump apex
+    private float jumpForce;
+    private float gravity;
+    private bool isAtApex = false;
 
     [Header("Fast Descent (Swipe Down)")]
     public float fastDescentForce = 15f;
     public float fastDescentGravityMultiplier = 2.5f;
 
-    // --- NEW: Jump Suspension (Floating) ---
     [Header("Jump Suspension")]
-    public bool enableJumpSuspension = true;          // Enable/disable suspension
-    public float suspensionDuration = 2f;              // How long suspension lasts (seconds)
-    public float suspensionGravityMultiplier = 0.1f;   // Very low gravity while suspended
+    public bool enableJumpSuspension = true;
+    public float suspensionDuration = 2f;
+    public float suspensionGravityMultiplier = 0.1f;
 
-    private bool isSuspended = false;                  // Currently suspended?
-    private float suspensionTimer = 0f;                 // Time left in suspension
-
-    [Header("Swipe Settings")]
-    public float minSwipeDistance = 50f;        // Minimum swipe length (pixels)
-    public float swipeSensitivity = 0.1f;       // How much swipe distance affects movement (continuous mode)
-    public float maxSwipeSpeed = 20f;            // Maximum speed from swiping
-    public float returnToCenterSpeed = 5f;       // How fast input returns to zero when not swiping
-    public float swipeDirectionThreshold = 0.5f;  // Ratio to determine if horizontal or vertical
-    public float swipeCooldown = 0f;              // <<< CHANGE THIS VALUE TO ADJUST COOLDOWN (0 = no cooldown)
+    private bool isSuspended = false;
+    private float suspensionTimer = 0f;
 
     [Header("Visual Tilt & Yaw")]
-    public float tiltAngle = 20f;                // Max roll angle when moving sideways
-    public float maxYawAngle = 30f;               // Max yaw angle when moving sideways
-    public float rotationSpeed = 10f;             // Smoothing speed for both yaw and tilt
+    public float tiltAngle = 20f;
+    public float maxYawAngle = 30f;
+    public float rotationSpeed = 10f;
 
     [Header("Lane Snapping (Subway Surfers style)")]
-    public bool useLaneSnapping = false;         // Enable discrete lane switching
-    public int laneCount = 3;                     // Number of lanes (e.g., 3 for left, center, right)
-    public float laneSwitchSpeed = 10f;            // Speed of moving to target lane
-    public float laneChangeTimeout = 1.0f;         // Max time allowed to complete a lane change
+    public bool useLaneSnapping = false;
+    public int laneCount = 3;
+    public float laneSwitchSpeed = 10f;
+    public float laneChangeTimeout = 1.0f;
 
     private Rigidbody rb;
     private CapsuleCollider col;
     private Animator anim;
 
-    private float horizontalInput;               // -1 to 1 for movement (continuous mode)
+    private float horizontalInput;
     private float targetTilt;
-    private float targetYaw;                      // New: desired yaw angle for facing direction
+    private float targetYaw;
     private bool isGrounded;
     private bool isFastDescending;
     private bool isMovementStopped = false;
@@ -74,15 +65,22 @@ public class PlayerControls : MonoBehaviour
     private float laneChangeStartTime;
     private Vector3 laneChangeStartPosition;
 
-    // Touch tracking for continuous swipe
+    // Touch tracking
     private int activeTouchId = -1;
     private Vector2 touchStartPos;
     private Vector2 lastTouchPos;
-    private Vector2 swipeTotalDelta;              // Total delta from start to current touch
+    private Vector2 swipeTotalDelta;
     private bool isSwiping = false;
-    private bool gestureLocked = false;          // Locks whether this is horizontal or vertical swipe
-    private bool isHorizontalSwipe = false;      // Which direction is locked
+    private bool gestureLocked = false;
+    private bool isHorizontalSwipe = false;
     private float lastSwipeTime;
+
+    // Hardcoded swipe constants
+    private const float MinSwipeDistance = 50f;
+    private const float SwipeSensitivity = 0.1f;
+    private const float ReturnToCenterSpeed = 5f;
+    private const float SwipeDirectionThreshold = 0.5f;
+    private const float SwipeCooldown = 0f;
 
     void Awake()
     {
@@ -93,7 +91,6 @@ public class PlayerControls : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation
                        | RigidbodyConstraints.FreezePositionZ;
 
-        // Calculate jump parameters based on desired height and time
         RecalculateJumpPhysics();
     }
 
@@ -103,10 +100,9 @@ public class PlayerControls : MonoBehaviour
             InitializeLanes();
     }
 
-    // Call this if you change jumpHeight or jumpTimeToPeak at runtime
     public void RecalculateJumpPhysics()
     {
-        if (jumpTimeToPeak <= 0f) jumpTimeToPeak = 0.1f; // avoid division by zero
+        if (jumpTimeToPeak <= 0f) jumpTimeToPeak = 0.1f;
         gravity = 2f * jumpHeight / (jumpTimeToPeak * jumpTimeToPeak);
         jumpForce = gravity * jumpTimeToPeak;
     }
@@ -123,12 +119,11 @@ public class PlayerControls : MonoBehaviour
         {
             for (int i = 0; i < laneCount; i++)
             {
-                // Map i from 0 to laneCount-1 to -maxLaneDistance to +maxLaneDistance
                 float t = i / (float)(laneCount - 1);
                 lanePositions[i] = Mathf.Lerp(-maxLaneDistance, maxLaneDistance, t);
             }
         }
-        // Find nearest lane to current position
+
         float currentX = transform.position.x;
         int nearest = 0;
         float minDist = Mathf.Abs(currentX - lanePositions[0]);
@@ -153,17 +148,14 @@ public class PlayerControls : MonoBehaviour
         HandleKeyboardInput();
         HandleTouchInput();
         MoveHorizontally();
-        ApplyRotation();          // Now handles both yaw and tilt
+        ApplyRotation();
         UpdateAnimations();
 
-        // --- NEW: Update suspension timer ---
         if (isSuspended)
         {
             suspensionTimer -= Time.deltaTime;
-            if (suspensionTimer <= 0f || isGrounded) // End when timer runs out or we land
-            {
+            if (suspensionTimer <= 0f || isGrounded)
                 isSuspended = false;
-            }
         }
     }
 
@@ -180,7 +172,6 @@ public class PlayerControls : MonoBehaviour
 
         if (useLaneSnapping)
         {
-            // Discrete lane changes
             if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
                 ChangeLane(-1);
             if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
@@ -188,7 +179,6 @@ public class PlayerControls : MonoBehaviour
         }
         else
         {
-            // Continuous movement
             float h = 0f;
             float tilt = 0f;
 
@@ -207,11 +197,9 @@ public class PlayerControls : MonoBehaviour
             targetTilt = tilt;
         }
 
-        // Jump (same for both modes)
         if (enableJump && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)))
             Jump();
 
-        // Fast descent (same for both modes)
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             TryFastDescent();
     }
@@ -220,14 +208,12 @@ public class PlayerControls : MonoBehaviour
     {
         if (isMovementStopped) return;
 
-        // Check all touches
         for (int i = 0; i < Input.touchCount; i++)
         {
             Touch touch = Input.GetTouch(i);
 
             if (touch.phase == TouchPhase.Began)
             {
-                // Start tracking this touch
                 activeTouchId = touch.fingerId;
                 touchStartPos = touch.position;
                 lastTouchPos = touch.position;
@@ -237,32 +223,27 @@ public class PlayerControls : MonoBehaviour
             }
             else if (touch.fingerId == activeTouchId)
             {
-                // This is our active touch
                 if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
                 {
-                    // Update total swipe delta
                     swipeTotalDelta = touch.position - touchStartPos;
                     float absTotalX = Mathf.Abs(swipeTotalDelta.x);
                     float absTotalY = Mathf.Abs(swipeTotalDelta.y);
 
-                    // Lock gesture direction if not already locked and we've moved enough
-                    if (!gestureLocked && (absTotalX > minSwipeDistance * 0.5f || absTotalY > minSwipeDistance * 0.5f))
+                    if (!gestureLocked && (absTotalX > MinSwipeDistance * 0.5f || absTotalY > MinSwipeDistance * 0.5f))
                     {
-                        // Determine if this is primarily horizontal or vertical
-                        isHorizontalSwipe = absTotalX > absTotalY * swipeDirectionThreshold;
+                        isHorizontalSwipe = absTotalX > absTotalY * SwipeDirectionThreshold;
                         gestureLocked = true;
 
-                        // If vertical, check if it's a quick gesture for jump/descent
                         if (!isHorizontalSwipe)
                         {
-                            if (absTotalY > minSwipeDistance)
+                            if (absTotalY > MinSwipeDistance)
                             {
-                                if (swipeTotalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > swipeCooldown)
+                                if (swipeTotalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > SwipeCooldown)
                                 {
                                     Jump();
                                     lastSwipeTime = Time.time;
                                 }
-                                else if (swipeTotalDelta.y < 0 && Time.time - lastSwipeTime > swipeCooldown)
+                                else if (swipeTotalDelta.y < 0 && Time.time - lastSwipeTime > SwipeCooldown)
                                 {
                                     TryFastDescent();
                                     lastSwipeTime = Time.time;
@@ -271,12 +252,10 @@ public class PlayerControls : MonoBehaviour
                         }
                     }
 
-                    // Handle horizontal movement (continuous mode only)
                     if (!useLaneSnapping && gestureLocked && isHorizontalSwipe)
                     {
-                        // Calculate input based on current position relative to start
                         float currentOffset = touch.position.x - touchStartPos.x;
-                        float targetInput = Mathf.Clamp(currentOffset * swipeSensitivity * 25f, -1f, 1f);
+                        float targetInput = Mathf.Clamp(currentOffset * SwipeSensitivity * 25f, -1f, 1f);
                         horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 100f);
                         targetTilt = -horizontalInput * tiltAngle;
                     }
@@ -285,18 +264,15 @@ public class PlayerControls : MonoBehaviour
                 }
                 else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
                 {
-                    // Touch ended
                     if (useLaneSnapping && gestureLocked && isHorizontalSwipe)
                     {
-                        // Lane change based on total horizontal swipe
-                        if (Mathf.Abs(swipeTotalDelta.x) > minSwipeDistance)
+                        if (Mathf.Abs(swipeTotalDelta.x) > MinSwipeDistance)
                         {
                             int direction = swipeTotalDelta.x > 0 ? 1 : -1;
                             ChangeLane(direction);
                         }
                     }
 
-                    // Reset touch state
                     isSwiping = false;
                     activeTouchId = -1;
                     gestureLocked = false;
@@ -304,10 +280,9 @@ public class PlayerControls : MonoBehaviour
             }
         }
 
-        // If no active touch, gradually return input to zero (continuous mode only)
         if (!useLaneSnapping && !isSwiping && activeTouchId == -1)
         {
-            horizontalInput = Mathf.Lerp(horizontalInput, 0f, Time.deltaTime * returnToCenterSpeed);
+            horizontalInput = Mathf.Lerp(horizontalInput, 0f, Time.deltaTime * ReturnToCenterSpeed);
             targetTilt = -horizontalInput * tiltAngle;
 
             if (Mathf.Abs(horizontalInput) < 0.01f)
@@ -320,10 +295,8 @@ public class PlayerControls : MonoBehaviour
         int newIndex = currentLaneIndex + direction;
         if (newIndex >= 0 && newIndex < laneCount)
         {
-            // If we're already changing lanes, check if this is a new direction
             if (isChangingLane)
             {
-                // If trying to change to a different lane than current target, cancel current and start new
                 if (newIndex != targetLaneIndex)
                 {
                     CancelLaneChange();
@@ -350,29 +323,25 @@ public class PlayerControls : MonoBehaviour
     {
         if (!isChangingLane) return;
 
-        // Check if we've reached the target lane
         if (Mathf.Abs(transform.position.x - targetLaneX) < 0.01f)
         {
             CompleteLaneChange();
             return;
         }
 
-        // Check for timeout
         float timeElapsed = Time.time - laneChangeStartTime;
         if (timeElapsed > laneChangeTimeout)
         {
-            // Calculate how far we've moved toward the target lane
             float startToTarget = Mathf.Abs(targetLaneX - laneChangeStartPosition.x);
             float currentDistanceToTarget = Mathf.Abs(targetLaneX - transform.position.x);
             float distanceMoved = startToTarget - currentDistanceToTarget;
-            
-            // If we haven't made significant progress (less than 20% of the way), cancel the lane change
+
             if (startToTarget > 0.01f && distanceMoved < startToTarget * 0.2f)
             {
                 Debug.Log("Lane change cancelled - blocked by obstacle");
                 CancelLaneChange();
             }
-            else if (timeElapsed > laneChangeTimeout * 2f) // Force cancel if taking too long
+            else if (timeElapsed > laneChangeTimeout * 2f)
             {
                 Debug.Log("Lane change cancelled - timeout");
                 CancelLaneChange();
@@ -384,7 +353,6 @@ public class PlayerControls : MonoBehaviour
     {
         if (isChangingLane)
         {
-            // Revert to current lane
             targetLaneIndex = currentLaneIndex;
             targetLaneX = lanePositions[currentLaneIndex];
             isChangingLane = false;
@@ -407,7 +375,6 @@ public class PlayerControls : MonoBehaviour
         isFastDescending = true;
         rb.AddForce(Vector3.down * fastDescentForce, ForceMode.VelocityChange);
 
-        // --- NEW: Fast descent cancels suspension ---
         if (isSuspended)
             isSuspended = false;
     }
@@ -424,8 +391,7 @@ public class PlayerControls : MonoBehaviour
         if (isGrounded)
         {
             isFastDescending = false;
-            isAtApex = false; // Reset apex when grounded
-            // --- NEW: Grounding cancels suspension ---
+            isAtApex = false;
             if (isSuspended)
                 isSuspended = false;
         }
@@ -437,21 +403,16 @@ public class PlayerControls : MonoBehaviour
 
         if (useLaneSnapping)
         {
-            // Store previous position to check if we're actually moving
             Vector3 previousPosition = transform.position;
-            
-            // Move towards target lane
+
             Vector3 pos = transform.position;
             pos.x = Mathf.MoveTowards(pos.x, targetLaneX, laneSwitchSpeed * Time.deltaTime);
             transform.position = pos;
 
-            // Check if we're actually moving horizontally
             bool isMovingHorizontally = Mathf.Abs(transform.position.x - previousPosition.x) > 0.001f;
 
-            // Update yaw based on lane change direction
             if (isChangingLane && isMovingHorizontally)
             {
-                // Point towards the target lane
                 float direction = Mathf.Sign(targetLaneX - transform.position.x);
                 targetYaw = direction * maxYawAngle;
             }
@@ -460,42 +421,23 @@ public class PlayerControls : MonoBehaviour
                 targetYaw = 0f;
             }
 
-            // Update tilt based on movement direction
             float diff = targetLaneX - pos.x;
             if (Mathf.Abs(diff) > 0.001f && isMovingHorizontally)
-            {
-                // Moving left (diff < 0) -> tilt right (positive angle)
                 targetTilt = (diff < 0) ? tiltAngle : -tiltAngle;
-            }
             else
-            {
                 targetTilt = 0f;
-            }
 
-            // Check lane change progress (for timeout/blocking)
             if (isChangingLane)
-            {
-                if (!isMovingHorizontally && Mathf.Abs(transform.position.x - targetLaneX) > 0.1f)
-                {
-                    CheckLaneChangeProgress();
-                }
-                else
-                {
-                    CheckLaneChangeProgress();
-                }
-            }
+                CheckLaneChangeProgress();
         }
         else
         {
-            // Continuous mode: move horizontally
             Vector3 pos = transform.position;
             pos.x += horizontalInput * moveSpeed * Time.deltaTime;
             pos.x = Mathf.Clamp(pos.x, -maxLaneDistance, maxLaneDistance);
             transform.position = pos;
 
-            // Set yaw based on horizontal input
             targetYaw = horizontalInput * maxYawAngle;
-            // Tilt is already set in input handling
         }
     }
 
@@ -503,52 +445,36 @@ public class PlayerControls : MonoBehaviour
     {
         if (!isGrounded)
         {
-            // Check if we're at the apex of a jump
             if (enableApexGravityReduction)
             {
-                // Apex is when vertical velocity is near zero and we're not fast descending
-                if (Mathf.Abs(rb.velocity.y) < apexThreshold && !isFastDescending && !isSuspended) // Suspended overrides apex
+                if (Mathf.Abs(rb.velocity.y) < apexThreshold && !isFastDescending && !isSuspended)
                 {
-                    if (!isAtApex)
-                    {
-                        isAtApex = true;   // Enter apex state
-                    }
+                    if (!isAtApex) isAtApex = true;
                 }
                 else
                 {
-                    isAtApex = false;      // Exit apex state
+                    isAtApex = false;
                 }
             }
 
-            // Determine gravity multiplier (order: fast descent > suspension > apex > normal)
             float gravityMultiplier = 1f;
             if (isFastDescending)
                 gravityMultiplier = fastDescentGravityMultiplier;
             else if (isSuspended)
-                gravityMultiplier = suspensionGravityMultiplier;   // Very low gravity
+                gravityMultiplier = suspensionGravityMultiplier;
             else if (isAtApex)
                 gravityMultiplier = apexGravityMultiplier;
 
-            float g = gravity * gravityMultiplier;
-
-            rb.AddForce(Vector3.down * g, ForceMode.Acceleration);
+            rb.AddForce(Vector3.down * gravity * gravityMultiplier, ForceMode.Acceleration);
         }
     }
 
     void ApplyRotation()
     {
-        // Determine the forward direction based on target yaw
-        // We assume forward is along world Z, and yaw rotates around world Y
         Vector3 forwardDir = Quaternion.Euler(0f, targetYaw, 0f) * Vector3.forward;
+        if (forwardDir == Vector3.zero) forwardDir = Vector3.forward;
 
-        // If forwardDir is zero (shouldn't happen), default to world forward
-        if (forwardDir == Vector3.zero)
-            forwardDir = Vector3.forward;
-
-        // Build the target rotation: first face forwardDir, then apply local tilt
         Quaternion targetRotation = Quaternion.LookRotation(forwardDir) * Quaternion.Euler(0f, 0f, targetTilt);
-
-        // Smoothly rotate towards the target
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
 
@@ -556,10 +482,9 @@ public class PlayerControls : MonoBehaviour
     {
         if (!isGrounded || !enableJump) return;
 
-        isAtApex = false; // Reset apex state for new jump
+        isAtApex = false;
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
 
-        // --- NEW: Activate suspension on jump ---
         if (enableJumpSuspension)
         {
             isSuspended = true;
@@ -576,26 +501,21 @@ public class PlayerControls : MonoBehaviour
         if (!anim) return;
 
         if (useLaneSnapping)
-        {
             anim.SetBool("isRunning", forwardSpeed > 0);
-        }
         else
-        {
             anim.SetBool("isRunning", Mathf.Abs(horizontalInput) > 0.1f);
-        }
 
         anim.SetBool("isJumping", !isGrounded);
         anim.SetBool("isFastDescending", isFastDescending);
         anim.SetBool("isIdle", isGrounded && Mathf.Abs(horizontalInput) < 0.1f);
         anim.SetBool("isChangingLane", isChangingLane);
-        anim.SetBool("isAtApex", isAtApex); // Optional: add to animator for special apex animations
-        // --- NEW: Suspension animation parameter ---
+        anim.SetBool("isAtApex", isAtApex);
         anim.SetBool("isSuspended", isSuspended);
     }
 
     #endregion
 
-    #region Public Methods (for external control)
+    #region Public Methods
 
     public void SetForwardSpeed(float speed) => forwardSpeed = speed;
     public float GetForwardSpeed() => forwardSpeed;
@@ -615,7 +535,6 @@ public class PlayerControls : MonoBehaviour
     public void EnableJump(bool enable) => enableJump = enable;
     public bool IsJumpEnabled() => enableJump;
 
-    // For animator
     public float HorizontalInput => horizontalInput;
     public bool IsGrounded => isGrounded;
     public bool IsFastDescending => isFastDescending;
@@ -623,7 +542,6 @@ public class PlayerControls : MonoBehaviour
     public int CurrentLane => currentLaneIndex;
     public int TargetLane => targetLaneIndex;
     public bool IsAtApex => isAtApex;
-    // --- NEW: Public getter for suspension ---
     public bool IsSuspended => isSuspended;
 
     #endregion
