@@ -921,10 +921,11 @@ public class QuestionRandomizer : MonoBehaviour
             {
                 string scene = SceneManager.GetActiveScene().name;
                 int coinReward;
-                if (scene == "GAMEMODE 2") coinReward = 200;
-                else if (scene == "GAMEMODE 1") coinReward = 100;
+                if (scene == "GAMEMODE 2") coinReward = 75;
+                else if (scene == "GAMEMODE 1") coinReward = 50;
                 else coinReward = 25;
                 playerFunctions.AddCoins(coinReward);
+                playerFunctions.IncrementWordCount();
             }
 
             // Notify systems — do NOT hide letterHurdleClueImage here.

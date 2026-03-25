@@ -68,11 +68,8 @@ public class PlayerControls : MonoBehaviour
     // Touch tracking
     private int activeTouchId = -1;
     private Vector2 touchStartPos;
-    private Vector2 lastTouchPos;
     private Vector2 swipeTotalDelta;
     private bool isSwiping = false;
-    private bool gestureLocked = false;
-    private bool isHorizontalSwipe = false;
     private float lastSwipeTime;
 
     // Hardcoded swipe constants
@@ -216,28 +213,45 @@ public class PlayerControls : MonoBehaviour
             {
                 activeTouchId = touch.fingerId;
                 touchStartPos = touch.position;
-                lastTouchPos = touch.position;
                 swipeTotalDelta = Vector2.zero;
                 isSwiping = true;
-                gestureLocked = false;
             }
             else if (touch.fingerId == activeTouchId)
             {
+                swipeTotalDelta = touch.position - touchStartPos;
+
                 if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
                 {
-                    swipeTotalDelta = touch.position - touchStartPos;
-                    float absTotalX = Mathf.Abs(swipeTotalDelta.x);
-                    float absTotalY = Mathf.Abs(swipeTotalDelta.y);
-
-                    if (!gestureLocked && (absTotalX > MinSwipeDistance * 0.5f || absTotalY > MinSwipeDistance * 0.5f))
+                    if (!useLaneSnapping)
                     {
-                        isHorizontalSwipe = absTotalX > absTotalY * SwipeDirectionThreshold;
-                        gestureLocked = true;
+                        // Continuous horizontal movement based on X offset
+                        float targetInput = Mathf.Clamp(swipeTotalDelta.x * SwipeSensitivity * 25f, -1f, 1f);
+                        horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 100f);
+                        targetTilt = -horizontalInput * tiltAngle;
+                    }
+                    // In lane snapping mode, we do nothing during the swipe – we'll decide at the end
+                }
+                else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    // End of touch: evaluate the swipe
+                    float absX = Mathf.Abs(swipeTotalDelta.x);
+                    float absY = Mathf.Abs(swipeTotalDelta.y);
+                    float totalMagnitude = swipeTotalDelta.magnitude;
 
-                        if (!isHorizontalSwipe)
+                    if (totalMagnitude > MinSwipeDistance)
+                    {
+                        if (useLaneSnapping)
                         {
-                            if (absTotalY > MinSwipeDistance)
+                            // Lane snapping: decide between horizontal lane change or vertical action
+                            if (absX > absY * SwipeDirectionThreshold)
                             {
+                                // Horizontal swipe
+                                int direction = swipeTotalDelta.x > 0 ? 1 : -1;
+                                ChangeLane(direction);
+                            }
+                            else if (absY > absX * SwipeDirectionThreshold)
+                            {
+                                // Vertical swipe
                                 if (swipeTotalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > SwipeCooldown)
                                 {
                                     Jump();
@@ -250,36 +264,34 @@ public class PlayerControls : MonoBehaviour
                                 }
                             }
                         }
-                    }
-
-                    if (!useLaneSnapping && gestureLocked && isHorizontalSwipe)
-                    {
-                        float currentOffset = touch.position.x - touchStartPos.x;
-                        float targetInput = Mathf.Clamp(currentOffset * SwipeSensitivity * 25f, -1f, 1f);
-                        horizontalInput = Mathf.Lerp(horizontalInput, targetInput, Time.deltaTime * 100f);
-                        targetTilt = -horizontalInput * tiltAngle;
-                    }
-
-                    lastTouchPos = touch.position;
-                }
-                else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-                {
-                    if (useLaneSnapping && gestureLocked && isHorizontalSwipe)
-                    {
-                        if (Mathf.Abs(swipeTotalDelta.x) > MinSwipeDistance)
+                        else
                         {
-                            int direction = swipeTotalDelta.x > 0 ? 1 : -1;
-                            ChangeLane(direction);
+                            // Free movement: vertical swipe is only considered if vertical movement dominates
+                            if (absY > absX * SwipeDirectionThreshold)
+                            {
+                                if (swipeTotalDelta.y > 0 && enableJump && Time.time - lastSwipeTime > SwipeCooldown)
+                                {
+                                    Jump();
+                                    lastSwipeTime = Time.time;
+                                }
+                                else if (swipeTotalDelta.y < 0 && Time.time - lastSwipeTime > SwipeCooldown)
+                                {
+                                    TryFastDescent();
+                                    lastSwipeTime = Time.time;
+                                }
+                            }
+                            // If horizontal dominated, we've already updated horizontalInput during the swipe, so nothing else to do
                         }
                     }
 
+                    // Reset touch state
                     isSwiping = false;
                     activeTouchId = -1;
-                    gestureLocked = false;
                 }
             }
         }
 
+        // For free movement: when no touch, gradually return horizontal input to zero
         if (!useLaneSnapping && !isSwiping && activeTouchId == -1)
         {
             horizontalInput = Mathf.Lerp(horizontalInput, 0f, Time.deltaTime * ReturnToCenterSpeed);

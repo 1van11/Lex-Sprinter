@@ -486,6 +486,13 @@ public class PlayerFunctions : MonoBehaviour
     }
     #endregion
 
+public void IncrementWordCount()
+{
+    wordsCollected++;
+    UpdateWordCountUI();
+    Debug.Log($"📝 Word collected! Total: {wordsCollected}");
+}
+
     void UpdateWordCountUI()
     {
         if (wordCountText != null)
